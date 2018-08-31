@@ -1,0 +1,492 @@
+﻿| package |
+package := Package name: 'SSW ReStore Base Additions'.
+package paxVersion: 1;
+	basicComment: 'ReStore for Dolphin Smalltalk 
+Version 2.00
+©2003-2018 John Aspinall
+
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #SSWDBClassWithInfo;
+	add: #SSWDBDeletedObject;
+	add: #SSWDBFixedStringWithInfo;
+	add: #SSWDBLookupArray;
+	add: #SSWDBOrderingSpec;
+	add: #SSWDBProxyIdentitySet;
+	add: #SSWDBScaledDecimalWithInfo;
+	add: #SSWDBStringWithInfo;
+	add: #SSWDBVariableStringWithInfo;
+	add: #SSWDBWrapper;
+	add: #UnquotedString;
+	yourself.
+
+package methodNames
+	add: #BlockFrame -> #_method:;
+	add: #Class -> #odbcObject;
+	add: #DBRow -> #atField:;
+	add: #DBRow -> #atField:ifAbsent:;
+	add: #False -> #asInteger;
+	add: #False -> #qAnd:;
+	add: #False -> #qOr:;
+	add: #Object -> #_instVarAt:;
+	add: #Object -> #_instVarAt:put:;
+	add: #Object -> #_isKindOf:;
+	add: #Object -> #chainPerform:;
+	add: #Object -> #includedIn:;
+	add: #Object -> #stored;
+	add: #ProtoObject -> #_isKindOf:;
+	add: #StackFrame -> #_method:;
+	add: #StackFrame -> #sswByteCodeDispatcher;
+	add: #String -> #asUnquotedString;
+	add: #String -> #orNilIfEmpty;
+	add: #Symbol -> #sswInUnderscoreFormat;
+	add: #Time -> #withoutMilliseconds;
+	add: #TimeStamp -> #withoutMilliseconds;
+	add: #True -> #asInteger;
+	add: #True -> #qAnd:;
+	add: #True -> #qOr:;
+	add: #UndefinedObject -> #orNilIfEmpty;
+	add: 'Boolean class' -> #isPersistentBaseClass;
+	add: 'Magnitude class' -> #isPersistentBaseClass;
+	add: 'Metaclass class' -> #isPersistentBaseClass;
+	add: 'Object class' -> #isPersistentBaseClass;
+	add: 'ScaledDecimal class' -> #withPrecision:scale:;
+	add: 'ScaledDecimal class' -> #withScale:;
+	add: 'String class' -> #dbMaxFieldSize;
+	add: 'String class' -> #fixedSize:;
+	add: 'String class' -> #isPersistentBaseClass;
+	add: 'String class' -> #maxSize:;
+	add: 'UndefinedObject class' -> #isPersistentBaseClass;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\Core\Object Arts\Dolphin\Database\Database Connection Base';
+	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #SSWDBClassWithInfo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBOrderingSpec
+	instanceVariableNames: 'criteria isAscending'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBWrapper
+	instanceVariableNames: 'object'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Array variableSubclass: #SSWDBLookupArray
+	instanceVariableNames: 'indexTable'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+String variableByteSubclass: #UnquotedString
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+IdentitySet variableSubclass: #SSWDBProxyIdentitySet
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DeafObject subclass: #SSWDBDeletedObject
+	instanceVariableNames: 'deletedObjectClass id'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBClassWithInfo subclass: #SSWDBScaledDecimalWithInfo
+	instanceVariableNames: 'scale precision'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBClassWithInfo subclass: #SSWDBStringWithInfo
+	instanceVariableNames: 'fieldSize'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBStringWithInfo subclass: #SSWDBFixedStringWithInfo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBStringWithInfo subclass: #SSWDBVariableStringWithInfo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!BlockFrame methodsFor!
+
+_method: aCompiledMethod 
+
+	super method: aCompiledMethod! !
+!BlockFrame categoriesFor: #_method:!accessing!private! !
+
+!Boolean class methodsFor!
+
+isPersistentBaseClass
+
+	"30/9/2001"
+
+	^true! !
+!Boolean class categoriesFor: #isPersistentBaseClass!public!testing! !
+
+!Class methodsFor!
+
+odbcObject
+
+	"12/5/2001"
+
+	^self name asString! !
+!Class categoriesFor: #odbcObject!accessing!public! !
+
+!DBRow methodsFor!
+
+atField: aField
+
+	"28/9/2000"
+
+	^self atField: aField ifAbsent: [nil]
+!
+
+atField: aField ifAbsent: aBlock
+
+	"28/9/2000"
+
+	^self contents where: aField ifAbsent: 
+		["Attempt a match by name"
+		self at: aField name ifAbsent: [aBlock value]]! !
+!DBRow categoriesFor: #atField:!accessing!public! !
+!DBRow categoriesFor: #atField:ifAbsent:!accessing!public! !
+
+!False methodsFor!
+
+asInteger
+
+	"9/4/2001
+
+	For DB support"
+
+	^0!
+
+qAnd: aBlock
+
+	"Deprecated - can now use regular and: aBlock"
+	#deprecated.
+	^self!
+
+qOr: aBlock
+
+	"Deprecated - can now use regular or: aBlock"
+	#deprecated.
+	^aBlock value! !
+!False categoriesFor: #asInteger!converting!public! !
+!False categoriesFor: #qAnd:!evaluating!public! !
+!False categoriesFor: #qOr:!evaluating!public! !
+
+!Magnitude class methodsFor!
+
+isPersistentBaseClass
+
+	"30/9/2001
+
+	NB not all subclasses are valid, but this is not important"
+
+	^true! !
+!Magnitude class categoriesFor: #isPersistentBaseClass!public!testing! !
+
+!Metaclass class methodsFor!
+
+isPersistentBaseClass
+
+	"30/9/2001"
+
+	^true! !
+!Metaclass class categoriesFor: #isPersistentBaseClass!public!testing! !
+
+!Object methodsFor!
+
+_instVarAt: anInteger
+
+	"Private - 21/1/2001
+	
+	Make the receiver polymorphic with proxies"
+	
+	^self instVarAt: anInteger!
+
+_instVarAt: anInteger put: anObject
+
+	"Private - 21/1/2001
+	
+	Make the receiver polymorphic with proxies"
+	
+	^self instVarAt: anInteger put: anObject!
+
+_isKindOf: aClass
+
+	"Like isKindOf: aClass, but is not passed through by proxies - for reflective methods"
+
+	<primitive: 57>!
+
+chainPerform: aCollection
+
+	"perform: each member (Symbol) of aCollection against the receiver as a chain
+	i.e. the second Symbol is perform:'d against the result of perform:ing the first, etc."
+
+	^aCollection inject: self into: [ :receiver :symbol | receiver perform: symbol]
+!
+
+includedIn: aCollection
+
+	"Reciprocal of Collection>>includes: "
+
+	^aCollection includes: self!
+
+stored
+
+	"Used to - return the receiver in a StoreWrapper.
+	This is no longer necessary - from ReStore 2.00 you can just commit an object to make it persistent"
+#deprecated.
+	^self! !
+!Object categoriesFor: #_instVarAt:!accessing!private! !
+!Object categoriesFor: #_instVarAt:put:!accessing!private! !
+!Object categoriesFor: #_isKindOf:!message sending!private! !
+!Object categoriesFor: #chainPerform:!actions!public! !
+!Object categoriesFor: #includedIn:!public!testing! !
+!Object categoriesFor: #stored!actions!public! !
+
+!Object class methodsFor!
+
+isPersistentBaseClass
+
+	"30/9/2001
+	
+	Return whether the receiver class is a valid persistent base class
+	 - a class which can be represented in the DB by a single field type, rather than a table.
+
+	false by default, subclasses which are so valid may override"
+
+	^false! !
+!Object class categoriesFor: #isPersistentBaseClass!persistency!public! !
+
+!ProtoObject methodsFor!
+
+_isKindOf: aClass
+
+	"Like isKindOf: aClass, but is not passed through by proxies - for reflective methods"
+
+	<primitive: 57>! !
+!ProtoObject categoriesFor: #_isKindOf:!message sending!private! !
+
+!ScaledDecimal class methodsFor!
+
+withPrecision: precisionInteger scale: scaleInteger 
+
+	"15/5/2001
+
+	Return an instance of an SSWDBScaledDecimalWithInfo which can represent this"
+
+	^(self withScale: scaleInteger)
+		precision: precisionInteger;
+		yourself!
+
+withScale: scaleInteger
+
+	"15/5/2001
+
+	Return an instance of an SSWDBScaledDecimalWithInfo which can represent this"
+
+	^SSWDBScaledDecimalWithInfo new
+		scale: scaleInteger;
+		yourself! !
+!ScaledDecimal class categoriesFor: #withPrecision:scale:!public!specification! !
+!ScaledDecimal class categoriesFor: #withScale:!public!specification! !
+
+!StackFrame methodsFor!
+
+_method: aCompiledMethod 
+
+	self method: aCompiledMethod!
+
+sswByteCodeDispatcher
+
+	"Return a ByteCodeDispatcher on the receiver's method, initialized at the same IP as the receiver.
+	Named to match the copied non-dev implementation in CompiledCode"
+
+	^self method sswByteCodeDispatcher
+		ip: self ip;
+		yourself! !
+!StackFrame categoriesFor: #_method:!accessing!private! !
+!StackFrame categoriesFor: #sswByteCodeDispatcher!accessing!private! !
+
+!String methodsFor!
+
+asUnquotedString
+
+	"12/9/2001"
+
+	| unquoted |
+
+	unquoted := UnquotedString new: self size.
+
+	self
+		replaceBytesOf: unquoted
+		from: 1 to: self size startingAt: 1.
+
+	^unquoted!
+
+orNilIfEmpty
+
+	"30/9/2001"
+
+	^self isEmpty
+		ifTrue: [nil]
+		ifFalse: [self]! !
+!String categoriesFor: #asUnquotedString!converting!public! !
+!String categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !
+
+!String class methodsFor!
+
+dbMaxFieldSize
+
+	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
+
+	^nil!
+
+fixedSize: anInteger
+
+	"15/4/2001
+
+	For DB support: specifies a fixed-sized String of anInteger characters"
+
+	^SSWDBFixedStringWithInfo new
+		fieldSize: anInteger;
+		yourself!
+
+isPersistentBaseClass
+
+	"30/9/2001"
+
+	^true!
+
+maxSize: anInteger
+
+	"15/4/2001
+
+	For DB support: specifies a variable-sized String with a maximum size of anInteger"
+
+	^SSWDBVariableStringWithInfo new
+		fieldSize: anInteger;
+		yourself! !
+!String class categoriesFor: #dbMaxFieldSize!public!specification! !
+!String class categoriesFor: #fixedSize:!public!specification! !
+!String class categoriesFor: #isPersistentBaseClass!public!testing! !
+!String class categoriesFor: #maxSize:!public!specification! !
+
+!Symbol methodsFor!
+
+sswInUnderscoreFormat
+
+	"Return a String which is the receiver in 'underscore format' (e.g. for SQL).
+	e.g. the underscore form of the symbol #dateOfBirth would be 'DATE_OF_BIRTH'		"
+	
+	| readStream writeStream wasLowercase |
+	
+	readStream := ReadStream on: self.
+	writeStream := WriteStream on: String new.
+	wasLowercase := false.
+
+	[readStream atEnd] whileFalse: 
+		[| char |
+		char := readStream next.
+		(char isUppercase and: [wasLowercase])
+			ifTrue: [writeStream nextPut: $_; nextPut: char]
+			ifFalse: [writeStream nextPut: char asUppercase].
+		wasLowercase := char isLowercase].
+			
+	^writeStream contents! !
+!Symbol categoriesFor: #sswInUnderscoreFormat!evaluating!public! !
+
+!Time methodsFor!
+
+withoutMilliseconds
+
+	"Standard ODBC Time format excludes milliseconds, hence it is useful/necessary to drop milliseconds for comparison purposes"
+
+	^Time fromSeconds: self asSeconds! !
+!Time categoriesFor: #withoutMilliseconds!accessing!public! !
+
+!TimeStamp methodsFor!
+
+withoutMilliseconds
+
+	"ODBC Timestamps may or may not include milliseconds (or may have a ms resolution > 1), hence it is useful/necessary to drop milliseconds for comparison purposes"
+
+	^TimeStamp fromSeconds: self asSeconds! !
+!TimeStamp categoriesFor: #withoutMilliseconds!accessing!public! !
+
+!True methodsFor!
+
+asInteger
+
+	"9/4/2001
+
+	For DB support"
+
+	^1!
+
+qAnd: aBlock
+
+	"Deprecated - can now use regular and: aBlock"
+	#deprecated.
+	^aBlock value!
+
+qOr: aBlock
+
+	"Deprecated - can now use regular or: aBlock"
+	#deprecated.
+	^self! !
+!True categoriesFor: #asInteger!converting!public! !
+!True categoriesFor: #qAnd:!evaluating!public! !
+!True categoriesFor: #qOr:!evaluating!public! !
+
+!UndefinedObject methodsFor!
+
+orNilIfEmpty
+
+	"30/9/2001"
+
+	^nil! !
+!UndefinedObject categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !
+
+!UndefinedObject class methodsFor!
+
+isPersistentBaseClass
+
+	^true! !
+!UndefinedObject class categoriesFor: #isPersistentBaseClass!public!testing! !
+
+"End of package definition"!
+

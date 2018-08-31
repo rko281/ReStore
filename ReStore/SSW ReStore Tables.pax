@@ -1,0 +1,496 @@
+﻿| package |
+package := Package name: 'SSW ReStore Tables'.
+package paxVersion: 1;
+	basicComment: 'ReStore for Dolphin Smalltalk 
+Version 2.00
+©2003-2018 John Aspinall
+
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #SSWAccessor;
+	add: #SSWDBAbstractSubTable;
+	add: #SSWDBClassAccessor;
+	add: #SSWDBClassDefinition;
+	add: #SSWDBDependentWrapper;
+	add: #SSWDBField;
+	add: #SSWDBFunctionField;
+	add: #SSWDBIDAccessor;
+	add: #SSWDBInheritedTable;
+	add: #SSWDBIntermediateTable;
+	add: #SSWDBPrivateAccessor;
+	add: #SSWDBQueryField;
+	add: #SSWDBQueryTable;
+	add: #SSWDBQueryTableField;
+	add: #SSWDBRelatedWrapper;
+	add: #SSWDBStaticField;
+	add: #SSWDBSubTable;
+	add: #SSWDBSuperTable;
+	add: #SSWDBTable;
+	add: #SSWDBTableComponent;
+	add: #SSWDBUnrelatedWrapper;
+	add: #SSWDBVersionAccessor;
+	add: #SSWInstVarAccessor;
+	add: #SSWTransformingInstVarAccessor;
+	yourself.
+
+package methodNames
+	add: #Class -> #defineAs:in:;
+	add: #Object -> #dependent;
+	add: #Object -> #related;
+	add: #Object -> #unrelated;
+	add: #SSWDBClassWithInfo -> #defineAs:in:;
+	add: #SSWSQLCondition -> #copyForQueryTable:;
+	add: #SSWSQLConditionCollection -> #copyForQueryTable:;
+	add: #SSWSQLDialect -> #instVarAccessorFor:;
+	add: #SSWSQLJoinedTableCollection -> #add:joinedWithField:;
+	add: #SSWSQLJoinedTableCollection -> #addAliasingDuplicates:joinedWithField:;
+	add: #SSWSQLJoinedTableCollection -> #lastJoinField;
+	add: #SSWSQLTableCollection -> #occurrencesOfIncludingRepetitions:;
+	add: 'Object class' -> #addClassDefinitionTo:;
+	add: 'Object class' -> #hasPersistentSuperclass;
+	add: 'Object class' -> #isPersistencyInherited;
+	add: 'Object class' -> #persistencyRootClass;
+	add: 'Object class' -> #reStoreDefinition;
+	add: 'Object class' -> #reStoreTableClass;
+	add: 'Object class' -> #shouldInheritPersistency;
+	add: 'Object class' -> #shouldSubclassesInheritPersistency;
+	add: 'Object class' -> #subclassesInheritingPersistency;
+	add: 'Object class' -> #tableIn:;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: 'SSW ReStore Base Additions';
+	add: 'SSW ReStore SQL Entities';
+	add: 'SSW ReStore SQL Queries';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #SSWAccessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBClassDefinition
+	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar idCacheSize'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBQueryField
+	instanceVariableNames: 'field'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBQueryTable
+	instanceVariableNames: 'table repetitionIndex'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWAccessor subclass: #SSWDBPrivateAccessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWAccessor subclass: #SSWInstVarAccessor
+	instanceVariableNames: 'ownerClass slot name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBPrivateAccessor subclass: #SSWDBClassAccessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBPrivateAccessor subclass: #SSWDBIDAccessor
+	instanceVariableNames: 'instanceAccessor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBPrivateAccessor subclass: #SSWDBVersionAccessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
+	instanceVariableNames: 'transformation'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBQueryField subclass: #SSWDBFunctionField
+	instanceVariableNames: 'function arguments'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBQueryField subclass: #SSWDBQueryTableField
+	instanceVariableNames: 'table accessorPath'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBWrapper subclass: #SSWDBRelatedWrapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBWrapper subclass: #SSWDBUnrelatedWrapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBRelatedWrapper subclass: #SSWDBDependentWrapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLTable subclass: #SSWDBTable
+	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs idCacheSize abbreviations reStore insertStatement readStatement refreshStatement readAllBatchSize'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBTable subclass: #SSWDBInheritedTable
+	instanceVariableNames: 'classField'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBInheritedTable subclass: #SSWDBAbstractSubTable
+	instanceVariableNames: 'rootClass'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBInheritedTable subclass: #SSWDBSuperTable
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBAbstractSubTable subclass: #SSWDBIntermediateTable
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBAbstractSubTable subclass: #SSWDBSubTable
+	instanceVariableNames: 'classCondition'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLTableComponent subclass: #SSWDBTableComponent
+	instanceVariableNames: 'accessor readAllStatement'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBTableComponent subclass: #SSWDBField
+	instanceVariableNames: 'name isDependent isRelated'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBField subclass: #SSWDBStaticField
+	instanceVariableNames: 'targetClass'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!Class methodsFor!
+
+defineAs: aSymbol in: anSSWDBTable
+
+	"19/5/2001
+
+	The receiver has been specified as the kind of object held in inst var named aSymbol
+	for the class whose DB table is anSSWDBTable.
+
+	Add the receiver to anSSWDBTable returning the object created"
+
+	^anSSWDBTable define: aSymbol asInstVarHolding: self! !
+!Class categoriesFor: #defineAs:in:!accessing!public! !
+
+!Object methodsFor!
+
+dependent
+
+	"17/8/2001
+
+	Return a dependent version of the receiver"
+
+	^SSWDBDependentWrapper on: self
+
+!
+
+related
+
+	"Return a related version of the receiver"
+
+	^SSWDBRelatedWrapper on: self
+
+!
+
+unrelated
+
+	"Return an unrelated version of the receiver"
+
+	^SSWDBUnrelatedWrapper on: self! !
+!Object categoriesFor: #dependent!defining!public! !
+!Object categoriesFor: #related!defining!public! !
+!Object categoriesFor: #unrelated!defining!public! !
+
+!Object class methodsFor!
+
+addClassDefinitionTo: anSSWDBClassDefinition
+
+	"Add the receiver's ReStore class definition to anSSWDBClassDefinition.
+	In earlier versions of ReStore classes overrode this method; this is still supported however the new standard is to override reStoreDefinition instead"
+
+	^self!
+
+hasPersistentSuperclass
+
+	"Return whether the receiver has a superclass from which it inherits some elements of persistence"
+
+	self shouldInheritPersistency ifFalse: [^false].
+
+	self allSuperclasses do:
+		[ :sup |
+		sup = Object ifTrue: [^false].
+		sup shouldSubclassesInheritPersistency ifFalse: [^false].
+		sup reStoreDefinition isEmpty ifFalse: [^true]].
+		
+	^false!
+
+isPersistencyInherited
+
+	"18/4/2001
+	
+	Return whether the receiver's persistency is inherited by any subclasses"
+
+	^self subclassesInheritingPersistency isEmpty not!
+
+persistencyRootClass
+
+	"18/4/2001
+	
+	Return the superclass at which the receiver's inherited persistency begins.
+	ASSERT: self hasPersistentSuperclass"
+
+	^self allSuperclasses detect: [ :sup | sup reStoreTableClass == SSWDBSuperTable]!
+
+reStoreDefinition
+
+	"Return anSSWDBClassDefinition setting out the details of how the receiver is to be persisted.
+	Subclasses should override, adding the definition of their persistent inst vars to the result.
+
+	In earlier versions of ReStore classes overrode addClassDefinition: to do this - this is still supported however the new standard is to override this method instead"
+
+	| definition |
+
+	definition := SSWDBClassDefinition forClass: self.
+
+	self addClassDefinitionTo: definition.
+
+	^definition!
+
+reStoreTableClass
+
+	"Created 18/4/2001
+	Modified 26/7/2001	New intermediate table class (issue#0003)
+	
+	Deduce and return the correct class to use for the receiver's ReStore Table"
+
+	^self hasPersistentSuperclass
+	ifTrue: 
+		[self isPersistencyInherited
+			ifTrue: [SSWDBIntermediateTable]
+			ifFalse: [SSWDBSubTable]]
+	ifFalse:
+		[self isPersistencyInherited
+			ifTrue: [SSWDBSuperTable]
+			ifFalse: [SSWDBTable]]!
+
+shouldInheritPersistency
+
+	"18/4/2001
+	
+	Return a Boolean indicating whether the receiver should inherit persistence
+	information defined by its superclasses.
+	
+	By default, this is governed by the superclass implementation of shouldSubclassesInheritPersistence"
+
+	^self superclass ~= nil and: [self superclass shouldSubclassesInheritPersistency]!
+
+shouldSubclassesInheritPersistency
+
+	"18/4/2001
+	
+	Return a Boolean indicating whether the receiver class' persistency 
+	should be inherited by its subclasses.
+	
+	Default - true. Can be overriden if required.
+	NB persistency-inheriting subclasses can implement shouldInheritPersistency
+	to prevent (only) persistency inheritence if this method returns true"
+
+	^true!
+
+subclassesInheritingPersistency
+
+	"18/4/2001
+	
+	Return a collection of those subclasses of the receiver class
+	which are persistent and inherit the receiver's peristency - i.e. share a table"
+
+	| inheritingPersistentSubclasses |
+
+	self shouldSubclassesInheritPersistency ifFalse: [^#()].
+	
+	inheritingPersistentSubclasses := 
+		(self subclasses select: [ :cls | cls isMeta not and: [cls shouldInheritPersistency]]) asOrderedCollection.
+	
+	inheritingPersistentSubclasses copy do: 
+		[ :cls | 
+		inheritingPersistentSubclasses addAll: cls subclassesInheritingPersistency].
+	
+	^inheritingPersistentSubclasses!
+
+tableIn: anSSWReStore
+
+	"Private - Create and return an SSWDB(XXX)Table to represent the receiver.
+	Subclasses should *NOT* override this method;
+	instead implement reStoreDefinition"
+
+	^self reStoreDefinition asTableIn: anSSWReStore! !
+!Object class categoriesFor: #addClassDefinitionTo:!persistency!public! !
+!Object class categoriesFor: #hasPersistentSuperclass!persistency!public! !
+!Object class categoriesFor: #isPersistencyInherited!persistency!public! !
+!Object class categoriesFor: #persistencyRootClass!persistency!public! !
+!Object class categoriesFor: #reStoreDefinition!persistency!public! !
+!Object class categoriesFor: #reStoreTableClass!persistency!public! !
+!Object class categoriesFor: #shouldInheritPersistency!persistency!public! !
+!Object class categoriesFor: #shouldSubclassesInheritPersistency!persistency!public! !
+!Object class categoriesFor: #subclassesInheritingPersistency!persistency!public! !
+!Object class categoriesFor: #tableIn:!persistency!public! !
+
+!SSWDBClassWithInfo methodsFor!
+
+defineAs: aSymbol in: anSSWDBTable
+
+	"19/5/2001
+
+	The receiver has been specified as the kind of object held in inst var named aSymbol
+	for the class whose DB table is anSSWDBTable.
+
+	Add the receiver to anSSWDBTable returning the object created
+	(the receiver is polymorphic with classes)"
+
+	^anSSWDBTable define: aSymbol asInstVarHolding: self! !
+!SSWDBClassWithInfo categoriesFor: #defineAs:in:!defining!public! !
+
+!SSWSQLCondition methodsFor!
+
+copyForQueryTable: aQueryTable
+
+	"Created for issue 120-015
+
+	Return a copy of the receiver with the field changed to QueryTableFields assigned to aQueryTable"
+
+	^self copy
+		field: (SSWDBQueryTableField forField: self field in: aQueryTable);
+		yourself
+	! !
+!SSWSQLCondition categoriesFor: #copyForQueryTable:!evaluating!public! !
+
+!SSWSQLConditionCollection methodsFor!
+
+copyForQueryTable: aQueryTable
+
+	"Created for issue 120-015
+
+	Return a copy of the receiver with all fields changed to QueryTableFields assigned to aQueryTable"
+
+	^self collect: [ :each | each copyForQueryTable: aQueryTable]
+
+	! !
+!SSWSQLConditionCollection categoriesFor: #copyForQueryTable:!copying!public! !
+
+!SSWSQLDialect methodsFor!
+
+instVarAccessorFor: aClass
+
+	"30/9/2001
+
+	Create and return an inst var accessor (instance of SSWInstVarAccessor or subclass)
+	appropriate for accessing an inst var holding an instance of the the given class"
+
+	"Special cases"
+	((aClass includesBehavior: String) and: [self shouldMapEmptyStringsToNil]) ifTrue: 
+		[^SSWTransformingInstVarAccessor newWithTransformation: ##(Message selector: #orNilIfEmpty)].
+
+	"Default"
+	^SSWInstVarAccessor new! !
+!SSWSQLDialect categoriesFor: #instVarAccessorFor:!helpers!public! !
+
+!SSWSQLJoinedTableCollection methodsFor!
+
+add: anSSWDBTable joinedWithField: anSSWDBField
+
+	"Patched for issue 120-001 (revised, replaces original patch)
+
+	Add the given table joined with the given field (match on ID fields); return the table added.
+	Duplicate entries are permitted - see withoutDuplicates"
+
+	self add: anSSWDBTable joinedWith: (SSWSQLCondition field: anSSWDBTable idField equalTo: anSSWDBField)!
+
+addAliasingDuplicates: anSSWDBTable joinedWithField: anSSWDBField
+
+	"22/5/2001
+
+	Add the given table joined with the given field; return the table added.
+	Unlike add:joinedWith:, duplicate occurrences of anSSWDBTable are not permitted
+	 - if anSSWDBTable already occurs in the receiver, then it is aliased"
+
+	| repetition |
+
+	repetition := self occurrencesOfIncludingRepetitions: anSSWDBTable.
+
+	^repetition = 0 
+		ifTrue: [self add: anSSWDBTable joinedWithField: anSSWDBField]
+		ifFalse: [self add: (SSWDBQueryTable forRepetition: repetition of: anSSWDBTable) 	
+					joinedWithField: anSSWDBField]!
+
+lastJoinField
+
+	"Patched for issue 120-001(revised)"
+	
+	^self joinConditions last value! !
+!SSWSQLJoinedTableCollection categoriesFor: #add:joinedWithField:!adding/removing!public! !
+!SSWSQLJoinedTableCollection categoriesFor: #addAliasingDuplicates:joinedWithField:!adding/removing!public! !
+!SSWSQLJoinedTableCollection categoriesFor: #lastJoinField!evaluating!public! !
+
+!SSWSQLTableCollection methodsFor!
+
+occurrencesOfIncludingRepetitions: aTable
+
+	"22/5/2001
+
+	Return the number of occurrences of the given table in the receiver.
+	Include any previous repetitions, disguised as QueryTables"
+
+	"Each table can appear only once as itself.
+	If it does not appear once, then there are no repetitions"
+	(self includes: aTable) ifFalse: [^0].
+
+	^(self select: [ :table | (table class = SSWDBQueryTable) and: [table table == aTable]]) size + 1! !
+!SSWSQLTableCollection categoriesFor: #occurrencesOfIncludingRepetitions:!public!searching! !
+
+"End of package definition"!
+

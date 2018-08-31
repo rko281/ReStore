@@ -1,0 +1,100 @@
+﻿| package |
+package := Package name: 'customer and orders'.
+package paxVersion: 1;
+	basicComment: 'ReStore Customer and Orders example.
+
+IMPORTANT:
+You first need to create an ODBC Datasource named ''ReStoreExamples''.
+Since Dolphin is a 32bit application you must use the 32bit ODBC control panel - evaluate ReStore openODBC.
+
+For speed and simplicity SQLite is suggested; this requires the ODBC driver available here:
+http://www.ch-werner.de/sqliteodbc/
+When creating the datasource, specify SQLite3 ODBC Driver.
+
+
+"Create the database."
+ReStore
+	dsn: ''ReStoreExamples'';
+	connect;
+	addClasses: {Customer. Address. Order};
+	synchronizeAllClasses.
+
+"Creating a persistent object"
+Customer new
+	firstName: ''John'';
+	surname: ''Smith'';
+	address: (Address new line1: ''123 Oxford Street''; yourself);
+	commit.
+
+"Reading a persistent object"
+johnSmith := Customer storedInstances detect: [ :each | each fullName = ''John Smith''].
+
+"Updating a persistent object and its dependents"
+johnSmith dateOfBirth: (Date newDay: 1 monthIndex: 2 year: 1983).
+johnSmith address postcode: ''W1 1AA''.
+johnSmith commit.
+
+"Check it:"
+Customer storedInstances detect: [ :each | each address postcode = ''W1 1AA''].
+
+"Updating a collection:"
+johnSmith 
+	addOrder: (Order new product: ''widgets''; quantity: 4; yourself);
+	commit.
+
+"Check it:"
+Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | order product = ''widgets'' and: [order quantity = 4]]].
+
+"Tidy up"
+ReStore 
+	destroyAllClasses;
+	disconnect'.
+
+
+package classNames
+	add: #Address;
+	add: #Customer;
+	add: #Order;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: '..\SSW ReStore Main';
+	yourself).
+
+package setManualPrerequisites: #(
+	'SSW ReStore Main').
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #Address
+	instanceVariableNames: 'line1 postcode country'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #Customer
+	instanceVariableNames: 'firstName surname emailAddress dateOfBirth address orders'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #Order
+	instanceVariableNames: 'product quantity customer'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+"End of package definition"!
+

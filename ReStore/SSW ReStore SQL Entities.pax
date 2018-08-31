@@ -1,0 +1,548 @@
+﻿| package |
+package := Package name: 'SSW ReStore SQL Entities'.
+package paxVersion: 1;
+	basicComment: 'ReStore for Dolphin Smalltalk 
+Version 2.00
+©2003-2018 John Aspinall
+
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #SSWMSAccess2013Dialect;
+	add: #SSWMSAccessDialect;
+	add: #SSWMySQLDialect;
+	add: #SSWPostgreSQLDialect;
+	add: #SSWSQLCollection;
+	add: #SSWSQLCondition;
+	add: #SSWSQLConditionCollection;
+	add: #SSWSQLDialect;
+	add: #SSWSQLField;
+	add: #SSWSQLFieldAssignment;
+	add: #SSWSQLFieldAssignmentCollection;
+	add: #SSWSQLFieldCollection;
+	add: #SSWSQLFieldValueConjunction;
+	add: #SSWSQLFunctionField;
+	add: #SSWSQLiteDialect;
+	add: #SSWSQLJoinedTableCollection;
+	add: #SSWSQLLeftJoinedTableCollection;
+	add: #SSWSQLOperator;
+	add: #SSWSQLParameterField;
+	add: #SSWSQLQueryParameter;
+	add: #SSWSQLServerDialect;
+	add: #SSWSQLTable;
+	add: #SSWSQLTableAllFields;
+	add: #SSWSQLTableCollection;
+	add: #SSWSQLTableComponent;
+	add: #SSWSQLWriteStream;
+	yourself.
+
+package methodNames
+	add: #Boolean -> #writeSQLOn:forField:;
+	add: #Character -> #writeSQLOn:;
+	add: #Character -> #writeSQLOn:forField:;
+	add: #Class -> #writeSQLOn:;
+	add: #Collection -> #writeSQLOn:;
+	add: #Collection -> #writeSQLOn:forField:;
+	add: #Collection -> #writeSQLOn:with:;
+	add: #Date -> #writeSQLOn:;
+	add: #False -> #writeSQLOn:;
+	add: #Magnitude -> #writeSQLOn:forField:;
+	add: #Object -> #sqlStringIn:;
+	add: #Object -> #writeSQLOn:forField:;
+	add: #ScaledDecimal -> #writeSQLOn:;
+	add: #SSWDBFixedStringWithInfo -> #writeSQLTypeOn:using:;
+	add: #SSWDBScaledDecimalWithInfo -> #writeSQLTypeOn:using:;
+	add: #SSWDBVariableStringWithInfo -> #writeSQLTypeOn:using:;
+	add: #String -> #writeSQLOn:;
+	add: #String -> #writeSQLOn:forField:;
+	add: #Time -> #writeSQLOn:;
+	add: #TimeStamp -> #writeSQLOn:;
+	add: #True -> #writeSQLOn:;
+	add: #UndefinedObject -> #writeSQLOn:;
+	add: #UnquotedString -> #writeSQLOn:;
+	add: 'Boolean class' -> #writeSQLTypeOn:using:;
+	add: 'Date class' -> #writeSQLTypeOn:using:;
+	add: 'Float class' -> #writeSQLTypeOn:using:;
+	add: 'Integer class' -> #writeSQLTypeOn:using:;
+	add: 'Metaclass class' -> #writeSQLTypeOn:using:;
+	add: 'Number class' -> #writeSQLTypeOn:using:;
+	add: 'Object class' -> #writeSQLTypeOn:using:;
+	add: 'String class' -> #writeSQLTypeOn:using:;
+	add: 'Time class' -> #writeSQLTypeOn:using:;
+	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\Core\Object Arts\Dolphin\Database\Database Connection Base';
+	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: 'SSW ReStore Base Additions';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #SSWSQLDialect
+	instanceVariableNames: 'connection connectionReservedWords maxColumnNameLength maxTableNameLength customFunctions maxColumnBytes unsizedStringSize'
+	classVariableNames: ''
+	poolDictionaries: 'ODBCConstants'
+	classInstanceVariableNames: ''!
+Object subclass: #SSWSQLFieldValueConjunction
+	instanceVariableNames: 'field value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWSQLOperator
+	instanceVariableNames: 'sqlString messageSelector isInverted'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWSQLParameterField
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWSQLQueryParameter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWSQLTable
+	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWSQLTableComponent
+	instanceVariableNames: 'table'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+OrderedCollection variableSubclass: #SSWSQLCollection
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLCollection variableSubclass: #SSWSQLConditionCollection
+	instanceVariableNames: 'sqlConcatenator'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLCollection variableSubclass: #SSWSQLFieldAssignmentCollection
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLCollection variableSubclass: #SSWSQLFieldCollection
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLCollection variableSubclass: #SSWSQLTableCollection
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLTableCollection variableSubclass: #SSWSQLJoinedTableCollection
+	instanceVariableNames: 'joinConditions'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLJoinedTableCollection variableSubclass: #SSWSQLLeftJoinedTableCollection
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLDialect subclass: #SSWMSAccessDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLDialect subclass: #SSWMySQLDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLDialect subclass: #SSWPostgreSQLDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLDialect subclass: #SSWSQLiteDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLDialect subclass: #SSWSQLServerDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWMSAccessDialect subclass: #SSWMSAccess2013Dialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLFieldValueConjunction subclass: #SSWSQLCondition
+	instanceVariableNames: 'operator'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLFieldValueConjunction subclass: #SSWSQLFieldAssignment
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLTableComponent subclass: #SSWSQLField
+	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLTableComponent subclass: #SSWSQLTableAllFields
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLField subclass: #SSWSQLFunctionField
+	instanceVariableNames: 'function arguments'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+WriteStream subclass: #SSWSQLWriteStream
+	instanceVariableNames: 'dialect fieldAliases tableAliases parameterizedFields parameterizedValues'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!Boolean methodsFor!
+
+writeSQLOn: aStream forField: aField
+
+	"Where the field is known we can use a parameterized value"
+	
+	^aStream nextPutParameterizedValue: self forField: aField! !
+!Boolean categoriesFor: #writeSQLOn:forField:!converting!public! !
+
+!Boolean class methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"9/4/01"
+	
+	aStream nextPutAll: anSQLDialect boolean! !
+!Boolean class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!Character methodsFor!
+
+writeSQLOn: aStream
+
+	"21/3/2001
+	
+	As far as SQL is concerned, a Character == a String"
+
+	(String with: self) writeSQLOn: aStream!
+
+writeSQLOn: aStream forField: aField
+
+	"As far as SQL is concerned, a Character == a String"
+	
+	(String with: self) writeSQLOn: aStream forField: aField! !
+!Character categoriesFor: #writeSQLOn:!printing!public! !
+!Character categoriesFor: #writeSQLOn:forField:!printing!public! !
+
+!Class methodsFor!
+
+writeSQLOn: aStream
+
+	"19/8/2000
+	
+	A class is represented by its name"
+
+	^self name asString printOn: aStream! !
+!Class categoriesFor: #writeSQLOn:!printing!public! !
+
+!Collection methodsFor!
+
+writeSQLOn: aStream
+
+	self writeSQLOn: aStream with: [ :object | object writeSQLOn: aStream]!
+
+writeSQLOn: aStream forField: aField
+
+	self writeSQLOn: aStream with: [ :object | object writeSQLOn: aStream forField: aField]!
+
+writeSQLOn: aStream with: aBlock
+
+	"Private - Collections are comma-separated and parentheses-wrapped in SQL"
+	
+	aStream nextPut: $(.
+
+	self 
+		do: aBlock
+		separatedBy: [aStream nextPut: $,].
+	
+	aStream nextPut: $)! !
+!Collection categoriesFor: #writeSQLOn:!printing!public! !
+!Collection categoriesFor: #writeSQLOn:forField:!printing!public! !
+!Collection categoriesFor: #writeSQLOn:with:!printing!private! !
+
+!Date methodsFor!
+
+writeSQLOn: aStream
+
+	"Defer to the Stream to account for dialect differences"
+	aStream nextPutDate: self! !
+!Date categoriesFor: #writeSQLOn:!printing!public! !
+
+!Date class methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	^aStream nextPutAll: anSQLDialect date! !
+!Date class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!False methodsFor!
+
+writeSQLOn: aStream
+
+	"9/4/2001"
+
+	aStream nextPutFalse! !
+!False categoriesFor: #writeSQLOn:!converting!public! !
+
+!Float class methodsFor!
+
+writeSQLTypeOn: aStream  using: anSQLDialect
+
+	"9/3/01"
+	
+	aStream nextPutAll: anSQLDialect double! !
+!Float class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!Integer class methodsFor!
+
+writeSQLTypeOn: aStream  using: anSQLDialect
+
+	"9/3/01
+	
+	Use INT - long integer"
+	
+	aStream nextPutAll: anSQLDialect integer! !
+!Integer class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!Magnitude methodsFor!
+
+writeSQLOn: aStream forField: aField
+
+	"Where the field is known we can use a parameterized value"
+	
+	^aStream nextPutParameterizedValue: self forField: aField! !
+!Magnitude categoriesFor: #writeSQLOn:forField:!printing!public! !
+
+!Metaclass class methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"9/3/01
+	
+	Classes are stored as their name.
+	Use a VARCHAR at 128 characters"
+	
+	(String maxSize: 128) writeSQLTypeOn: aStream using: anSQLDialect! !
+!Metaclass class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!Number class methodsFor!
+
+writeSQLTypeOn: aStream  using: anSQLDialect
+
+	"Default to single float"
+	
+	aStream nextPutAll: anSQLDialect float! !
+!Number class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!Object methodsFor!
+
+sqlStringIn: anSSWSQLDialect
+
+	"19/8/2001		Based on earlier sqlString; dialect param added (issue#0008)"
+	
+	| stream |
+	
+	stream := SSWSQLWriteStream newIn: anSSWSQLDialect.
+	
+	self writeSQLOn: stream.
+	
+	^stream contents!
+
+writeSQLOn: aStream forField: aField
+
+	"Append to aStream the SQL for the receiver when used as a value associated with aField.
+	By default we ignore the field"
+
+	self writeSQLOn: aStream! !
+!Object categoriesFor: #sqlStringIn:!displaying!public! !
+!Object categoriesFor: #writeSQLOn:forField:!printing!public! !
+
+!Object class methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"9/3/01
+	
+	If not overriden, assume a persistent class with an Integer ID"
+	
+	Integer writeSQLTypeOn: aStream using: anSQLDialect! !
+!Object class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!ScaledDecimal methodsFor!
+
+writeSQLOn: aStream
+
+	self displayOn: aStream! !
+!ScaledDecimal categoriesFor: #writeSQLOn:!printing!public! !
+
+!SSWDBFixedStringWithInfo methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"15/4/2001"
+
+	"If the receiver's size exceeds the maximum allowed, use a longText (if available)"
+
+	(self fieldSize > anSQLDialect maxChar)
+		ifTrue: [aStream nextPutAll: (anSQLDialect unsizedStringTypeForSize: self fieldSize)]
+		ifFalse: [aStream nextPutAll: (anSQLDialect char formatWith: self fieldSize printString)]! !
+!SSWDBFixedStringWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!SSWDBScaledDecimalWithInfo methodsFor!
+
+writeSQLTypeOn: aStream  using: anSQLDialect
+
+	"9/3/01
+
+	Form is something like DECIMAL(precision,scale)"
+
+	| actualPrecision |
+
+	self precision isNil 
+		ifTrue: [actualPrecision := 15]
+		ifFalse: [actualPrecision := self precision].
+
+	aStream nextPutAll: (anSQLDialect decimal formatWith: actualPrecision printString with: self scale printString)! !
+!SSWDBScaledDecimalWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!SSWDBVariableStringWithInfo methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"15/4/2001"
+
+	"If the receiver's size exceeds the maximum allowed, use a longText (if available)"
+
+	(self fieldSize > anSQLDialect maxVarchar)
+		ifTrue: [aStream nextPutAll: (anSQLDialect unsizedStringTypeForSize: self fieldSize)]
+		ifFalse: [aStream nextPutAll: (anSQLDialect varchar formatWith: self fieldSize printString)]! !
+!SSWDBVariableStringWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!String methodsFor!
+
+writeSQLOn: aStream
+
+	"Avoid SQL injection and other issues by always using parameterized values for Strings"
+
+	self writeSQLOn: aStream forField: (SSWSQLParameterField forValue: self)!
+
+writeSQLOn: aStream forField: aField
+
+	"Where the field is known we can use a parameterized value"
+	
+	^aStream nextPutParameterizedValue: self forField: aField! !
+!String categoriesFor: #writeSQLOn:!printing!public! !
+!String categoriesFor: #writeSQLOn:forField:!printing!public! !
+
+!String class methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"9/3/01
+	
+	As this is the non-sized variant, use a reasonably-sized variable text type"
+	
+	aStream nextPutAll: anSQLDialect unsizedString! !
+!String class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!Time methodsFor!
+
+writeSQLOn: aStream
+
+	"Defer to the Stream to account for dialect differences"
+	aStream nextPutTime: self! !
+!Time categoriesFor: #writeSQLOn:!converting!printing!public! !
+
+!Time class methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	aStream nextPutAll: anSQLDialect time! !
+!Time class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!TimeStamp methodsFor!
+
+writeSQLOn: aStream
+
+	"Defer to the Stream to account for dialect differences"
+	aStream nextPutTimeStamp: self! !
+!TimeStamp categoriesFor: #writeSQLOn:!converting!printing!public! !
+
+!TimeStamp class methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"9/3/01"
+	
+	aStream nextPutAll: anSQLDialect timestamp! !
+!TimeStamp class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!True methodsFor!
+
+writeSQLOn: aStream
+
+	"9/4/2001"
+
+	aStream nextPutTrue
+! !
+!True categoriesFor: #writeSQLOn:!printing!public! !
+
+!UndefinedObject methodsFor!
+
+writeSQLOn: aStream
+
+	"5/8/2000
+	
+	In SQL, nil = NULL"
+	
+	aStream nextPutAll: 'NULL'! !
+!UndefinedObject categoriesFor: #writeSQLOn:!printing!public! !
+
+!UnquotedString methodsFor!
+
+writeSQLOn: aStream
+
+	"Instances of this class are only used directly by the system, therefore avoid the enforced parameterization in the superclass"
+
+	^self printOn: aStream! !
+!UnquotedString categoriesFor: #writeSQLOn:!printing!public! !
+
+"End of package definition"!
+

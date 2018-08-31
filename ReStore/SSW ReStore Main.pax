@@ -1,0 +1,1017 @@
+﻿| package |
+package := Package name: 'SSW ReStore Main'.
+package paxVersion: 1;
+	basicComment: 'ReStore for Dolphin Smalltalk 
+Version 2.00
+©2003-2018 John Aspinall
+
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #ObjectCommitFailure;
+	add: #SSWDBAbstractSingleTransaction;
+	add: #SSWDBCachingObjectProxy;
+	add: #SSWDBCollectionProxy;
+	add: #SSWDBCollectionWithContents;
+	add: #SSWDBCollectionWithRelatedContents;
+	add: #SSWDBDumbTransaction;
+	add: #SSWDBGeneralCollectionProxy;
+	add: #SSWDBObjectProxy;
+	add: #SSWDBObjectWithComponents;
+	add: #SSWDBObjectWithRelatedComponents;
+	add: #SSWDBOwnedCollectionProxy;
+	add: #SSWDBProxy;
+	add: #SSWDBSingleTransaction;
+	add: #SSWDBSingleTransactionWithVersioning;
+	add: #SSWDBTableRecord;
+	add: #SSWDBTransaction;
+	add: #SSWDBUnstoreWrapper;
+	add: #SSWDBVersionedCachingObjectProxy;
+	add: #SSWReStore;
+	yourself.
+
+package methodNames
+	add: #Class -> #instanceFromDBValue:in:;
+	add: #Class -> #isValidForPersistence;
+	add: #Class -> #storedInstances;
+	add: #Class -> #storedInstancesIn:;
+	add: #Collection -> #commit;
+	add: #Collection -> #commitAll;
+	add: #Collection -> #commitAllIn:;
+	add: #Collection -> #hasAnyChanged;
+	add: #Collection -> #refreshAll;
+	add: #Collection -> #rollbackAll;
+	add: #Collection -> #unstoreAll;
+	add: #Collection -> #withComponents;
+	add: #Collection -> #withRelatedComponents;
+	add: #Object -> #_changedObjectsIn:;
+	add: #Object -> #_checkHasChangedIn:;
+	add: #Object -> #_commitIn:;
+	add: #Object -> #_dbProxy;
+	add: #Object -> #_dbProxyIfNone:;
+	add: #Object -> #_dbProxyIn:;
+	add: #Object -> #_dbProxyIn:ifNone:;
+	add: #Object -> #_ensureActiveIn:;
+	add: #Object -> #_ensurePersistentIn:;
+	add: #Object -> #_forceRefreshIn:;
+	add: #Object -> #_forceRefreshWithContents;
+	add: #Object -> #_hasChangedFrom:;
+	add: #Object -> #_id;
+	add: #Object -> #_idIn:;
+	add: #Object -> #_isRecovered;
+	add: #Object -> #_refreshIfUpdatedIn:;
+	add: #Object -> #_refreshIn:;
+	add: #Object -> #_refreshWithContents;
+	add: #Object -> #_refreshWithContentsIfUpdated;
+	add: #Object -> #_reStore;
+	add: #Object -> #_reStoreIfNone:;
+	add: #Object -> #_rollbackIn:;
+	add: #Object -> #commit;
+	add: #Object -> #commitIn:;
+	add: #Object -> #handleUpdateClash:from:to:;
+	add: #Object -> #hasChanged;
+	add: #Object -> #isDBDeleted;
+	add: #Object -> #isDBProxy;
+	add: #Object -> #isPersistent;
+	add: #Object -> #isValidForPersistence;
+	add: #Object -> #mergeUpdate:from:;
+	add: #Object -> #mergeUpdateFrom:newValue:accessor:;
+	add: #Object -> #odbcObject;
+	add: #Object -> #onAboutToUnstore;
+	add: #Object -> #onRefresh;
+	add: #Object -> #onRollback;
+	add: #Object -> #refresh;
+	add: #Object -> #rollback;
+	add: #Object -> #safeHandleUpdateClash:from:to:;
+	add: #Object -> #safeMergeUpdateFrom:newValue:accessor:;
+	add: #Object -> #similarInstances;
+	add: #Object -> #similarInstancesIn:;
+	add: #Object -> #storeIn:;
+	add: #Object -> #storeInAnsweringProxy:;
+	add: #Object -> #unstore;
+	add: #Object -> #unstored;
+	add: #Object -> #withComponents;
+	add: #Object -> #withRelatedComponents;
+	add: #Object -> #writeSQLOn:;
+	add: #SSWDBClassWithInfo -> #instanceFromDBValue:in:;
+	add: #SSWDBGeneralCollectionSpec -> #collectionProxyClass;
+	add: #SSWDBOwnedCollectionSpec -> #collectionProxyClass;
+	add: #SSWDBScaledDecimalWithInfo -> #instanceFromDBValue:in:;
+	add: #SSWDBTable -> #tableRecord;
+	add: #SSWDBTable -> #versionControlField;
+	add: #SSWDBTable -> #withIDAndVersionFields;
+	add: #String -> #withComponents;
+	add: #String -> #withRelatedComponents;
+	add: #UndefinedObject -> #storeIn:;
+	add: #UndefinedObject -> #unstore;
+	add: 'Boolean class' -> #instanceFromDBValue:in:;
+	add: 'Date class' -> #instanceFromDBValue:in:;
+	add: 'Metaclass class' -> #instanceFromDBValue:in:;
+	add: 'Number class' -> #instanceFromDBValue:in:;
+	add: 'Object class' -> #preferredObjectProxyClass;
+	add: 'String class' -> #instanceFromDBValue:in:;
+	add: 'Time class' -> #instanceFromDBValue:in:;
+	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
+	yourself.
+
+package globalNames
+	add: #ReStore;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	add: #ReStore;
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\Core\Object Arts\Dolphin\Database\Database Connection Base';
+	add: '..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: 'SSW ReStore Base Additions';
+	add: 'SSW ReStore Collections';
+	add: 'SSW ReStore ODBC';
+	add: 'SSW ReStore Querying';
+	add: 'SSW ReStore SQL Entities';
+	add: 'SSW ReStore SQL Queries';
+	add: 'SSW ReStore Tables';
+	add: '..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+nil subclass: #SSWDBProxy
+	instanceVariableNames: 'proxiedObject reStore'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBTableRecord
+	instanceVariableNames: 'tableName fullTableName nextID cachedIDs'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBTransaction
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWReStore
+	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize'
+	classVariableNames: ''
+	poolDictionaries: 'ODBCConstants'
+	classInstanceVariableNames: 'default activeReStores'!
+Notification subclass: #ObjectCommitFailure
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
+	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBAbstractSingleTransaction subclass: #SSWDBDumbTransaction
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBAbstractSingleTransaction subclass: #SSWDBSingleTransaction
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBSingleTransaction subclass: #SSWDBSingleTransactionWithVersioning
+	instanceVariableNames: 'proxyCommitFailures'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBWrapper subclass: #SSWDBObjectWithComponents
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBWrapper subclass: #SSWDBUnstoreWrapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBObjectWithComponents subclass: #SSWDBCollectionWithContents
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBObjectWithComponents subclass: #SSWDBObjectWithRelatedComponents
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBObjectWithRelatedComponents subclass: #SSWDBCollectionWithRelatedContents
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBProxy subclass: #SSWDBCollectionProxy
+	instanceVariableNames: 'collectionSpec owner'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBProxy subclass: #SSWDBObjectProxy
+	instanceVariableNames: 'class id collectionProxies'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCollectionProxy subclass: #SSWDBGeneralCollectionProxy
+	instanceVariableNames: 'collectionEntries changes isDeleted'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCollectionProxy subclass: #SSWDBOwnedCollectionProxy
+	instanceVariableNames: 'copyCollection'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBObjectProxy subclass: #SSWDBCachingObjectProxy
+	instanceVariableNames: 'copyObject'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
+	instanceVariableNames: 'version'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!Boolean class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	^aValue == true or: [aValue = anSSWReStore sqlDialect trueObject]! !
+!Boolean class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+
+!Class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"Return an instance of the receiver class that is specified by the given value/ReStore combination.
+	Default implementation for persistent application classes - query the ReStore for the relevant instance.
+	Base classes (Integer, String etc.) should reimplement as appropriate"
+	
+	^aValue isNil
+		ifTrue: [nil]
+		ifFalse: [anSSWReStore deferredObjectOfClass: self withID: aValue]!
+
+isValidForPersistence
+
+	"Classes are not persisted directly (e.g. via storeIn:), therefore consider them already persistent"
+	
+	^true!
+
+storedInstances
+
+	"Return all instances of the receiver stored in the database accessed by the default ReStore"
+
+	^self storedInstancesIn: SSWReStore default!
+
+storedInstancesIn: aReStore
+
+	^aReStore instancesOf: self! !
+!Class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+!Class categoriesFor: #isValidForPersistence!private!testing! !
+!Class categoriesFor: #storedInstances!accessing!public! !
+!Class categoriesFor: #storedInstancesIn:!accessing!public! !
+
+!Collection methodsFor!
+
+commit
+
+	"Override to prevent attempt to commit a non-persistent collection independently of its owner"
+
+	^self commitIn: (self _reStoreIfNone: [self errorNotPersistent])!
+
+commitAll
+
+	"Commit the elements of the receiver and their related objects in their ReStore or the default ReStore if not yet persistent, returning success.
+	In the event of a failure the default action is to abandon the failed transaction leaving the receiver in its current state. 
+	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
+
+	^self isEmpty 
+		ifTrue: [true]
+		ifFalse: [self commitAllIn: (self anyOne _reStoreIfNone: [ReStore])]!
+
+commitAllIn: aReStore
+
+	"Private - Commit the elements of the receiver and their related objects in aReStore; return success.
+	In the event of a failure the default action is to abandon the failed transaction leaving the elements of the receiver in their current state. 
+	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
+
+	^(aReStore commitObjects: (self collect: [:each | each withRelatedComponents]))
+		ifTrue: [true]
+		ifFalse: [ObjectCommitFailure signalWith: aReStore. false]!
+
+hasAnyChanged
+
+	"Return whether any elements of the receiver or their related objects have changed in the image since loading from the ReStore instance in which they reside"
+
+	^self isEmpty not and: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) haveObjectsChanged: (self collect: [ :each | each withRelatedComponents])]!
+
+refreshAll
+
+	"Refresh the elements of the receiver and their related objects to their stored state in the ReStore in which they reside"
+
+	self isEmpty ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) refreshObjects: (self collect: [ :each | each withRelatedComponents])]!
+
+rollbackAll
+
+	"Rollback the elements of the receiver and their related objects to their previous state in the ReStore in which they reside"
+
+	self isEmpty ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) rollbackObjects: (self collect: [ :each | each withRelatedComponents])]!
+
+unstoreAll
+
+	"Unstore (delete) the elements of the receiver in the ReStore in which they reside. 
+	Dependent objects will also be unstored"
+
+	^self isEmpty 
+		ifTrue: [true]
+		ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) commitObjects: (self collect: [ :each | each unstored])]!
+
+withComponents
+
+	^SSWDBCollectionWithContents on: self!
+
+withRelatedComponents
+
+	^SSWDBCollectionWithRelatedContents on: self! !
+!Collection categoriesFor: #commit!public!restore-internal! !
+!Collection categoriesFor: #commitAll!public!restore-api! !
+!Collection categoriesFor: #commitAllIn:!public!restore-internal! !
+!Collection categoriesFor: #hasAnyChanged!public!restore-api! !
+!Collection categoriesFor: #refreshAll!public!restore-api! !
+!Collection categoriesFor: #rollbackAll!public!restore-api! !
+!Collection categoriesFor: #unstoreAll!public!restore-api! !
+!Collection categoriesFor: #withComponents!converting!public! !
+!Collection categoriesFor: #withRelatedComponents!converting!public! !
+
+!Date class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"Private - 10/3/01
+	
+	If aValue is a timestamp, extract only the date"
+	
+	^(aValue isKindOf: TimeStamp)
+		ifTrue: [aValue date]
+		ifFalse: [aValue]! !
+!Date class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+
+!Metaclass class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"Private - 19/8/2000
+	
+	Classes are represented by name"
+	
+	^aValue ifNotNil: [ :clsName | Smalltalk at: clsName asSymbol ifAbsent: [self error: 'Class not in image']]! !
+!Metaclass class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+
+!Number class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"ASSERT: aValue isNil OR aValue isKindOf: self"
+
+	^aValue! !
+!Number class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+
+!Object methodsFor!
+
+_changedObjectsIn: aReStore
+
+	^(self _checkHasChangedIn: aReStore)
+		ifTrue: [Array with: self]
+		ifFalse: [#()]!
+
+_checkHasChangedIn: aReStore
+
+	"Assuming the receiver is (or will be) a persistent object in aReStore, has it changed from the persisted version?"
+
+	"Redirect to the proxy"
+	^(self _dbProxyIn: aReStore ifNone: [nil])
+		ifNil: [self isValidForPersistence not] "since a commit of a non-valid (i.e. non-base class) object will result in a write (insert)"
+		ifNotNil: [ :proxy | proxy _checkHasChangedIn: aReStore]!
+
+_commitIn: aReStore
+
+	"Should only be sent when all proxied objects have been swapped out to their proxy,
+	therefore the receiver is not currently persistent, therefore store it"
+
+	"...however if the object is encountered multiple times during a commitObjects: operation, its proxy will have flipped to the object"
+	(aReStore hasCommittedObject: self) ifFalse: 
+		"isValidForPersistence test excludes base object types (String, Number etc.)"
+		[self isValidForPersistence ifFalse: [self storeIn: aReStore]]!
+
+_dbProxy
+
+	"Created 16/4/2001
+	
+	Attempt to locate the SSWDBObjectProxy wrapping this object.
+	Error if none can be found (i.e. the receiver is not persistent)"
+	
+	^self _dbProxyIfNone: [self error: 'Cannot locate ReStore proxy']!
+
+_dbProxyIfNone: aBlock
+
+	"Attempt to locate the SSWDBObjectProxy wrapping this object.
+	Return the value of aBlock if none can be found (i.e. the receiver is not persistent)"
+	
+	^SSWReStore proxyForObject: self ifNone: aBlock!
+
+_dbProxyIn: aReStore
+
+	^self _dbProxyIn: aReStore ifNone: [self error: 'Cannot locate ReStore proxy']!
+
+_dbProxyIn: aReStore ifNone: aBlock
+	
+	^aReStore actualProxyForObject: self ifNone: aBlock!
+
+_ensureActiveIn: anSSWReStore
+
+	"Created 1/10/2001
+	
+	Ensure that the receiver is 'active' in the given ReStore 
+	'active' means persistent in anSSWReStore, and present in the current transaction.
+
+	If this message is received by a real object it is either not persistent, or persistent and active.
+	Hence - only need to ensure persistence"
+	
+	self _ensurePersistentIn: anSSWReStore!
+
+_ensurePersistentIn: anSSWReStore
+
+	"Created 1/10/2001
+	
+	Ensure that the receiver is persistent in the given ReStore"
+
+	self isValidForPersistence ifFalse:
+		[anSSWReStore locateProxyForObject: self ifNone: [self storeIn: anSSWReStore]]!
+
+_forceRefreshIn: aReStore
+
+	"Private - Non-persistent - cannot have changed - do nothing"
+
+	^self
+!
+
+_forceRefreshWithContents
+
+	"Private - Non-persistent - cannot have changed - do nothing.
+	Return the refreshed contents (i.e. none)"
+
+	^#()!
+
+_hasChangedFrom: anObject
+
+	"20/8/2000
+	
+	Return a Boolean indicating whether the receiver has changed in state from anObject.
+	Default test - is it equal? 
+	Subclasses with other definitions of 'state' should override"
+	
+	^(self = anObject) not!
+
+_id
+
+	"16/4/2001
+	
+	Return the receiver's unique ID - assume the receiver is a valid persistent object"
+	
+	^self _dbProxy _id!
+
+_idIn: aReStore
+
+	"Return the receiver's unique ID as a proxy in the given ReStore instance"
+	
+	^(self _dbProxyIn: aReStore) _id!
+
+_isRecovered
+
+	"The receiver is a real object, therefore it is recovered from the database
+	(compared to an unrecovered proxy - we do not consider the case where the receiver is non-persistent)"
+
+	^true!
+
+_refreshIfUpdatedIn: aReStore
+
+	"Private - Non-persistent - cannot have been updated externally - do nothing"
+
+	^self
+!
+
+_refreshIn: aReStore
+
+	"Private - Non-persistent - cannot have changed - do nothing"
+
+	^self
+!
+
+_refreshWithContents
+
+	"Private - Non-persistent - cannot have changed - do nothing.
+	Return the refreshed contents (i.e. none)"
+
+	^#()!
+
+_refreshWithContentsIfUpdated
+
+	"Private - Non-persistent - cannot have changed - do nothing.
+	Return the refreshed objects (i.e. none)"
+
+	^#()!
+
+_reStore
+
+	"Attempt to locate the SSWReStore in which the receiver resides.
+	Return nil if none can be found (i.e. the receiver is not persistent)"
+
+	^self _reStoreIfNone: [nil]!
+
+_reStoreIfNone: aBlock
+
+	"Attempt to locate the SSWReStore in which the receiver resides.
+	Return the result of aBlock if none can be found (i.e. the receiver is not persistent)"
+
+	^SSWReStore reStoreForObject: self ifNone: aBlock!
+
+_rollbackIn: aReStore
+
+	"Should only be sent when all proxied objects have been swapped out to their proxy,
+	therefore the receiver is not currently persistent, therefore do nothing"!
+
+commit
+
+	"Commit the receiver and its related objects in the ReStore instance in which they reside (or the default if not currently persistent); return success.
+	In the event of a failure the default action is to abandon the failed transaction leaving the receiver in its current state. 
+	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
+
+	^self commitIn: (self _reStoreIfNone: [ReStore])!
+
+commitIn: aReStore
+	"Private - Commit the receiver and its related objects in aReStore; return success.
+	In the event of a failure the default action is to abandon the failed transaction leaving the receiver in its current state. 
+	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
+
+	^(aReStore commitObject: self withRelatedComponents)
+		ifTrue: [true]
+		ifFalse: [ObjectCommitFailure signalWith: aReStore. false]!
+
+handleUpdateClash: aSymbol from: oldVersion to: newVersion
+
+	"16/5/2001
+
+	A change in the receiver to the instance variable named aSymbol 
+	has clashed with a change made in the database.
+	oldVersion is a copy of the receiver as it was prior to its current updates.
+	newVersion is a copy of the receiver as it currently is in the database.
+	Analyse changes between the three versions (old, self and new)
+	and attempt to bring the receiver up to date with newVersion,
+	whilst maintaining changes from oldVersion.
+
+	Return true if the receiver was able to resolve the conflict, false otherwise.
+	Default - just return false
+
+	Note that, in order to avoid disrupting the transaction commit mechanism,
+	this method is always called the error-trapped safeHandleUpdateClash:...
+	and so will never cause a walkback - a notification will be logged however"
+
+	^false!
+
+hasChanged
+
+	"Return whether the receiver or its related objects have changed in the image since loading from the ReStore instance in which they reside"
+
+	^(self _reStoreIfNone: ["Not (yet) persistent" ^true]) hasObjectChanged: self withRelatedComponents!
+
+isDBDeleted
+
+	"23/4/2001"
+	
+	^false!
+
+isDBProxy
+
+	"14/8/2000
+
+	Differentiate between proxys and actual objects"
+
+	^false!
+
+isPersistent
+
+	^(self _dbProxyIfNone: [nil]) notNil!
+
+isValidForPersistence
+
+	"Return a Boolean indicating whether the receiver is a valid object for persistent storage.
+	Default - the basic types (Numbers, Strings etc.) are so valid"
+	
+	^self class isPersistentBaseClass!
+
+mergeUpdate: aSymbol from: anObject
+
+	"Transaction commit concurrent update resolution:
+	The inst var of the receiver named aSymbol has changed in anObject (another version of the receiver).
+	The receiver itself has NOT changed this inst var, but has changed other inst var(s).
+
+	Handle the change and return whether a Boolean indicating if is was successfully handled,
+	e.g. always return false to turn off auto merging.
+	OR return nil to accept default handling (merge the change into the receiver)"
+
+	^nil!
+
+mergeUpdateFrom: newVersion newValue: newValue accessor: anInstVarAccessor
+
+	"Private - Transaction commit concurrent update resolution:
+	The value of inst var of the receiver accessed by anInstVarAccessor has been changed 
+	to newValue in newVersion (a new version of the receiver from the database).
+	The receiver itself has NOT changed this inst var, but has changed other inst var(s).
+
+	Handle the change and return whether is was successfully handled.
+	Default handling is just to merge the change into the receiver"
+
+	"This method is essentially private; pass to a simplified handler which subclasses can override"
+	^(self mergeUpdate: anInstVarAccessor name from: newVersion) ifNil: 
+		["Default handling"
+		anInstVarAccessor value: newValue in: self.
+		true]!
+
+odbcObject
+
+	"Created 5/8/2000
+	Modified 24/7/2001	enable persistent objects in query blocks (issue#0002)
+
+	Return an object to use to represent the receiver for ODBC purposes.
+	Default - use the receiver, or unique ID if not directly valid for persistence.
+	May be overriden where requirements differ"
+	
+	^self isValidForPersistence ifTrue: [self] ifFalse: [self _id]!
+
+onAboutToUnstore
+
+	"The receiver is about to be unstored from its ReStore container.
+	Carry out any necessary actions"!
+
+onRefresh
+
+	"Carry out any actions necessary following refreshing this Object from the database.
+	Default - do nothing"!
+
+onRollback
+
+	"Carry out any actions necessary following rolling back this object to its state prior to the current transaction.
+	Default - do nothing"
+!
+
+refresh
+
+	"Refresh the receiver and its related objects to their stored state"
+
+	(self _reStoreIfNone: [self errorNotPersistent]) refreshObject: self withRelatedComponents!
+
+rollback
+
+	"Rollback the receiver and its related objects to their previous state"
+
+	(self _reStoreIfNone: [self errorNotPersistent]) rollbackObject: self withRelatedComponents!
+
+safeHandleUpdateClash: aSymbol from: oldVersion to: newVersion
+
+	"Private - Error-trapped entrypoint for handleUpdateClash:from:to:
+	Trap any error during the clash resolution and re-raise as a notification"
+
+	| result |
+
+	result := 
+		[self handleUpdateClash: aSymbol from: oldVersion to: newVersion]
+			on:	Error
+			do:	[ :exc | 
+				exc resignalAs: 
+					(Notification new messageText: 
+						('Error: ', exc description, 
+						' signalled during #handleUpdateClash:from:to: for ',
+						([self debugPrintString] 
+							on: Error do: [:e | 'an invalid ', self basicClass name])))].
+
+	^result = true!
+
+safeMergeUpdateFrom: newVersion newValue: anObject accessor: anInstVarAccessor
+
+	"Private - Error-trapped entrypoint for mergeUpdateFrom:newValue:accessor:
+	Trap any error during the merge and re-raise as a notification"
+
+	| result |
+
+	result := 
+		[self mergeUpdateFrom: newVersion newValue: anObject accessor: anInstVarAccessor]
+			on:	Error
+			do:	[ :exc | 
+				exc resignalAs: 
+					(Notification new messageText: 
+						('Error: ', exc description, 
+						' signalled during #mergeUpdateFrom:newValue:accessor: for ',
+						([self debugPrintString] 
+							on: Error do: [:e | 'an invalid ', self basicClass name])))].
+
+	^result = true!
+
+similarInstances
+
+	^self similarInstancesIn: SSWReStore default!
+
+similarInstancesIn: aReStore
+
+	"Return an InstancesCollection representing those persistent instances
+	which are similar to the receiver (a 'template' instance)"
+
+	| instances |
+
+	instances := aReStore instancesOf: self class.
+	self qualify: instances in: aReStore via: OrderedCollection new.
+
+	^instances!
+
+storeIn: anSSWReStore
+
+	"Private - 19/8/2000
+	
+	Store the receiver object as a new persistent object in anSSWReStore.
+	Return the receiver"
+	
+	self storeInAnsweringProxy: anSSWReStore.
+
+	^self!
+
+storeInAnsweringProxy: anSSWReStore
+
+	"Private - 19/8/2000
+	
+	Store the receiver object as a new persistent object in anSSWReStore.
+	Return the new proxy (intended for privileged code only)"
+	
+	| proxy |
+
+	proxy := anSSWReStore createProxyForNewObject: self.
+
+	proxy _referenced.
+
+	^proxy!
+
+unstore
+
+	"Unstore the receiver and its dependent objects from the ReStore in which they reside.
+
+	NB: This is also a legacy selector whose meaning was 'unstore in the active transaction'.
+	We have repurposed this to also be a direct 'unstore now' message, which begins and completes in its own transaction.
+
+	Accomodate both new and legacy behavior by checking if there is currently a transaction in progress"
+
+	^(self _dbProxyIfNone: [nil]) ifNotNil: 
+		[ :proxy |
+		proxy _reStore isTransactionInProgress 
+			ifTrue: [proxy _unstore "Legacy"]
+			ifFalse: [self unstored commit] "New behavior"]!
+
+unstored
+
+	"Return the receiver in an UnstoreWrapper"
+
+	^SSWDBUnstoreWrapper on: self!
+
+withComponents
+
+	^SSWDBObjectWithComponents on: self!
+
+withRelatedComponents
+
+	^SSWDBObjectWithRelatedComponents on: self!
+
+writeSQLOn: aStream
+
+	"Created 5/8/2000
+	Modified 24/7/2001	enable persistent objects in query blocks (issue#0002)
+	
+	Defer to printOn: by default; if not directly valid for persistence assume a general persistent object"
+
+	^self isValidForPersistence 
+		ifTrue: [self printOn: aStream] 
+		ifFalse: [self _id printOn: aStream]! !
+!Object categoriesFor: #_changedObjectsIn:!private!restore-internal! !
+!Object categoriesFor: #_checkHasChangedIn:!private!restore-internal! !
+!Object categoriesFor: #_commitIn:!private!restore-internal! !
+!Object categoriesFor: #_dbProxy!private!restore-internal! !
+!Object categoriesFor: #_dbProxyIfNone:!private!restore-internal! !
+!Object categoriesFor: #_dbProxyIn:!private!restore-internal! !
+!Object categoriesFor: #_dbProxyIn:ifNone:!private!restore-internal! !
+!Object categoriesFor: #_ensureActiveIn:!private!restore-internal! !
+!Object categoriesFor: #_ensurePersistentIn:!private!restore-internal! !
+!Object categoriesFor: #_forceRefreshIn:!private!restore-internal! !
+!Object categoriesFor: #_forceRefreshWithContents!private!restore-internal! !
+!Object categoriesFor: #_hasChangedFrom:!public!restore-internal! !
+!Object categoriesFor: #_id!private!restore-internal! !
+!Object categoriesFor: #_idIn:!private!restore-internal! !
+!Object categoriesFor: #_isRecovered!private!restore-internal! !
+!Object categoriesFor: #_refreshIfUpdatedIn:!private!restore-internal! !
+!Object categoriesFor: #_refreshIn:!private!restore-internal! !
+!Object categoriesFor: #_refreshWithContents!private!restore-internal! !
+!Object categoriesFor: #_refreshWithContentsIfUpdated!private!restore-internal! !
+!Object categoriesFor: #_reStore!private!restore-internal! !
+!Object categoriesFor: #_reStoreIfNone:!private!restore-internal! !
+!Object categoriesFor: #_rollbackIn:!private!restore-internal! !
+!Object categoriesFor: #commit!public!restore-api! !
+!Object categoriesFor: #commitIn:!private!restore-internal! !
+!Object categoriesFor: #handleUpdateClash:from:to:!public!restore-update clash handling! !
+!Object categoriesFor: #hasChanged!public!restore-api! !
+!Object categoriesFor: #isDBDeleted!public!restore-internal! !
+!Object categoriesFor: #isDBProxy!private!restore-internal! !
+!Object categoriesFor: #isPersistent!public!restore-api! !
+!Object categoriesFor: #isValidForPersistence!private!restore-internal! !
+!Object categoriesFor: #mergeUpdate:from:!public!restore-update clash handling! !
+!Object categoriesFor: #mergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
+!Object categoriesFor: #odbcObject!public!restore-internal! !
+!Object categoriesFor: #onAboutToUnstore!public!restore-event handling! !
+!Object categoriesFor: #onRefresh!public!restore-event handling! !
+!Object categoriesFor: #onRollback!public!restore-event handling! !
+!Object categoriesFor: #refresh!public!restore-api! !
+!Object categoriesFor: #rollback!public!restore-api! !
+!Object categoriesFor: #safeHandleUpdateClash:from:to:!private!restore-update clash handling! !
+!Object categoriesFor: #safeMergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
+!Object categoriesFor: #similarInstances!public!restore-querying! !
+!Object categoriesFor: #similarInstancesIn:!public!restore-querying! !
+!Object categoriesFor: #storeIn:!private!restore-internal! !
+!Object categoriesFor: #storeInAnsweringProxy:!private!restore-internal! !
+!Object categoriesFor: #unstore!public!restore-api! !
+!Object categoriesFor: #unstored!public!restore-internal! !
+!Object categoriesFor: #withComponents!public!restore-internal! !
+!Object categoriesFor: #withRelatedComponents!public!restore-internal! !
+!Object categoriesFor: #writeSQLOn:!public!restore-internal! !
+
+!Object class methodsFor!
+
+preferredObjectProxyClass 
+
+	"1/5/2001
+
+	If the receiver needs a specific proxy class, return this else nil"
+
+	^nil! !
+!Object class categoriesFor: #preferredObjectProxyClass!persistency!public! !
+
+!SSWDBClassWithInfo methodsFor!
+
+instanceFromDBValue: aValue in: aReStore
+
+	^self infoClass instanceFromDBValue: aValue in: aReStore! !
+!SSWDBClassWithInfo categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+
+!SSWDBGeneralCollectionSpec methodsFor!
+
+collectionProxyClass
+
+	"22/1/2001"
+	
+	^SSWDBGeneralCollectionProxy! !
+!SSWDBGeneralCollectionSpec categoriesFor: #collectionProxyClass!constants!public! !
+
+!SSWDBOwnedCollectionSpec methodsFor!
+
+collectionProxyClass
+
+	"21/1/2001"
+	
+	^SSWDBOwnedCollectionProxy! !
+!SSWDBOwnedCollectionSpec categoriesFor: #collectionProxyClass!constants!public! !
+
+!SSWDBScaledDecimalWithInfo methodsFor!
+
+instanceFromDBValue: aValue in: aReStore
+
+	"Handle SQL dialects which do not explicity support decimals"
+
+	| scaleFactor |
+
+	(aValue isNil or: [aValue isKindOf: ScaledDecimal]) ifTrue: [^aValue].
+
+	"Convert to a ScaledDecimal, rounding to the scale of the receiver"
+	scaleFactor := 10 ** self scale.
+
+	^(ScaledDecimal newFromNumber: (aValue * scaleFactor) rounded scale: self scale) / scaleFactor! !
+!SSWDBScaledDecimalWithInfo categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+
+!SSWDBTable methodsFor!
+
+tableRecord
+
+	^SSWDBTableRecord new
+		tableName: self name; 
+		fullTableName: self fullName;
+		nextID: 1;
+		yourself!
+
+versionControlField
+
+	^self controlFields detect: [ :each | each accessor specialSymbol = #_version]!
+
+withIDAndVersionFields
+
+	"Return a copy of the receiver table but containing only the id and version fields"
+	
+	| withControlFields |
+
+	withControlFields := SSWDBTable new.
+
+	^withControlFields
+		reStore: self reStore;
+		name: self name;
+		fullName: self fullName;
+		idField: self idField;
+		controlFields: (Array with: self versionControlField);
+		yourself! !
+!SSWDBTable categoriesFor: #tableRecord!evaluating!public! !
+!SSWDBTable categoriesFor: #versionControlField!evaluating!public! !
+!SSWDBTable categoriesFor: #withIDAndVersionFields!evaluating!public! !
+
+!String methodsFor!
+
+withComponents
+
+	"Treat as an object, not a collection"
+
+	^SSWDBObjectWithComponents on: self!
+
+withRelatedComponents
+
+	"Treat as an object, not a collection"
+
+	^SSWDBObjectWithRelatedComponents on: self! !
+!String categoriesFor: #withComponents!converting!public! !
+!String categoriesFor: #withRelatedComponents!converting!public! !
+
+!String class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"ASSERT: aValue isNil OR aValue isKindOf: self"
+
+	^aValue! !
+!String class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+
+!Time class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"Private - 10/3/01
+	
+	If aValue is a timestamp, extract only the time"
+	
+	^(aValue isKindOf: TimeStamp)
+		ifTrue: [aValue time]
+		ifFalse: [aValue]! !
+!Time class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+
+!TimeStamp class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	(aValue isKindOf: Date) ifTrue: [^self date: aValue].
+	(aValue isKindOf: Time) ifTrue: [^self time: aValue].
+
+	^aValue! !
+!TimeStamp class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+
+!UndefinedObject methodsFor!
+
+storeIn: anSSWReStore
+
+	"1/9/2001	Issue#0016
+
+	Do nothing - cannot store an UndefinedObject"!
+
+unstore
+
+	"1/9/2001	Issue#0016
+
+	Do nothing - cannot store/unstore an UndefinedObject"! !
+!UndefinedObject categoriesFor: #storeIn:!converting!public! !
+!UndefinedObject categoriesFor: #unstore!converting!public! !
+
+"End of package definition"!
+

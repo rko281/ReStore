@@ -1,0 +1,471 @@
+﻿| package |
+package := Package name: 'SSW ReStore Querying'.
+package paxVersion: 1;
+	basicComment: 'ReStore for Dolphin Smalltalk 
+Version 2.00
+©2003-2018 John Aspinall
+
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #RequiredUndefinedObject;
+	add: #SSWDBBlockArgument;
+	add: #SSWDBBlockEvaluator;
+	add: #SSWDBBlockParser;
+	add: #SSWDBBlockReceiver;
+	add: #SSWDBCollectionBlockReceiver;
+	add: #SSWDBDumbArgument;
+	add: #SSWDBGeneralCollectionBlockReceiver;
+	add: #SSWDBInstancesCollection;
+	add: #SSWDBOwnedCollectionBlockReceiver;
+	add: #SSWDBParseError;
+	add: #SSWDBQueryCondition;
+	add: #SSWDBQueryConditionCollection;
+	add: #SSWDBQueryFieldCollection;
+	add: #SSWDBQueryIDField;
+	add: #SSWDBReadStream;
+	add: #WildcardString;
+	yourself.
+
+package methodNames
+	add: #Boolean -> #asSQLConditions;
+	add: #Class -> #isPersistentIn:;
+	add: #CompiledCode -> #readsOrWritesAnyInstVar;
+	add: #CompiledCode -> #sswByteCodeDispatcher;
+	add: #CompiledCode -> #sswReadsInstVar:at:;
+	add: #CompiledCode -> #sswWritesInstVar:at:;
+	add: #DBError -> #isCommunicationLinkFailure;
+	add: #DBError -> #isRecordDeletedError;
+	add: #DeafObject -> #_id;
+	add: #Object -> #isRequiredForSimilarity;
+	add: #Object -> #isSimilarTo:;
+	add: #Object -> #qualify:in:via:;
+	add: #Object -> #similarityComparator;
+	add: #SSWDBClassWithInfo -> #isPersistentIn:;
+	add: #SSWDBCollectionSpec -> #dbBlockCollectionReceiver;
+	add: #SSWDBGeneralCollectionSpec -> #dbBlockCollectionReceiver;
+	add: #SSWDBOwnedCollectionSpec -> #dbBlockCollectionReceiver;
+	add: #SSWSQLCondition -> #convertValue:;
+	add: #SSWSQLCondition -> #fieldNamed:;
+	add: #SSWSQLCondition -> #finalField;
+	add: #SSWSQLCondition -> #hasFinalField;
+	add: #SSWSQLCondition -> #requiresAliasing;
+	add: #SSWSQLCondition -> #table;
+	add: #SSWSQLCondition -> #writeAliasedSQLOn:;
+	add: #SSWSQLConditionCollection -> #convertValue:;
+	add: #SSWSQLConditionCollection -> #fieldNamed:;
+	add: #SSWSQLConditionCollection -> #finalField;
+	add: #SSWSQLConditionCollection -> #hasFinalField;
+	add: #SSWSQLConditionCollection -> #requiresAliasing;
+	add: #SSWSQLConditionCollection -> #writeAliasedSQLOn:;
+	add: #String -> #asWildcard;
+	add: #UndefinedObject -> #isRequiredForSimilarity;
+	add: #UndefinedObject -> #required;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\Core\Object Arts\Dolphin\Database\Database Connection Base';
+	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: 'SSW ReStore Base Additions';
+	add: 'SSW ReStore Collections';
+	add: 'SSW ReStore SQL Entities';
+	add: 'SSW ReStore SQL Queries';
+	add: 'SSW ReStore Tables';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #RequiredUndefinedObject
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'soleInstance'!
+Object subclass: #SSWDBBlockParser
+	instanceVariableNames: 'reStore argumentClass argumentTable referencedTables qualifyingConditions qualifyingTables orderingSpecs groupByFields activeReceiver accumulatedConditions currentConditions isCollectingAssociations fieldEncounters accumulatedConditionsStack isAccumulatingConditions'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBDumbArgument
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'current'!
+Object subclass: #SSWDBInstancesCollection
+	instanceVariableNames: 'reStore instancesClass parser sortBlock preFetchComponents'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+String variableByteSubclass: #WildcardString
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLConditionCollection variableSubclass: #SSWDBQueryConditionCollection
+	instanceVariableNames: 'parser blockEndpoint postCondition'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLFieldCollection variableSubclass: #SSWDBQueryFieldCollection
+	instanceVariableNames: 'parser'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Error subclass: #SSWDBParseError
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBQueryTableField subclass: #SSWDBQueryIDField
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWSQLCondition subclass: #SSWDBQueryCondition
+	instanceVariableNames: 'parser'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ReadStream subclass: #SSWDBReadStream
+	instanceVariableNames: 'instancesCollection'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ProtoObject subclass: #SSWDBBlockEvaluator
+	instanceVariableNames: 'parser currentMode'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBBlockEvaluator subclass: #SSWDBBlockArgument
+	instanceVariableNames: 'currentClass isForModify finalFields'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBBlockEvaluator subclass: #SSWDBCollectionBlockReceiver
+	instanceVariableNames: 'collectionSpec collection'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBBlockArgument subclass: #SSWDBBlockReceiver
+	instanceVariableNames: 'currentTable path'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCollectionBlockReceiver subclass: #SSWDBGeneralCollectionBlockReceiver
+	instanceVariableNames: 'intermediateCollection'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCollectionBlockReceiver subclass: #SSWDBOwnedCollectionBlockReceiver
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!Boolean methodsFor!
+
+asSQLConditions
+
+	"Received following a query block similar to [ :each | true]"
+
+	"Always true = no conditions"
+	^SSWSQLConditionCollection forAND! !
+!Boolean categoriesFor: #asSQLConditions!converting!public! !
+
+!Class methodsFor!
+
+isPersistentIn: anSSWReStore
+
+	"Private - 6/8/2000"
+	
+	^anSSWReStore isClassPersistent: self! !
+!Class categoriesFor: #isPersistentIn:!private!testing! !
+
+!CompiledCode methodsFor!
+
+readsOrWritesAnyInstVar
+
+	1 to: self methodClass instSize do: 
+		[ :index | 
+		(self sswReadsInstVar: 'dummy' at: index) ifTrue: [^true].
+		(self sswWritesInstVar: 'dummy' at: index) ifTrue: [^true]].
+
+	^false!
+
+sswByteCodeDispatcher
+	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
+
+	"Private - Answer a <ByteCodeDispatcher> on the receiver."
+
+	^ByteCodeDispatcher on: self!
+
+sswReadsInstVar: aString at: anInteger 
+	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
+
+	"Answer whether the receiver accesses the instance variable named, aString, which
+	is the instance variable of its method class with the specified <integer> index."
+
+	| extra |
+	extra := self extraIndex.
+	^((extra between: 1 and: 5) or: [extra == 7]) not 
+		and: [self sswByteCodeDispatcher readsInstVarAt: anInteger]!
+
+sswWritesInstVar: aString at: anInteger  
+	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
+
+	"Answer whether the receiver accesses the instance variable named, aString, which
+	is the instance variable of its method class with the specified <integer> index."
+
+	^(self extraIndex between: 1 and: 6) not 
+		and: [self sswByteCodeDispatcher writesInstVarAt: anInteger]! !
+!CompiledCode categoriesFor: #readsOrWritesAnyInstVar!public!testing! !
+!CompiledCode categoriesFor: #sswByteCodeDispatcher!accessing!private! !
+!CompiledCode categoriesFor: #sswReadsInstVar:at:!public!testing! !
+!CompiledCode categoriesFor: #sswWritesInstVar:at:!public!testing! !
+
+!DBError methodsFor!
+
+isCommunicationLinkFailure
+
+	^tag notNil and: [tag errors anySatisfy: [ :each | each isCommunicationLinkFailure]]!
+
+isRecordDeletedError
+
+	^tag notNil and: [tag errors anySatisfy: [ :each | each isInvalidCursorPosition]]! !
+!DBError categoriesFor: #isCommunicationLinkFailure!public!testing! !
+!DBError categoriesFor: #isRecordDeletedError!public!testing! !
+
+!DeafObject methodsFor!
+
+_id
+
+	^self! !
+!DeafObject categoriesFor: #_id!accessing!public! !
+
+!Object methodsFor!
+
+isRequiredForSimilarity
+
+	"Private - Is this object required to be similar when testing similarity of its owner?"
+	^true!
+
+isSimilarTo: anObject
+
+	^self perform: anObject similarityComparator with: anObject!
+
+qualify: instances in: aReStore via: aCollection
+
+	(aReStore tableForClass: self class) allDataFieldsDo:
+		[ :field || value |
+		value := field accessor valueIn: self.
+		value isRequiredForSimilarity ifTrue:
+			[| accessor chain |
+			accessor := field accessor.
+			chain := aCollection copyWith: accessor name.
+			[accessor isEmbedded] whileTrue: 
+				[accessor := accessor embeddedAccessor. "Will be undefined if embedded package not loaded; this is OK"
+				chain := chain copyWith: accessor name].
+			(field targetClass isPersistentIn: aReStore)
+			ifTrue: 
+				[(value _dbProxyIfNone: [nil])
+					ifNil: [value qualify: instances in: aReStore via: chain]
+					ifNotNil: [ :proxy | instances qualifyWith: [ :each | (each chainPerform: chain) _id = proxy _id]]]
+			ifFalse: 
+				[instances qualifyWith: [ :each | (each chainPerform: chain) isSimilarTo: value]]]]!
+
+similarityComparator
+
+	"Private - Default is equality"
+
+	^#=! !
+!Object categoriesFor: #isRequiredForSimilarity!private!testing! !
+!Object categoriesFor: #isSimilarTo:!public!testing! !
+!Object categoriesFor: #qualify:in:via:!actions!private! !
+!Object categoriesFor: #similarityComparator!constants!private! !
+
+!SSWDBClassWithInfo methodsFor!
+
+isPersistentIn: anSSWReStore
+
+	"Private - 15/4/2001
+
+	Required class-like behavior"
+
+	^false! !
+!SSWDBClassWithInfo categoriesFor: #isPersistentIn:!private!testing! !
+
+!SSWDBCollectionSpec methodsFor!
+
+dbBlockCollectionReceiver
+
+	"Return a block receiver object suitable for parsing (mainly) subqueries involving the receiver"
+
+	^self subclassResponsibility! !
+!SSWDBCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+
+!SSWDBGeneralCollectionSpec methodsFor!
+
+dbBlockCollectionReceiver
+
+	"Return a block receiver object suitable for parsing (mainly) subqueries involving the receiver"
+
+	^SSWDBGeneralCollectionBlockReceiver new
+		collectionSpec: self;
+		yourself! !
+!SSWDBGeneralCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+
+!SSWDBOwnedCollectionSpec methodsFor!
+
+dbBlockCollectionReceiver
+
+	"Return a block receiver object suitable for parsing (mainly) subqueries involving the receiver"
+
+	^SSWDBOwnedCollectionBlockReceiver new
+		collectionSpec: self;
+		yourself! !
+!SSWDBOwnedCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+
+!SSWSQLCondition methodsFor!
+
+convertValue: aValue
+
+	"For situations where a condition is being used as a result field in a query.
+	Since the receiver is a condition, its result must be a Boolean"
+
+	^Boolean instanceFromDBValue: aValue in: self field table reStore!
+
+fieldNamed: aString
+
+	"Polymorphic with SSWDBField; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^self field fieldNamed: aString!
+
+finalField
+
+	"Polymorphic with SSWDBBlockEvaluator; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^self!
+
+hasFinalField
+
+	"Polymorphic with SSWDBBlockEvaluator; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^true!
+
+requiresAliasing
+
+	"Polymorphic with SSWDBField; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^false!
+
+table
+
+	"Polymorphic with SSWDBField; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^self field table!
+
+writeAliasedSQLOn: aStream
+
+	"For situations where a condition is being used as a result field in a query"
+
+	aStream nextPutAliasedField: self! !
+!SSWSQLCondition categoriesFor: #convertValue:!output!public! !
+!SSWSQLCondition categoriesFor: #fieldNamed:!accessing!public! !
+!SSWSQLCondition categoriesFor: #finalField!accessing!public! !
+!SSWSQLCondition categoriesFor: #hasFinalField!public!testing! !
+!SSWSQLCondition categoriesFor: #requiresAliasing!public!testing! !
+!SSWSQLCondition categoriesFor: #table!accessing!public! !
+!SSWSQLCondition categoriesFor: #writeAliasedSQLOn:!output!public! !
+
+!SSWSQLConditionCollection methodsFor!
+
+convertValue: aValue
+
+	"For situations where a condition is being used as a result field in a query.
+	Since the receiver is a condition, its result must be a Boolean"
+
+	^Boolean instanceFromDBValue: aValue in: self first field table reStore!
+
+fieldNamed: aString
+
+	"Polymorphic with SSWDBField; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^self !
+
+finalField
+
+	"Polymorphic with SSWDBBlockEvaluator; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^self!
+
+hasFinalField
+
+	"Polymorphic with SSWDBBlockEvaluator; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^true!
+
+requiresAliasing
+
+	"Polymorphic with SSWDBField; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
+
+	^false!
+
+writeAliasedSQLOn: aStream
+
+	"For situations where a condition is being used as a result field in a query"
+
+	aStream nextPutAliasedField: self! !
+!SSWSQLConditionCollection categoriesFor: #convertValue:!output!public! !
+!SSWSQLConditionCollection categoriesFor: #fieldNamed:!accessing!public! !
+!SSWSQLConditionCollection categoriesFor: #finalField!accessing!public! !
+!SSWSQLConditionCollection categoriesFor: #hasFinalField!public!testing! !
+!SSWSQLConditionCollection categoriesFor: #requiresAliasing!public!testing! !
+!SSWSQLConditionCollection categoriesFor: #writeAliasedSQLOn:!output!public! !
+
+!String methodsFor!
+
+asWildcard
+
+	| wildcard |
+
+	wildcard := WildcardString new: self size.
+
+	self
+		replaceBytesOf: wildcard
+		from: 1 to: self size startingAt: 1.
+
+	^wildcard
+! !
+!String categoriesFor: #asWildcard!converting!public! !
+
+!UndefinedObject methodsFor!
+
+isRequiredForSimilarity
+
+	"Private - nil (as in unset) not required for similarity. Use 'nil required' instead"
+
+	^false!
+
+required
+
+	"Return the 'required nil' object"
+
+	^RequiredUndefinedObject soleInstance! !
+!UndefinedObject categoriesFor: #isRequiredForSimilarity!private!testing! !
+!UndefinedObject categoriesFor: #required!accessing!public! !
+
+"End of package definition"!
+

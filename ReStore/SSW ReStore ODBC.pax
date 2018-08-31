@@ -1,0 +1,180 @@
+﻿| package |
+package := Package name: 'SSW ReStore ODBC'.
+package paxVersion: 1;
+	basicComment: 'ReStore for Dolphin Smalltalk 
+Version 2.00
+©2003-2018 John Aspinall
+
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #SSWODBCBoundBuffer;
+	add: #SSWODBCColAttr;
+	add: #SSWODBCConnection;
+	add: #SSWODBCField;
+	add: #SSWODBCForwardOnlyResultSet;
+	add: #SSWODBCResultSet;
+	add: #SSWODBCStatement;
+	yourself.
+
+package methodNames
+	add: #DBError -> #isInvalidTransactionState;
+	add: #DBErrorDetails -> #isCommunicationLinkFailure;
+	add: #DBErrorDetails -> #isInvalidCursorPosition;
+	add: #DBErrorDetails -> #isInvalidTransactionState;
+	add: #ODBCLibrary -> #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:;
+	add: #SSWDBField -> #asParameterColumn:for:;
+	add: #SSWDBField -> #columnIn:;
+	add: #SSWDBQueryField -> #asParameterColumn:for:;
+	add: #SSWSQLParameterField -> #asParameterColumn:for:;
+	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
+	add: #String -> #asParameterColumn;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: '..\..\Core\Object Arts\Dolphin\Database\Database Connection Base';
+	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: 'SSW ReStore Base Additions';
+	add: 'SSW ReStore SQL Entities';
+	add: 'SSW ReStore Tables';
+	yourself).
+
+package!
+
+"Class Definitions"!
+
+DBResultSet subclass: #SSWODBCResultSet
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DBForwardOnlyResultSet subclass: #SSWODBCForwardOnlyResultSet
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DBBoundBuffer subclass: #SSWODBCBoundBuffer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DBParameterizedStatement subclass: #SSWODBCStatement
+	instanceVariableNames: 'query'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DBColAttr subclass: #SSWODBCColAttr
+	instanceVariableNames: 'field maxBoundBufferSize'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DBConnection subclass: #SSWODBCConnection
+	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DBField subclass: #SSWODBCField
+	instanceVariableNames: 'statement'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!DBError methodsFor!
+
+isInvalidTransactionState
+
+	^tag notNil and: [tag errors anySatisfy: [ :each | each isInvalidTransactionState]]! !
+!DBError categoriesFor: #isInvalidTransactionState!public!testing! !
+
+!DBErrorDetails methodsFor!
+
+isCommunicationLinkFailure
+
+	^self sqlState = '08S01'!
+
+isInvalidCursorPosition
+
+	^self sqlState = 'S1109'!
+
+isInvalidTransactionState
+
+	^self sqlState = '25000'! !
+!DBErrorDetails categoriesFor: #isCommunicationLinkFailure!public! !
+!DBErrorDetails categoriesFor: #isInvalidCursorPosition!public! !
+!DBErrorDetails categoriesFor: #isInvalidTransactionState!public! !
+
+!ODBCLibrary methodsFor!
+
+sqlDescribeParam: anExternalHandle parameterNumber: columnInteger dataTypePtr: typeSWORD parameterSizePtr: precisionDWORD decimalDigitsPtr: scaleSWORD nullablePtr: nullableSWORD 
+	"SQLRETURN SQLDescribeParam(  
+	      SQLHSTMT        StatementHandle,  
+	      SQLUSMALLINT    ParameterNumber,  
+	      SQLSMALLINT *   DataTypePtr,  
+	      SQLULEN *       ParameterSizePtr,  
+	      SQLSMALLINT *   DecimalDigitsPtr,  
+	      SQLSMALLINT *   NullablePtr);  "
+
+	<stdcall: sword SQLDescribeParam handle sword SWORD* DWORD* SWORD* SWORD*>
+	^self invalidCall! !
+!ODBCLibrary categoriesFor: #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:!public!win32 functions-odbc library! !
+
+!SSWDBField methodsFor!
+
+asParameterColumn: anInteger for: aStatement
+
+	^self columnIn: aStatement parent!
+
+columnIn: anODBCConnection
+
+	^(anODBCConnection columnsInTable: self table) at: self! !
+!SSWDBField categoriesFor: #asParameterColumn:for:!accessing!public! !
+!SSWDBField categoriesFor: #columnIn:!accessing!public! !
+
+!SSWDBQueryField methodsFor!
+
+asParameterColumn: anInteger for: aStatement
+
+	^self field asParameterColumn: anInteger for: aStatement! !
+!SSWDBQueryField categoriesFor: #asParameterColumn:for:!accessing!public! !
+
+!SSWSQLParameterField methodsFor!
+
+asParameterColumn: anInteger for: aStatement
+
+	^(aStatement describeParam: anInteger) ifNil: [self value asParameterColumn]! !
+!SSWSQLParameterField categoriesFor: #asParameterColumn:for:!public! !
+
+!SSWSQLWriteStream methodsFor!
+
+parameterizedColumnsFor: aStatement
+
+	| parameterizedColumns |
+
+	parameterizedColumns := Array new: self parameterizedFields size.
+
+	self parameterizedFields keysAndValuesDo: [ :index :field | parameterizedColumns at: index put: (field asParameterColumn: index for: aStatement)].
+
+	^parameterizedColumns! !
+!SSWSQLWriteStream categoriesFor: #parameterizedColumnsFor:!accessing!public! !
+
+!String methodsFor!
+
+asParameterColumn
+
+	^SSWODBCColAttr forString: self! !
+!String categoriesFor: #asParameterColumn!converting!public! !
+
+"End of package definition"!
+
