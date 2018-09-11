@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #Customer
 	instanceVariableNames: 'firstName surname emailAddress dateOfBirth address orders'
@@ -12,7 +12,7 @@ Customer comment: ''!
 
 addOrder: anOrder
 
-	self orders add: anOrder!
+	self orders addLast: anOrder!
 
 address
 	^address!
