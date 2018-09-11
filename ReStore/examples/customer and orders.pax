@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'customer and orders'.
 package paxVersion: 1;
 	basicComment: 'ReStore Customer and Orders example.
