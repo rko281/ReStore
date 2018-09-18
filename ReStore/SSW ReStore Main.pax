@@ -69,6 +69,7 @@ package methodNames
 	add: #Object -> #_rollbackIn:;
 	add: #Object -> #commit;
 	add: #Object -> #commitIn:;
+	add: #Object -> #errorNotPersistent;
 	add: #Object -> #handleUpdateClash:from:to:;
 	add: #Object -> #hasChanged;
 	add: #Object -> #isDBDeleted;
@@ -94,6 +95,8 @@ package methodNames
 	add: #Object -> #withComponents;
 	add: #Object -> #withRelatedComponents;
 	add: #Object -> #writeSQLOn:;
+	add: #Process -> #reStore;
+	add: #Process -> #reStore:;
 	add: #SSWDBClassWithInfo -> #instanceFromDBValue:in:;
 	add: #SSWDBGeneralCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBOwnedCollectionSpec -> #collectionProxyClass;
@@ -159,10 +162,10 @@ Object subclass: #SSWDBTransaction
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize'
+	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliatedProcesses'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
-	classInstanceVariableNames: 'default activeReStores'!
+	classInstanceVariableNames: 'globalDefault activeReStores'!
 Notification subclass: #ObjectCommitFailure
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -304,7 +307,7 @@ commitAll
 
 	^self isEmpty 
 		ifTrue: [true]
-		ifFalse: [self commitAllIn: (self anyOne _reStoreIfNone: [ReStore])]!
+		ifFalse: [self commitAllIn: (self anyOne _reStoreIfNone: [SSWReStore default])]!
 
 commitAllIn: aReStore
 
@@ -563,7 +566,7 @@ commit
 	In the event of a failure the default action is to abandon the failed transaction leaving the receiver in its current state. 
 	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
 
-	^self commitIn: (self _reStoreIfNone: [ReStore])!
+	^self commitIn: (self _reStoreIfNone: [SSWReStore default])!
 
 commitIn: aReStore
 	"Private - Commit the receiver and its related objects in aReStore; return success.
@@ -573,6 +576,10 @@ commitIn: aReStore
 	^(aReStore commitObject: self withRelatedComponents)
 		ifTrue: [true]
 		ifFalse: [ObjectCommitFailure signalWith: aReStore. false]!
+
+errorNotPersistent
+
+	self error: 'object not persistent'!
 
 handleUpdateClash: aSymbol from: oldVersion to: newVersion
 
@@ -838,6 +845,7 @@ writeSQLOn: aStream
 !Object categoriesFor: #_rollbackIn:!private!restore-internal! !
 !Object categoriesFor: #commit!public!restore-api! !
 !Object categoriesFor: #commitIn:!private!restore-internal! !
+!Object categoriesFor: #errorNotPersistent!exceptions!public! !
 !Object categoriesFor: #handleUpdateClash:from:to:!public!restore-update clash handling! !
 !Object categoriesFor: #hasChanged!public!restore-api! !
 !Object categoriesFor: #isDBDeleted!public!restore-internal! !
@@ -874,6 +882,20 @@ preferredObjectProxyClass
 
 	^nil! !
 !Object class categoriesFor: #preferredObjectProxyClass!persistency!public! !
+
+!Process methodsFor!
+
+reStore
+
+	^(SSWReStore processDefaultFor: self) ifNil: [SSWReStore globalDefault]!
+
+reStore: aReStoreOrNil
+
+	aReStoreOrNil isNil 
+		ifTrue: [(SSWReStore processDefaultFor: self) ifNotNil: [ :reStore | reStore disaffiliateWithProcess: self]]
+		ifFalse: [aReStoreOrNil affiliateWithProcess: self]! !
+!Process categoriesFor: #reStore!accessing!public! !
+!Process categoriesFor: #reStore:!accessing!public! !
 
 !SSWDBClassWithInfo methodsFor!
 

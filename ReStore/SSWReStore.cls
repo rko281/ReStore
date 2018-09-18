@@ -1,10 +1,10 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize'
+	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliatedProcesses'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
-	classInstanceVariableNames: 'default activeReStores'!
+	classInstanceVariableNames: 'globalDefault activeReStores'!
 SSWReStore guid: (GUID fromString: '{5a3e3dd2-3990-11d5-b1df-444553540000}')!
 SSWReStore comment: 'Copyright 2000/2001 Solutions Software Limited'!
 !SSWReStore categoriesForClass!Unclassified! !
@@ -88,6 +88,23 @@ addClassWithSubclasses: aClass
 	
 	aClass withAllSubclasses do: [ :class | self addClass: class]!
 
+affiliatedProcesses
+
+	"affiliatedProcesses stores a weak collection of processes for which the receiver should act as the default ReStore instance.
+	By default this is nil, meaning not affiliated to any particular process"
+
+	^affiliatedProcesses!
+
+affiliateWithActiveProcess
+
+	self affiliateWithProcess: Processor activeProcess!
+
+affiliateWithProcess: aProcess
+
+	affiliatedProcesses isNil 
+		ifTrue: [affiliatedProcesses := WeakArray with: aProcess]
+		ifFalse: [affiliatedProcesses add: aProcess]!
+
 applyUpdates: anSSWSQLCollection toObject: anSSWDBObjectProxy
 
 	"6/8/2000
@@ -126,10 +143,10 @@ binaryStoreOn: aStream
 
 	"Override so the ReStore global is stored as a singleton proxy when saving the package (rather than a binary global)"
 
-	self == ##(self) default ifFalse: [^super binaryStoreOn: aStream].
+	self == ##(self) globalDefault ifFalse: [^super binaryStoreOn: aStream].
 
 	(STBOutFiler on: aStream) 
-		override: self with: (STBSingletonProxy forClass: ##(self) using: #default);
+		override: self with: (STBSingletonProxy forClass: ##(self) using: #globalDefault);
 		nextPut: self!
 
 cachedInstancesOf: aClass
@@ -597,6 +614,10 @@ destroyTable: aTable
 		self unstoreNextIDsForTables: droppedTables.
 		true]] ensure: [self clearDBTableNames]!
 
+disaffiliateWithProcess: aProcess
+
+	(affiliatedProcesses ifNil: [OrderedCollection new]) remove: aProcess ifAbsent: [self error: 'not affiliated with ', aProcess printString]!
+
 disconnect
 
 	"14/8/2000
@@ -887,6 +908,14 @@ instancesOf: aClass satisfying: qualifierBlock
 	Convenience method"
 	
 	^(self instancesOf: aClass) satisfying: qualifierBlock!
+
+isAffiliatedWithProcess: aProcess
+
+	^affiliatedProcesses 
+		ifNil: [false]
+		ifNotNil: [affiliatedProcesses includes: aProcess]
+
+	!
 
 isClassPersistent: aClass
 
@@ -1729,6 +1758,9 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #addClass:!class maintenance!public! !
 !SSWReStore categoriesFor: #addClasses:!class maintenance!public! !
 !SSWReStore categoriesFor: #addClassWithSubclasses:!class maintenance!public! !
+!SSWReStore categoriesFor: #affiliatedProcesses!accessing!public! !
+!SSWReStore categoriesFor: #affiliateWithActiveProcess!initialize/release!public! !
+!SSWReStore categoriesFor: #affiliateWithProcess:!initialize/release!public! !
 !SSWReStore categoriesFor: #applyUpdates:toObject:!public!read/write objects! !
 !SSWReStore categoriesFor: #beginDumbTransaction!private!transaction management! !
 !SSWReStore categoriesFor: #beginTransaction!public!transaction api! !
@@ -1772,6 +1804,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #destroyAllTables!class maintenance!public! !
 !SSWReStore categoriesFor: #destroyClass:!class maintenance!public! !
 !SSWReStore categoriesFor: #destroyTable:!class maintenance!private! !
+!SSWReStore categoriesFor: #disaffiliateWithProcess:!initialize/release!public! !
 !SSWReStore categoriesFor: #disconnect!connection!public! !
 !SSWReStore categoriesFor: #dsn:!connection!public! !
 !SSWReStore categoriesFor: #enableFullTableRecords!class maintenance!public! !
@@ -1804,6 +1837,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #insertProxy:!public!read/write objects! !
 !SSWReStore categoriesFor: #instancesOf:!public!querying! !
 !SSWReStore categoriesFor: #instancesOf:satisfying:!public!querying! !
+!SSWReStore categoriesFor: #isAffiliatedWithProcess:!public!testing! !
 !SSWReStore categoriesFor: #isClassPersistent:!public!testing! !
 !SSWReStore categoriesFor: #isConnected!public!testing! !
 !SSWReStore categoriesFor: #isSystemClass:!public!testing! !
@@ -1913,10 +1947,20 @@ deactivated: anSSWReStore
 
 default
 
-	"Return the default ReStore instance, creating it if necessary. 
+	"Return the default ReStore instance. This may be a private default for the current process, or the global default"
+
+	self processDefault ifNotNil: [ :processDefault | ^processDefault].
+
+	self globalDefault isConnected ifFalse: [self error: 'ReStore not connected'].
+
+	^globalDefault!
+
+globalDefault
+
+	"Private - Return the global default ReStore instance (i.e. the default for all processes not requiring their own private default), creating it if necessary. 
 	Many (most?) applications will only use a single ReStore; having a default instance means it no longer needs to passed around as a parameter"
 
-	^default ifNil: [default := self new]!
+	^globalDefault ifNil: [globalDefault := self new]!
 
 initialize
 
@@ -1925,7 +1969,7 @@ initialize
 
 initializeReStoreGlobal
 
-	Smalltalk at: #ReStore put: self default!
+	Smalltalk at: #ReStore put: self globalDefault!
 
 new
 
@@ -1944,6 +1988,18 @@ onStartup
 	since these will reference the connection active in the previous session"
 
 	self activeReStores do: [ :each | each clearStatementCache]!
+
+processDefault
+
+	"Private - Return the ReStore instance associated with the active Process, or nil if none"
+
+	^self processDefaultFor: Processor activeProcess!
+
+processDefaultFor: aProcess
+
+	"Private - Return the ReStore instance associated with aProcess, or nil if none"
+
+	^self activeReStores detect: [ :each | each isAffiliatedWithProcess: aProcess] ifNone: [nil]!
 
 proxyForObject: anObject ifNone: aBlock
 
@@ -1964,9 +2020,9 @@ reset
 
 	"Reset the default instance"
 
-	default isNil ifFalse: 
-		[default isConnected ifTrue: [default disconnect].
-		default := nil].
+	globalDefault isNil ifFalse: 
+		[globalDefault isConnected ifTrue: [globalDefault disconnect].
+		globalDefault := nil].
 
 	self initializeReStoreGlobal!
 
@@ -1989,10 +2045,13 @@ reStoreForObject: anObject ifNone: aBlock
 !SSWReStore class categoriesFor: #activeReStores!accessing!public! !
 !SSWReStore class categoriesFor: #deactivated:!events!public! !
 !SSWReStore class categoriesFor: #default!accessing!public! !
+!SSWReStore class categoriesFor: #globalDefault!accessing!private! !
 !SSWReStore class categoriesFor: #initialize!initialize/release!public! !
 !SSWReStore class categoriesFor: #initializeReStoreGlobal!initialize/release!private! !
 !SSWReStore class categoriesFor: #new!instance creation!public! !
 !SSWReStore class categoriesFor: #onStartup!events!public! !
+!SSWReStore class categoriesFor: #processDefault!accessing!private! !
+!SSWReStore class categoriesFor: #processDefaultFor:!accessing!private! !
 !SSWReStore class categoriesFor: #proxyForObject:ifNone:!accessing!public! !
 !SSWReStore class categoriesFor: #reset!accessing!initialize/release!public! !
 !SSWReStore class categoriesFor: #resetActive!initialize/release!private! !
