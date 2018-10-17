@@ -1,4 +1,4 @@
-# ReStore 2.00
+# ReStore
 ReStore - transparent relational database storage for Dolphin Smalltalk
 
 ## Getting Started
