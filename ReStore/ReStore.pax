@@ -1,0 +1,38 @@
+﻿| package |
+package := Package name: 'ReStore'.
+package paxVersion: 1;
+	basicComment: 'ReStore for Dolphin Smalltalk 
+Version 2.00
+©2003-2018 John Aspinall
+
+https://github.com/rko281/ReStore
+
+
+See customer and orders package for usage examples.'.
+
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: (IdentitySet new
+	add: 'examples\customer and orders';
+	yourself).
+
+package setManualPrerequisites: #(
+	'customer and orders').
+
+package!
+
+"Class Definitions"!
+
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+"End of package definition"!
+
