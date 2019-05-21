@@ -122,10 +122,10 @@ _ensurePersistentIn: anSSWReStore
 
 _forceRefresh
 
-	"Simple - just re-recover the proxied object"
+	"Simple - just forget then re-recover the proxied object"
 
 	self 
-		_forgetProxiedObject; 
+		_lazyRefresh; 
 		_recoverProxiedObject!
 
 _forceRefreshIn: aReStore
@@ -169,26 +169,6 @@ _hasChangedFrom: anObject
 	
 	^(self == anObject) not!
 
-_identicalTo: anotherProxy
-
-	"8/10/2000 
-
-	Proxy equivalent to == "
-
-	<primitive: 110>
-	^self primitiveFailed
-!
-
-_identityHash
-
-	"8/10/2000 
-
-	Answer the receiver proxy's identity"
-	
-	<primitive: 75>
-	^nil primitiveFailed
-!
-
 _isDeleted
 
 	"21/1/2001
@@ -217,6 +197,18 @@ _isRecovered
 	"21/1/2001"
 	
 	^proxiedObject ~~ nil!
+
+_lazyRefresh
+
+	"Simple - just forget the proxied object"
+
+	self _forgetProxiedObject!
+
+_lazyRefreshIn: aReStore
+
+	self validateReStore: aReStore.
+
+	self _lazyRefresh!
 
 _newProxiedObject: anObject
 
@@ -386,9 +378,8 @@ _referenced
 
 _refresh
 
-	"Override to only refresh if updated.
-
-	Future releases may make this choice tuneable or heuristic-driven based on class/instance"
+	"Refresh the receiver with its current database version according to its own preferred strategy.
+	Default behaviour is to refresh if updated; future releases may make this choice tuneable or heuristic-driven based on class/instance etc."
 
 	self _refreshIfUpdated!
 
@@ -416,16 +407,14 @@ _refreshWithContents
 
 	"Refresh the receiver and its contents (if any). Return any refreshed contents (if any)"
 
-	self _refresh.
-
-	^#()!
+	"Default behaviour is to only refresh if updated. Future releases may make this choice tuneable or heuristic-driven based on class/instance"
+	^self _refreshWithContentsIfUpdated!
 
 _refreshWithContentsIfUpdated
 
-	"Refresh the receiver and its contents (if any). Return any refreshed contents (if any)"
+	"Refresh the receiver and its contents (if any) if they are updated. Return the refreshed contents (if any)"
 
 	self _refreshIfUpdated.
-
 	^#()!
 
 _reStore
@@ -513,12 +502,20 @@ _unstore
 
 	^(self == comparand) == false!
 
+basicIdentityHash
+
+	"Answer the receiver proxy's basicIdentityHash. No need to bother the proxiedObject,
+	since this will aquire the same identityHash following _swapReferenced"
+
+	<primitive: 75>
+	^self primitiveFailed!
+
 commit
 
 	"Commit the receiver and its related objects.
 	Return success"
 
-	^reStore commitObject: self withRelatedComponents!
+	^reStore commit: self withRelatedComponents!
 
 debugPrintString
 
@@ -561,11 +558,10 @@ identityHash
 	"8/10/2000 
 
 	Answer the receiver proxy's identity. No need to bother the proxiedObject,
-	since this will aquire the same identityHash	following _swapReferenced"
+	since this will aquire the same identityHash following _swapReferenced"
 
-	<primitive: 75>
-	^nil primitiveFailed
-!
+	<primitive: 147>
+	^self basicIdentityHash bitShift: 14!
 
 includedIn: aCollection
 
@@ -627,13 +623,20 @@ refresh
 
 	"Refresh the receiver and its related objects to their stored state"
 
-	reStore refreshObject: self withRelatedComponents!
+	reStore refresh: self withRelatedComponents!
 
 rollback
 
 	"Rollback the receiver and its related objects to their previous state"
 
-	reStore rollbackObject: self withRelatedComponents!
+	reStore rollback: self withRelatedComponents!
+
+softRollback
+
+	"Carry out a 'soft rollback' on the receiver. This does not rollback any changes but makes the receiver effectively an 'untouched' persistent object and thus eligible for automatic/transparent refresh if its database row is encountered.
+	Since we are a proxy we are by definition not touched, so nothing to do here"
+
+	!
 
 subclassResponsibility
 
@@ -645,7 +648,7 @@ subclassResponsibility
 
 validateReStore: aReStore
 
-	(reStore notNil and: [reStore ~~ reStore]) ifTrue: [reStore halt. self error: 'Attempt to move object between ReStores - Invalid']!
+	(reStore notNil and: [reStore ~~ reStore]) ifTrue: [self error: 'Attempt to move object between ReStores - Invalid']!
 
 withComponents
 
@@ -684,12 +687,12 @@ yourself
 !SSWDBProxy categoriesFor: #_forgetProxiedObject!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_hasChanged!public!testing! !
 !SSWDBProxy categoriesFor: #_hasChangedFrom:!public!testing! !
-!SSWDBProxy categoriesFor: #_identicalTo:!non forwarding!public! !
-!SSWDBProxy categoriesFor: #_identityHash!non forwarding!public! !
 !SSWDBProxy categoriesFor: #_isDeleted!public!testing! !
 !SSWDBProxy categoriesFor: #_isKindOf:!private!testing! !
 !SSWDBProxy categoriesFor: #_isPersistent!public!testing! !
 !SSWDBProxy categoriesFor: #_isRecovered!public!testing! !
+!SSWDBProxy categoriesFor: #_lazyRefresh!actions-refresh!public! !
+!SSWDBProxy categoriesFor: #_lazyRefreshIn:!actions-refresh!public! !
 !SSWDBProxy categoriesFor: #_newProxiedObject:!accessing!public! !
 !SSWDBProxy categoriesFor: #_oneWayBecome:!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
@@ -723,6 +726,7 @@ yourself
 !SSWDBProxy categoriesFor: #_unrecoveredProxyString!accessing!public! !
 !SSWDBProxy categoriesFor: #_unstore!actions-internal!public! !
 !SSWDBProxy categoriesFor: #~~!non forwarding!public! !
+!SSWDBProxy categoriesFor: #basicIdentityHash!non forwarding!public! !
 !SSWDBProxy categoriesFor: #commit!actions-api!public! !
 !SSWDBProxy categoriesFor: #debugPrintString!non forwarding!public! !
 !SSWDBProxy categoriesFor: #doesNotUnderstand:!forwarding!public! !
@@ -736,6 +740,7 @@ yourself
 !SSWDBProxy categoriesFor: #printString!forwarding!public! !
 !SSWDBProxy categoriesFor: #refresh!actions-api!public! !
 !SSWDBProxy categoriesFor: #rollback!actions-api!public! !
+!SSWDBProxy categoriesFor: #softRollback!actions-api!public! !
 !SSWDBProxy categoriesFor: #subclassResponsibility!non forwarding!public! !
 !SSWDBProxy categoriesFor: #validateReStore:!actions-internal!private! !
 !SSWDBProxy categoriesFor: #withComponents!accessing!public! !

@@ -77,6 +77,10 @@ nextPutDate: aDate
 
 	self dialect writeSQLForDate: aDate on: self!
 
+nextPutDateAndTime: aDateAndTime
+
+	self dialect writeSQLForDateAndTime: aDateAndTime on: self!
+
 nextPutFalse
 
 	"Append to the receiver the dialect's representation of false"
@@ -92,10 +96,6 @@ nextPutParameterizedValue: anObject forField: aField
 nextPutTime: aTime
 
 	self dialect writeSQLForTime: aTime on: self!
-
-nextPutTimeStamp: aTimeStamp
-
-	self dialect writeSQLForTimeStamp: aTimeStamp on: self!
 
 nextPutTrue
 
@@ -145,10 +145,10 @@ tableAliases: anIdentityDictionary
 !SSWSQLWriteStream categoriesFor: #nextPutAliasedField:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutAliasedTable:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutDate:!printing!public! !
+!SSWSQLWriteStream categoriesFor: #nextPutDateAndTime:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutFalse!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutParameterizedValue:forField:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutTime:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutTimeStamp:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutTrue!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextTableAlias!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #parameterizedFields!accessing!private! !

@@ -10,16 +10,65 @@ SSWODBCConnection comment: ''!
 !SSWODBCConnection categoriesForClass!Unclassified! !
 !SSWODBCConnection methodsFor!
 
+_columnsInTable: aDBTable 
+
+	"Private - Answer the list of columns in the table matching the specified search criteria"
+
+	| i stmt colAttrs maxBoundBufferSize |
+
+	self sqlDialect shouldUseColumnsStatement ifFalse: [^self _columnsInTableViaQuery: aDBTable].
+
+	stmt := DBColumnsStatement parent: self.
+	stmt
+		catalogName: nil;
+		schemaName: nil;
+		tableName: aDBTable name;
+		columnName: nil.
+	i := 0.
+	maxBoundBufferSize := self sqlDialect maxColumnBytes.
+	colAttrs := stmt results collect: 
+					[:each || name |
+					i := i + 1.
+					name := each atIndex: 4.
+					"at: 'column_name'"	"at: 'DATA_TYPE'"	"at: 'LENGTH'"	"at: 'PRECISION'"	"at: 'SCALE'"
+					(SSWODBCColAttr new)
+						columnNumber: i;
+						name: name;
+						type: (each atIndex: 5);
+						length: (each atIndex: 8);
+						precision: (each atIndex: 7);
+						scale: (each atIndex: 9);
+						field: (aDBTable fieldNamed: name);
+						maxBoundBufferSize: maxBoundBufferSize;
+						yourself].
+	stmt free.
+	^colAttrs!
+
+_columnsInTableViaQuery: aDBTable
+
+	"Use a SELECT query to interrogate the column definitions for aDBTable.
+	Necessary where information returned via DBColumnsStatement can be inaccurate (sole case seen so far - SQLite3 ODBC driver returns char size rather than buffer size for widestring columns)"
+
+	| query statement |
+
+	query := 
+		SSWSQLSelectQuery new 
+			table: aDBTable; 
+			conditions: #(); 
+			yourself.
+
+	statement := self executeQuery: query cursorType: self defaultCursorType.
+
+	^statement describeCols: (1 to: statement numColumns)!
+
 _dbCheckException: anIntegerRetCode from: anODBCObject
 
-	"19/8/2001
-
-	Check anIntegerRetCode as returned to anODBCObject.
+	"Check anIntegerRetCode as returned to anODBCObject.
 	Report an error/notification if appropriate"
 
 	^anIntegerRetCode = SQL_SUCCESS ifFalse: 
 		["Signal an error or warning - decide which"
-		anIntegerRetCode = SQL_SUCCESS_WITH_INFO
+		(anIntegerRetCode = SQL_SUCCESS_WITH_INFO or: [anIntegerRetCode = SQL_NO_DATA])
 		ifTrue: 
 			[(self sqlDialect ifNil: ["During login - keep quiet" true] ifNotNil: [ :dialect | dialect shouldMaskSuccessWithInfo]) ifFalse:
 				[DBWarning signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]
@@ -62,36 +111,6 @@ columnDescriptions
 columnDescriptions: anObject
 	columnDescriptions := anObject!
 
-columns: aStringColumn qualifier: aStringQualifier owner: aStringOwner dbTable: aDBTable 
-	"Private - Answer the list of columns in the table matching the specified search criteria"
-
-	| i stmt colAttrs maxBoundBufferSize |
-	stmt := DBColumnsStatement parent: self.
-	stmt
-		catalogName: aStringQualifier;
-		schemaName: aStringOwner;
-		tableName: aDBTable name;
-		columnName: aStringColumn.
-	i := 0.
-	maxBoundBufferSize := self sqlDialect maxColumnBytes.
-	colAttrs := stmt results collect: 
-					[:each || name |
-					i := i + 1.
-					name := each atIndex: 4.
-					"at: 'column_name'"	"at: 'DATA_TYPE'"	"at: 'LENGTH'"	"at: 'PRECISION'"	"at: 'SCALE'"
-					(SSWODBCColAttr new)
-						columnNumber: i;
-						name: name;
-						type: (each atIndex: 5);
-						length: (each atIndex: 8);
-						precision: (each atIndex: 7);
-						scale: (each atIndex: 9);
-						field: (aDBTable fieldNamed: name);
-						maxBoundBufferSize: maxBoundBufferSize;
-						yourself].
-	stmt free.
-	^colAttrs!
-
 columnsForFields: aCollectionOfDBFields
 
 	^aCollectionOfDBFields collect: [ :field | field columnIn: self]!
@@ -100,16 +119,14 @@ columnsInTable: aDBTable
 
 	^self columnDescriptions at: aDBTable ifAbsentPut: 
 		[| columns fieldMap | 
-		columns := self columns: nil qualifier: nil owner: nil dbTable: aDBTable.
+		columns := self _columnsInTable: aDBTable.
 		fieldMap := IdentityDictionary new.
 		aDBTable allFieldsDo: [ :field | (columns detect: [ :col | col name = field name] ifNone: [nil]) ifNotNil: [ :column | fieldMap at: field put: column]].
 		fieldMap]!
 
 dbCheckException: anIntegerRetCode
 
-	"19/8/2001
-
-	Overriden to revector to new dbCheckException:from: method, which may mask certain 'errors' "
+	"Overriden to revector to new dbCheckException:from: method, which may mask certain 'errors' "
 	
 	^self _dbCheckException: anIntegerRetCode from: self!
 
@@ -183,16 +200,24 @@ freeStmtHandle: aDBStatement
 
 getLongInfoString: infoCode
 
-	"12/5/2001
-
-	Ignore the SQL_MAX_MESSAGE_LENGTH constant 
+	"gnore the SQL_MAX_MESSAGE_LENGTH constant 
 	 - SQLKeywords seems to violate this for some ODBC drivers/databases.
 	Answer a String containing the value of the receiver's info attribute described by infoCode."
 
-	| value len |
-	value := String new: 2048	"not SQL_MAX_MESSAGE_LENGTH".
-	len := ODBCLibrary default getInfo: infoCode for: self into: value.
-	^value copyFrom: 1 to: len!
+	| buffer len |
+
+	buffer := Utf16String new: 2048	"not SQL_MAX_MESSAGE_LENGTH".
+	len := SWORD new.
+
+	self dbCheckException: 
+		(ODBCLibrary default  
+			sqlGetInfo: self asParameter
+			infoType: infoCode
+			infoValuePtr: buffer
+			bufferLength: buffer size
+			stringLengthPtr: len).
+
+	^buffer copyFrom: 1 to: (len value / 2)!
 
 hasTxn
 
@@ -296,6 +321,8 @@ willAutoCommit: aBoolean
 
 	(self sqlDialect shouldCheckAutoCommit and: [self willAutoCommit = aBoolean]) ifFalse: 
 		[super willAutoCommit: aBoolean]! !
+!SSWODBCConnection categoriesFor: #_columnsInTable:!enquiries!private! !
+!SSWODBCConnection categoriesFor: #_columnsInTableViaQuery:!enquiries!private! !
 !SSWODBCConnection categoriesFor: #_dbCheckException:from:!exceptions!private! !
 !SSWODBCConnection categoriesFor: #allocatedStatementCount!accessing!private! !
 !SSWODBCConnection categoriesFor: #allocatedStatementCount:!accessing!private! !
@@ -304,7 +331,6 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #canDescribeParameters!public!testing! !
 !SSWODBCConnection categoriesFor: #columnDescriptions!accessing!private! !
 !SSWODBCConnection categoriesFor: #columnDescriptions:!accessing!private! !
-!SSWODBCConnection categoriesFor: #columns:qualifier:owner:dbTable:!enquiries!private! !
 !SSWODBCConnection categoriesFor: #columnsForFields:!enquiries!public! !
 !SSWODBCConnection categoriesFor: #columnsInTable:!enquiries!public! !
 !SSWODBCConnection categoriesFor: #dbCheckException:!exceptions!public! !

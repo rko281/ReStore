@@ -32,10 +32,8 @@ package classNames
 	yourself.
 
 package methodNames
-	add: #Class -> #instanceFromDBValue:in:;
 	add: #Class -> #isValidForPersistence;
-	add: #Class -> #storedInstances;
-	add: #Class -> #storedInstancesIn:;
+	add: #Class -> #odbcObject;
 	add: #Collection -> #commit;
 	add: #Collection -> #commitAll;
 	add: #Collection -> #commitAllIn:;
@@ -67,6 +65,8 @@ package methodNames
 	add: #Object -> #_reStore;
 	add: #Object -> #_reStoreIfNone:;
 	add: #Object -> #_rollbackIn:;
+	add: #Object -> #_softRefreshIn:;
+	add: #Object -> #_touch;
 	add: #Object -> #commit;
 	add: #Object -> #commitIn:;
 	add: #Object -> #errorNotPersistent;
@@ -98,6 +98,7 @@ package methodNames
 	add: #Process -> #reStore;
 	add: #Process -> #reStore:;
 	add: #SSWDBClassWithInfo -> #instanceFromDBValue:in:;
+	add: #SSWDBDateAndTimeWithResolution -> #instanceFromDBValue:in:;
 	add: #SSWDBGeneralCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBOwnedCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBScaledDecimalWithInfo -> #instanceFromDBValue:in:;
@@ -112,10 +113,12 @@ package methodNames
 	add: 'Date class' -> #instanceFromDBValue:in:;
 	add: 'Metaclass class' -> #instanceFromDBValue:in:;
 	add: 'Number class' -> #instanceFromDBValue:in:;
+	add: 'Object class' -> #instanceFromDBValue:in:;
 	add: 'Object class' -> #preferredObjectProxyClass;
+	add: 'Object class' -> #storedInstances;
+	add: 'Object class' -> #storedInstancesIn:;
 	add: 'String class' -> #instanceFromDBValue:in:;
 	add: 'Time class' -> #instanceFromDBValue:in:;
-	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
 	yourself.
 
 package globalNames
@@ -129,18 +132,18 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\Core\Object Arts\Dolphin\Database\Database Connection Base';
-	add: '..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: 'SSW ReStore Base Additions';
-	add: 'SSW ReStore Collections';
-	add: 'SSW ReStore ODBC';
-	add: 'SSW ReStore Querying';
-	add: 'SSW ReStore SQL Entities';
-	add: 'SSW ReStore SQL Queries';
-	add: 'SSW ReStore Tables';
-	add: '..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell';
-	yourself).
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'SSW ReStore Base Additions'
+	'SSW ReStore Collections'
+	'SSW ReStore ODBC'
+	'SSW ReStore Querying'
+	'SSW ReStore SQL Entities'
+	'SSW ReStore SQL Queries'
+	'SSW ReStore Tables'
+	'..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell').
 
 package!
 
@@ -162,7 +165,7 @@ Object subclass: #SSWDBTransaction
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliatedProcesses'
+	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: 'globalDefault activeReStores'!
@@ -192,7 +195,7 @@ SSWDBSingleTransaction subclass: #SSWDBSingleTransactionWithVersioning
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBWrapper subclass: #SSWDBObjectWithComponents
-	instanceVariableNames: ''
+	instanceVariableNames: 'exclusions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -261,35 +264,19 @@ instanceFromDBValue: aValue in: anSSWReStore
 
 !Class methodsFor!
 
-instanceFromDBValue: aValue in: anSSWReStore
-
-	"Return an instance of the receiver class that is specified by the given value/ReStore combination.
-	Default implementation for persistent application classes - query the ReStore for the relevant instance.
-	Base classes (Integer, String etc.) should reimplement as appropriate"
-	
-	^aValue isNil
-		ifTrue: [nil]
-		ifFalse: [anSSWReStore deferredObjectOfClass: self withID: aValue]!
-
 isValidForPersistence
 
 	"Classes are not persisted directly (e.g. via storeIn:), therefore consider them already persistent"
 	
 	^true!
 
-storedInstances
+odbcObject
 
-	"Return all instances of the receiver stored in the database accessed by the default ReStore"
+	"12/5/2001"
 
-	^self storedInstancesIn: SSWReStore default!
-
-storedInstancesIn: aReStore
-
-	^aReStore instancesOf: self! !
-!Class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+	^self name asString! !
 !Class categoriesFor: #isValidForPersistence!private!testing! !
-!Class categoriesFor: #storedInstances!accessing!public! !
-!Class categoriesFor: #storedInstancesIn:!accessing!public! !
+!Class categoriesFor: #odbcObject!accessing!public! !
 
 !Collection methodsFor!
 
@@ -305,6 +292,8 @@ commitAll
 	In the event of a failure the default action is to abandon the failed transaction leaving the receiver in its current state. 
 	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
 
+	"ASSERT: all elements of the receiver belong to the same ReStore instance (or none, if not yet persistent)"
+
 	^self isEmpty 
 		ifTrue: [true]
 		ifFalse: [self commitAllIn: (self anyOne _reStoreIfNone: [SSWReStore default])]!
@@ -315,7 +304,7 @@ commitAllIn: aReStore
 	In the event of a failure the default action is to abandon the failed transaction leaving the elements of the receiver in their current state. 
 	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
 
-	^(aReStore commitObjects: (self collect: [:each | each withRelatedComponents]))
+	^(aReStore commitAll: (self collect: [:each | each withRelatedComponents]))
 		ifTrue: [true]
 		ifFalse: [ObjectCommitFailure signalWith: aReStore. false]!
 
@@ -323,19 +312,19 @@ hasAnyChanged
 
 	"Return whether any elements of the receiver or their related objects have changed in the image since loading from the ReStore instance in which they reside"
 
-	^self isEmpty not and: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) haveObjectsChanged: (self collect: [ :each | each withRelatedComponents])]!
+	^self isEmpty not and: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) haveAnyChanged: (self collect: [ :each | each withRelatedComponents])]!
 
 refreshAll
 
 	"Refresh the elements of the receiver and their related objects to their stored state in the ReStore in which they reside"
 
-	self isEmpty ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) refreshObjects: (self collect: [ :each | each withRelatedComponents])]!
+	self isEmpty ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) refreshAll: (self collect: [ :each | each withRelatedComponents])]!
 
 rollbackAll
 
 	"Rollback the elements of the receiver and their related objects to their previous state in the ReStore in which they reside"
 
-	self isEmpty ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) rollbackObjects: (self collect: [ :each | each withRelatedComponents])]!
+	self isEmpty ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) rollbackAll: (self collect: [ :each | each withRelatedComponents])]!
 
 unstoreAll
 
@@ -344,7 +333,7 @@ unstoreAll
 
 	^self isEmpty 
 		ifTrue: [true]
-		ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) commitObjects: (self collect: [ :each | each unstored])]!
+		ifFalse: [(self anyOne _reStoreIfNone: [self errorNotPersistent]) commitAll: (self collect: [ :each | each unstored])]!
 
 withComponents
 
@@ -353,10 +342,10 @@ withComponents
 withRelatedComponents
 
 	^SSWDBCollectionWithRelatedContents on: self! !
-!Collection categoriesFor: #commit!public!restore-internal! !
+!Collection categoriesFor: #commit!public!restore-api! !
 !Collection categoriesFor: #commitAll!public!restore-api! !
-!Collection categoriesFor: #commitAllIn:!public!restore-internal! !
-!Collection categoriesFor: #hasAnyChanged!public!restore-api! !
+!Collection categoriesFor: #commitAllIn:!public!restore-api! !
+!Collection categoriesFor: #hasAnyChanged!public!restore-api!testing! !
 !Collection categoriesFor: #refreshAll!public!restore-api! !
 !Collection categoriesFor: #rollbackAll!public!restore-api! !
 !Collection categoriesFor: #unstoreAll!public!restore-api! !
@@ -367,13 +356,11 @@ withRelatedComponents
 
 instanceFromDBValue: aValue in: anSSWReStore
 
-	"Private - 10/3/01
+	"aValue may be some other object which can convert itself to a Date"
 	
-	If aValue is a timestamp, extract only the date"
-	
-	^(aValue isKindOf: TimeStamp)
-		ifTrue: [aValue date]
-		ifFalse: [aValue]! !
+	^(aValue isNil or: [aValue class = ##(self)])
+		ifTrue: [aValue]
+		ifFalse: [anSSWReStore sqlDialect dateFrom: aValue]! !
 !Date class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
 
 !Metaclass class methodsFor!
@@ -419,7 +406,7 @@ _commitIn: aReStore
 	therefore the receiver is not currently persistent, therefore store it"
 
 	"...however if the object is encountered multiple times during a commitObjects: operation, its proxy will have flipped to the object"
-	(aReStore hasCommittedObject: self) ifFalse: 
+	(aReStore isInCurrentTransaction: self) ifFalse: 
 		"isValidForPersistence test excludes base object types (String, Number etc.)"
 		[self isValidForPersistence ifFalse: [self storeIn: aReStore]]!
 
@@ -560,6 +547,17 @@ _rollbackIn: aReStore
 	"Should only be sent when all proxied objects have been swapped out to their proxy,
 	therefore the receiver is not currently persistent, therefore do nothing"!
 
+_softRefreshIn: aReStore
+
+	"Private - Non-persistent - cannot have changed - do nothing"
+
+	^self
+!
+
+_touch
+
+	"No-op to ensure the receiver (a persistent object) has been encountered during the current ReStore transaction"!
+
 commit
 
 	"Commit the receiver and its related objects in the ReStore instance in which they reside (or the default if not currently persistent); return success.
@@ -573,7 +571,7 @@ commitIn: aReStore
 	In the event of a failure the default action is to abandon the failed transaction leaving the receiver in its current state. 
 	To handle transaction failure manually (e.g. to rollback and refresh) trap ObjectCommitFailure"
 
-	^(aReStore commitObject: self withRelatedComponents)
+	^(aReStore commit: self withRelatedComponents)
 		ifTrue: [true]
 		ifFalse: [ObjectCommitFailure signalWith: aReStore. false]!
 
@@ -606,7 +604,7 @@ hasChanged
 
 	"Return whether the receiver or its related objects have changed in the image since loading from the ReStore instance in which they reside"
 
-	^(self _reStoreIfNone: ["Not (yet) persistent" ^true]) hasObjectChanged: self withRelatedComponents!
+	^(self _reStoreIfNone: ["Not (yet) persistent" ^true]) hasChanged: self withRelatedComponents!
 
 isDBDeleted
 
@@ -692,13 +690,13 @@ refresh
 
 	"Refresh the receiver and its related objects to their stored state"
 
-	(self _reStoreIfNone: [self errorNotPersistent]) refreshObject: self withRelatedComponents!
+	(self _reStoreIfNone: [self errorNotPersistent]) refresh: self withRelatedComponents!
 
 rollback
 
 	"Rollback the receiver and its related objects to their previous state"
 
-	(self _reStoreIfNone: [self errorNotPersistent]) rollbackObject: self withRelatedComponents!
+	(self _reStoreIfNone: [self errorNotPersistent]) rollback: self withRelatedComponents!
 
 safeHandleUpdateClash: aSymbol from: oldVersion to: newVersion
 
@@ -843,14 +841,16 @@ writeSQLOn: aStream
 !Object categoriesFor: #_reStore!private!restore-internal! !
 !Object categoriesFor: #_reStoreIfNone:!private!restore-internal! !
 !Object categoriesFor: #_rollbackIn:!private!restore-internal! !
+!Object categoriesFor: #_softRefreshIn:!private!restore-internal! !
+!Object categoriesFor: #_touch!private!restore-internal! !
 !Object categoriesFor: #commit!public!restore-api! !
 !Object categoriesFor: #commitIn:!private!restore-internal! !
 !Object categoriesFor: #errorNotPersistent!exceptions!public! !
 !Object categoriesFor: #handleUpdateClash:from:to:!public!restore-update clash handling! !
-!Object categoriesFor: #hasChanged!public!restore-api! !
+!Object categoriesFor: #hasChanged!public!restore-api!testing! !
 !Object categoriesFor: #isDBDeleted!public!restore-internal! !
 !Object categoriesFor: #isDBProxy!private!restore-internal! !
-!Object categoriesFor: #isPersistent!public!restore-api! !
+!Object categoriesFor: #isPersistent!public!restore-api!testing! !
 !Object categoriesFor: #isValidForPersistence!private!restore-internal! !
 !Object categoriesFor: #mergeUpdate:from:!public!restore-update clash handling! !
 !Object categoriesFor: #mergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
@@ -874,26 +874,57 @@ writeSQLOn: aStream
 
 !Object class methodsFor!
 
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"Return an instance of the receiver class that is specified by the given value/ReStore combination.
+	Default implementation for persistent application classes - query the ReStore for the relevant instance.
+	Base classes (Integer, String etc.) should reimplement as appropriate"
+	
+	^aValue isNil
+		ifTrue: [nil]
+		ifFalse: [anSSWReStore deferredObjectOfClass: self withID: aValue]!
+
 preferredObjectProxyClass 
 
 	"1/5/2001
 
 	If the receiver needs a specific proxy class, return this else nil"
 
-	^nil! !
+	^nil!
+
+storedInstances
+
+	"Return all instances of the receiver stored in the database accessed by the default ReStore"
+
+	^self storedInstancesIn: SSWReStore default!
+
+storedInstancesIn: aReStore
+
+	"Return all instances of the receiver stored in the database accessed by aReStore"
+
+	^aReStore instancesOf: self! !
+!Object class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
 !Object class categoriesFor: #preferredObjectProxyClass!persistency!public! !
+!Object class categoriesFor: #storedInstances!persistency!public! !
+!Object class categoriesFor: #storedInstancesIn:!persistency!public! !
 
 !Process methodsFor!
 
 reStore
 
-	^(SSWReStore processDefaultFor: self) ifNil: [SSWReStore globalDefault]!
+	"Return the affiliated ReStore instance for this process.
+	If no explicit affiliation the global default is used"
+
+	^(SSWReStore affiliateFor: self) ifNil: [SSWReStore globalDefault]!
 
 reStore: aReStoreOrNil
 
+	"Set aReStore(OrNil) as the affiliated instance in this process.
+	If nil any current affiliation is removed and the global default is assumed"
+
 	aReStoreOrNil isNil 
-		ifTrue: [(SSWReStore processDefaultFor: self) ifNotNil: [ :reStore | reStore disaffiliateWithProcess: self]]
-		ifFalse: [aReStoreOrNil affiliateWithProcess: self]! !
+		ifTrue: [(SSWReStore affiliateFor: self) ifNotNil: [ :reStore | reStore disaffiliateWith: self]]
+		ifFalse: [aReStoreOrNil affiliateWith: self using: [ :proc | Processor activeProcess == proc]]! !
 !Process categoriesFor: #reStore!accessing!public! !
 !Process categoriesFor: #reStore:!accessing!public! !
 
@@ -903,6 +934,13 @@ instanceFromDBValue: aValue in: aReStore
 
 	^self infoClass instanceFromDBValue: aValue in: aReStore! !
 !SSWDBClassWithInfo categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+
+!SSWDBDateAndTimeWithResolution methodsFor!
+
+instanceFromDBValue: aValue in: aReStore
+
+	^aValue ifNotNil: [(self infoClass instanceFromDBValue: aValue in: aReStore) withResolution: self resolution]! !
+!SSWDBDateAndTimeWithResolution categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
 
 !SSWDBGeneralCollectionSpec methodsFor!
 
@@ -1000,24 +1038,12 @@ instanceFromDBValue: aValue in: anSSWReStore
 
 instanceFromDBValue: aValue in: anSSWReStore
 
-	"Private - 10/3/01
+	"aValue may be some other object which can convert itself to a Time"
 	
-	If aValue is a timestamp, extract only the time"
-	
-	^(aValue isKindOf: TimeStamp)
-		ifTrue: [aValue time]
-		ifFalse: [aValue]! !
+	^(aValue isNil or: [aValue class = ##(self)])
+		ifTrue: [aValue]
+		ifFalse: [anSSWReStore sqlDialect timeFrom: aValue]! !
 !Time class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
-
-!TimeStamp class methodsFor!
-
-instanceFromDBValue: aValue in: anSSWReStore
-
-	(aValue isKindOf: Date) ifTrue: [^self date: aValue].
-	(aValue isKindOf: Time) ifTrue: [^self time: aValue].
-
-	^aValue! !
-!TimeStamp class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
 
 !UndefinedObject methodsFor!
 

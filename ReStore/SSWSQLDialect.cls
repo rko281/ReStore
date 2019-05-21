@@ -77,6 +77,9 @@ commonFunctions
 
 	^##(Dictionary new
 
+		"Conversion functions"
+		at: #asInteger put: 'CAST(%1 AS INTEGER)';
+
 		"Numeric functions"
 		at: #+ put: '(%1 + %2)';
 		at: #- put: '(%1 - %2)';
@@ -155,9 +158,70 @@ date
 
 	^'DATE'!
 
+dateAndTimeFormat
+
+	"The format for DateAndTImes when expressed as Strings"
+
+	^'yyyy-MM-dd HH:mm:ssffffff'!
+
+dateAndTimeFrom: anObject
+
+	| stream date time |
+
+	(anObject isKindOf: String) ifTrue: 
+		[stream := anObject readStream.
+		date := Date readFrom: stream format: self dateFormat.
+		stream next.
+		time := Time readFrom: stream.
+		^DateAndTime fromDate: date time: time].
+
+	self error: ('cannot convert <1p> to a DateAndTime' expandMacrosWith: anObject)!
+
+dateAndTimeStringFor: aDateAndTime
+
+	"Return the String representation of aDateAndTime in this dialect"
+
+	^aDateAndTime printStringFormat: self dateAndTimeFormat!
+
+dateFormat
+
+	"The format for Dates when expressed as Strings"
+
+	^'yyyy-MM-dd'!
+
+dateFrom: anObject
+
+	anObject class = DateAndTime ifTrue: [^anObject asDate].
+
+	(anObject isKindOf: String) ifTrue: [^Date readFrom: anObject readStream format: self dateFormat].
+
+	self error: ('cannot convert <1p> to a Date' expandMacrosWith: anObject)!
+
+dateStringFor: aDate
+
+	"Return the String representation of aDate in this dialect"
+
+	^aDate printStringFormat: self dateFormat!
+
+datetime
+
+	^'DATETIME'!
+
+datetimeWithResolution
+
+	"Parameter is resolution (0=seconds, 3=milliseconds etc.)"
+
+	^'DATETIME(%1)'!
+
 decimal
 
 	^'DECIMAL(%1,%2)'!
+
+defaultDateTimeResolution
+
+	"0 = seconds, 3 = milliseconds etc."
+
+	^0!
 
 defaultMaxColumnBytes
 
@@ -278,6 +342,12 @@ maxColumnNameLength
 maxColumnNameLength: anObject
 	maxColumnNameLength := anObject!
 
+maxDateTimeResolution
+
+	"0 = seconds, 3 = milliseconds etc."
+
+	^6!
+
 maxTableNameLength
 
 	"Initialized from the DB on login but may be set to something else (lower!!) if necessary"
@@ -345,6 +415,15 @@ shouldRollbackOnQuery
 
 	^false!
 
+shouldUseColumnsStatement
+
+	"Return whether this dialect should use DBColumnsStatement to interrogate the details of a table's columns (true, default) or a SELECT * query (false).
+	
+	Here primarily to satisfy a shortcoming in SQLite ODBC driver where DBColumnsStatement returns the character length for wide string columns, rather than the buffer length.
+	Column details returned from a SELECT * query report the buffer length correctly"
+
+	^true!
+
 sqlFunctionFor: aMessageSelector
 
 	^self dialectSpecificFunctions at: aMessageSelector ifAbsent: 
@@ -378,9 +457,25 @@ time
 
 	^'TIME'!
 
-timestamp
+timeFormat
 
-	^'TIMESTAMP'!
+	"The format for Times when expressed as Strings"
+
+	^'HH:mm:ss'!
+
+timeFrom: anObject
+
+	anObject class = DateAndTime ifTrue: [^anObject asTime].
+
+	(anObject isKindOf: String) ifTrue: [^Time readFrom: anObject readStream].
+
+	self error: ('cannot convert <1p> to a Time' expandMacrosWith: anObject)!
+
+timeStringFor: aTime
+
+	"Return the String representation of aTime in this dialect"
+
+	^aTime printStringFormat: self timeFormat!
 
 transformClassName: aSymbol
 
@@ -494,6 +589,19 @@ writeSQLForDate: aDate on: aStream
 		nextPut: $';
 		nextPut: $}!
 
+writeSQLForDateAndTime: aDateAndTime on: aStream
+
+	"For multi-datasource compatability, use standard ODBC date escape sequence {ts 'yyyy-MM-dd hh:mm:ss'}.
+	Subclasses may override to do their own thing"
+
+	aStream 
+		nextPutAll: '{ts';
+		nextPut: $'.
+	aDateAndTime printOn: aStream format: 'yyyy-MM-dd HH:mm:ssffffff'.
+	aStream
+		nextPut: $';
+		nextPut: $}!
+
 writeSQLForFalseOn: aStream
 
 	self falseObject writeSQLOn: aStream!
@@ -509,21 +617,6 @@ writeSQLForTime: aTime on: aStream
 
 	aTime printOn: aStream format: 'HH:mm:ss'.
 
-	aStream
-		nextPut: $';
-		nextPut: $}!
-
-writeSQLForTimeStamp: aTimeStamp on: aStream
-
-	"For multi-datasource compatability, use standard ODBC date escape sequence {ts 'yyyy-MM-dd hh:mm:ss'}.
-	Subclasses may override to do their own thing"
-
-	aStream 
-		nextPutAll: '{ts';
-		nextPut: $'.
-	aTimeStamp date printOn: aStream format: 'yyyy-MM-dd'.
-	aStream space.
-	aTimeStamp time printOn: aStream format: 'HH:mm:ss'.
 	aStream
 		nextPut: $';
 		nextPut: $}!
@@ -545,7 +638,16 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #customFunctions!accessing!public! !
 !SSWSQLDialect categoriesFor: #customFunctions:!accessing!public! !
 !SSWSQLDialect categoriesFor: #date!datatypes!public! !
+!SSWSQLDialect categoriesFor: #dateAndTimeFormat!constants!public! !
+!SSWSQLDialect categoriesFor: #dateAndTimeFrom:!conversions!public! !
+!SSWSQLDialect categoriesFor: #dateAndTimeStringFor:!conversions!public! !
+!SSWSQLDialect categoriesFor: #dateFormat!constants!public! !
+!SSWSQLDialect categoriesFor: #dateFrom:!conversions!public! !
+!SSWSQLDialect categoriesFor: #dateStringFor:!conversions!public! !
+!SSWSQLDialect categoriesFor: #datetime!datatypes!public! !
+!SSWSQLDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
 !SSWSQLDialect categoriesFor: #decimal!datatypes!public! !
+!SSWSQLDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultMaxColumnBytes!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultUnsizedStringSize!constants!public! !
 !SSWSQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
@@ -565,6 +667,7 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #maxColumnBytes:!accessing!public! !
 !SSWSQLDialect categoriesFor: #maxColumnNameLength!accessing!public! !
 !SSWSQLDialect categoriesFor: #maxColumnNameLength:!accessing!public! !
+!SSWSQLDialect categoriesFor: #maxDateTimeResolution!constants!public! !
 !SSWSQLDialect categoriesFor: #maxTableNameLength!accessing!public! !
 !SSWSQLDialect categoriesFor: #maxTableNameLength:!accessing!public! !
 !SSWSQLDialect categoriesFor: #maxVarchar!constants!public! !
@@ -575,12 +678,15 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #shouldMapEmptyStringsToNil!public!testing! !
 !SSWSQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
 !SSWSQLDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
+!SSWSQLDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
 !SSWSQLDialect categoriesFor: #sqlFunctionFor:!helpers!public! !
 !SSWSQLDialect categoriesFor: #staticReservedWords!constants!public! !
 !SSWSQLDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
 !SSWSQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
 !SSWSQLDialect categoriesFor: #time!datatypes!public! !
-!SSWSQLDialect categoriesFor: #timestamp!datatypes!public! !
+!SSWSQLDialect categoriesFor: #timeFormat!constants!public! !
+!SSWSQLDialect categoriesFor: #timeFrom:!conversions!public! !
+!SSWSQLDialect categoriesFor: #timeStringFor:!conversions!public! !
 !SSWSQLDialect categoriesFor: #transformClassName:!helpers!public! !
 !SSWSQLDialect categoriesFor: #transformInstVarName:!helpers!public! !
 !SSWSQLDialect categoriesFor: #transformName:!helpers!public! !
@@ -594,9 +700,9 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #updateDelaySeconds!constants!public! !
 !SSWSQLDialect categoriesFor: #varchar!datatypes!public! !
 !SSWSQLDialect categoriesFor: #writeSQLForDate:on:!public!writing sql! !
+!SSWSQLDialect categoriesFor: #writeSQLForDateAndTime:on:!public!writing sql! !
 !SSWSQLDialect categoriesFor: #writeSQLForFalseOn:!public!writing sql! !
 !SSWSQLDialect categoriesFor: #writeSQLForTime:on:!public!writing sql! !
-!SSWSQLDialect categoriesFor: #writeSQLForTimeStamp:on:!public!writing sql! !
 !SSWSQLDialect categoriesFor: #writeSQLForTrueOn:!public!writing sql! !
 
 !SSWSQLDialect class methodsFor!

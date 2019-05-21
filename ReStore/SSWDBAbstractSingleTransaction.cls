@@ -158,7 +158,7 @@ newEmptyObjectsSet: anInteger
 
 	Return an empty Set that can be used for holding proxies"
 
-	^SSWDBProxyIdentitySet new: anInteger!
+	^IdentitySet new: anInteger!
 
 nextCollectionPhase
 

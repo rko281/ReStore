@@ -43,7 +43,6 @@ package methodNames
 	add: #Collection -> #_keyedCollectionAdditions;
 	add: #Collection -> #_keyRemovalsIn:;
 	add: #Collection -> #_nonKeyedCollectionAdditions;
-	add: #Collection -> #_refreshWithContents;
 	add: #Collection -> #_valueRemovalsIn:;
 	add: #Collection -> #_valuesRemovedBy:;
 	add: #Collection -> #directAdd:;
@@ -102,13 +101,12 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: 'SSW ReStore Base Additions';
-	add: 'SSW ReStore SQL Entities';
-	add: 'SSW ReStore SQL Queries';
-	add: 'SSW ReStore Tables';
-	yourself).
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'SSW ReStore Base Additions'
+	'SSW ReStore SQL Entities'
+	'SSW ReStore SQL Queries'
+	'SSW ReStore Tables').
 
 package!
 
@@ -402,14 +400,6 @@ _nonKeyedCollectionAdditions
 
 	^additions!
 
-_refreshWithContents
-
-	"Non-persistent - cannot have changed - do nothing"
-
-	^self
-
-!
-
 _valueRemovalsIn: aCollectionOfChanges
 
 	"Private - 28/9/2001
@@ -561,17 +551,16 @@ staticCollectionSpecClass
 	^SSWDBStaticCollectionSpec
 
 ! !
-!Collection categoriesFor: #_changesFrom:!comparing!private! !
-!Collection categoriesFor: #_collectionAdditions!comparing!private! !
-!Collection categoriesFor: #_dbAdd:!comparing!private! !
-!Collection categoriesFor: #_fetchComponents:!converting!private! !
-!Collection categoriesFor: #_keyedChangesFrom:!comparing!private! !
-!Collection categoriesFor: #_keyedCollectionAdditions!comparing!private! !
-!Collection categoriesFor: #_keyRemovalsIn:!comparing!private! !
-!Collection categoriesFor: #_nonKeyedCollectionAdditions!comparing!private! !
-!Collection categoriesFor: #_refreshWithContents!converting!public! !
-!Collection categoriesFor: #_valueRemovalsIn:!comparing!private! !
-!Collection categoriesFor: #_valuesRemovedBy:!comparing!private! !
+!Collection categoriesFor: #_changesFrom:!private!restore-internal! !
+!Collection categoriesFor: #_collectionAdditions!private!restore-internal! !
+!Collection categoriesFor: #_dbAdd:!private!restore-internal! !
+!Collection categoriesFor: #_fetchComponents:!private!restore-internal! !
+!Collection categoriesFor: #_keyedChangesFrom:!private!restore-internal! !
+!Collection categoriesFor: #_keyedCollectionAdditions!private!restore-internal! !
+!Collection categoriesFor: #_keyRemovalsIn:!private!restore-internal! !
+!Collection categoriesFor: #_nonKeyedCollectionAdditions!private!restore-internal! !
+!Collection categoriesFor: #_valueRemovalsIn:!private!restore-internal! !
+!Collection categoriesFor: #_valuesRemovedBy:!private!restore-internal! !
 !Collection categoriesFor: #directAdd:!adding!private! !
 !Collection categoriesFor: #directAdd:suggestedIndex:!adding!private! !
 !Collection categoriesFor: #fetchComponent:!converting!public! !

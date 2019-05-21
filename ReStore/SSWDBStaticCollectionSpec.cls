@@ -52,16 +52,16 @@ readAllFor: aCollection
 
 	"Using a single query (ideally, multiple batched queries if aCollection is too large), read all unrecovered collections specified by the receiver for members of aCollection"
 
-	| unrecovered ids stream targetTable allEntries collections|
+	| untouched ids stream targetTable allEntries collections|
 
-	unrecovered := aCollection reject: [ :each | (self accessor valueIn: each) _isRecovered].
-	unrecovered size <= 1 ifTrue: [^self].
+	untouched := aCollection select: [ :each | (self accessor valueIn: each) isDBProxy].
+	untouched isEmpty ifTrue: [^self].
 
-	ids := unrecovered collect: [ :each | each _idIn: self reStore].
+	ids := untouched collect: [ :each | each _idIn: self reStore].
 	stream := ReadStream on: ids.
 
 	targetTable := self targetTable.
-	allEntries := OrderedCollection new: unrecovered size.
+	allEntries := OrderedCollection new: untouched size.
 
 	[stream atEnd] whileFalse: 
 		[self readAllStatement readValuesFrom: stream.
@@ -74,10 +74,10 @@ readAllFor: aCollection
 					ifTrue: [entry target _refreshFromRow: row table: targetTable]
 					ifFalse: [targetTable recoverInstanceFromRow: row into: entry target]]]].
 
-	collections := Dictionary new: unrecovered size.
+	collections := Dictionary new: untouched size.
 	allEntries do: [ :each | (collections at: each sourceID ifAbsentPut: [self newCollection]) _dbAdd: each].
-	
-	unrecovered do: 
+
+	(aCollection reject: [ :each | (self accessor valueIn: each) _isRecovered]) do: 
 		[ :proxy || entries |
 		entries := collections at: proxy _id ifAbsent: [self newCollection].
 		(self accessor valueIn: proxy) 

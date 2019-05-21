@@ -46,6 +46,7 @@ package methodNames
 	add: #SSWSQLDialect -> #instVarAccessorFor:;
 	add: #SSWSQLJoinedTableCollection -> #add:joinedWithField:;
 	add: #SSWSQLJoinedTableCollection -> #addAliasingDuplicates:joinedWithField:;
+	add: #SSWSQLJoinedTableCollection -> #joinFields;
 	add: #SSWSQLJoinedTableCollection -> #lastJoinField;
 	add: #SSWSQLTableCollection -> #occurrencesOfIncludingRepetitions:;
 	add: 'Object class' -> #addClassDefinitionTo:;
@@ -66,12 +67,11 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: 'SSW ReStore Base Additions';
-	add: 'SSW ReStore SQL Entities';
-	add: 'SSW ReStore SQL Queries';
-	yourself).
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'SSW ReStore Base Additions'
+	'SSW ReStore SQL Entities'
+	'SSW ReStore SQL Queries').
 
 package!
 
@@ -467,6 +467,17 @@ addAliasingDuplicates: anSSWDBTable joinedWithField: anSSWDBField
 		ifFalse: [self add: (SSWDBQueryTable forRepetition: repetition of: anSSWDBTable) 	
 					joinedWithField: anSSWDBField]!
 
+joinFields
+
+	| joinFields |
+
+	joinFields := OrderedCollection new.
+	self joinConditions isEmpty ifTrue: [^joinFields].
+
+	self joinConditions flattened do: [ :each | (joinFields includes: each value) ifFalse: [joinFields add: each value]].
+
+	^joinFields!
+
 lastJoinField
 
 	"Patched for issue 120-001(revised)"
@@ -474,7 +485,8 @@ lastJoinField
 	^self joinConditions last value! !
 !SSWSQLJoinedTableCollection categoriesFor: #add:joinedWithField:!adding/removing!public! !
 !SSWSQLJoinedTableCollection categoriesFor: #addAliasingDuplicates:joinedWithField:!adding/removing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #lastJoinField!evaluating!public! !
+!SSWSQLJoinedTableCollection categoriesFor: #joinFields!accessing!public! !
+!SSWSQLJoinedTableCollection categoriesFor: #lastJoinField!accessing!public! !
 
 !SSWSQLTableCollection methodsFor!
 

@@ -18,6 +18,9 @@ dialectSpecificFunctions
 
 	^##(Dictionary new
 
+		"Conversion functions"
+		at: #asInteger put: 'CAST(%1 AS UNSIGNED)';
+
 		"String functions"
 		at: #, put: 'CONCAT(%1,%2)';
 		at: #size put: 'CHAR_LENGTH(%1)';
@@ -74,22 +77,6 @@ supportsMultipleAddColumns
 
 	^true!
 
-time
-
-	"Error seen with TIME columns in prepared statements in MySQL (tested 5.5 and 5.6) with ODBC driver version 05.03.0006:
-		'07006: [MySQL][ODBC 5.3(a) Driver][mysqld-5.5.33-log]Conversion is not supported'
-	Works fine with driver version 5.1.x.
-
-	Not ideal, but fallback to DATETIME"
-
-	^(self connection driverVersion beginsWith: '05.03.')
-		ifTrue: [self timestamp]
-		ifFalse: [super time]!
-
-timestamp
-
-	^'DATETIME'!
-
 unsizedStringTypes
 
 	"Full use of MEDIUMTEXT and LONGTEXT will require increasing the default maxColumnBytes (unrealistically so for LONGTEXT)"
@@ -98,23 +85,14 @@ unsizedStringTypes
 		add: (##((2 raisedTo: 16) - 1) "65535" -> 'TEXT');
 		add: (##((2 raisedTo: 24) - 1) "16,777,215" -> 'MEDIUMTEXT');
 		add: (##((2 raisedTo: 32) - 1) "4,294,967,295" -> 'LONGTEXT');
-		yourself!
-
-writeSQLForTime: aTime on: aStream
-
-	self time = self timestamp
-		ifTrue: [self writeSQLForTimeStamp: (TimeStamp time: aTime) on: aStream]
-		ifFalse: [super writeSQLForTime: aTime on: aStream]! !
+		yourself! !
 !SSWMySQLDialect categoriesFor: #boolean!datatypes!public! !
 !SSWMySQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWMySQLDialect categoriesFor: #maxVarchar!constants!public! !
 !SSWMySQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
 !SSWMySQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
 !SSWMySQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
-!SSWMySQLDialect categoriesFor: #time!datatypes!public! !
-!SSWMySQLDialect categoriesFor: #timestamp!datatypes!public! !
 !SSWMySQLDialect categoriesFor: #unsizedStringTypes!datatypes!public! !
-!SSWMySQLDialect categoriesFor: #writeSQLForTime:on:!public!writing sql! !
 
 !SSWMySQLDialect class methodsFor!
 

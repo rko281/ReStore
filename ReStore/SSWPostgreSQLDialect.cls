@@ -10,6 +10,18 @@ SSWPostgreSQLDialect comment: ''!
 !SSWPostgreSQLDialect categoriesForClass!Unclassified! !
 !SSWPostgreSQLDialect methodsFor!
 
+datetime
+
+	^'TIMESTAMP'!
+
+datetimeWithResolution
+
+	^'TIMESTAMP(%1)'!
+
+defaultDateTimeResolution
+
+	^6!
+
 dialectSpecificFunctions
 
 	^##(Dictionary new
@@ -32,9 +44,9 @@ double
 
 falseObject
 
-	"Booleans are Strings"
+	"Booleans are bits (Integers)"
 
-	^'0'!
+	^0!
 
 maxCharacter
 
@@ -73,9 +85,9 @@ transformName: aSymbol
 
 trueObject
 
-	"Booleans are Strings"
+	"Booleans are bits (Integers)"
 
-	^'1'!
+	^1!
 
 writeSQLForDate: aDate on: aStream
 
@@ -84,6 +96,16 @@ writeSQLForDate: aDate on: aStream
 	aStream nextPut: $'.
 
 	aDate printOn: aStream format: 'yyyy-MM-dd'.
+
+	aStream nextPut: $'!
+
+writeSQLForDateAndTime: aDateAndTime on: aStream
+
+	"Postgres seems unhappy with the standard ODBC format"
+
+	aStream nextPut: $'.
+
+	aDateAndTime printOn: aStream format: 'yyyy-MM-dd HH:mm:ssffffff'.
 
 	aStream nextPut: $'!
 
@@ -108,6 +130,9 @@ writeSQLForTimeStamp: aTimeStamp on: aStream
 	aTimeStamp time printOn: aStream format: 'HH:mm:ss'.
 
 	aStream nextPut: $'! !
+!SSWPostgreSQLDialect categoriesFor: #datetime!datatypes!public! !
+!SSWPostgreSQLDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
+!SSWPostgreSQLDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #double!datatypes!public! !
 !SSWPostgreSQLDialect categoriesFor: #falseObject!constants!public! !
@@ -118,6 +143,7 @@ writeSQLForTimeStamp: aTimeStamp on: aStream
 !SSWPostgreSQLDialect categoriesFor: #transformName:!helpers!public! !
 !SSWPostgreSQLDialect categoriesFor: #trueObject!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #writeSQLForDate:on:!public!writing sql! !
+!SSWPostgreSQLDialect categoriesFor: #writeSQLForDateAndTime:on:!public!writing sql! !
 !SSWPostgreSQLDialect categoriesFor: #writeSQLForTime:on:!public!writing sql! !
 !SSWPostgreSQLDialect categoriesFor: #writeSQLForTimeStamp:on:!public!writing sql! !
 

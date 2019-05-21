@@ -1,0 +1,424 @@
+﻿| package |
+package := Package name: 'SSW ReStore Deprecated'.
+package paxVersion: 1;
+	basicComment: ''.
+
+
+package classNames
+	add: #TransactionalDialog;
+	yourself.
+
+package methodNames
+	add: #False -> #qAnd:;
+	add: #False -> #qOr:;
+	add: #Object -> #stored;
+	add: #Presenter -> #deduceReStore;
+	add: #Presenter -> #modelReStore;
+	add: #Presenter -> #parentReStore;
+	add: #Presenter -> #reStore;
+	add: #Presenter -> #reStore:;
+	add: #Shell -> #reEnable:;
+	add: #Shell -> #showModalTo:;
+	add: #SSWDBBlockArgument -> #qAnd:;
+	add: #SSWDBBlockArgument -> #qOr:;
+	add: #SSWDBInstancesCollection -> #collectAsSet:;
+	add: #SSWMySQLDialect -> #timestamp;
+	add: #SSWReStore -> #commitObject:;
+	add: #SSWReStore -> #commitObjects:;
+	add: #SSWReStore -> #hasObjectChanged:;
+	add: #SSWReStore -> #haveObjectsChanged:;
+	add: #SSWReStore -> #refreshObject:;
+	add: #SSWReStore -> #refreshObjectIfUpdated:;
+	add: #SSWReStore -> #refreshObjects:;
+	add: #SSWReStore -> #refreshObjectsIfUpdated:;
+	add: #SSWReStore -> #rollback;
+	add: #SSWReStore -> #rollbackObject:;
+	add: #SSWReStore -> #rollbackObjects:;
+	add: #SSWReStore -> #selectChangedObjects:;
+	add: #SSWSQLCondition -> #qAnd:;
+	add: #SSWSQLCondition -> #qOr:;
+	add: #SSWSQLConditionCollection -> #qAnd:;
+	add: #SSWSQLConditionCollection -> #qOr:;
+	add: #SSWSQLDialect -> #timestamp;
+	add: #SSWSQLDialect -> #writeSQLForTimeStamp:on:;
+	add: #SSWSQLServerDialect -> #timestamp;
+	add: #SSWSQLWriteStream -> #nextPutTimeStamp:;
+	add: #Time -> #withoutMilliseconds;
+	add: #TimeStamp -> #withoutMilliseconds;
+	add: #TimeStamp -> #writeSQLOn:;
+	add: #True -> #qAnd:;
+	add: #True -> #qOr:;
+	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
+	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Deprecated\Dolphin Base (Deprecated)'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
+	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
+	'SSW ReStore Main'
+	'SSW ReStore Querying'
+	'SSW ReStore SQL Entities').
+
+package!
+
+"Class Definitions"!
+
+Dialog subclass: #TransactionalDialog
+	instanceVariableNames: 'reStore'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!False methodsFor!
+
+qAnd: aBlock
+
+	"Deprecated - can now use regular and: aBlock"
+	#deprecated.
+	^self!
+
+qOr: aBlock
+
+	"Deprecated - can now use regular or: aBlock"
+	#deprecated.
+	^aBlock value! !
+!False categoriesFor: #qAnd:!evaluating!public! !
+!False categoriesFor: #qOr:!evaluating!public! !
+
+!Object methodsFor!
+
+stored
+
+	"Used to - return the receiver in a StoreWrapper.
+	This is no longer necessary - from ReStore 2.00 you can just commit an object to make it persistent"
+#deprecated.
+	^self! !
+!Object categoriesFor: #stored!actions!public! !
+
+!Presenter methodsFor!
+
+deduceReStore
+
+	"Attempt to set the receiver's reStore by querying the parent or model.
+	Error if this cannot be deduced"
+
+	| reStore |
+	#deprecated.
+	reStore := self modelReStore.
+	reStore isNil ifTrue: [reStore := self parentReStore].
+
+	reStore isNil 
+		ifTrue: [self error: 'Cannot determine ReStore']
+		ifFalse: [self reStore: reStore]!
+
+modelReStore
+
+	"Return the ReStore according to the receiver's model"
+	#deprecated.
+	^self model isNil
+		ifTrue: [nil]
+		ifFalse: [self model _reStore]!
+
+parentReStore
+
+	"Return the ReStore used by the parent of this presenter, or nil if none"
+	#deprecated.
+	^self parentPresenter isNil
+		ifTrue: [nil]
+		ifFalse: [self parentPresenter reStore]!
+
+reStore
+
+	"Answer the SSWReStore instance that the receiver uses.
+	Attempt to deduce this if it has not been explicitly set"
+	#deprecated.
+	^self propertyAt: #reStore ifAbsent: [self deduceReStore; propertyAt: #reStore]!
+
+reStore: anSSWReStore
+
+	"Store the given SSWReStore for future reference"
+	#deprecated.
+	^self propertyAt: #reStore put: anSSWReStore! !
+!Presenter categoriesFor: #deduceReStore!initializing!private! !
+!Presenter categoriesFor: #modelReStore!accessing!private! !
+!Presenter categoriesFor: #parentReStore!accessing!private! !
+!Presenter categoriesFor: #reStore!accessing!private! !
+!Presenter categoriesFor: #reStore:!accessing!private! !
+
+!Shell methodsFor!
+
+reEnable: sem
+
+	"Re-enable the receiver following closure of a spawned modal Shell"
+
+	self view enable; beForeground.
+	sem signal!
+
+showModalTo: aShell
+
+	"Allow a regular Shell to be opened Modal to another
+	 - useful to enforce transaction boundaries"
+
+	| sem wasMain proc |
+
+	sem := Semaphore new.
+
+	[aShell view disable.
+	self when: #viewClosed send: #reEnable: to: aShell with: sem.
+	self show] 
+		on: Error do: [ :exc | aShell view enable. exc signal].
+
+	"Based on DialogView>>showModal"
+	wasMain := Processor forkMainIfMain.
+	wasMain ifTrue: 
+		["Boost the initiating UI processes priority so that the operation requested by the user
+		completes more quickly when the dialog is closed."
+		proc := Processor activeProcess.
+		proc priority: proc priority + 1].
+
+	sem wait! !
+!Shell categoriesFor: #reEnable:!accessing!public! !
+!Shell categoriesFor: #showModalTo:!accessing!public! !
+
+!SSWDBBlockArgument methodsFor!
+
+qAnd: aBlock
+
+	"9/4/2001
+	
+	Only sent in case of an implicit '= true' expression (or an error)"
+	#deprecated.
+	^self implicitEqualsTrue qAnd: aBlock!
+
+qOr: aBlock
+
+	"9/4/2001
+	
+	Only sent in case of an implicit '= true' expression (or an error)"
+	#deprecated.
+	^self implicitEqualsTrue qOr: aBlock! !
+!SSWDBBlockArgument categoriesFor: #qAnd:!parsing - implicit true!public! !
+!SSWDBBlockArgument categoriesFor: #qOr:!parsing - implicit true!public! !
+
+!SSWDBInstancesCollection methodsFor!
+
+collectAsSet: collectBlock
+
+	"Evaluate each elemen with collectBlock, returning the result as a Set.
+	This is more efficient than e.g.
+		(self collect: [ :cd | cd artistName]) asSet 
+	...where a high level of duplication is expected"
+	
+	#deprecated. "Use project:"
+	^self project: collectBlock into: (Set new: 16)! !
+!SSWDBInstancesCollection categoriesFor: #collectAsSet:!enumerating!public! !
+
+!SSWMySQLDialect methodsFor!
+
+timestamp
+
+	^'DATETIME'! !
+!SSWMySQLDialect categoriesFor: #timestamp!datatypes!public! !
+
+!SSWReStore methodsFor!
+
+commitObject: anObject
+	#deprecated.
+	^self commit: anObject!
+
+commitObjects: aCollection
+	#deprecated.
+	^self commitAll: aCollection!
+
+hasObjectChanged: anObject
+	#deprecated.
+	^self hasChanged: anObject!
+
+haveObjectsChanged: aCollection
+	#deprecated.
+	^self haveAnyChanged: aCollection!
+
+refreshObject: anObject
+	#deprecated.
+	self refresh: anObject!
+
+refreshObjectIfUpdated: anObject
+	#deprecated.
+	self refreshIfUpdated: anObject!
+
+refreshObjects: aCollection
+	#deprecated.
+	self refreshAll: aCollection!
+
+refreshObjectsIfUpdated: aCollection
+	#deprecated.
+	self refreshAllIfUpdated: aCollection!
+
+rollback
+	#deprecated.
+	self softRollback!
+
+rollbackObject: anObject
+	#deprecated.
+	self rollbackObjects: {anObject}!
+
+rollbackObjects: aCollection
+	#deprecated.
+	self rollbackAll: aCollection!
+
+selectChangedObjects: aCollection
+	#deprecated.
+	^self selectChanged: aCollection! !
+!SSWReStore categoriesFor: #commitObject:!public! !
+!SSWReStore categoriesFor: #commitObjects:!public! !
+!SSWReStore categoriesFor: #hasObjectChanged:!public! !
+!SSWReStore categoriesFor: #haveObjectsChanged:!public! !
+!SSWReStore categoriesFor: #refreshObject:!public! !
+!SSWReStore categoriesFor: #refreshObjectIfUpdated:!public! !
+!SSWReStore categoriesFor: #refreshObjects:!public! !
+!SSWReStore categoriesFor: #refreshObjectsIfUpdated:!public! !
+!SSWReStore categoriesFor: #rollback!public! !
+!SSWReStore categoriesFor: #rollbackObject:!public! !
+!SSWReStore categoriesFor: #rollbackObjects:!public! !
+!SSWReStore categoriesFor: #selectChangedObjects:!public! !
+
+!SSWSQLCondition methodsFor!
+
+qAnd: aQueryBlockSection
+
+	"Deprecated - can now use regular and: aBlock"
+	#deprecated.
+	^self sqlAnd: aQueryBlockSection value!
+
+qOr: aQueryBlockSection
+
+	"Deprecated - can now use regular or: aBlock"
+	#deprecated.
+	^self sqlOr: aQueryBlockSection value! !
+!SSWSQLCondition categoriesFor: #qAnd:!evaluating!public! !
+!SSWSQLCondition categoriesFor: #qOr:!evaluating!public! !
+
+!SSWSQLConditionCollection methodsFor!
+
+qAnd: aQueryBlockSection
+
+	"Deprecated - can now use regular and: aBlock"
+	#deprecated.
+	^self sqlAnd: aQueryBlockSection value!
+
+qOr: aQueryBlockSection
+
+	"Deprecated - can now use regular or: aBlock"
+	#deprecated.
+	^self sqlOr: aQueryBlockSection value! !
+!SSWSQLConditionCollection categoriesFor: #qAnd:!evaluating!public! !
+!SSWSQLConditionCollection categoriesFor: #qOr:!evaluating!public! !
+
+!SSWSQLDialect methodsFor!
+
+timestamp
+
+	^self datetime!
+
+writeSQLForTimeStamp: aTimeStamp on: aStream
+
+	"For multi-datasource compatability, use standard ODBC date escape sequence {ts 'yyyy-MM-dd hh:mm:ss'}.
+	Subclasses may override to do their own thing"
+
+	aStream 
+		nextPutAll: '{ts';
+		nextPut: $'.
+	aTimeStamp date printOn: aStream format: 'yyyy-MM-dd'.
+	aStream space.
+	aTimeStamp time printOn: aStream format: 'HH:mm:ss'.
+	aStream
+		nextPut: $';
+		nextPut: $}! !
+!SSWSQLDialect categoriesFor: #timestamp!datatypes!public! !
+!SSWSQLDialect categoriesFor: #writeSQLForTimeStamp:on:!public!writing sql! !
+
+!SSWSQLServerDialect methodsFor!
+
+timestamp
+
+	^'DATETIME'! !
+!SSWSQLServerDialect categoriesFor: #timestamp!datatypes!public! !
+
+!SSWSQLWriteStream methodsFor!
+
+nextPutTimeStamp: aTimeStamp
+
+	self dialect writeSQLForTimeStamp: aTimeStamp on: self! !
+!SSWSQLWriteStream categoriesFor: #nextPutTimeStamp:!printing!public! !
+
+!Time methodsFor!
+
+withoutMilliseconds
+
+	"Standard ODBC Time format excludes milliseconds, hence it is useful/necessary to drop milliseconds for comparison purposes"
+
+	^Time fromSeconds: self asSeconds truncated! !
+!Time categoriesFor: #withoutMilliseconds!converting!public! !
+
+!TimeStamp methodsFor!
+
+withoutMilliseconds
+
+	"ODBC Timestamps may or may not include milliseconds (or may have a ms resolution > 1), hence it is useful/necessary to drop milliseconds for comparison purposes"
+
+	^TimeStamp fromSeconds: self asSeconds!
+
+writeSQLOn: aStream
+
+	"Defer to the Stream to account for dialect differences"
+	aStream nextPutTimeStamp: self! !
+!TimeStamp categoriesFor: #withoutMilliseconds!accessing!public! !
+!TimeStamp categoriesFor: #writeSQLOn:!converting!printing!public! !
+
+!TimeStamp class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"aValue may be a TimeStamp, a Date or a Time depending on database supported types"
+	^aValue ifNotNil: [aValue asTimeStamp]!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"9/3/01"
+	
+	aStream nextPutAll: anSQLDialect timestamp! !
+!TimeStamp class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!TimeStamp class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!True methodsFor!
+
+qAnd: aBlock
+
+	"Deprecated - can now use regular and: aBlock"
+	#deprecated.
+	^aBlock value!
+
+qOr: aBlock
+
+	"Deprecated - can now use regular or: aBlock"
+	#deprecated.
+	^self! !
+!True categoriesFor: #qAnd:!evaluating!public! !
+!True categoriesFor: #qOr:!evaluating!public! !
+
+"End of package definition"!
+

@@ -15,6 +15,7 @@ package classNames
 	add: #SSWODBCField;
 	add: #SSWODBCForwardOnlyResultSet;
 	add: #SSWODBCResultSet;
+	add: #SSWODBCRow;
 	add: #SSWODBCStatement;
 	yourself.
 
@@ -38,13 +39,12 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\..\Core\Object Arts\Dolphin\Database\Database Connection Base';
-	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: 'SSW ReStore Base Additions';
-	add: 'SSW ReStore SQL Entities';
-	add: 'SSW ReStore Tables';
-	yourself).
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'SSW ReStore SQL Entities'
+	'SSW ReStore SQL Queries'
+	'SSW ReStore Tables').
 
 package!
 
@@ -57,6 +57,11 @@ DBResultSet subclass: #SSWODBCResultSet
 	classInstanceVariableNames: ''!
 DBForwardOnlyResultSet subclass: #SSWODBCForwardOnlyResultSet
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+DBRow subclass: #SSWODBCRow
+	instanceVariableNames: 'fieldMap'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -83,7 +88,7 @@ DBConnection subclass: #SSWODBCConnection
 DBField subclass: #SSWODBCField
 	instanceVariableNames: 'statement'
 	classVariableNames: ''
-	poolDictionaries: ''
+	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!
 
 "Global Aliases"!

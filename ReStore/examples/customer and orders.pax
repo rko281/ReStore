@@ -1,4 +1,4 @@
-| package |
+﻿| package |
 package := Package name: 'customer and orders'.
 package paxVersion: 1;
 	basicComment: 'ReStore Customer and Orders example.
@@ -63,10 +63,10 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: '..\SSW ReStore Main';
-	yourself).
+package setPrerequisites: #(
+	'..\..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\SSW ReStore Main').
 
 package setManualPrerequisites: #(
 	'SSW ReStore Main').

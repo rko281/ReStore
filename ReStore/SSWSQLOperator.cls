@@ -50,6 +50,10 @@ isEquality
 
 	^self messageSelector = #= and: [self isInverted not]!
 
+isIncludedIn
+
+	^self messageSelector = #includedIn:!
+
 isInequality
 
 	^self messageSelector = #~= and: [self isInverted not]!
@@ -173,6 +177,7 @@ writeSQLOn: aStream forTarget: aTargetValue
 !SSWSQLOperator categoriesFor: #hash!comparing!public! !
 !SSWSQLOperator categoriesFor: #invert!modifying!public! !
 !SSWSQLOperator categoriesFor: #isEquality!public!testing! !
+!SSWSQLOperator categoriesFor: #isIncludedIn!public!testing! !
 !SSWSQLOperator categoriesFor: #isInequality!public!testing! !
 !SSWSQLOperator categoriesFor: #isInverted!accessing!public! !
 !SSWSQLOperator categoriesFor: #isInverted:!accessing!public! !

@@ -31,22 +31,18 @@ describeCols: columnNumbers
 
 	"Intercept to set the fields used in the query"
 
-	^SSWDBLookupArray 
-		lookup:
-			((super describeCols: columnNumbers) collect: 
-				[ :colAttr |
-				SSWODBCColAttr new
-					columnNumber: colAttr columnNumber;
-					name: colAttr name;
-					type: colAttr type;
-					length: colAttr length;
-					precision: colAttr precision;
-					scale: colAttr scale;
-					field: (self query ifNotNil: [ :q | q fieldNamed: colAttr name]);
-					maxBoundBufferSize: self sqlDialect maxColumnBytes;
-					yourself]) 
-		with: 
-			[ :each | each field]!
+	^(super describeCols: columnNumbers) collect: 
+		[ :colAttr |
+		SSWODBCColAttr new
+			columnNumber: colAttr columnNumber;
+			name: colAttr name;
+			type: colAttr type;
+			length: colAttr length;
+			precision: colAttr precision;
+			scale: colAttr scale;
+			field: (self query ifNotNil: [ :q | q fieldNamed: colAttr name]);
+			maxBoundBufferSize: self sqlDialect maxColumnBytes;
+			yourself]!
 
 describeParam: anInteger
 
@@ -93,7 +89,7 @@ exec: aString
 	"Immediate execution of raw SQL"
 
 	self 
-		paramCols: nil;
+		paramCols: #();
 		prepare: aString.
 
 	self exec!
@@ -116,15 +112,12 @@ execQuery: anSQLQuery
 
 parameters
 
-	"18/9/2001
+	"Overriden to use SSWDBODBCFields; see superclass implementation for comment"
 
-	Overriden to use SSWDBODBCFields; see superclass implementation for comment"
-
-	parameters == nil ifTrue: 
+	^parameters ifNil: 
 		[parameters := (paramCols collect: [:col | SSWODBCField newForCol: col statement: self]) asArray.
-		self setParams].
-
-	^parameters!
+		self bindParams.
+		parameters]!
 
 query
 
@@ -163,37 +156,6 @@ results
 		ifTrue: [SSWODBCForwardOnlyResultSet]
 		ifFalse: [SSWODBCResultSet]) statement: self!
 
-setParams
-
-	"Created for issue 120-002
-
-	Reimplemented to force use of SQL_PARAM_INPUT parameter type
-	(default/input-output type causing errors with SQLServer)"
-
-	"Private - Bind parameter columns for a prepared SQL statement so that when we 
-	subsequently fill the buffer fields the statement is ready to exec. Normally only done 
-	just before first exec (from #parameters)."
-
-	1 to: paramCols size
-		do: 
-			[:each | 
-			| buf col field |
-			col := paramCols at: each.
-			field := parameters at: each.
-			buf := field fieldBuf.
-			self dbCheckException: (ODBCLibrary default 
-						sqlBindParameter: self allocatedHandle
-						parameterNumber: each
-						inputOutputType: SQL_PARAM_INPUT
-						valueType: SQL_C_DEFAULT
-						parameterType: col type
-						columnSize: col precision
-						decimalDigits: col scale
-						parameterValuePtr: buf
-						bufferLength: buf byteSize
-						strLenOrIndPtr: field lengthBuf)]
-!
-
 sqlDialect
 
 	"18/9/2001 
@@ -204,25 +166,26 @@ sqlDialect
 
 writeDebugInfoOn: aStream
 
-	| readStream valuesStream |
+	| readStream valuesStream sqlStream |
 
 	paramCols isNil ifTrue: [^aStream nextPutAll: self sqlString; cr].
 
 	readStream := ReadStream on: self sqlString.
 	valuesStream := ReadStream on: self values.
+	sqlStream := SSWSQLWriteStream newIn: self sqlDialect.
 
-	[aStream nextPutAll: (readStream upTo: $?).
+	[sqlStream nextPutAll: (readStream upTo: $?).
 	readStream atEnd] whileFalse: 
-		[aStream nextPut: $[.
-		valuesStream nextOrNil printOn: aStream.
-		aStream nextPut: $]].
+		[sqlStream nextPut: $[.
+		valuesStream nextOrNil writeSQLOn: sqlStream.
+		sqlStream nextPut: $]].
 
 	self sqlString last = $? ifTrue: 
-		[aStream nextPut: $[.
-		valuesStream nextOrNil printOn: aStream.
-		aStream nextPut: $]].
+		[sqlStream nextPut: $[.
+		valuesStream nextOrNil writeSQLOn: sqlStream.
+		sqlStream nextPut: $]].
 
-	aStream cr! !
+	aStream nextPutAll: sqlStream contents; cr! !
 !SSWODBCStatement categoriesFor: #close!operations!public! !
 !SSWODBCStatement categoriesFor: #closeAfter:!operations!public! !
 !SSWODBCStatement categoriesFor: #dbCheckException:!exceptions!private! !
@@ -236,7 +199,6 @@ writeDebugInfoOn: aStream
 !SSWODBCStatement categoriesFor: #query:!accessing!public! !
 !SSWODBCStatement categoriesFor: #readValuesFrom:!operations!public! !
 !SSWODBCStatement categoriesFor: #results!accessing!public! !
-!SSWODBCStatement categoriesFor: #setParams!accessing!public! !
 !SSWODBCStatement categoriesFor: #sqlDialect!accessing!public! !
 !SSWODBCStatement categoriesFor: #writeDebugInfoOn:!operations!public! !
 

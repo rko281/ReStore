@@ -18,7 +18,7 @@ groupByFields: anObject
 
 writeSQLOn: aStream
 
-	| first aggConditions |
+	| aggConditions |
 	
 	self writeUnorderedSQLOn: aStream.
 	

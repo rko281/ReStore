@@ -62,6 +62,12 @@ hasFinalField
 
 	^self subclassResponsibility!
 
+imageDo: imageBlock databaseDo: databaseBlock
+
+	"Allow different code to be 'evaluated' depending on whether execution is in-image or 'in' the database (in the latter case code is not actually executed but converted to SQL)"
+
+	^databaseBlock value!
+
 isSimilarTo: anObject
 
 	^self perform: anObject similarityComparator with: anObject!
@@ -130,6 +136,7 @@ subclassResponsibility
 !SSWDBBlockEvaluator categoriesFor: #finalField!public!testing! !
 !SSWDBBlockEvaluator categoriesFor: #forConcatenation!converting!public! !
 !SSWDBBlockEvaluator categoriesFor: #hasFinalField!public!testing! !
+!SSWDBBlockEvaluator categoriesFor: #imageDo:databaseDo:!helpers!public! !
 !SSWDBBlockEvaluator categoriesFor: #isSimilarTo:!public!testing! !
 !SSWDBBlockEvaluator categoriesFor: #newCondition!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #parser!accessing!public! !

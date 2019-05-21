@@ -571,7 +571,6 @@ rejectQueryFrom: aOneArgBlock
 	| conditions |
 	
 	self reset.
-	
 	"Invert (not) the parse: result to turn select into reject"
 	conditions := (self parse: aOneArgBlock) not.
 
@@ -583,9 +582,8 @@ rejectQueryFrom: aOneArgBlock
 
 reset
 
-	"Private - 23/3/2001
-	
-	Reset the receiver for a new parsing session"
+	"Reset the receiver for a new parsing session"
+
 	self referencedTables: (SSWSQLLeftJoinedTableCollection with: self argumentTable).
 	
 	self qualifyingTables isNil ifFalse: [self referencedTables merge: self qualifyingTables].
@@ -594,7 +592,7 @@ reset
 		groupByFields: SSWSQLFieldCollection new;
 		resetConditions;
 		accumulatedConditionsStack: OrderedCollection new;
-		fieldEncounters: OrderedCollection new!
+		fieldEncounters: self referencedTables joinFields!
 
 resetConditions
 

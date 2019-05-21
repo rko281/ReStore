@@ -3,95 +3,12 @@
 DBField subclass: #SSWODBCField
 	instanceVariableNames: 'statement'
 	classVariableNames: ''
-	poolDictionaries: ''
+	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!
 SSWODBCField guid: (GUID fromString: '{4031cf23-9276-11d5-b1e0-0010a70883e2}')!
 SSWODBCField comment: ''!
 !SSWODBCField categoriesForClass!Unclassified! !
 !SSWODBCField methodsFor!
-
-fromByte: aNumberOrBoolean
-
-	"16/8/2001
-
-	Overridden to allow Integer-based Booleans"
-
-	(aNumberOrBoolean isKindOf: Boolean) 
-	ifTrue: 
-		["self assert: [self sqlDialect trueObject isKindOf: Integer]"
-		aNumberOrBoolean 
-			ifTrue: [super fromByte: self sqlDialect trueObject]
-			ifFalse: [super fromByte: self sqlDialect falseObject]]
-	ifFalse:
-		[super fromByte: aNumberOrBoolean]
-!
-
-fromLong: aNumberOrBoolean
-
-	"16/8/2001
-
-	Overridden to allow Integer-based Booleans"
-
-	(aNumberOrBoolean isKindOf: Boolean) 
-	ifTrue: 
-		["self assert: [self sqlDialect trueObject isKindOf: Integer]"
-		aNumberOrBoolean 
-			ifTrue: [super fromLong: self sqlDialect trueObject]
-			ifFalse: [super fromLong: self sqlDialect falseObject]]
-	ifFalse:
-		[super fromLong: aNumberOrBoolean]
-!
-
-fromShort: aNumberOrBoolean
-
-	"16/8/2001
-
-	Overridden to allow Integer-based Booleans"
-
-	(aNumberOrBoolean isKindOf: Boolean) 
-	ifTrue: 
-		["self assert: [self sqlDialect trueObject isKindOf: Integer]"
-		aNumberOrBoolean 
-			ifTrue: [super fromShort: self sqlDialect trueObject]
-			ifFalse: [super fromShort: self sqlDialect falseObject]]
-	ifFalse:
-		[super fromShort: aNumberOrBoolean]
-!
-
-fromString: aStringOrBoolean
-
-	"16/8/2001
-
-	Overridden to allow String-based Booleans & to automatically truncate oversize Strings"
-
-	(aStringOrBoolean isKindOf: Boolean) 
-	ifTrue: 
-		["self assert: [self sqlDialect trueObject isKindOf: String]"
-		aStringOrBoolean 
-			ifTrue: [super fromString: self sqlDialect trueObject]
-			ifFalse: [super fromString: self sqlDialect falseObject]]
-	ifFalse:
-		[aStringOrBoolean size > (buffer size - 1) "for null terminator"
-		ifTrue: 
-			[Notification signal: 'ReStore: oversized String truncated'. 
-			super fromString: (aStringOrBoolean copyFrom: 1 to: (buffer size - 1))]
-		ifFalse: 
-			[super fromString: aStringOrBoolean]]!
-
-fromTimeStamp: aTimeStamp
-
-	"16/8/2001
-
-	Overridden to allow Date and Time to be used"
-
-	| validTimeStamp |
-
-	validTimeStamp := aTimeStamp.
-
-	(aTimeStamp isKindOf: Date) ifTrue: [validTimeStamp := TimeStamp date: aTimeStamp].
-	(aTimeStamp isKindOf: Time) ifTrue: [validTimeStamp := TimeStamp time: aTimeStamp].
-
-	^super fromTimeStamp: validTimeStamp!
 
 initializeForColumn: aDBColAttr
 	"Private - Initialize the receiver to represent a value from
@@ -117,6 +34,90 @@ numberToNumeric: aNumberOrBoolean
 			ifFalse: [super numberToNumeric: self sqlDialect falseObject]]
 	ifFalse:
 		[super numberToNumeric: aNumberOrBoolean]!
+
+setAnsiString: aStringOrObject
+
+	"Overridden to:
+	 - automatically truncate oversize Strings
+	 - allow String-based objects (Date, Boolean etc.)"
+
+	aStringOrObject isString
+	ifTrue: 
+		[aStringOrObject  size > (buffer size - 1) "for null terminator"
+		ifTrue: 
+			[Notification signal: 'ReStore: oversized String truncated'. 
+			super setAnsiString: (aStringOrObject  copyFrom: 1 to: (buffer size - 1))]
+		ifFalse: 
+			[super setAnsiString: aStringOrObject ]]
+	ifFalse: 
+		[super setAnsiString: (aStringOrObject sqlStringIn: self sqlDialect)]!
+
+setByte: aNumberOrBoolean
+
+	"Overridden to allow Integer-based Booleans"
+
+	(aNumberOrBoolean isKindOf: Boolean) 
+	ifTrue: 
+		["self assert: [self sqlDialect trueObject isKindOf: Integer]"
+		aNumberOrBoolean 
+			ifTrue: [super setByte: self sqlDialect trueObject]
+			ifFalse: [super setByte: self sqlDialect falseObject]]
+	ifFalse:
+		[super setByte: aNumberOrBoolean]
+!
+
+setDateAndTime: aDateAndTime
+
+	"Overridden to allow Date or Time (or another object implementing asDateAndTime) to be used"
+
+	(aDateAndTime isKindOf: DateAndTime) 
+		ifTrue: [super setDateAndTime: aDateAndTime]
+		ifFalse: [super setDateAndTime: aDateAndTime asDateAndTime]!
+
+setLong: aNumberOrBoolean
+
+	"Overridden to allow Integer-based Booleans"
+
+	(aNumberOrBoolean isKindOf: Boolean) 
+	ifTrue: 
+		["self assert: [self sqlDialect trueObject isKindOf: Integer]"
+		aNumberOrBoolean 
+			ifTrue: [super setLong: self sqlDialect trueObject]
+			ifFalse: [super setLong: self sqlDialect falseObject]]
+	ifFalse:
+		[super setLong: aNumberOrBoolean]
+!
+
+setShort: aNumberOrBoolean
+
+	"Overridden to allow Integer-based Booleans"
+
+	(aNumberOrBoolean isKindOf: Boolean) 
+	ifTrue: 
+		["self assert: [self sqlDialect trueObject isKindOf: Integer]"
+		aNumberOrBoolean 
+			ifTrue: [super setShort: self sqlDialect trueObject]
+			ifFalse: [super setShort: self sqlDialect falseObject]]
+	ifFalse:
+		[super setShort: aNumberOrBoolean]
+!
+
+setUtf16String: aStringOrObject
+
+	"Overridden to:
+	 - automatically truncate oversize Strings
+	 - allow String-based objects (Date, Boolean etc.)"
+
+	aStringOrObject isString
+	ifTrue: 
+		[aStringOrObject byteSize > (buffer size - 1) "for null terminator"
+		ifTrue: 
+			[Notification signal: 'ReStore: oversized String truncated'. 
+			super setUtf16String: (aStringOrObject copyFrom: 1 to: ((buffer size - 2) // 2))]
+		ifFalse: 
+			[super setUtf16String: aStringOrObject]]
+	ifFalse: 
+		[super setUtf16String: (aStringOrObject asSQLStringIn: self sqlDialect) asUtf16String]!
 
 shouldTranslate: anObject class: aClass
 
@@ -151,13 +152,14 @@ statement: anSSWODBCStatement
 	statement stores the SSWODBC...Statement to which this field relates"
 
 	statement := anSSWODBCStatement! !
-!SSWODBCField categoriesFor: #fromByte:!converting!private! !
-!SSWODBCField categoriesFor: #fromLong:!converting!private! !
-!SSWODBCField categoriesFor: #fromShort:!converting!private! !
-!SSWODBCField categoriesFor: #fromString:!converting!private! !
-!SSWODBCField categoriesFor: #fromTimeStamp:!converting!private! !
 !SSWODBCField categoriesFor: #initializeForColumn:!accessing!private! !
 !SSWODBCField categoriesFor: #numberToNumeric:!converting!private! !
+!SSWODBCField categoriesFor: #setAnsiString:!converting!private! !
+!SSWODBCField categoriesFor: #setByte:!converting!private! !
+!SSWODBCField categoriesFor: #setDateAndTime:!converting!private! !
+!SSWODBCField categoriesFor: #setLong:!converting!private! !
+!SSWODBCField categoriesFor: #setShort:!converting!private! !
+!SSWODBCField categoriesFor: #setUtf16String:!converting!private! !
 !SSWODBCField categoriesFor: #shouldTranslate:class:!accessing!private! !
 !SSWODBCField categoriesFor: #sqlDialect!accessing!public! !
 !SSWODBCField categoriesFor: #statement!accessing!public! !

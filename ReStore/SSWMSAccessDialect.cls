@@ -36,7 +36,13 @@ date
 
 	"No explicit date type"
 
-	^self timestamp!
+	^self datetime!
+
+datetimeWithResolution
+
+	"Not supported"
+
+	^self datetime!
 
 dialectSpecificFunctions
 
@@ -73,6 +79,10 @@ maxAllocatedStatements
 	"Leave some headroom"
 	^100!
 
+maxDateTimeResolution
+
+	^0!
+
 renameTableNamed: oldName to: newName in: anSSWReStore
 
 	anSSWReStore 
@@ -90,7 +100,7 @@ time
 
 	"No explicit time type"
 
-	^self timestamp!
+	^self datetime!
 
 trueObject
 
@@ -104,18 +114,20 @@ updateDelaySeconds
 
 writeSQLForDate: aDate on: aStream
 
-	self writeSQLForTimeStamp: (TimeStamp date: aDate) on: aStream!
+	self writeSQLForDateAndTime: aDate asDateAndTime on: aStream!
 
 writeSQLForTime: aTime on: aStream
 
-	self writeSQLForTimeStamp: (TimeStamp time: aTime) on: aStream! !
+	self writeSQLForDateAndTime: aTime asDateAndTime on: aStream! !
 !SSWMSAccessDialect categoriesFor: #boolean!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #canDescribeParameters!public!testing! !
-!SSWMSAccessDialect categoriesFor: #connectionReservedWords!public! !
+!SSWMSAccessDialect categoriesFor: #connectionReservedWords!constants!public! !
 !SSWMSAccessDialect categoriesFor: #date!datatypes!public! !
+!SSWMSAccessDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWMSAccessDialect categoriesFor: #longText!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #maxAllocatedStatements!constants!public! !
+!SSWMSAccessDialect categoriesFor: #maxDateTimeResolution!constants!public! !
 !SSWMSAccessDialect categoriesFor: #renameTableNamed:to:in:!maintenance!public! !
 !SSWMSAccessDialect categoriesFor: #shouldMapEmptyStringsToNil!public!testing! !
 !SSWMSAccessDialect categoriesFor: #time!datatypes!public! !

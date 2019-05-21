@@ -153,18 +153,6 @@ operator: anSSWSQLOperator
 	
 	operator := anSSWSQLOperator!
 
-qAnd: aQueryBlockSection
-
-	"Deprecated - can now use regular and: aBlock"
-	#deprecated.
-	^self sqlAnd: aQueryBlockSection value!
-
-qOr: aQueryBlockSection
-
-	"Deprecated - can now use regular or: aBlock"
-	#deprecated.
-	^self sqlOr: aQueryBlockSection value!
-
 sqlAnd: aConditionOrCollection
 
 	"5/8/2000
@@ -221,11 +209,18 @@ writeConjunctionSQLOn: aStream
 
 writeSQLOn: aStream
 
-	"Handle the special case where there is no operator or value (implicit true)"
-	
-	^self isFieldOnly
-		ifTrue: [self writeFieldSQLOn: aStream]
-		ifFalse: [super writeSQLOn: aStream]! !
+	"Handle special cases"
+
+	"1) Where there is no operator or value (implicit true)"
+	self isFieldOnly ifTrue: [^self writeFieldSQLOn: aStream].
+
+	"2) Empty IN condition"
+	(self operator isIncludedIn and: [self value isEmpty]) ifTrue: 
+		[^(self operator isInverted 
+			ifTrue: [SSWSQLCondition field: self field equalTo: self field]
+			ifFalse: [(SSWSQLCondition field: self field equalTo: self field) not]) writeSQLOn: aStream].
+
+	^super writeSQLOn: aStream! !
 !SSWSQLCondition categoriesFor: #&!evaluating!public! !
 !SSWSQLCondition categoriesFor: #|!evaluating!public! !
 !SSWSQLCondition categoriesFor: #=!comparing!public! !
@@ -249,8 +244,6 @@ writeSQLOn: aStream
 !SSWSQLCondition categoriesFor: #not!evaluating!public! !
 !SSWSQLCondition categoriesFor: #operator!accessing!public! !
 !SSWSQLCondition categoriesFor: #operator:!accessing!public! !
-!SSWSQLCondition categoriesFor: #qAnd:!evaluating!public! !
-!SSWSQLCondition categoriesFor: #qOr:!evaluating!public! !
 !SSWSQLCondition categoriesFor: #sqlAnd:!evaluating!public! !
 !SSWSQLCondition categoriesFor: #sqlAndWithCondition:!evaluating!public! !
 !SSWSQLCondition categoriesFor: #sqlOr:!evaluating!public! !

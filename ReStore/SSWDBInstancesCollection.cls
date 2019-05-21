@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWDBInstancesCollection
-	instanceVariableNames: 'reStore instancesClass parser sortBlock preFetchComponents'
+	instanceVariableNames: 'reStore instancesClass parser sortBlock preFetchComponents preReadActions postReadActions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -73,16 +73,6 @@ collect: collectBlock into: aCollection
 	
 	^self query: (self parser collectQueryFrom: collectBlock) into: aCollection!
 
-collectAsSet: collectBlock
-
-	"Evaluate each elemen with collectBlock, returning the result as a Set.
-	This is more efficient than e.g.
-		(self collect: [ :cd | cd artistName]) asSet 
-	...where a high level of duplication is expected"
-	
-	#deprecated. "Use project:"
-	^self project: collectBlock into: (Set new: 16)!
-
 collectInto: aCollection
 
 	"Private - Add the objects resulting from the receiver to aCollection.
@@ -130,9 +120,11 @@ do: aBlock
 
 fetchObjectsWithQuery: aQuery into: aCollection
 
+	self preReadActions do: [ :each | each value].
+
 	self reStore fetchObjectsOfClass: self instancesClass withQuery: aQuery into: aCollection.
 	
-	self preFetchComponents do: [ :tableComponent| tableComponent readAllFor: aCollection].
+	self postReadActions do: [ :each | each value: aCollection].
 
 	^aCollection!
 
@@ -241,19 +233,29 @@ parser: anSSWDBBlockParser
 	
 	parser := anSSWDBBlockParser!
 
-preFetchComponents
+postReadActions
 
-	"preFetchComponents stores a collection of components of the receiver's database table.
-	The contents of these components are bulk pre-fetched when elements of the receiver are read from the database"
+	"postReadActions stores an OrderedCollection of actions (1-arg Blocks or MessageSends) which are evaluated with a collection of the receiver's elements after they are read from the database"
 
-	^preFetchComponents ifNil: [#()]!
+	^postReadActions!
 
-preFetchComponents: aCollection
+postReadActions: anOrderedCollection
 
-	"preFetchComponents stores a collection of components of the receiver's database table.
-	The contents of these components are bulk pre-fetched when elements of the receiver are read from the database"
+	"postReadActions stores an OrderedCollection of actions (1-arg Blocks or MessageSends) which are evaluated with a collection of the receiver's elements after they are read from the database"
 
-	preFetchComponents := aCollection!
+	postReadActions := anOrderedCollection!
+
+preReadActions
+
+	"preReadActions stores an OrderedCollection of actions (zero-arg Blocks or MessageSends) which are evaluated before the receiver's elements are read from the database"
+
+	^preReadActions!
+
+preReadActions: anOrderedCollection
+
+	"preReadActions stores an OrderedCollection of actions (zero-arg Blocks or MessageSends) which are evaluated before the receiver's elements are read from the database"
+
+	preReadActions := anOrderedCollection!
 
 project: projectBlock
 	
@@ -268,7 +270,7 @@ project: projectBlock into: aCollection
 
 qualifyWith: aBlock
 
-	"27/3/2001
+	"Private - 27/3/2001
 	
 	Modify the receiver's parser so that it always qualifies any query it creates
 	with the conditions extracted from aBlock"
@@ -311,6 +313,13 @@ readStream
 	Create and return an appropraite ReadStream-like object on the receiver"
 	
 	^SSWDBReadStream on: self!
+
+refreshed
+
+	"Arrange for a softRollback to take place immediately before reading the receiver's elements from the database.
+	This will ensure any objects already in the image are refreshed with the newly-fetched rows"
+
+	self preReadActions add: [self reStore softRollback]!
 
 reject: rejectBlock
 	
@@ -461,21 +470,21 @@ unstoreAll
 
 withComponent: aSymbol
 
-	"Arrange for the content of the inst var named aSymbol to be bulk pre-fetched when elements of the receiver are read from the database"
+	"Arrange for the content of the inst var named aSymbol to be bulk fetched when elements of the receiver are read from the database"
 
 	self withComponents: (Array with: aSymbol)!
 
 withComponents: aCollectionOfInstVarNames
 
-	"Arrange for the contents of aCollectionOfInstVarNames (representing components of the receiver) to be bulk pre-fetched when elements of the receiver are read from the database"
+	"Arrange for the contents of aCollectionOfInstVarNames (representing components of the receiver) to be bulk fetched when elements of the receiver are read from the database"
 
-	self preFetchComponents: (aCollectionOfInstVarNames collect: [ :instVarName| self table componentAccessing: instVarName])!
+	self withTableComponents: (aCollectionOfInstVarNames collect: [ :instVarName | self table componentAccessing: instVarName])!
 
 withDependentComponents
 
 	"Arrange for dependent contents to be bulk pre-fetched when elements of the receiver are read from the database"
 
-	self preFetchComponents: self table dependentComponents!
+	self withTableComponents: self table dependentComponents!
 
 withoutInheritance
 
@@ -492,7 +501,15 @@ withRelatedComponents
 
 	"Arrange for related contents to be bulk pre-fetched when elements of the receiver are read from the database"
 
-	self preFetchComponents: self table relatedComponents! !
+	self withTableComponents: self table relatedComponents!
+
+withTableComponents: aCollectionOfTableComponents
+
+	"Private - Arrange for the contents of aCollectionOfTableComponents to be bulk fetched when elements of the receiver are read from the database"
+
+	aCollectionOfTableComponents do: 
+		[ :component | 
+		self postReadActions add: [ :elements | component readAllFor: elements]]! !
 !SSWDBInstancesCollection categoriesFor: #addAll:!actions!public! !
 !SSWDBInstancesCollection categoriesFor: #allSatisfy:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #anySatisfy:!enumerating!public! !
@@ -502,7 +519,6 @@ withRelatedComponents
 !SSWDBInstancesCollection categoriesFor: #asSortedCollection:!converting!public! !
 !SSWDBInstancesCollection categoriesFor: #collect:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #collect:into:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #collectAsSet:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #collectInto:!helpers!private! !
 !SSWDBInstancesCollection categoriesFor: #copy!copying!public! !
 !SSWDBInstancesCollection categoriesFor: #createParser!initializing!private! !
@@ -522,13 +538,16 @@ withRelatedComponents
 !SSWDBInstancesCollection categoriesFor: #modify:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #parser!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #parser:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #preFetchComponents!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #preFetchComponents:!accessing!public! !
+!SSWDBInstancesCollection categoriesFor: #postReadActions!accessing!public! !
+!SSWDBInstancesCollection categoriesFor: #postReadActions:!accessing!public! !
+!SSWDBInstancesCollection categoriesFor: #preReadActions!accessing!public! !
+!SSWDBInstancesCollection categoriesFor: #preReadActions:!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #project:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #project:into:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #qualifyWith:!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #qualifyWith:!initializing!private! !
 !SSWDBInstancesCollection categoriesFor: #query:into:!helpers!private! !
 !SSWDBInstancesCollection categoriesFor: #readStream!evaluating!public! !
+!SSWDBInstancesCollection categoriesFor: #refreshed!initializing!public! !
 !SSWDBInstancesCollection categoriesFor: #reject:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #reStore!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #reStore:!accessing!public! !
@@ -547,6 +566,7 @@ withRelatedComponents
 !SSWDBInstancesCollection categoriesFor: #withDependentComponents!initializing!public! !
 !SSWDBInstancesCollection categoriesFor: #withoutInheritance!evaluating!public! !
 !SSWDBInstancesCollection categoriesFor: #withRelatedComponents!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #withTableComponents:!initializing!private! !
 
 !SSWDBInstancesCollection class methodsFor!
 
@@ -558,6 +578,14 @@ forClass: aClass in: anSSWReStore
 		instancesClass: aClass;
 		reStore: anSSWReStore;
 		createParser;
+		yourself!
+
+new
+
+	^super new
+		preReadActions: OrderedCollection new;
+		postReadActions: OrderedCollection new;
 		yourself! !
 !SSWDBInstancesCollection class categoriesFor: #forClass:in:!instance creation!public! !
+!SSWDBInstancesCollection class categoriesFor: #new!instance creation!public! !
 

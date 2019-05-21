@@ -24,12 +24,13 @@ cursorType
 
 	^#keysetDriven!
 
-date
+datetime
 
-	"SQL Server >= 2008 supports an explicit DATE type, however backwards-compatibility converts times to Strings depending on version of ODBC driver.
-	As TIME suffers from the same issues and more (see implementation of time), use the legacy timestamp type for both dates and times"
+	^'DATETIME2'!
 
-	^self timestamp!
+datetimeWithResolution
+
+	^'DATETIME2(%1)'!
 
 dialectSpecificFunctions
 
@@ -82,31 +83,12 @@ shouldMaskSuccessWithInfo
 
 supportsImplicitTrueConditions
 
-	^false!
-
-time	
-
-	"SQL Server >= 2008 supports its own TIME type (SQL_SS_TIME2) but is not compatible with standard SQL_TIME.
-	Also backwards-compatibility converts times to Strings depending on version of ODBC driver.
-	Therefore use the legacy timestamp type"
-
-	^self timestamp!
-
-timestamp
-
-	^'DATETIME'!
-
-writeSQLForDate: aDate on: aStream
-
-	self writeSQLForTimeStamp: (TimeStamp date: aDate) on: aStream!
-
-writeSQLForTime: aTime on: aStream
-
-	self writeSQLForTimeStamp: (TimeStamp time: aTime) on: aStream! !
+	^false! !
 !SSWSQLServerDialect categoriesFor: #boolean!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #canDescribeParameters!public!testing! !
 !SSWSQLServerDialect categoriesFor: #cursorType!constants!public! !
-!SSWSQLServerDialect categoriesFor: #date!datatypes!public! !
+!SSWSQLServerDialect categoriesFor: #datetime!datatypes!public! !
+!SSWSQLServerDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWSQLServerDialect categoriesFor: #double!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #integer!datatypes!public! !
@@ -115,10 +97,6 @@ writeSQLForTime: aTime on: aStream
 !SSWSQLServerDialect categoriesFor: #renameTableNamed:to:in:!maintenance!public! !
 !SSWSQLServerDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
 !SSWSQLServerDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
-!SSWSQLServerDialect categoriesFor: #time!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #timestamp!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #writeSQLForDate:on:!public!writing sql! !
-!SSWSQLServerDialect categoriesFor: #writeSQLForTime:on:!public!writing sql! !
 
 !SSWSQLServerDialect class methodsFor!
 

@@ -14,6 +14,10 @@ decimal
 
 	^'NUMERIC'!
 
+defaultDateTimeResolution
+
+	^3!
+
 dialectSpecificFunctions
 
 	^##(Dictionary new
@@ -53,12 +57,21 @@ shouldRollbackOnQuery
 
 	"Seems to be required to avoid locking issues"
 
-	^true! !
+	^true!
+
+shouldUseColumnsStatement
+
+	"Under the SQLite ODBC driver DBColumnsStatement returns the character length for wide string columns, rather than the buffer length.
+	Column details returned from a SELECT * query report the buffer length correctly"
+
+	^false! !
 !SSWSQLiteDialect categoriesFor: #decimal!datatypes!public! !
+!SSWSQLiteDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
 !SSWSQLiteDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWSQLiteDialect categoriesFor: #dropColumnNamed:fromTable:in:!maintenance!public! !
 !SSWSQLiteDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
 !SSWSQLiteDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
+!SSWSQLiteDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
 
 !SSWSQLiteDialect class methodsFor!
 

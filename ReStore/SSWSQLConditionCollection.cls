@@ -150,18 +150,6 @@ not
 	
 	^self!
 
-qAnd: aQueryBlockSection
-
-	"Deprecated - can now use regular and: aBlock"
-	#deprecated.
-	^self sqlAnd: aQueryBlockSection value!
-
-qOr: aQueryBlockSection
-
-	"Deprecated - can now use regular or: aBlock"
-	#deprecated.
-	^self sqlOr: aQueryBlockSection value!
-
 sqlAnd: aConditionOrCollection
 
 	"5/8/2000
@@ -251,8 +239,6 @@ writeSQLOn: aStream
 !SSWSQLConditionCollection categoriesFor: #isEmpty!public!testing! !
 !SSWSQLConditionCollection categoriesFor: #isOR!public!testing! !
 !SSWSQLConditionCollection categoriesFor: #not!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #qAnd:!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #qOr:!evaluating!public! !
 !SSWSQLConditionCollection categoriesFor: #sqlAnd:!evaluating!public! !
 !SSWSQLConditionCollection categoriesFor: #sqlAndWithCondition:!evaluating!public! !
 !SSWSQLConditionCollection categoriesFor: #sqlConcatenator!accessing!public! !

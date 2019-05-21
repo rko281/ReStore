@@ -45,24 +45,33 @@ package methodNames
 	add: #Collection -> #writeSQLOn:;
 	add: #Collection -> #writeSQLOn:forField:;
 	add: #Collection -> #writeSQLOn:with:;
+	add: #Date -> #asSQLStringIn:;
 	add: #Date -> #writeSQLOn:;
+	add: #DateAndTime -> #asSQLStringIn:;
+	add: #DateAndTime -> #withoutMilliseconds;
+	add: #DateAndTime -> #writeSQLOn:;
+	add: #False -> #asSQLStringIn:;
 	add: #False -> #writeSQLOn:;
 	add: #Magnitude -> #writeSQLOn:forField:;
 	add: #Object -> #sqlStringIn:;
 	add: #Object -> #writeSQLOn:forField:;
 	add: #ScaledDecimal -> #writeSQLOn:;
+	add: #SSWDBDateAndTimeWithResolution -> #writeSQLTypeOn:using:;
 	add: #SSWDBFixedStringWithInfo -> #writeSQLTypeOn:using:;
 	add: #SSWDBScaledDecimalWithInfo -> #writeSQLTypeOn:using:;
 	add: #SSWDBVariableStringWithInfo -> #writeSQLTypeOn:using:;
 	add: #String -> #writeSQLOn:;
 	add: #String -> #writeSQLOn:forField:;
+	add: #Time -> #asSQLStringIn:;
 	add: #Time -> #writeSQLOn:;
-	add: #TimeStamp -> #writeSQLOn:;
+	add: #True -> #asSQLStringIn:;
 	add: #True -> #writeSQLOn:;
 	add: #UndefinedObject -> #writeSQLOn:;
 	add: #UnquotedString -> #writeSQLOn:;
 	add: 'Boolean class' -> #writeSQLTypeOn:using:;
 	add: 'Date class' -> #writeSQLTypeOn:using:;
+	add: 'DateAndTime class' -> #instanceFromDBValue:in:;
+	add: 'DateAndTime class' -> #writeSQLTypeOn:using:;
 	add: 'Float class' -> #writeSQLTypeOn:using:;
 	add: 'Integer class' -> #writeSQLTypeOn:using:;
 	add: 'Metaclass class' -> #writeSQLTypeOn:using:;
@@ -70,7 +79,6 @@ package methodNames
 	add: 'Object class' -> #writeSQLTypeOn:using:;
 	add: 'String class' -> #writeSQLTypeOn:using:;
 	add: 'Time class' -> #writeSQLTypeOn:using:;
-	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -79,11 +87,11 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\..\Core\Object Arts\Dolphin\Database\Database Connection Base';
-	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: 'SSW ReStore Base Additions';
-	yourself).
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'SSW ReStore Base Additions').
 
 package!
 
@@ -299,10 +307,15 @@ writeSQLOn: aStream with: aBlock
 
 !Date methodsFor!
 
+asSQLStringIn: aSQLDialect
+
+	^aSQLDialect dateStringFor: self!
+
 writeSQLOn: aStream
 
 	"Defer to the Stream to account for dialect differences"
 	aStream nextPutDate: self! !
+!Date categoriesFor: #asSQLStringIn:!converting!public! !
 !Date categoriesFor: #writeSQLOn:!printing!public! !
 
 !Date class methodsFor!
@@ -312,13 +325,54 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	^aStream nextPutAll: anSQLDialect date! !
 !Date class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
 
+!DateAndTime methodsFor!
+
+asSQLStringIn: aSQLDialect
+
+	^aSQLDialect dateAndTimeStringFor: self!
+
+withoutMilliseconds
+
+	"ODBC Timestamps may or may not include milliseconds (or may have a ms resolution > 1), hence it can be useful/necessary to drop milliseconds for comparison purposes"
+
+	^self - (Duration nanoseconds: self nanosecond)!
+
+writeSQLOn: aStream
+
+	"Defer to the Stream to account for dialect differences"
+	aStream nextPutDateAndTime: self! !
+!DateAndTime categoriesFor: #asSQLStringIn:!converting!public! !
+!DateAndTime categoriesFor: #withoutMilliseconds!accessing!public! !
+!DateAndTime categoriesFor: #writeSQLOn:!converting!printing!public! !
+
+!DateAndTime class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"aValue may be nil, a DateAndTime, a Date or a Time depending on database supported types"
+	^(aValue isNil or: [aValue class == ##(self)])
+		ifTrue: [aValue]
+		ifFalse: [anSSWReStore sqlDialect dateAndTimeFrom: aValue]!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	aStream nextPutAll: anSQLDialect datetime! !
+!DateAndTime class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!DateAndTime class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
 !False methodsFor!
+
+asSQLStringIn: aSQLDialect
+
+	"ASSERT: falseObject is a String in this dialect"
+	^aSQLDialect falseObject!
 
 writeSQLOn: aStream
 
 	"9/4/2001"
 
 	aStream nextPutFalse! !
+!False categoriesFor: #asSQLStringIn:!public! !
 !False categoriesFor: #writeSQLOn:!converting!public! !
 
 !Float class methodsFor!
@@ -412,6 +466,13 @@ writeSQLOn: aStream
 	self displayOn: aStream! !
 !ScaledDecimal categoriesFor: #writeSQLOn:!printing!public! !
 
+!SSWDBDateAndTimeWithResolution methodsFor!
+
+writeSQLTypeOn: aStream  using: anSQLDialect
+
+	aStream nextPutAll: (anSQLDialect datetimeWithResolution formatWith: self resolution displayString)! !
+!SSWDBDateAndTimeWithResolution categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
 !SSWDBFixedStringWithInfo methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
@@ -484,10 +545,15 @@ writeSQLTypeOn: aStream using: anSQLDialect
 
 !Time methodsFor!
 
+asSQLStringIn: aSQLDialect
+
+	^aSQLDialect timeStringFor: self!
+
 writeSQLOn: aStream
 
 	"Defer to the Stream to account for dialect differences"
 	aStream nextPutTime: self! !
+!Time categoriesFor: #asSQLStringIn:!converting!public! !
 !Time categoriesFor: #writeSQLOn:!converting!printing!public! !
 
 !Time class methodsFor!
@@ -497,24 +563,12 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	aStream nextPutAll: anSQLDialect time! !
 !Time class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
 
-!TimeStamp methodsFor!
-
-writeSQLOn: aStream
-
-	"Defer to the Stream to account for dialect differences"
-	aStream nextPutTimeStamp: self! !
-!TimeStamp categoriesFor: #writeSQLOn:!converting!printing!public! !
-
-!TimeStamp class methodsFor!
-
-writeSQLTypeOn: aStream using: anSQLDialect
-
-	"9/3/01"
-	
-	aStream nextPutAll: anSQLDialect timestamp! !
-!TimeStamp class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
-
 !True methodsFor!
+
+asSQLStringIn: aSQLDialect
+
+	"ASSERT: trueObject is a String in this dialect"
+	^aSQLDialect trueObject!
 
 writeSQLOn: aStream
 
@@ -522,6 +576,7 @@ writeSQLOn: aStream
 
 	aStream nextPutTrue
 ! !
+!True categoriesFor: #asSQLStringIn:!public! !
 !True categoriesFor: #writeSQLOn:!printing!public! !
 
 !UndefinedObject methodsFor!

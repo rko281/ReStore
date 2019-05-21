@@ -545,22 +545,6 @@ printOn: aStream
 
 	^'a SSWDBBlockEvaluator'!
 
-qAnd: aBlock
-
-	"9/4/2001
-	
-	Only sent in case of an implicit '= true' expression (or an error)"
-	#deprecated.
-	^self implicitEqualsTrue qAnd: aBlock!
-
-qOr: aBlock
-
-	"9/4/2001
-	
-	Only sent in case of an implicit '= true' expression (or an error)"
-	#deprecated.
-	^self implicitEqualsTrue qOr: aBlock!
-
 queryFieldFor: aField
 
 	^SSWDBQueryTableField forField: aField in: self currentTable path: self path!
@@ -707,8 +691,6 @@ writeSQLOn: aStream
 !SSWDBBlockArgument categoriesFor: #postProcessDNU:from:!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #preProcessNextMessageFor:in:!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #printOn:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #qAnd:!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #qOr:!parsing - implicit true!public! !
 !SSWDBBlockArgument categoriesFor: #queryFieldFor:!parsing - internal!public! !
 !SSWDBBlockArgument categoriesFor: #replaceFrom:to:with:startingAt:!parsing - functions!public! !
 !SSWDBBlockArgument categoriesFor: #simulateMessageSend:!helpers!public! !

@@ -9,6 +9,7 @@ https://github.com/rko281/ReStore'.
 
 
 package classNames
+	add: #ConcatenatedCollection;
 	add: #RequiredUndefinedObject;
 	add: #SSWDBBlockArgument;
 	add: #SSWDBBlockEvaluator;
@@ -38,6 +39,9 @@ package methodNames
 	add: #DBError -> #isCommunicationLinkFailure;
 	add: #DBError -> #isRecordDeletedError;
 	add: #DeafObject -> #_id;
+	add: #Object -> #||;
+	add: #Object -> #concatenatedWith:;
+	add: #Object -> #imageDo:databaseDo:;
 	add: #Object -> #isRequiredForSimilarity;
 	add: #Object -> #isSimilarTo:;
 	add: #Object -> #qualify:in:via:;
@@ -70,15 +74,14 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\..\Core\Object Arts\Dolphin\Database\Database Connection Base';
-	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: 'SSW ReStore Base Additions';
-	add: 'SSW ReStore Collections';
-	add: 'SSW ReStore SQL Entities';
-	add: 'SSW ReStore SQL Queries';
-	add: 'SSW ReStore Tables';
-	yourself).
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'SSW ReStore Base Additions'
+	'SSW ReStore Collections'
+	'SSW ReStore SQL Entities'
+	'SSW ReStore SQL Queries'
+	'SSW ReStore Tables').
 
 package!
 
@@ -100,11 +103,16 @@ Object subclass: #SSWDBDumbArgument
 	poolDictionaries: ''
 	classInstanceVariableNames: 'current'!
 Object subclass: #SSWDBInstancesCollection
-	instanceVariableNames: 'reStore instancesClass parser sortBlock preFetchComponents'
+	instanceVariableNames: 'reStore instancesClass parser sortBlock preFetchComponents preReadActions postReadActions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 String variableByteSubclass: #WildcardString
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+OrderedCollection variableSubclass: #ConcatenatedCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -257,6 +265,24 @@ _id
 
 !Object methodsFor!
 
+|| anObject
+
+	"Concatenate the receiver with anObject, returning the resulting collection"
+
+	^anObject concatenatedWith: (ConcatenatedCollection with: self)!
+
+concatenatedWith: aConcatenatedCollection
+
+	^aConcatenatedCollection 
+		addLast: self; 
+		yourself!
+
+imageDo: imageBlock databaseDo: databaseBlock
+
+	"Allow different code to be 'evaluated' depending on whether execution is in-image or 'in' the database (in the latter case code is not actually executed but converted to SQL)"
+
+	^imageBlock value!
+
 isRequiredForSimilarity
 
 	"Private - Is this object required to be similar when testing similarity of its owner?"
@@ -291,6 +317,9 @@ similarityComparator
 	"Private - Default is equality"
 
 	^#=! !
+!Object categoriesFor: #||!converting!public! !
+!Object categoriesFor: #concatenatedWith:!double dispatch!private! !
+!Object categoriesFor: #imageDo:databaseDo:!public!restore-querying! !
 !Object categoriesFor: #isRequiredForSimilarity!private!testing! !
 !Object categoriesFor: #isSimilarTo:!public!testing! !
 !Object categoriesFor: #qualify:in:via:!actions!private! !

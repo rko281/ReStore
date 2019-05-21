@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliatedProcesses'
+	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: 'globalDefault activeReStores'!
@@ -88,22 +88,18 @@ addClassWithSubclasses: aClass
 	
 	aClass withAllSubclasses do: [ :class | self addClass: class]!
 
-affiliatedProcesses
+affiliateWith: anObject using: aBlock
 
-	"affiliatedProcesses stores a weak collection of processes for which the receiver should act as the default ReStore instance.
-	By default this is nil, meaning not affiliated to any particular process"
+	self affiliations at: anObject put: aBlock!
 
-	^affiliatedProcesses!
+affiliations
 
-affiliateWithActiveProcess
+	"affiliations stores a weak-keyed Dictionary where the key is an object with which the receiver is 'affiliated' such that it is that object's default ReStore instance. 
+	The correponding value is a 1-arg block which is evaluated with the key object; this should return true if the affiliation is in force. 
+	This mechanism is used primarily to provide process-specific default ReStore instances - see Process>>reStore: for more details.
+	It can also be used to implement default ReStore instances for other current/active objects, e.g. the current session in a web application framework"
 
-	self affiliateWithProcess: Processor activeProcess!
-
-affiliateWithProcess: aProcess
-
-	affiliatedProcesses isNil 
-		ifTrue: [affiliatedProcesses := WeakArray with: aProcess]
-		ifFalse: [affiliatedProcesses add: aProcess]!
+	^affiliations ifNil: [affiliations := WeakIdentityDictionary newWithWeakKeys: 16]!
 
 applyUpdates: anSSWSQLCollection toObject: anSSWDBObjectProxy
 
@@ -300,13 +296,13 @@ columnsInTable: anSSWDBTable
 
 	^self connection columnsInTable: anSSWDBTable!
 
-commitObject: anObject
+commit: anObject
 
 	"Commit changes to anObject"
 
-	^self commitObjects: (Array with: anObject)!
+	^self commitAll: {anObject}!
 
-commitObjects: aCollection
+commitAll: aCollection
 
 	"Alternative transaction model - commit any changes made to the members of aCollection.
 
@@ -614,9 +610,9 @@ destroyTable: aTable
 		self unstoreNextIDsForTables: droppedTables.
 		true]] ensure: [self clearDBTableNames]!
 
-disaffiliateWithProcess: aProcess
+disaffiliateWith: anObject
 
-	(affiliatedProcesses ifNil: [OrderedCollection new]) remove: aProcess ifAbsent: [self error: 'not affiliated with ', aProcess printString]!
+	self affiliations removeKey: anObject ifAbsent: [self error: 'not affiliated with ', anObject printString]!
 
 disconnect
 
@@ -822,11 +818,11 @@ finalize
 
 	[self disconnect] on: Error do: [ :sig | "Ignore possible 'not connected' error; refactor to avoid this" sig return: nil]	!
 
-forceRefreshObject: anObject
+forceRefresh: anObject
 
-	self forceRefreshObjects: (Array with: anObject)!
+	self forceRefreshAll: {anObject}!
 
-forceRefreshObjects: aCollection
+forceRefreshAll: aCollection
 
 	self transactionCritical:
 		[self ensureNoActiveTransaction.
@@ -852,11 +848,19 @@ fullTableRecordFor: anSSWDBTable
 			ifTrue: [nil]
 			ifFalse: [self nextIDCache at: anSSWDBTable put: record]]!
 
-hasCommittedObject: anObject
+hasActiveAffiliation
 
-	^(self transaction proxyForObject: anObject ifNone: [nil]) notNil!
+	self hasAffiliations ifFalse: [^false].
 
-hasObjectChanged: anObject
+	self affiliations keysAndValuesDo: [ :affiliatedObject :testBlock | (testBlock value: affiliatedObject) ifTrue: [^true]].
+
+	^false!
+
+hasAffiliations
+
+	^affiliations notNil!
+
+hasChanged: anObject
 
 	"Return true if anObject has changes that would be persisted by commitObjects:"
 
@@ -875,11 +879,11 @@ hasTransactionChanges
 	"Critical due to hasChanges interrogating the internals of the transaction"
 	^self transactionCritical: [self isTransactionInProgress and: [self transaction hasChanges]]!
 
-haveObjectsChanged: aCollection
+haveAnyChanged: aCollection
 
 	"Return true if any of the objects in aCollection have changes that would be persisted by commitObjects:"
 
-	^aCollection anySatisfy: [ :each | self hasObjectChanged: each]!
+	^aCollection anySatisfy: [ :each | self hasChanged: each]!
 
 insertProxy: aProxydObject
 
@@ -909,13 +913,9 @@ instancesOf: aClass satisfying: qualifierBlock
 	
 	^(self instancesOf: aClass) satisfying: qualifierBlock!
 
-isAffiliatedWithProcess: aProcess
+isAffiliatedWith: anObject
 
-	^affiliatedProcesses 
-		ifNil: [false]
-		ifNotNil: [affiliatedProcesses includes: aProcess]
-
-	!
+	^self hasAffiliations and: [self affiliations includesKey: anObject]!
 
 isClassPersistent: aClass
 
@@ -936,6 +936,10 @@ isConnected
 
 	^self connection isConnected!
 
+isInCurrentTransaction: anObject
+
+	^(self transaction proxyForObject: anObject ifNone: [nil]) notNil!
+
 isSystemClass: aClass
 
 	^self persistentSystemClasses includes: aClass!
@@ -945,6 +949,20 @@ isTransactionInProgress
 	"21/1/2001"
 	
 	^self hasTransaction and: [self transaction isDumb not]!
+
+lazyRefresh: anObject
+
+	self lazyRefreshAll: {anObject}!
+
+lazyRefreshAll: aCollection
+
+	"Lazy-refresh the elements of aCollection - just forget the actual objects; they will be lazily re-read (and hence refreshed) when next referenced"
+
+	self transactionCritical:
+		[self ensureNoActiveTransaction.
+		self connection rollbackTxn.
+
+		aCollection do: [ :each | each _lazyRefreshIn: self]]!
 
 locateProxyForObject: anObject ifNone: aBlock
 
@@ -1196,6 +1214,40 @@ recoverObjectOfClass: aClass withID: anID into: anSSWDBObjectProxy
 		ifTrue: [anSSWDBObjectProxy _proxiedObjectMissing]
 		ifFalse: [table recoverInstanceFromRow: row into: anSSWDBObjectProxy]!
 
+refresh: anObject
+
+	"Refresh anObject according to its own strategy (e.g. always; only if changed; lazy)"
+
+	self refreshAll: {anObject}!
+
+refreshAll: aCollection
+
+	"Refresh all elements of aCollection according to their own strategy (e.g. always; only if changed; lazy)"
+
+	self transactionCritical:
+		[self ensureNoActiveTransaction.
+		self connection rollbackTxn.
+
+		"To give consistent behaviour we first rollback the objects. 
+		This ensures that any current changes are undone regardless of whether the object refreshes itself only if updated, or always refreshes itself regardless"
+		self _rollbackObjects: aCollection.
+
+		aCollection do: [ :each | each _refreshIn: self]]!
+
+refreshAllIfUpdated: aCollection
+
+	"Refresh those members of aCollection which have been updated in the database"
+	
+	self transactionCritical:
+		[self ensureNoActiveTransaction.
+		self connection rollbackTxn.
+
+		"To give consistent behaviour we first rollback the objects. 
+		This ensures that any current changes are undone regardless of whether the object is able to detect if it has been updated, or it has to refresh itself regardless"
+		self _rollbackObjects: aCollection.
+
+		aCollection do: [ :each | each _refreshIfUpdatedIn: self]]!
+
 refreshAllObjects
 
 	"Patched for issue 120-010 (revised)"
@@ -1231,39 +1283,9 @@ refreshClasses
 
 	self tableCache copy keysDo: [ :class | self addClass: class]!
 
-refreshObject: anObject
+refreshIfUpdated: anObject
 
-	self refreshObjects: (Array with: anObject)!
-
-refreshObjectIfUpdated: anObject
-
-	self refreshObjectsIfUpdated: (Array with: anObject)!
-
-refreshObjects: aCollection
-
-	self transactionCritical:
-		[self ensureNoActiveTransaction.
-		self connection rollbackTxn.
-
-		"To give consistent behaviour we first rollback the objects. 
-		This ensures that any current changes are undone regardless of whether the object is able to detect if it has been updated, or it has to refresh itself regardless"
-		self _rollbackObjects: aCollection.
-
-		aCollection do: [ :each | each _refreshIn: self]]!
-
-refreshObjectsIfUpdated: aCollection
-
-	"Refresh those members of aCollection which have been updated in the database"
-	
-	self transactionCritical:
-		[self ensureNoActiveTransaction.
-		self connection rollbackTxn.
-
-		"To give consistent behaviour we first rollback the objects. 
-		This ensures that any current changes are undone regardless of whether the object is able to detect if it has been updated, or it has to refresh itself regardless"
-		self _rollbackObjects: aCollection.
-
-		aCollection do: [ :each | each _refreshIfUpdatedIn: self]]!
+	self refreshAllIfUpdated: {anObject}!
 
 refreshProxyIfUpdated: anSSWDBObjectProxy
 
@@ -1399,6 +1421,18 @@ resetClasses
 	"tableCache should always contain the required system classes"
 	self persistentSystemClasses do: [ :each | self addClass: each]!
 
+rollback: anObject
+
+	self rollbackAll: {anObject}!
+
+rollbackAll: aCollection
+
+	"Rollback any changes made to the members of aCollection"
+
+	self transactionCritical:
+		[self ensureNoActiveTransaction.
+		self _rollbackObjects: aCollection]!
+
 rollbackAndRefreshTransaction
 
 	"21/1/2001"
@@ -1409,18 +1443,6 @@ rollbackAndRefreshTransaction
 		[self connection rollbackTxn.
 		self transaction rollbackAndRefresh.
 		self transaction: self transaction ownerTransaction]!
-
-rollbackObject: anObject
-
-	self rollbackObjects: (Array with: anObject)!
-
-rollbackObjects: aCollection
-
-	"Rollback any changes made to the members of aCollection"
-
-	self transactionCritical:
-		[self ensureNoActiveTransaction.
-		self _rollbackObjects: aCollection]!
 
 rollbackTransaction
 
@@ -1473,7 +1495,7 @@ rowsFromStatement: aDBPreparedStatement do: aBlock
 
 	aDBPreparedStatement close!
 
-selectChangedObjects: aCollection
+selectChanged: aCollection
 
 	"Return those elements of aCollection which have changed"
 
@@ -1495,6 +1517,25 @@ softDisconnect
 	self connection rollbackTxn.
 
 	self connection close!
+
+softRollback
+
+	"Carry out a 'soft rollback'. Note this is different from rollbackTransaction:
+
+	The expectation is that there is no active transaction (hence no 'Transaction' postfix to the method name), just views onto some persistent objects which have been 'touched', i.e. swapped with their proxy such that all normal references point to the real object.
+	Where an object has been touched it is not transparently updated if its database row is encountered, even where the row contains a later change. 
+	Rollback these touches so that those objects *are* updated if their database rows are encountered. 
+
+	Note this does not rollback any changes to these objects - this is the 'soft' part"
+
+	self hasTransaction ifFalse: 
+		["Just ensure we have an up-to-date view of the database"
+		^self connection rollbackTxn].
+
+	self transaction isDumb 
+		ifTrue: [self rollbackTransaction]
+		ifFalse: [self error: 'active transaction - cannot proceed']
+!
 
 sqlDialect
 
@@ -1752,15 +1793,14 @@ validateTable: anSSWDBTable
 			anSSWDBTable name: abbrevName]
 		ifFalse:
 			[self error: 'Oversize table name. Enable full table records (see supportsFullTableRecords)']]! !
-!SSWReStore categoriesFor: #_rollbackObjects:!private!transactionless api! !
+!SSWReStore categoriesFor: #_rollbackObjects:!private!transaction management! !
 !SSWReStore categoriesFor: #abandonTransaction!public!transaction api! !
 !SSWReStore categoriesFor: #actualProxyForObject:ifNone:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #addClass:!class maintenance!public! !
 !SSWReStore categoriesFor: #addClasses:!class maintenance!public! !
 !SSWReStore categoriesFor: #addClassWithSubclasses:!class maintenance!public! !
-!SSWReStore categoriesFor: #affiliatedProcesses!accessing!public! !
-!SSWReStore categoriesFor: #affiliateWithActiveProcess!initialize/release!public! !
-!SSWReStore categoriesFor: #affiliateWithProcess:!initialize/release!public! !
+!SSWReStore categoriesFor: #affiliateWith:using:!initialize/release!public! !
+!SSWReStore categoriesFor: #affiliations!accessing!public! !
 !SSWReStore categoriesFor: #applyUpdates:toObject:!public!read/write objects! !
 !SSWReStore categoriesFor: #beginDumbTransaction!private!transaction management! !
 !SSWReStore categoriesFor: #beginTransaction!public!transaction api! !
@@ -1779,8 +1819,8 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #clearTransaction!private!transaction management! !
 !SSWReStore categoriesFor: #columnsForFields:!connection!public! !
 !SSWReStore categoriesFor: #columnsInTable:!connection!public! !
-!SSWReStore categoriesFor: #commitObject:!public!transactionless api! !
-!SSWReStore categoriesFor: #commitObjects:!public!transactionless api! !
+!SSWReStore categoriesFor: #commit:!public!transactionless api! !
+!SSWReStore categoriesFor: #commitAll:!public!transactionless api! !
 !SSWReStore categoriesFor: #commitTransaction!public!transaction api! !
 !SSWReStore categoriesFor: #connect!connection!public! !
 !SSWReStore categoriesFor: #connection!accessing!public! !
@@ -1804,7 +1844,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #destroyAllTables!class maintenance!public! !
 !SSWReStore categoriesFor: #destroyClass:!class maintenance!public! !
 !SSWReStore categoriesFor: #destroyTable:!class maintenance!private! !
-!SSWReStore categoriesFor: #disaffiliateWithProcess:!initialize/release!public! !
+!SSWReStore categoriesFor: #disaffiliateWith:!initialize/release!public! !
 !SSWReStore categoriesFor: #disconnect!connection!public! !
 !SSWReStore categoriesFor: #dsn:!connection!public! !
 !SSWReStore categoriesFor: #enableFullTableRecords!class maintenance!public! !
@@ -1825,23 +1865,27 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #fetchObjectsOfClass:withQuery:into:!public!querying! !
 !SSWReStore categoriesFor: #fetchObjectsOfClass:withStatement:into:!public!querying! !
 !SSWReStore categoriesFor: #finalize!connection!initialize/release!public! !
-!SSWReStore categoriesFor: #forceRefreshObject:!public!transactionless api! !
-!SSWReStore categoriesFor: #forceRefreshObjects:!public!transactionless api! !
+!SSWReStore categoriesFor: #forceRefresh:!public!transactionless api! !
+!SSWReStore categoriesFor: #forceRefreshAll:!public!transactionless api! !
 !SSWReStore categoriesFor: #forgetClass:!class maintenance!public! !
 !SSWReStore categoriesFor: #fullTableRecordFor:!class maintenance!private! !
-!SSWReStore categoriesFor: #hasCommittedObject:!private!transactionless api! !
-!SSWReStore categoriesFor: #hasObjectChanged:!public!transactionless api! !
+!SSWReStore categoriesFor: #hasActiveAffiliation!public!testing! !
+!SSWReStore categoriesFor: #hasAffiliations!public!testing! !
+!SSWReStore categoriesFor: #hasChanged:!public!transactionless api! !
 !SSWReStore categoriesFor: #hasTransaction!private!transaction management! !
 !SSWReStore categoriesFor: #hasTransactionChanges!public!transaction api! !
-!SSWReStore categoriesFor: #haveObjectsChanged:!public!transactionless api! !
+!SSWReStore categoriesFor: #haveAnyChanged:!public!transactionless api! !
 !SSWReStore categoriesFor: #insertProxy:!public!read/write objects! !
 !SSWReStore categoriesFor: #instancesOf:!public!querying! !
 !SSWReStore categoriesFor: #instancesOf:satisfying:!public!querying! !
-!SSWReStore categoriesFor: #isAffiliatedWithProcess:!public!testing! !
+!SSWReStore categoriesFor: #isAffiliatedWith:!public!testing! !
 !SSWReStore categoriesFor: #isClassPersistent:!public!testing! !
 !SSWReStore categoriesFor: #isConnected!public!testing! !
+!SSWReStore categoriesFor: #isInCurrentTransaction:!private!transaction management! !
 !SSWReStore categoriesFor: #isSystemClass:!public!testing! !
 !SSWReStore categoriesFor: #isTransactionInProgress!public!transaction api! !
+!SSWReStore categoriesFor: #lazyRefresh:!public!transactionless api! !
+!SSWReStore categoriesFor: #lazyRefreshAll:!public!transactionless api! !
 !SSWReStore categoriesFor: #locateProxyForObject:ifNone:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #nextIDCache!accessing!public! !
 !SSWReStore categoriesFor: #nextIDCache:!accessing!public! !
@@ -1864,13 +1908,13 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #readAllBatchSize:!accessing!public! !
 !SSWReStore categoriesFor: #reconnect!connection!public! !
 !SSWReStore categoriesFor: #recoverObjectOfClass:withID:into:!public!read/write objects! !
+!SSWReStore categoriesFor: #refresh:!public!transactionless api! !
+!SSWReStore categoriesFor: #refreshAll:!public!transactionless api! !
+!SSWReStore categoriesFor: #refreshAllIfUpdated:!public!transactionless api! !
 !SSWReStore categoriesFor: #refreshAllObjects!public!transaction api! !
 !SSWReStore categoriesFor: #refreshAndRollforwardTransaction!public!transaction api! !
 !SSWReStore categoriesFor: #refreshClasses!class maintenance!public! !
-!SSWReStore categoriesFor: #refreshObject:!public!transactionless api! !
-!SSWReStore categoriesFor: #refreshObjectIfUpdated:!public!transactionless api! !
-!SSWReStore categoriesFor: #refreshObjects:!public!transactionless api! !
-!SSWReStore categoriesFor: #refreshObjectsIfUpdated:!public!transactionless api! !
+!SSWReStore categoriesFor: #refreshIfUpdated:!public!transactionless api! !
 !SSWReStore categoriesFor: #refreshProxyIfUpdated:!public!read/write objects! !
 !SSWReStore categoriesFor: #registerProxy:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #removeFromTransaction:!proxy manipulation!public! !
@@ -1879,16 +1923,17 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #renamedInstVar:from:in:!class maintenance!public! !
 !SSWReStore categoriesFor: #renameTable:to:!class maintenance!private! !
 !SSWReStore categoriesFor: #resetClasses!class maintenance!public! !
+!SSWReStore categoriesFor: #rollback:!public!transactionless api! !
+!SSWReStore categoriesFor: #rollbackAll:!public!transactionless api! !
 !SSWReStore categoriesFor: #rollbackAndRefreshTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #rollbackObject:!public!transactionless api! !
-!SSWReStore categoriesFor: #rollbackObjects:!public!transactionless api! !
 !SSWReStore categoriesFor: #rollbackTransaction!public!transaction api! !
 !SSWReStore categoriesFor: #rowFromQuery:!public!querying! !
 !SSWReStore categoriesFor: #rowsFromQuery:do:!public!querying! !
 !SSWReStore categoriesFor: #rowsFromStatement:do:!public!querying! !
-!SSWReStore categoriesFor: #selectChangedObjects:!public!transactionless api! !
+!SSWReStore categoriesFor: #selectChanged:!public!transaction management! !
 !SSWReStore categoriesFor: #setDefaultTransactionMode!initialize/release!private! !
 !SSWReStore categoriesFor: #softDisconnect!connection!public! !
+!SSWReStore categoriesFor: #softRollback!public!transaction api! !
 !SSWReStore categoriesFor: #sqlDialect!accessing!public! !
 !SSWReStore categoriesFor: #supportsFullTableRecords!accessing!public! !
 !SSWReStore categoriesFor: #supportsFullTableRecords:!accessing!public! !
@@ -1937,6 +1982,18 @@ activeReStores
 
 	^activeReStores!
 
+affiliatedDefault
+
+	"Private - Return the ReStore instance affiliated with the current state of the system (as determined by the affiliations themselves)"
+
+	^self activeReStores detect: [ :each | each hasActiveAffiliation] ifNone: [nil]!
+
+affiliateFor: anObject
+
+	"Return the ReStore instance affiliated with anObject, or nil if none"
+
+	^self activeReStores detect: [ :each | each isAffiliatedWith: anObject] ifNone: [nil]!
+
 deactivated: anSSWReStore
 
 	"Created 16/4/2001
@@ -1947,9 +2004,9 @@ deactivated: anSSWReStore
 
 default
 
-	"Return the default ReStore instance. This may be a private default for the current process, or the global default"
+	"Return the default ReStore instance. This may be a private default for the current state of the system, or the global default"
 
-	self processDefault ifNotNil: [ :processDefault | ^processDefault].
+	self affiliatedDefault ifNotNil: [ :affiliatedDefault | ^affiliatedDefault].
 
 	self globalDefault isConnected ifFalse: [self error: 'ReStore not connected'].
 
@@ -1988,18 +2045,6 @@ onStartup
 	since these will reference the connection active in the previous session"
 
 	self activeReStores do: [ :each | each clearStatementCache]!
-
-processDefault
-
-	"Private - Return the ReStore instance associated with the active Process, or nil if none"
-
-	^self processDefaultFor: Processor activeProcess!
-
-processDefaultFor: aProcess
-
-	"Private - Return the ReStore instance associated with aProcess, or nil if none"
-
-	^self activeReStores detect: [ :each | each isAffiliatedWithProcess: aProcess] ifNone: [nil]!
 
 proxyForObject: anObject ifNone: aBlock
 
@@ -2043,6 +2088,8 @@ reStoreForObject: anObject ifNone: aBlock
 ! !
 !SSWReStore class categoriesFor: #activated:!events!public! !
 !SSWReStore class categoriesFor: #activeReStores!accessing!public! !
+!SSWReStore class categoriesFor: #affiliatedDefault!accessing!private! !
+!SSWReStore class categoriesFor: #affiliateFor:!accessing!public! !
 !SSWReStore class categoriesFor: #deactivated:!events!public! !
 !SSWReStore class categoriesFor: #default!accessing!public! !
 !SSWReStore class categoriesFor: #globalDefault!accessing!private! !
@@ -2050,8 +2097,6 @@ reStoreForObject: anObject ifNone: aBlock
 !SSWReStore class categoriesFor: #initializeReStoreGlobal!initialize/release!private! !
 !SSWReStore class categoriesFor: #new!instance creation!public! !
 !SSWReStore class categoriesFor: #onStartup!events!public! !
-!SSWReStore class categoriesFor: #processDefault!accessing!private! !
-!SSWReStore class categoriesFor: #processDefaultFor:!accessing!private! !
 !SSWReStore class categoriesFor: #proxyForObject:ifNone:!accessing!public! !
 !SSWReStore class categoriesFor: #reset!accessing!initialize/release!public! !
 !SSWReStore class categoriesFor: #resetActive!initialize/release!private! !

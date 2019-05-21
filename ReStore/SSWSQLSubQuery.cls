@@ -10,6 +10,12 @@ SSWSQLSubQuery comment: ''!
 !SSWSQLSubQuery categoriesForClass!Kernel-Objects! !
 !SSWSQLSubQuery methodsFor!
 
+isEmpty
+
+	"Collection behavior"
+
+	^false!
+
 isReadQuery
 	
 	^self query isReadQuery!
@@ -36,6 +42,7 @@ writeSQLOn: aStream
 	self query writeSQLOn: aStream.
 	aStream nextPut: $)
 ! !
+!SSWSQLSubQuery categoriesFor: #isEmpty!public!testing! !
 !SSWSQLSubQuery categoriesFor: #isReadQuery!public!testing! !
 !SSWSQLSubQuery categoriesFor: #isWriteQuery!public!testing! !
 !SSWSQLSubQuery categoriesFor: #preExecIn:!operations!public! !

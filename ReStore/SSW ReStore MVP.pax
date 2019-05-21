@@ -8,26 +8,16 @@ Version 2.00
 https://github.com/rko281/ReStore'.
 
 
-package classNames
-	add: #TransactionalDialog;
-	yourself.
-
 package methodNames
 	add: #ListModel -> #_changesFrom:;
 	add: #ListModel -> #_collectionAdditions;
 	add: #ListModel -> #directAdd:;
 	add: #ListModel -> #directAdd:suggestedIndex:;
 	add: #ListModel -> #isSorted;
+	add: #ListModel -> #onRefresh;
 	add: #ListModel -> #onRollback;
 	add: #ListModel -> #ownedCollectionSpecClass;
 	add: #ListModel -> #staticCollectionSpecClass;
-	add: #Presenter -> #deduceReStore;
-	add: #Presenter -> #modelReStore;
-	add: #Presenter -> #parentReStore;
-	add: #Presenter -> #reStore;
-	add: #Presenter -> #reStore:;
-	add: #Shell -> #reEnable:;
-	add: #Shell -> #showModalTo:;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -36,12 +26,9 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: '..\..\Core\Object Arts\Dolphin\Base\Dolphin';
-	add: '..\..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models';
-	add: '..\..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base';
-	add: 'SSW ReStore Main';
-	yourself).
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
+	'SSW ReStore Main').
 
 package setManualPrerequisites: #(
 	'SSW ReStore Main').
@@ -50,11 +37,6 @@ package!
 
 "Class Definitions"!
 
-Dialog subclass: #TransactionalDialog
-	instanceVariableNames: 'reStore'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 
 "Global Aliases"!
 
@@ -105,6 +87,12 @@ isSorted
 	^self list isSorted
 !
 
+onRefresh
+
+	"When a ListModel is refreshed it should notify interested parties of the change"
+
+	self trigger: #listChanged!
+
 onRollback
 
 	"25/4/2002
@@ -137,94 +125,10 @@ staticCollectionSpecClass
 !ListModel categoriesFor: #directAdd:!adding!private! !
 !ListModel categoriesFor: #directAdd:suggestedIndex:!adding!private! !
 !ListModel categoriesFor: #isSorted!public!testing! !
+!ListModel categoriesFor: #onRefresh!event handling!public! !
 !ListModel categoriesFor: #onRollback!event handling!public! !
 !ListModel categoriesFor: #ownedCollectionSpecClass!constants!private! !
 !ListModel categoriesFor: #staticCollectionSpecClass!constants!private! !
-
-!Presenter methodsFor!
-
-deduceReStore
-
-	"Attempt to set the receiver's reStore by querying the parent or model.
-	Error if this cannot be deduced"
-
-	| reStore |
-
-	reStore := self modelReStore.
-	reStore isNil ifTrue: [reStore := self parentReStore].
-
-	reStore isNil 
-		ifTrue: [self error: 'Cannot determine ReStore']
-		ifFalse: [self reStore: reStore]!
-
-modelReStore
-
-	"Return the ReStore according to the receiver's model"
-
-	^self model isNil
-		ifTrue: [nil]
-		ifFalse: [self model _reStore]!
-
-parentReStore
-
-	"Return the ReStore used by the parent of this presenter, or nil if none"
-
-	^self parentPresenter isNil
-		ifTrue: [nil]
-		ifFalse: [self parentPresenter reStore]!
-
-reStore
-
-	"Answer the SSWReStore instance that the receiver uses.
-	Attempt to deduce this if it has not been explicitly set"
-
-	^self propertyAt: #reStore ifAbsent: [self deduceReStore; propertyAt: #reStore]!
-
-reStore: anSSWReStore
-
-	"Store the given SSWReStore for future reference"
-
-	^self propertyAt: #reStore put: anSSWReStore! !
-!Presenter categoriesFor: #deduceReStore!initializing!private! !
-!Presenter categoriesFor: #modelReStore!accessing!private! !
-!Presenter categoriesFor: #parentReStore!accessing!private! !
-!Presenter categoriesFor: #reStore!accessing!private! !
-!Presenter categoriesFor: #reStore:!accessing!private! !
-
-!Shell methodsFor!
-
-reEnable: sem
-
-	"Re-enable the receiver following closure of a spawned modal Shell"
-
-	self view enable; beForeground.
-	sem signal!
-
-showModalTo: aShell
-
-	"Allow a regular Shell to be opened Modal to another
-	 - useful to enforce transaction boundaries"
-
-	| sem wasMain proc |
-
-	sem := Semaphore new.
-
-	[aShell view disable.
-	self when: #viewClosed send: #reEnable: to: aShell with: sem.
-	self show] 
-		on: Error do: [ :exc | aShell view enable. exc signal].
-
-	"Based on DialogView>>showModal"
-	wasMain := Processor forkMainIfMain.
-	wasMain ifTrue: 
-		["Boost the initiating UI processes priority so that the operation requested by the user
-		completes more quickly when the dialog is closed."
-		proc := Processor activeProcess.
-		proc priority: proc priority + 1].
-
-	sem wait! !
-!Shell categoriesFor: #reEnable:!accessing!public! !
-!Shell categoriesFor: #showModalTo:!accessing!public! !
 
 "End of package definition"!
 

@@ -20,12 +20,7 @@ _commitIn: anSSWReStore
 
 	"Commit the wrapped object by unstoring it"
 
-	self object unstore!
-
-_rollbackIn: anSSWReStore
-
-	"Do nothing - this potential unstore is being rolled back"! !
+	self object unstore! !
 !SSWDBUnstoreWrapper categoriesFor: #_checkHasChangedIn:!public!testing! !
 !SSWDBUnstoreWrapper categoriesFor: #_commitIn:!operations!public! !
-!SSWDBUnstoreWrapper categoriesFor: #_rollbackIn:!operations!public! !
 

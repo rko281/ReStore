@@ -41,13 +41,13 @@ lengthC
 		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
 		^self field targetClass dbMaxFieldSize
 			ifNil: [lengthC]
-			ifNotNil: [ :maxFieldSize | lengthC min: (maxFieldSize + 1 "null terminator")]].
+			ifNotNil: [ :maxFieldSize | lengthC min: (maxFieldSize + (CTypesExtraBytes at: sqlType+TypeOffset))]].
 
 	sqlType = SQL_WLONGVARCHAR ifTrue: 
 		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
 		^self field targetClass dbMaxFieldSize
 			ifNil: [lengthC]
-			ifNotNil: [ :maxFieldSize | lengthC min: ((maxFieldSize * 3)+ 1 "null terminator")]].
+			ifNotNil: [ :maxFieldSize | lengthC min: ((maxFieldSize * 2) + (CTypesExtraBytes at: sqlType+TypeOffset))]].
 
 	^lengthC!
 

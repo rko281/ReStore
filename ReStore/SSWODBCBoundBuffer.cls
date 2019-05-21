@@ -10,22 +10,10 @@ SSWODBCBoundBuffer comment: ''!
 !SSWODBCBoundBuffer categoriesForClass!ODBC Interface! !
 !SSWODBCBoundBuffer methodsFor!
 
-bind: aDBStatement
-	"Private - Bind the receiver's field buffers to columns in the result table."
+asObject
+	"Private - Answer the receiver as an instance of DBRow containing the receiver's values."
 
-	| hStmt |
-	hStmt := super bind: aDBStatement.
-	self contents with: columns
-		do: 
-			[:eachField :eachColumn | 
-			aDBStatement dbCheckException: (ODBCLibrary default 
-						sqlBindCol: hStmt
-						columnNumber: eachColumn columnNumber
-						targetType: eachColumn cType
-						targetValuePtr: eachField fieldBuf
-						bufferLength: eachField fieldSize
-						strLenOrInd: eachField lengthBuf)].
-	^hStmt!
+	^SSWODBCRow fromBuffer: self!
 
 contents
 	"Answer the contents instance variable."
@@ -33,6 +21,6 @@ contents
 	contents isNil
 		ifTrue: [contents := columns collect: [:colAttr | SSWODBCField newForCol: colAttr]].
 	^contents.! !
-!SSWODBCBoundBuffer categoriesFor: #bind:!operations!private! !
+!SSWODBCBoundBuffer categoriesFor: #asObject!converting!private! !
 !SSWODBCBoundBuffer categoriesFor: #contents!public! !
 

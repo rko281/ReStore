@@ -32,21 +32,17 @@ applyValueIfChangedFromRow: aDBRow to: anObject
 
 convertValue: aValue
 
-	"23/3/2001
-	
-	Convert the given DB value object to the receiver's targetClass.
+	"Convert the given DB value object to the receiver's targetClass.
 	Return the converted object"
 	
-	^(aValue isKindOf: self targetClass)
-		ifTrue: [aValue]
-		ifFalse: [self targetClass instanceFromDBValue: aValue in: self reStore]!
+	^self targetClass instanceFromDBValue: aValue in: self reStore!
 
 readAllFor: aCollection
 
 	| ids stream allResults |
 
-	ids := aCollection inject: Set new into: [ :all :each | (self accessor valueIn: each) ifNotNil: [ :proxy | proxy _isRecovered ifFalse: [all add: proxy _id]]. all].
-	ids size <= 1 ifTrue: [^self].
+	ids := aCollection inject: Set new into: [ :all :each | (self accessor valueIn: each) ifNotNil: [ :proxy | proxy isDBProxy ifTrue: [all add: proxy _id]]. all].
+	ids isEmpty ifTrue: [^self].
 
 	stream := ReadStream on: ids asArray.
 
