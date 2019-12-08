@@ -1,9 +1,58 @@
 ﻿| package |
 package := Package name: 'SSW ReStore Examples'.
 package paxVersion: 1;
-	basicComment: 'ReStore
-©2019 John Aspinall
-https://github.com/rko281/ReStore'.
+	basicComment: 'ReStore Customer and Orders example.
+
+IMPORTANT:
+You first need to create an ODBC Datasource named ''ReStoreExamples''.
+Since Dolphin is a 32bit application you must use the 32bit ODBC control panel - evaluate ReStore openODBC.
+For speed and simplicity SQLite is suggested; this requires the ODBC driver available here:
+http://www.ch-werner.de/sqliteodbc/
+When creating the datasource, specify SQLite3 ODBC Driver.
+
+"Create the database."
+ReStore
+	dsn: ''ReStoreExamples'';
+	connect;
+	addClasses: {Customer. Address. Order. Product};
+	synchronizeAllClasses.
+
+"Creating a persistent object"
+Customer new
+	firstName: ''John'';
+	surname: ''Smith'';
+	address: (Address new line1: ''123 Oxford Street''; yourself);
+	store.
+
+"Reading a persistent object"
+johnSmith := Customer storedInstances detect: [ :each | each fullName = ''John Smith''].
+
+"Updating a persistent object and its dependents"
+johnSmith dateOfBirth: (Date newDay: 1 monthIndex: 2 year: 1983).
+johnSmith address postcode: ''W1 1AA''.
+johnSmith store.
+
+"Check it:"
+Customer storedInstances detect: [ :each | each address postcode = ''W1 1AA''].
+
+"Creating an Order - first we need a product"
+widget := Product new name: ''Widget''; store.
+johnSmith 
+	addOrder: 
+		(Order new 
+			date: Date today;
+			product: widget;
+			quantity: 4;
+			yourself);
+	store.
+
+"Check it:"
+Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | order product = widget and: [order quantity = 4]]].
+
+"Tidy up"
+ReStore 
+	destroyAllClasses;
+	disconnect''.
 
 
 package classNames
