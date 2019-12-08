@@ -62,16 +62,15 @@ A couple of things worth highlighting here:
 With ReStore definitions created for all classes we can now connect to the database and create the database structure:
 
 ```smalltalk
-ReStore
-	connection: (SSWUDBCSQLite3Connection on: 'test.db');
+ReStore	
+	dsn: 'ReStoreExamples';
 	connect;
 	addClasses: {Customer. Address. Order. Product};
 	synchronizeAllClasses.
 ```
 
- - for simplicity we're using [SQLite](https://www.sqlite.org/); please ensure the SQLite3 library/DLL is available to your image. If you'd rather use PostgreSQL you'll need to specify a connection similar to this: 
- `(SSWP3Connection new url: 'psql://user:pwd@192.168.1.234:5432/database')`
-- `synchronizeAllClasses` prompts ReStore to create the necessary database tables for the classes `Customer`, `Address`, `Order` and `Product`. If you subsequently modify these classes (and their ReStore definitions) you can run `synchronizeAllClasses` again to prompt ReStore to automatically update the table definitions (add or remove columns from the tables) to match the updated class definitions.
+ - You first need to create an ODBC Datasource named 'ReStoreExamples'. Since Dolphin is a 32bit application you must use the 32bit ODBC control panel - evaluate `ReStore openODBC`. For speed and simplicity SQLite is suggested; this requires the [SQLite ODBC driver](http://www.ch-werner.de/sqliteodbc/). When creating the datasource specify SQLite3 ODBC Driver.
+ - `synchronizeAllClasses` prompts ReStore to create the necessary database tables for the classes `Customer`, `Address`, `Order` and `Product`. If you subsequently modify these classes (and their ReStore definitions) you can run `synchronizeAllClasses` again to prompt ReStore to automatically update the table definitions (add or remove columns from the tables) to match the updated class definitions.
 
 # Storing Objects
 With the database setup we can now create and persist objects using the `store` message:
