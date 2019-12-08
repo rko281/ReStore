@@ -6,7 +6,9 @@ SSWSQLTableComponent subclass: #SSWSQLTableAllFields
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLTableAllFields guid: (GUID fromString: '{643ab7c2-5af7-11d6-87e7-0010a70883e2}')!
-SSWSQLTableAllFields comment: ''!
+SSWSQLTableAllFields comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLTableAllFields categoriesForClass!Unclassified! !
 !SSWSQLTableAllFields methodsFor!
 
@@ -26,24 +28,18 @@ hasAggregateFunction
 
 isAll
 
-	"21/1/2001
-	
-	Since the receiver is (conceptually) multiple fields, make it polymorphic with a field collection.
+	"Since the receiver is (conceptually) multiple fields, make it polymorphic with a field collection.
 	Further - since the receiver is not the true 'all fields' concept (i.e all fields in a query), return false"
 
 	^false!
 
 isAllInTable
 
-	"23/3/2001"
-	
 	^true!
 
 isEmpty
 
-	"27/5/2002
-
-	Assume a table will always have at least one field"
+	"Assume a table will always have at least one field"
 	
 	^false!
 
@@ -73,9 +69,7 @@ writeAliasedSQLOn: aStream
 
 writeSQLOn: aStream
 
-	"5/8/2000
-	
-	Use <table name>.<field name> notation to avoid ambiguity"
+	"Use <table name>.<field name> notation to avoid ambiguity"
 	self table writeSQLNameOn: aStream.
 	aStream nextPut: $..
 	

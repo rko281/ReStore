@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
-	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects'
+	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects allocatedIDs'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBAbstractSingleTransaction guid: (GUID fromString: '{5a3e3dd4-3990-11d5-b1df-444553540000}')!
-SSWDBAbstractSingleTransaction comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBAbstractSingleTransaction comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBAbstractSingleTransaction categoriesForClass!Unclassified! !
 !SSWDBAbstractSingleTransaction methodsFor!
 
@@ -17,29 +19,50 @@ abandon
 	self currentReferencedObjects do: [ :each | each _swapReferences].
 	self endObjectCollection!
 
+allocatedIDs
+
+	"allocatedIDs stores SSWDBAllocatedIDs allocated to newly-persistent objects during a commit of the receiver.
+	Structure is a Dictionary mapping tables to IDs allocated in each table"
+
+	^allocatedIDs!
+
+allocatedIDs: anIdentityDictionary
+
+	"allocatedIDs stores SSWDBAllocatedIDs allocated to newly-persistent objects during a commit of the receiver.
+	Structure is a Dictionary mapping tables to IDs allocated in each table"
+
+	allocatedIDs := anIdentityDictionary!
+
+allocateIDFor: anObject tableRecord: aDBTableRecord
+
+	| allocated |
+
+	allocated := self allocatedIDs at: aDBTableRecord ifAbsentPut: [OrderedCollection new: 32].
+
+	^allocated add:
+		(SSWDBAllocatedID new
+			tableRecord: aDBTableRecord;
+			offset: allocated size;
+			object: anObject;
+			yourself)!
+
 allReferencedObjects
 
-	"20/10/2000
-	
-	allReferencedObjects stores a collection of all objects referenced during this transaction. 
+	"allReferencedObjects stores a collection of all objects referenced during this transaction. 
 	It is created/added to following each phase	(see comment to currentReferencedObjects)"
 	
 	^allReferencedObjects!
 
 allReferencedObjects: anIdentitySet
 
-	"20/10/2000
-	
-	allReferencedObjects stores a collection of all objects referenced during this transaction. 
+	"allReferencedObjects stores a collection of all objects referenced during this transaction. 
 	It is created/added to following each phase	(see comment to currentReferencedObjects)"
 	
 	allReferencedObjects := anIdentitySet!
 
 autoRecoverCommitIn: anSSWReStore
 
-	"3/10/2001	(Issue#0023)
-
-	Attempt to fix up the receiver following an error during the commit stage"
+	"Attempt to fix up the receiver following an error during the commit stage"
 
 	"Any objects referenced during the errored commit will erroneously be in currentReferencedObjects.
 	Swap back and forget"
@@ -51,9 +74,7 @@ autoRecoverCommitIn: anSSWReStore
 
 autoRecoverPreCommitIn: anSSWReStore
 
-	"3/10/2001	(Issue#0023)
-
-	Attempt to fix up the receiver following an error during the pre-commit stage"
+	"Attempt to fix up the receiver following an error during the pre-commit stage"
 
 	"Move allReferencedObjects back to currentReferencedObjects"
 	self currentReferencedObjects addAll: self allReferencedObjects.
@@ -61,17 +82,15 @@ autoRecoverPreCommitIn: anSSWReStore
 
 begin
 
-	"20/10/2000
+	"Initialize the receiver transaction"
 	
-	Initialize the receiver transaction"
-	
-	self beginObjectCollection!
+	self
+		allocatedIDs: (IdentityDictionary new: 64);
+		beginObjectCollection!
 
 beginObjectCollection
 
-	"20/10/2000
-	
-	Initialize the receiver transaction to begin accumulating referenced objects"
+	"Initialize the receiver transaction to begin accumulating referenced objects"
 	
 	self 
 		currentReferencedObjects: self newEmptyObjectsSet;
@@ -79,9 +98,7 @@ beginObjectCollection
 
 beginWithin: anotherTransaction
 
-	"20/10/2000
-	
-	For single (non-nested) transactions, anotherTransaction should always be nil.
+	"For single (non-nested) transactions, anotherTransaction should always be nil.
 	Defer to begin, or error if anotherTransaction is not nil"
 	
 	anotherTransaction = nil
@@ -90,27 +107,35 @@ beginWithin: anotherTransaction
 
 changedObjects
 
-	"20/10/2000
-	
-	changedObjects stores the collection of objects changed within this transaction.
+	"changedObjects stores the collection of objects changed within this transaction.
 	It is constructed from referencedObjects during pre-commit"
 	
 	^changedObjects!
 
 changedObjects: anIdentitySet
 
-	"20/10/2000
-	
-	changedObjects stores the collection of objects changed within this transaction.
+	"changedObjects stores the collection of objects changed within this transaction.
 	It is constructed from referencedObjects during pre-commit"
 	
 	changedObjects := anIdentitySet!
 
+commitAllocatedIDs
+
+	self allocatedIDs keysAndValuesDo: 
+		[ :tableRecord :ids |
+		[| directTableRecord nextID statement |
+		"Avoid invoking change detection system by referencing proxied table record directly"
+		directTableRecord := tableRecord _proxiedObject.
+		nextID := directTableRecord nextID + ids size.
+		statement := tableRecord _reStore nextIDStatement.
+		statement values: (Array with: nextID with: directTableRecord _id with: directTableRecord nextID); exec.
+		statement rowsAffected = 1] whileFalse: 
+			["Update clash; refresh and try again"
+			tableRecord _recoverProxiedObject]]!
+
 currentReferencedObjects
 
-	"20/10/2000
-	
-	currentReferencedObjects stores a collection of all objects that are referenced 
+	"currentReferencedObjects stores a collection of all objects that are referenced 
 	during the current 'phase' of the receiver. Phases are
 	 - initial use (following begin)
 	 - each pre-commital loop (see prepareToCommit)"
@@ -119,9 +144,7 @@ currentReferencedObjects
 
 currentReferencedObjects: anIdentitySet
 
-	"20/10/2000
-	
-	currentReferencedObjects stores a collection of all objects that are referenced 
+	"currentReferencedObjects stores a collection of all objects that are referenced 
 	during the current 'phase' of the receiver. Phases are
 	 - initial use (following begin)
 	 - each pre-commital loop (see prepareToCommit)"
@@ -130,39 +153,30 @@ currentReferencedObjects: anIdentitySet
 
 endObjectCollection
 
-	"20/10/2000
+	"End the accumulation of referenced objects"
 
-	End the accumulation of referenced objects"
-
-	self allReferencedObjects: nil.
-	self currentReferencedObjects: self newEmptyObjectsSet!
+	self 
+		allReferencedObjects: nil;
+		currentReferencedObjects: self newEmptyObjectsSet!
 
 includesProxy: anSSWDBProxy
-
-	"22/5/2001"
 
 	^(self currentReferencedObjects includes: anSSWDBProxy)
 		or: [self allReferencedObjects includes: anSSWDBProxy]!
 
 newEmptyObjectsSet
 
-	"22/5/2001
-
-	Return an empty Set of a default size that can be used for holding proxies"
+	"Return an empty Set of a default size that can be used for holding proxies"
 
 	^self newEmptyObjectsSet: 20!
 
 newEmptyObjectsSet: anInteger
 
-	"22/5/2001
-
-	Return an empty Set that can be used for holding proxies"
+	"Return an empty Set that can be used for holding proxies"
 
 	^IdentitySet new: anInteger!
 
 nextCollectionPhase
-
-	"20/10/2000"
 
 	self allReferencedObjects isEmpty
 		ifTrue: [self allReferencedObjects: self currentReferencedObjects]
@@ -173,16 +187,21 @@ nextCollectionPhase
 
 ownerTransaction
 
-	"20/10/2000
-	
-	For a single (non-nested transaction) the ownerTransaction is always nil"
+	"For a single (non-nested transaction) the ownerTransaction is always nil"
 	
 	^nil!
 
+postCommitAllocatedIDs
+
+	self allocatedIDs keysAndValuesDo: 
+		[ :tableRecord :ids |
+
+		ids do: [ :id | id postCommit].
+		"Avoid invoking change detection system by referencing proxied table record directly"
+		tableRecord _proxiedObject incrementNextIDBy: ids size]!
+
 prepareToCommit
 
-	"20/10/2000"
-	
 	| changed noneChanged currentObjects |
 
 	changed := self newEmptyObjectsSet: (self currentReferencedObjects size // 2).
@@ -212,35 +231,30 @@ prepareToCommit
 
 proxy: aProxydObject forwarded: aMessage
 
-	"20/10/2000
-
-	Add aProxydObject to the collection of potentially-changed objects
+	"Add aProxydObject to the collection of potentially-changed objects
 	(the receiver performs no checking on the message sent)"
 
 	self currentReferencedObjects add: aProxydObject!
 
 proxyForObject: anObject ifNone: aBlock
 
-	"20/8/2000"
-
 	^self currentReferencedObjects detect: [ :each | each _proxiedObject == anObject] ifNone:
 		[self allReferencedObjects detect: [ :each | each _proxiedObject == anObject] ifNone: aBlock]!
 
 removeProxy: aProxydObject
 
-	"20/10/2000
-
-	Remove aProxydObject from the collections of potentially-changed objects"
+	"Remove aProxydObject from the collections of potentially-changed objects"
 
 	self currentReferencedObjects remove: aProxydObject ifAbsent: [].
 	self allReferencedObjects remove: aProxydObject ifAbsent: []!
 
 resetChangedObjects
 
-	"20/10/2000"
-
 	self changedObjects: nil! !
 !SSWDBAbstractSingleTransaction categoriesFor: #abandon!actions!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs!accessing!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs:!accessing!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #allocateIDFor:tableRecord:!actions!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #allReferencedObjects!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #allReferencedObjects:!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #autoRecoverCommitIn:!actions!public! !
@@ -250,6 +264,7 @@ resetChangedObjects
 !SSWDBAbstractSingleTransaction categoriesFor: #beginWithin:!actions!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #changedObjects!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #changedObjects:!accessing!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #commitAllocatedIDs!actions!private! !
 !SSWDBAbstractSingleTransaction categoriesFor: #currentReferencedObjects!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #currentReferencedObjects:!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #endObjectCollection!initializing!public! !
@@ -258,6 +273,7 @@ resetChangedObjects
 !SSWDBAbstractSingleTransaction categoriesFor: #newEmptyObjectsSet:!evaluating!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #nextCollectionPhase!initializing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #ownerTransaction!evaluating!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #postCommitAllocatedIDs!actions!private! !
 !SSWDBAbstractSingleTransaction categoriesFor: #prepareToCommit!actions!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #proxy:forwarded:!proxy tracking!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #proxyForObject:ifNone:!proxy tracking!public! !

@@ -6,7 +6,9 @@ SSWDBProxy subclass: #SSWDBObjectProxy
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBObjectProxy guid: (GUID fromString: '{5a3e3ddb-3990-11d5-b1df-444553540000}')!
-SSWDBObjectProxy comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBObjectProxy comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBObjectProxy categoriesForClass!Unclassified! !
 !SSWDBObjectProxy methodsFor!
 
@@ -32,25 +34,19 @@ _aquireCollectionProxiesUsing: collectionSpecs
 
 _class
 
-	"6/8/2000
-	
-	class stores the Class of the object for which the receiver is a proxy"
+	"class stores the Class of the object for which the receiver is a proxy"
 	
 	^class!
 
 _class: aClass
 
-	"6/8/2000
-	
-	class stores the Class of the object for which the receiver is a proxy"
+	"class stores the Class of the object for which the receiver is a proxy"
 	
 	class := aClass!
 
 _collectionProxies
 
-	"22/5/2001
-
-	collectionProxies stores an IdentityDictionary mapping each of 
+	"collectionProxies stores an IdentityDictionary mapping each of 
 	the receiver's table's collectionSpecs to the proxied collection in that spec.
 	These are maintained by the receiver so actual collections in the proxiedObject
 	can be related to their originating proxy"
@@ -59,9 +55,7 @@ _collectionProxies
 
 _collectionProxies: anIdentityDictionary
 
-	"22/5/2001
-
-	collectionProxies stores an IdentityDictionary mapping each of 
+	"collectionProxies stores an IdentityDictionary mapping each of 
 	the receiver's table's collectionSpecs to the proxied collection in that spec.
 	These are maintained by the receiver so actual collections in the proxiedObject
 	can be related to their originating proxy"
@@ -70,9 +64,7 @@ _collectionProxies: anIdentityDictionary
 
 _collectionProxyFor: aCollectionSpec
 
-	"22/5/2001
-
-	Look up the collection proxy specified by the given spec.
+	"Look up the collection proxy specified by the given spec.
 	If none, create and cache it"
 
 	^collectionProxies at: aCollectionSpec ifAbsentPut:
@@ -80,18 +72,14 @@ _collectionProxyFor: aCollectionSpec
 
 _collectionProxySwapped: aCollectionProxy
 
-	"22/5/2001
-
-	The given collection proxy has swapped its references.
+	"The given collection proxy has swapped its references.
 	Update the cache"
 
 	^collectionProxies at: aCollectionProxy _collectionSpec put: aCollectionProxy!
 
 _currentVersion
 
-	"23/4/2001
-	
-	Re-read the receiver's proxiedObject from the database,
+	"Re-read the receiver's proxiedObject from the database,
 	returning it as a new proxied object.
 	NB Intended for privileged clients only; other clients should use currentVersion (no _ prefix)"
 	
@@ -106,23 +94,17 @@ _currentVersion
 
 _dbTable
 
-	"19/8/2000"
-	
 	^reStore tableForClass: class!
 
 _id
 
-	"6/8/2000
-	
-	id stores the unique ID (Integer) of the object for which the receiver is a proxy"
+	"id stores the unique ID (Integer) of the object for which the receiver is a proxy"
 	
 	^id!
 
 _id: anInteger
 
-	"6/8/2000
-	
-	dbID stores the unique ID (Integer) of the object for which the receiver is a proxy"
+	"dbID stores the unique ID (Integer) of the object for which the receiver is a proxy"
 	
 	id := anInteger!
 
@@ -136,58 +118,44 @@ _idIn: aReStore
 
 _instVarAt: anInteger
 
-	"21/1/2001
-	
-	Sent from internal code to access the proxiedObject directly.
+	"Sent from internal code to access the proxiedObject directly.
 	ASSERT: the receiver is a recovered proxy"
 	
 	^proxiedObject instVarAt: anInteger!
 
 _instVarAt: anInteger put: anObject
 
-	"21/1/2001
-	
-	Sent from internal code to access the proxiedObject directly.
+	"Sent from internal code to access the proxiedObject directly.
 	ASSERT: the receiver is a recovered proxy"
 	
 	^proxiedObject instVarAt: anInteger put: anObject!
 
 _intern
 
-	"6/8/2000
-	
-	Register the receiver in its reStore"
+	"Register the receiver in its reStore"
 	
 	reStore registerProxy: self!
 
 _isNew
 
-	"21/1/2001
-	
-	Return a Boolean indicating whether the receiver does not yet exist in the database"
+	"Return a Boolean indicating whether the receiver does not yet exist in the database"
 	
 	^self _isPersistent not!
 
 _postSwapReferences
 
-	"22/5/2001
-
-	Inform the collectionProxies"
+	"Inform the collectionProxies"
 
 	collectionProxies do: [ :proxy | proxy _owner: self]!
 
 _prepareToCommit
 
-	"26/4/2001"
-	
 	self _isDeleted ifFalse: 
 		[reStore preWriteValidate: self]!
 
 _proxiedObjectMissing
 
-	"22/5/2001
-
-	The receiver's proxiedObject (as specified by class/id) is missing.
+	"The receiver's proxiedObject (as specified by class/id) is missing.
 	Initialize the receiver to represent this"
 
 	self 
@@ -196,9 +164,7 @@ _proxiedObjectMissing
 
 _recoverProxiedObject
 
-	"6/8/2000
-	
-	Recover the receiver's proxiedObject from the database"
+	"Recover the receiver's proxiedObject from the database"
 	
 	reStore recoverObjectOfClass: class withID: id into: self!
 
@@ -217,11 +183,7 @@ _unrecoveredProxyString
 
 _unstore
 
-	"Created 21/1/2001
-	Modified 19/8/2001	Also notify the table (to delete dependent objects, issue#0006)
-
-	Unstore the receiver's proxyObject - set the receiver's state so that 
-	the receiver is recognised as unstored and hence will be deleted at the next commit"
+	"Unstore the receiver's proxyObject - set the receiver's state so that the receiver is recognised as unstored and hence will be deleted at the next commit"
 
 	"Notify interested parties"
 	self _dbTable aboutToBeUnstored: proxiedObject.
@@ -237,18 +199,11 @@ _unstore
 
 basicClass
 
-	"6/8/2000
-	
-	No need to bother the proxiedObject"
-	
 	^class!
 
 class
 
-	"Created 6/8/2000
-	Modified 5/9/2001		Must fetch inherited objects to determine the class (issue#0015)
-	
-	No need to bother the proxiedObject, except for inherited objects"
+	"No need to bother the proxiedObject, except for inherited objects which are needed to determine their class"
 
 	^(self _dbTable class == SSWDBTable) 
 	ifTrue: 
@@ -259,9 +214,7 @@ class
 
 currentVersion
 
-	"23/4/2001
-	
-	Re-read the receiver's proxiedObject from the database,
+	"Re-read the receiver's proxiedObject from the database,
 	returning it as a new unproxied object.
 	c.f. _currentVersion which returns a proxied object"
 	
@@ -269,9 +222,7 @@ currentVersion
 
 debugPrintString
 
-	"21/1/2001
-	
-	Override to test for deleted status"
+	"Override to test for deleted status"
 	
 	^self _isDeleted 
 		ifTrue: ['<Deleted persistent object>']
@@ -279,19 +230,14 @@ debugPrintString
 
 isInteger
 
-	"18/8/2001
-	
-	No need to bother the proxiedObject"
+	"No need to bother the proxiedObject"
 	
 	^false
 !
 
 isKindOf: aClass
 
-	"6/8/2000
-	Modified 27/3/2002		Must fetch inherited objects to determine isKindOf: (issue#0028)
-	
-	No need to bother the proxiedObject"
+	"No need to bother the proxiedObject (except for inherited objects)"
 
 	^(self _dbTable class == SSWDBTable)
 	ifTrue: 
@@ -302,21 +248,11 @@ isKindOf: aClass
 
 isValidForPersistence
 
-	"20/8/2000"
-	
 	^true!
-
-odbcObject
-
-	"5/8/2000"
-	
-	^id!
 
 printOn: aStream
 
-	"26/4/2001
-
-	Do not error on printString to a deleted object"
+	"Do not error on printString to a deleted object"
 
 	^self _isDeleted
 		ifTrue: [aStream nextPutAll: self debugPrintString]
@@ -324,21 +260,21 @@ printOn: aStream
 
 printString
 
-	"26/4/2001
-
-	Do not error on printString to a deleted object"
+	"Do not error on printString to a deleted object"
 
 	^self _isDeleted
 		ifTrue: [self debugPrintString]
 		ifFalse: [super printString]!
 
+reStoreValue
+
+	^id!
+
 sqlStringIn: anSSWSQLDialect
 
-	"19/8/2001		Based on earlier sqlString; dialect param added (issue#0008)"
-	
 	| stream |
 	
-	stream := SSWSQLWriteStream newIn: anSSWSQLDialect.
+	stream := anSSWSQLDialect sqlWriteStream.
 	
 	self writeSQLOn: stream.
 	
@@ -347,9 +283,7 @@ sqlStringIn: anSSWSQLDialect
 
 unstore
 
-	"21/1/2001
-
-	Unstore the receiver's proxiedObject, returning the proxiedObject.
+	"Unstore the receiver's proxiedObject, returning the proxiedObject.
 	This message (as opposed to the private _unstore) is only sent when the receiver
 	has not yet been referenced in the current transaction. Hence reference it here"
 	
@@ -376,9 +310,7 @@ unstored
 
 writeSQLOn: aStream
 
-	"17/8/2000
-	
-	The SQL for a persistent object is its id"
+	"The SQL for a persistent object is its id"
 
 	id writeSQLOn: aStream!
 
@@ -417,9 +349,9 @@ writeSQLOn: aStream forField: aField
 !SSWDBObjectProxy categoriesFor: #isInteger!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isKindOf:!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isValidForPersistence!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #odbcObject!accessing:derived!public! !
 !SSWDBObjectProxy categoriesFor: #printOn:!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #printString!forwarding!public! !
+!SSWDBObjectProxy categoriesFor: #reStoreValue!accessing:derived!public! !
 !SSWDBObjectProxy categoriesFor: #sqlStringIn:!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #unstore!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #unstored!forwarding!public! !
@@ -430,8 +362,6 @@ writeSQLOn: aStream forField: aField
 
 _forNewObject: anObject withID: anInteger inReStore: aReStore
 
-	"6/8/2000"
-	
 	^(self _forObjectOfClass: anObject class withID: anInteger  inReStore: aReStore)
 		_newProxiedObject: anObject;
 		_collectionProxies: IdentityDictionary new;
@@ -439,8 +369,6 @@ _forNewObject: anObject withID: anInteger inReStore: aReStore
 
 _forObjectOfClass: aClass withID: anInteger  inReStore: aReStore
 
-	"6/8/2000"
-	
 	^self new
 		_reStore: aReStore;
 		_class: aClass;
@@ -449,9 +377,7 @@ _forObjectOfClass: aClass withID: anInteger  inReStore: aReStore
 
 controlFields
 
-	"29/4/2001
-
-	Return any fields required by instances of the receiver 
+	"Return any fields required by instances of the receiver 
 	to control their operation.
 
 	None by default, subclasses should override as necessary"

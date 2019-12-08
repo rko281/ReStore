@@ -6,7 +6,9 @@ SSWDBQueryField subclass: #SSWDBQueryTableField
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBQueryTableField guid: (GUID fromString: '{266e4dca-398e-11d5-b1df-444553540000}')!
-SSWDBQueryTableField comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBQueryTableField comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBQueryTableField categoriesForClass!Unclassified! !
 !SSWDBQueryTableField methodsFor!
 
@@ -42,9 +44,7 @@ printOn: aStream
 
 table
 
-	"14/3/01
-	
-	The receiver is created to stand in place of a regular SSWDBField when that field 
+	"The receiver is created to stand in place of a regular SSWDBField when that field 
 	is involved in a query where the same table is referenced more than once, via more than one field.
 
 	Each reocurrence of the table is replaced (aliased) by an SSWDBQueryTable,
@@ -56,9 +56,7 @@ table
 
 table: anSSWDBQueryTable
 
-	"14/3/01
-	
-	The receiver is created to stand in place of a regular SSWDBField when that field 
+	"The receiver is created to stand in place of a regular SSWDBField when that field 
 	is involved in a query where the same table is referenced more than once, via more than one field.
 
 	Each reocurrence of the table is replaced (aliased) by an SSWDBQueryTable,
@@ -70,23 +68,19 @@ table: anSSWDBQueryTable
 
 writeAliasedSQLOn: aStream
 
-	"5/8/2000
-
-	For situations where duplicate field names are anticipated
+	"For situations where duplicate field names are anticipated
 	- write the SQL of the receiver on aStream, but use aliased names to force uniqueness"
 	aStream nextPutAliasedField: self!
 
 writeSQLOn: aStream
 
-	"5/8/2000
-	
-	Use <table name>.<field name> notation to avoid ambiguity"
+	"Use <table name>.<field name> notation to avoid ambiguity"
 	
 	self table writeSQLNameOn: aStream.
 	
 	aStream 
 		nextPut: $.;
-		nextPutAll: self name! !
+		nextPutIdentifier: self name! !
 !SSWDBQueryTableField categoriesFor: #=!comparing!public! !
 !SSWDBQueryTableField categoriesFor: #accessorPath!accessing!public! !
 !SSWDBQueryTableField categoriesFor: #accessorPath:!accessing!public! !

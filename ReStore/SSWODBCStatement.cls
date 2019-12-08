@@ -6,7 +6,9 @@ DBParameterizedStatement subclass: #SSWODBCStatement
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWODBCStatement guid: (GUID fromString: '{fe2079c2-ac50-11d5-b1e0-444553540000}')!
-SSWODBCStatement comment: ''!
+SSWODBCStatement comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWODBCStatement categoriesForClass!Unclassified! !
 !SSWODBCStatement methodsFor!
 
@@ -21,9 +23,7 @@ closeAfter: aBlock
 
 dbCheckException: anIntegerRetCode
 
-	"19/8/2001
-
-	Overriden to revector to parent connection, which may mask certain 'errors' "
+	"Overriden to revector to parent connection, which may mask certain 'errors' "
 	
 	^self parent dbCheckException: anIntegerRetCode from: self!
 
@@ -100,13 +100,13 @@ execQuery: anSQLQuery
 
 	self query: anSQLQuery.
 
-	stream := SSWSQLWriteStream newIn: self sqlDialect.
+	stream := self sqlDialect sqlWriteStream.
 	anSQLQuery writeSQLOn: stream.
 	self sqlString: stream contents.
 
 	stream hasParameterizedFields ifTrue: 
 		[paramCols := stream parameterizedColumnsFor: self.
-		self values: (stream parameterizedValues collect: [ :each | each odbcObject])].
+		self values: stream parameterizedValues].
 
 	self exec!
 
@@ -121,17 +121,13 @@ parameters
 
 query
 
-	"25/4/2002 
-
-	query stores the SSWSQLQuery which the statement is prepared to execute"
+	"query stores the SSWSQLQuery which the statement is prepared to execute"
 
 	^query!
 
 query: anSSWSQLQuery
 
-	"25/4/2002 
-
-	query stores the SSWSQLQuery which the statement is prepared to execute"
+	"query stores the SSWSQLQuery which the statement is prepared to execute"
 
 	query := anSSWSQLQuery!
 
@@ -156,36 +152,41 @@ results
 		ifTrue: [SSWODBCForwardOnlyResultSet]
 		ifFalse: [SSWODBCResultSet]) statement: self!
 
+rowsAffected
+
+	"Return the number of rows affected by this statement.
+	Assume this represents the end of interaction by this statement so also close the receiver"
+
+	^self closeAfter: [ :stmt | stmt numRows]!
+
 sqlDialect
 
-	"18/9/2001 
-
-	Derive from the parent connection"
+	"Derive from the parent connection"
 
 	^self parent sqlDialect!
+
+values: aCollection
+
+	super values: (aCollection collect: [ :each | each reStoreValue])!
 
 writeDebugInfoOn: aStream
 
 	| readStream valuesStream sqlStream |
 
-	paramCols isNil ifTrue: [^aStream nextPutAll: self sqlString; cr].
+	(paramCols ifNil: [#()]) isEmpty ifTrue: [^aStream nextPutAll: self sqlString; nextPut: $;; cr].
 
 	readStream := ReadStream on: self sqlString.
 	valuesStream := ReadStream on: self values.
-	sqlStream := SSWSQLWriteStream newIn: self sqlDialect.
+	sqlStream := self sqlDialect sqlWriteStream.
 
-	[sqlStream nextPutAll: (readStream upTo: $?).
-	readStream atEnd] whileFalse: 
-		[sqlStream nextPut: $[.
-		valuesStream nextOrNil writeSQLOn: sqlStream.
-		sqlStream nextPut: $]].
+	[| nextChunk |
+	nextChunk := self parent upToParameterPlaceholderOn: readStream.
+	nextChunk isEmpty ifFalse: 
+		[sqlStream nextPutAll: nextChunk.
+		valuesStream atEnd ifFalse: [valuesStream nextOrNil printOn: sqlStream]].
+	readStream atEnd] whileFalse.
 
-	self sqlString last = $? ifTrue: 
-		[sqlStream nextPut: $[.
-		valuesStream nextOrNil writeSQLOn: sqlStream.
-		sqlStream nextPut: $]].
-
-	aStream nextPutAll: sqlStream contents; cr! !
+	aStream nextPutAll: sqlStream contents; nextPut: $;; cr! !
 !SSWODBCStatement categoriesFor: #close!operations!public! !
 !SSWODBCStatement categoriesFor: #closeAfter:!operations!public! !
 !SSWODBCStatement categoriesFor: #dbCheckException:!exceptions!private! !
@@ -199,6 +200,8 @@ writeDebugInfoOn: aStream
 !SSWODBCStatement categoriesFor: #query:!accessing!public! !
 !SSWODBCStatement categoriesFor: #readValuesFrom:!operations!public! !
 !SSWODBCStatement categoriesFor: #results!accessing!public! !
+!SSWODBCStatement categoriesFor: #rowsAffected!accessing!public! !
 !SSWODBCStatement categoriesFor: #sqlDialect!accessing!public! !
+!SSWODBCStatement categoriesFor: #values:!public! !
 !SSWODBCStatement categoriesFor: #writeDebugInfoOn:!operations!public! !
 

@@ -6,7 +6,9 @@ DBConnection subclass: #SSWODBCConnection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWODBCConnection guid: (GUID fromString: '{a1aded01-a947-11d5-b1e0-444553540000}')!
-SSWODBCConnection comment: ''!
+SSWODBCConnection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWODBCConnection categoriesForClass!Unclassified! !
 !SSWODBCConnection methodsFor!
 
@@ -53,11 +55,11 @@ _columnsInTableViaQuery: aDBTable
 
 	query := 
 		SSWSQLSelectQuery new 
-			table: aDBTable; 
+			table: (SSWSQLTable new name: aDBTable name); 
 			conditions: #(); 
 			yourself.
 
-	statement := self executeQuery: query cursorType: self defaultCursorType.
+	statement := self exec: (query sqlStringIn: self sqlDialect).
 
 	^statement describeCols: (1 to: statement numColumns)!
 
@@ -94,8 +96,10 @@ allocStmtHandle: aDBStatement
 	^hStmt!
 
 basicConnect
-	
-	super basicConnect.
+
+	self dsn isNil 
+		ifTrue: [self open "uses connectString"]
+		ifFalse: [super basicConnect "uses dsn"].
 
 	self isConnected ifTrue: 
 		[self sqlDialect: (SSWSQLDialect newFor: self).
@@ -138,6 +142,10 @@ dbCheckException: anIntegerRetCode from: anODBCObject
 
 	^self _dbCheckException: anIntegerRetCode from: anODBCObject!
 
+dbErrorClass
+
+	^DBError!
+
 debugStream
 	^debugStream!
 
@@ -146,16 +154,16 @@ debugStream: anObject
 
 defaultCursorType
 
-	"25/4/2002
-
-	Overriden to defer to the dialect"
+	"Overriden to defer to the dialect"
 
 	^self sqlDialect cursorType!
 
 disconnect
 
-	"Occasional error in invalidateAllStmts seen in SQLite - works on retry after a short wait"
+	"Going through a Txn cycle seems to help when disconnecting"
+	self rollbackTxn.
 
+	"Occasional error in invalidateAllStmts seen in SQLite - works on retry after a short wait"
 	[super disconnect] on: DBError do: 
 		[ :exc | 
 		exc isInvalidTransactionState ifTrue: 
@@ -188,7 +196,7 @@ executeQuery: anSQLQuery cursorType: aSymbol
 
 forgetTable: aDBTable
 
-	self columnDescriptions removeKey: aDBTable ifAbsent: []!
+	^self columnDescriptions removeKey: aDBTable ifAbsent: []!
 
 freeStmtHandle: aDBStatement
 
@@ -221,19 +229,13 @@ getLongInfoString: infoCode
 
 hasTxn
 
-	"12/5/2001"
-
 	^transaction notNil!
 
 isConnected
 
-	"12/5/2001"
-
 	^handle ~= nil!
 
 isDebug
-
-	"1/5/2002"
 
 	^self debugStream notNil!
 
@@ -246,10 +248,7 @@ newParameterizedStatement: aSymbol
 
 newStatement
 
-	"18/9/2001
-	Modified: 25/4/2002	Now only implemented/used by ReStore 
-
-	Defer to newStatement"
+	"Defer to newStatement"
 
 	^self newStatement: self defaultCursorType
 !
@@ -259,6 +258,10 @@ newStatement: aSymbol
 	"Overriden to use an the appropriate statement class"
 
 	^SSWODBCStatement parent: self cursorType: aSymbol!
+
+onStartup
+
+	"Private - Nothing to do here"!
 
 postConnect
 
@@ -274,6 +277,22 @@ prepareQuery: anSQLQuery
 	^(self prepare: (anSQLQuery sqlStringIn: self sqlDialect))
 		query: anSQLQuery;
 		paramCols: (self columnsForFields: anSQLQuery parameterisedFields);
+		yourself!
+
+printParameterPlaceholder: anInteger on: aStream
+
+	aStream nextPut: $?!
+
+reservedWords
+
+	| defaults |
+
+	"The set of default ODBC reserved words, as defined by Microsoft ODBC Programmer's Reference"
+	defaults := ##(Set withAll: 'ABSOLUTE IS ACTION ISOLATION ADA JOIN ADD KEY ALL LANGUAGE ALLOCATE LAST ALTER LEADING AND LEFT ANY LEVEL ARE LIKE AS LOCAL ASC LOWER ASSERTION MATCH AT MAX AUTHORIZATION MIN AVG MINUTE BEGIN MODULE BETWEEN MONTH BIT NAMES BIT_LENGTH NATIONAL BOTH NATURAL BY NCHAR CASCADE NEXT CASCADED NO CASE NONE CAST NOT CATALOG NULL CHAR NULLIF CHAR_LENGTH NUMERIC CHARACTER OCTET_LENGTH CHARACTER_LENGTH OF CHECK ON CLOSE ONLY COALESCE OPEN COLLATE OPTION COLLATION OR COLUMN ORDER COMMIT OUTER CONNECT OUTPUT CONNECTION OVERLAPS CONSTRAINT PAD CONSTRAINTS PARTIAL CONTINUE PASCAL CONVERT POSITION CORRESPONDING PRECISION COUNT PREPARE CREATE PRESERVE CROSS PRIMARY CURRENT PRIOR CURRENT_DATE PRIVILEGES CURRENT_TIME PROCEDURE CURRENT_TIMESTAMP PUBLIC CURRENT_USER READ CURSOR REAL DATE REFERENCES DAY RELATIVE DEALLOCATE RESTRICT DEC REVOKE DECIMAL RIGHT DECLARE ROLLBACK DEFAULT ROWS DEFERRABLE SCHEMA DEFERRED SCROLL DELETE SECOND DESC SECTION DESCRIBE SELECT DESCRIPTOR SESSION DIAGNOSTICS SESSION_USER DISCONNECT SET DISTINCT SIZE DOMAIN SMALLINT DOUBLE SOME DROP SPACE ELSE SQL END SQLCA END-EXEC SQLCODE ESCAPE SQLERROR EXCEPT SQLSTATE EXCEPTION SQLWARNING EXEC SUBSTRING EXECUTE SUM EXISTS SYSTEM_USER EXTERNAL TABLE EXTRACT TEMPORARY FALSE THEN FETCH TIME FIRST TIMESTAMP FLOAT TIMEZONE_HOUR FOR TIMEZONE_MINUTE FOREIGN TO FORTRAN TRAILING FOUND TRANSACTION FROM TRANSLATE FULL TRANSLATION GET TRIM GLOBAL TRUE GO UNION GOTO UNIQUE GRANT UNKNOWN GROUP UPDATE HAVING UPPER HOUR USAGE IDENTITY USER IMMEDIATE USING IN VALUE INCLUDE VALUES INDEX VARCHAR INDICATOR VARYING INITIALLY VIEW INNER WHEN INPUT WHENEVER INSENSITIVE WHERE INSERT WITH INT WORK INTEGER WRITE INTERSECT YEAR INTERVAL ZONE INTO' subStrings).
+
+	^defaults
+		"Add the words defined by the current connection"
+		addAll: ((self getLongInfoString: SQL_KEYWORDS) asUppercase subStrings: $,);
 		yourself!
 
 reset
@@ -299,25 +318,23 @@ shouldFreeStatementsOnClose
 
 sqlDialect
 
-	"16/8/2001 
-
-	sqlDialect stores the SSWSQLDialect of the database to which the receiver connects"
+	"sqlDialect stores the SSWSQLDialect of the database to which the receiver connects"
 
 	^sqlDialect!
 
 sqlDialect: anSSWSQLDialect
 
-	"16/8/2001 
-
-	sqlDialect stores the SSWSQLDialect of the database to which the receiver connects"
+	"sqlDialect stores the SSWSQLDialect of the database to which the receiver connects"
 
 	sqlDialect := anSSWSQLDialect!
 
+upToParameterPlaceholderOn: aStream
+
+	^aStream upTo: $?!
+
 willAutoCommit: aBoolean
 
-	"25/4/2002 		(was autoCommit:, now deprecated)
-
-	Overriden to check status prior to changing (dependent on dialect setting)"
+	"Overriden to check status prior to changing (dependent on dialect setting)"
 
 	(self sqlDialect shouldCheckAutoCommit and: [self willAutoCommit = aBoolean]) ifFalse: 
 		[super willAutoCommit: aBoolean]! !
@@ -335,13 +352,14 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #columnsInTable:!enquiries!public! !
 !SSWODBCConnection categoriesFor: #dbCheckException:!exceptions!public! !
 !SSWODBCConnection categoriesFor: #dbCheckException:from:!exceptions!public! !
+!SSWODBCConnection categoriesFor: #dbErrorClass!accessing!public! !
 !SSWODBCConnection categoriesFor: #debugStream!accessing!private! !
 !SSWODBCConnection categoriesFor: #debugStream:!accessing!private! !
 !SSWODBCConnection categoriesFor: #defaultCursorType!operations!public! !
 !SSWODBCConnection categoriesFor: #disconnect!operations!private! !
 !SSWODBCConnection categoriesFor: #evaluateAsTxn:!public!transactions! !
 !SSWODBCConnection categoriesFor: #executeQuery:cursorType:!executing!public! !
-!SSWODBCConnection categoriesFor: #forgetTable:!public! !
+!SSWODBCConnection categoriesFor: #forgetTable:!helpers!private! !
 !SSWODBCConnection categoriesFor: #freeStmtHandle:!helpers!private! !
 !SSWODBCConnection categoriesFor: #getLongInfoString:!helpers!private! !
 !SSWODBCConnection categoriesFor: #hasTxn!public!transactions! !
@@ -350,12 +368,16 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #newParameterizedStatement:!operations!private! !
 !SSWODBCConnection categoriesFor: #newStatement!operations!private! !
 !SSWODBCConnection categoriesFor: #newStatement:!operations!private! !
+!SSWODBCConnection categoriesFor: #onStartup!helpers!private! !
 !SSWODBCConnection categoriesFor: #postConnect!operations!private! !
 !SSWODBCConnection categoriesFor: #prepareQuery:!executing!public! !
+!SSWODBCConnection categoriesFor: #printParameterPlaceholder:on:!helpers!private! !
+!SSWODBCConnection categoriesFor: #reservedWords!accessing!public! !
 !SSWODBCConnection categoriesFor: #reset!helpers!private! !
 !SSWODBCConnection categoriesFor: #rollbackTxn!public!transactions! !
 !SSWODBCConnection categoriesFor: #shouldFreeStatementsOnClose!public!testing! !
 !SSWODBCConnection categoriesFor: #sqlDialect!accessing!public! !
 !SSWODBCConnection categoriesFor: #sqlDialect:!accessing!public! !
+!SSWODBCConnection categoriesFor: #upToParameterPlaceholderOn:!helpers!private! !
 !SSWODBCConnection categoriesFor: #willAutoCommit:!accessing!public! !
 

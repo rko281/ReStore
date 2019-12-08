@@ -6,14 +6,14 @@ SSWDBField subclass: #SSWDBStaticField
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBStaticField guid: (GUID fromString: '{266e4dd7-398e-11d5-b1df-444553540000}')!
-SSWDBStaticField comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBStaticField comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBStaticField categoriesForClass!Unclassified! !
 !SSWDBStaticField methodsFor!
 
 applyValueFromRow: aDBRow to: anObject
 
-	"6/8/2000"
-	
 	| dbValue |
 	
 	dbValue := aDBRow atField: self ifAbsent: [nil].
@@ -36,6 +36,10 @@ convertValue: aValue
 	Return the converted object"
 	
 	^self targetClass instanceFromDBValue: aValue in: self reStore!
+
+isValidForPersistence
+
+	^true!
 
 readAllFor: aCollection
 
@@ -66,18 +70,14 @@ readAllQuery
 
 targetClass
 
-	"6/8/2000
-	
-	targetClass stores the Class of object stored in this field.
+	"targetClass stores the Class of object stored in this field.
 	This can be a base class with an SQL equivalent (String, Number, Date...), or a persistent class"
 	
 	^targetClass!
 
 targetClass: aClass
 
-	"6/8/2000
-	
-	targetClass stores the Class of object stored in this field.
+	"targetClass stores the Class of object stored in this field.
 	This can be a base class with an SQL equivalent (String, Number, Date...), or a persistent class"
 	
 	targetClass := aClass!
@@ -89,8 +89,6 @@ targetTable
 	^self reStore tableForClass: self targetClass!
 
 writeSQLDefinitionOn: aStream
-
-	"9/3/01"
 	
 	super writeSQLDefinitionOn: aStream.
 	aStream space.
@@ -98,6 +96,7 @@ writeSQLDefinitionOn: aStream
 !SSWDBStaticField categoriesFor: #applyValueFromRow:to:!actions!public! !
 !SSWDBStaticField categoriesFor: #applyValueIfChangedFromRow:to:!actions!public! !
 !SSWDBStaticField categoriesFor: #convertValue:!actions!public! !
+!SSWDBStaticField categoriesFor: #isValidForPersistence!public! !
 !SSWDBStaticField categoriesFor: #readAllFor:!actions!public! !
 !SSWDBStaticField categoriesFor: #readAllQuery!accessing!public! !
 !SSWDBStaticField categoriesFor: #targetClass!accessing!public! !

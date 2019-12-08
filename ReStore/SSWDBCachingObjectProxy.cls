@@ -6,7 +6,9 @@ SSWDBObjectProxy subclass: #SSWDBCachingObjectProxy
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCachingObjectProxy guid: (GUID fromString: '{5a3e3ddc-3990-11d5-b1df-444553540000}')!
-SSWDBCachingObjectProxy comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBCachingObjectProxy comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBCachingObjectProxy categoriesForClass!Unclassified! !
 !SSWDBCachingObjectProxy methodsFor!
 
@@ -38,9 +40,7 @@ _aquireCopyObject
 
 _checkHasChanged
 
-	"20/8/2000
-	
-	Use the copy object to determine these"
+	"Use the copy object to determine these"
 	
 	^self _isDeleted or:
 		[self _isNew or: 
@@ -52,14 +52,12 @@ _checkHasChanged
 
 _commitChanges
 
-	"20/10/2000
-	
-	Return a Boolean indicating whether the commit succeeds"
+	"Return a Boolean indicating whether the commit succeeds"
 
 	^self _isPersistent
 	ifTrue:
 		[self _isDeleted
-			ifTrue: [reStore removeProxy: self. true]
+			ifTrue: [reStore deleteProxy: self. true]
 			ifFalse: [self _commitUpdates]]
 	ifFalse:
 		[reStore insertProxy: self.
@@ -67,9 +65,7 @@ _commitChanges
 
 _commitUpdates
 
-	"20/10/2000
-	
-	Return a Boolean indicating whether the commit succeeds"
+	"Return a Boolean indicating whether the commit succeeds"
 
 	| updates |
 
@@ -81,27 +77,21 @@ _commitUpdates
 
 _copyObject
 
-	"20/8/2000
-	
-	The receiver automatically detects changes to its proxiedObject by maintaining a shallow copy
+	"The receiver automatically detects changes to its proxiedObject by maintaining a shallow copy
 	of the proxiedObject. This is held in copyObject"
 	
 	^copyObject!
 
 _copyObject: anObject
 
-	"20/8/2000
-	
-	The receiver automatically detects changes to its proxiedObject by maintaining a shallow copy
+	"The receiver automatically detects changes to its proxiedObject by maintaining a shallow copy
 	of the proxiedObject. This is held in copyObject"
 	
 	copyObject := anObject!
 
 _fieldUpdates
 
-	"20/8/2000
-	
-	Use the copy object to determine these"
+	"Use the copy object to determine these"
 	
 	^self _dbTable dataFields inject: SSWSQLFieldAssignmentCollection new into: 
 		[ :updates :field || accessor current |
@@ -113,27 +103,21 @@ _fieldUpdates
 
 _forgetProxiedObject
 
-	"19/4/2000
-	
-	Override to reset the copyObject"
+	"Override to reset the copyObject"
 	
 	copyObject := nil.
 	^super _forgetProxiedObject!
 
 _isDeleted
 
-	"21/1/2001
-	
-	Return a Boolean indicating whether the receiver has been marked as deleted..
+	"Return a Boolean indicating whether the receiver has been marked as deleted..
 	Deleted proxies have a copyObject, but no proxiedObject"
 	
 	^copyObject ~~ nil and: [proxiedObject == nil]!
 
 _isPersistent
 
-	"21/1/2001
-	
-	Return a Boolean indicating whether the receiver is persistent.
+	"Return a Boolean indicating whether the receiver is persistent.
 	Persistent proxies always have a copyObject, if they are recovered.
 	Unrecovered proxies are persistent by definition"
 	
@@ -141,32 +125,37 @@ _isPersistent
 
 _matchStateOf: aProxy
 
-	"16/4/2001
-
-	Match the internal proxy (non data) state of aProxy"
+	"Match the internal proxy (non data) state of aProxy"
 
 	^self!
 
 _postCommitChanges
 
-	"24/4/2001
-	
-	The receiver's changes have successfully been committed.
+	"The receiver's changes have successfully been committed.
 	Complete follow-on work"
 
 	^self _isPersistent
 	ifTrue:
 		[self _isDeleted
-			ifTrue: [copyObject := proxiedObject := SSWDBDeletedObject newForClass: class id: id]
+			ifTrue: [self _postCommitDelete]
 			ifFalse: [self _postCommitUpdates]]
 	ifFalse:
 		[self _dbTable idDataField ifNotNil: [ :idDataField | idDataField accessor value: id in: proxiedObject].
 		self _aquireCopyObject.
 		self _intern	"Re-register"]!
 
-_postCommitUpdates
+_postCommitDelete
 
-	"24/4/2001"
+	"The receiver has been successfully deleted from the database.
+	Complete follow-on work and notify interest parties"
+
+	reStore uncacheObject: self. 
+
+	proxiedObject onUnstored.
+
+	copyObject := proxiedObject := SSWDBDeletedObject newForClass: class id: id.!
+
+_postCommitUpdates
 
 	| updates |
 
@@ -176,9 +165,7 @@ _postCommitUpdates
 
 _prepareToCommit
 
-	"11/9/2001
-
-	Intercept to check for overwriten dependent objects - unstore these (issue#0006)"
+	"Intercept to check for overwriten dependent objects - unstore these (issue#0006)"
 
 	(self _isPersistent and: [self _isDeleted not]) ifTrue:
 		[| replacedDependentFields |
@@ -190,25 +177,21 @@ _prepareToCommit
 			heldObjects := self _dbTable dataFields collect: [ :field | field accessor valueIn: proxiedObject].
 			replacedDependentFields do: 
 				[ :field | 
-				(heldObjects includes: (field accessor valueIn: copyObject)) ifFalse:
+				(heldObjects identityIncludes: (field accessor valueIn: copyObject)) ifFalse:
 					[(field accessor valueIn: copyObject) unstore]]]].
 
 	^super _prepareToCommit!
 
 _proxiedObject: anObject
 
-	"20/8/2000
-	
-	Overriden to set the copyObject"
+	"Overriden to set the copyObject"
 	
 	super _proxiedObject: anObject.
 	self _aquireCopyObject!
 
 _recoverProxiedObject
 
-	"20/8/2000
-	
-	Override to check for deleted status"
+	"Override to check for deleted status"
 	
 	self _isDeleted ifTrue: [nil error: 'Attempt to reference deleted persistent object'].
 	
@@ -270,9 +253,7 @@ _refreshFromRow: aDatabaseRow table: aDBTable
 
 _resolveUpdateConflicts
 
-	"16/5/2001
-
-	Changes to the receiver have failed to commit in anSSWReStore due to another client's changes.
+	"Changes to the receiver have failed to commit in anSSWReStore due to another client's changes.
 	Attempt to resolve the conflicts.
 
 	For implementation details, see _resolveUpdateConflictsWith:"	
@@ -287,9 +268,7 @@ _resolveUpdateConflicts
 
 _resolveUpdateConflictsWith: currentProxyObject
 
-	"16/5/2001
-
-	Changes to the receiver have failed to commit in anSSWReStore due to another client's changes.
+	"Changes to the receiver have failed to commit in anSSWReStore due to another client's changes.
 	Analyse all changes made (between the receiver's copyObject, proxiedObject and currentProxyObject)
 	and attempt to bring the receiver up to date with the state of currentProxyObject,
 	whilst maintaining the receiver's changes from its copyObject.
@@ -331,8 +310,6 @@ _resolveUpdateConflictsWith: currentProxyObject
 
 _rollbackChanges
 
-	"20/10/2000"
-
 	self _isPersistent
 	ifTrue:
 		[self _isDeleted
@@ -343,15 +320,11 @@ _rollbackChanges
 
 _rollbackStore
 
-	"20/10/2000
-
-	The receiver was a newly-persisted object - deregister from the reStore"
+	"The receiver was a newly-persisted object - deregister from the reStore"
 
 	reStore deregisterProxy: self!
 
 _rollbackUnstore
-
-	"20/10/2000"
 
 	self 
 		_proxiedObject: copyObject;
@@ -359,9 +332,7 @@ _rollbackUnstore
 
 _rollbackUpdates
 
-	"20/10/2000
-
-	Forget any updates by instantiating from the copyObject.
+	"Forget any updates by instantiating from the copyObject.
 	Also transfer over any events registered against the current proxiedObject"
 
 	| me him |
@@ -373,13 +344,11 @@ _rollbackUpdates
 
 	me _checkHasChanged ifTrue: 
 		[me _proxiedObject: me _copyObject shallowCopy. 
-		me _proxiedObject setEvents: him getEvents]!
+		him getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]]!
 
 _unstore
 
-	"25/5/2001
-
-	Intercept this message in order to point references to the proxiedObject
+	"Intercept this message in order to point references to the proxiedObject
 	to the copyObject - this enables identity to be preserved in the event of a rollback"
 
 	| object |
@@ -395,9 +364,7 @@ _unstore
 
 inspect
 
-	"14/5/2001
-
-	Prevent inspecting of a deleted object"
+	"Prevent inspecting of a deleted object"
 
 	^self _isDeleted
 		ifTrue: [nil inspect]
@@ -415,6 +382,7 @@ inspect
 !SSWDBCachingObjectProxy categoriesFor: #_isPersistent!public!testing! !
 !SSWDBCachingObjectProxy categoriesFor: #_matchStateOf:!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
+!SSWDBCachingObjectProxy categoriesFor: #_postCommitDelete!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_postCommitUpdates!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_proxiedObject:!accessing!public! !

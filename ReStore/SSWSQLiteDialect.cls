@@ -6,9 +6,39 @@ SSWSQLDialect subclass: #SSWSQLiteDialect
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLiteDialect guid: (GUID fromString: '{d86fd87d-a409-4be4-84bf-0fdcf5dfd249}')!
-SSWSQLiteDialect comment: ''!
+SSWSQLiteDialect comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLiteDialect categoriesForClass!Unclassified! !
 !SSWSQLiteDialect methodsFor!
+
+alterField: aField table: aTable in: aReStore
+
+	"No direct support in SQLite - workaround:
+		CREATE TEMPORARY TABLE t1_backup(a,b);
+		INSERT INTO t1_backup SELECT a,b FROM t1;
+		DROP TABLE t1;
+		CREATE TABLE t1(a,b);
+		INSERT INTO t1 SELECT a,b FROM t1_backup;
+		DROP TABLE t1_backup;"
+
+	| fieldNamesStream tempTable tempTableDefinition |
+
+	fieldNamesStream := self sqlWriteStream.
+	aTable allFields do: [ :each | fieldNamesStream nextPutIdentifier: each name] separatedBy: [fieldNamesStream nextPut: $,].
+
+	tempTable := aTable copy.
+	tempTable name: (tempTable name, '_tmp_').
+	tempTableDefinition := tempTable sqlDefinition.
+	tempTableDefinition := 'CREATE TEMPORARY TABLE', (tempTableDefinition allButFirst: 'CREATE TABLE' size).
+
+	aReStore 
+		executeSQL: tempTableDefinition;
+		executeSQL: ('INSERT INTO <1s> SELECT <2s> FROM <3s>' expandMacrosWith: (self asIdentifier: tempTable name) with: fieldNamesStream contents with: (self asIdentifier: aTable name));
+		executeSQL: ('DROP TABLE ', aTable name);
+		executeSQL: aTable sqlDefinition;
+		executeSQL: ('INSERT INTO <1s> SELECT <2s> FROM <3s>' expandMacrosWith: (self asIdentifier: aTable name) with: fieldNamesStream contents with: (self asIdentifier: tempTable name));
+		executeSQL: ('DROP TABLE ', (self asIdentifier: tempTable name))!
 
 decimal
 
@@ -18,12 +48,20 @@ defaultDateTimeResolution
 
 	^3!
 
+defaultMaxColumnNameLength
+
+	^255!
+
+defaultMaxTableNameLength
+
+	^255!
+
 dialectSpecificFunctions
 
-	^##(Dictionary new
-		at: #size put: 'LENGTH(%1)';
-		at: #midString:from: put: 'SUBSTR(%1,%3,%2)';
-		yourself)!
+	^Dictionary new
+		at: #size put: 'LENGTH(%1)' asSQLFunctionIntegerResult;
+		at: #midString:from: put: 'SUBSTR(%1,%3,%2)' asSQLFunction;
+		yourself!
 
 dropColumnNamed: colString fromTable: anSSWDBTable in: anSSWReStore
 
@@ -43,11 +81,11 @@ dropColumnNamed: colString fromTable: anSSWDBTable in: anSSWReStore
 	otherFields remove: anSSWDBTable idField ifAbsent: [].
 	otherFields addFirst: anSSWDBTable idField.
 
-	anSSWReStore
+	anSSWReStore 
 		executeSQL: tempTable sqlDefinition;
-		executeSQL: ('INSERT INTO %1 SELECT %2 FROM %3' formatWith: tempTable name with: (otherFields sqlStringIn: anSSWReStore) with: anSSWDBTable name);
-		executeSQL: ('DROP TABLE %1' formatWith: anSSWDBTable name);
-		executeSQL: ('ALTER TABLE %1 RENAME TO %2' formatWith: tempTable name with: anSSWDBTable name)!
+		executeSQLFrom: [ :stream | stream nextPutAll: 'INSERT INTO '; nextPutIdentifier: tempTable name; nextPutAll: ' SELECT '. otherFields writeSQLOn: stream. stream nextPutAll: ' FROM '; nextPutIdentifier: anSSWDBTable name];
+		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; nextPutIdentifier: anSSWDBTable name];
+		executeSQLFrom: [ :stream | stream nextPutAll: 'ALTER TABLE '; nextPutIdentifier: tempTable name; nextPutAll: ' RENAME TO '; nextPutIdentifier: anSSWDBTable name]!
 
 shouldMaskSuccessWithInfo
 
@@ -65,8 +103,11 @@ shouldUseColumnsStatement
 	Column details returned from a SELECT * query report the buffer length correctly"
 
 	^false! !
+!SSWSQLiteDialect categoriesFor: #alterField:table:in:!maintenance!public! !
 !SSWSQLiteDialect categoriesFor: #decimal!datatypes!public! !
 !SSWSQLiteDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
+!SSWSQLiteDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
+!SSWSQLiteDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
 !SSWSQLiteDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWSQLiteDialect categoriesFor: #dropColumnNamed:fromTable:in:!maintenance!public! !
 !SSWSQLiteDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !

@@ -6,7 +6,9 @@ DBRow subclass: #SSWODBCRow
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWODBCRow guid: (GUID fromString: '{a08f875a-3b6c-4962-9633-730ff9ab89b2}')!
-SSWODBCRow comment: ''!
+SSWODBCRow comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWODBCRow categoriesForClass!Kernel-Objects! !
 !SSWODBCRow methodsFor!
 
@@ -27,5 +29,5 @@ initializeFromBuffer: anSSWODBCBuffer
 	columns with: contents do: [ :col :obj | col field ifNotNil: [ :field | fieldMap at: field put: obj]]! !
 !SSWODBCRow categoriesFor: #atField:!accessing!public! !
 !SSWODBCRow categoriesFor: #atField:ifAbsent:!accessing!public! !
-!SSWODBCRow categoriesFor: #initializeFromBuffer:!public! !
+!SSWODBCRow categoriesFor: #initializeFromBuffer:!initializing!public! !
 

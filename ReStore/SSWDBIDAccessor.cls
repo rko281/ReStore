@@ -6,24 +6,22 @@ SSWDBPrivateAccessor subclass: #SSWDBIDAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBIDAccessor guid: (GUID fromString: '{266e4dc4-398e-11d5-b1df-444553540000}')!
-SSWDBIDAccessor comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBIDAccessor comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBIDAccessor categoriesForClass!Unclassified! !
 !SSWDBIDAccessor methodsFor!
 
 accesses: aSymbol
 
-	"12/5/2001
-	
-	Additionally check the instanceAccessor"
+	"Additionally check the instanceAccessor"
 	
 	^(super accesses: aSymbol) or: 
 		[self instanceAccessor notNil and: [self instanceAccessor accesses: aSymbol]]!
 
 instanceAccessor
 
-	"12/5/2001
-
-	instanceAccessor optionally stores an SSWInstVarAccessor that is used to assign 
+	"instanceAccessor optionally stores an SSWInstVarAccessor that is used to assign 
 	the ID value to actual persistent object instances (in addition to their proxy).
 
 	By default this is nil - persistent objects do not normally store their ID
@@ -33,9 +31,7 @@ instanceAccessor
 
 instanceAccessor: anSSWAccessor
 
-	"12/5/2001
-
-	instanceAccessor optionally stores an SSWInstVarAccessor that is used to assign 
+	"instanceAccessor optionally stores an SSWInstVarAccessor that is used to assign 
 	the ID value to actual persistent object instances (in addition to their proxy).
 
 	By default this is nil - persistent objects do not normally store their ID
@@ -45,23 +41,17 @@ instanceAccessor: anSSWAccessor
 
 nameInDB
 
-	"19/8/2001"
-
 	^#id_!
 
 specialSymbol
 
-	"29/4/2001
-
-	Accesses _id (unique ID) - this is a method defined by the object proxy"
+	"Accesses _id (unique ID) - this is a method defined by the object proxy"
 
 	^#_id!
 
 value: valueObject in: targetObject
 
-	"6/8/2000
-	
-	The receiver accesses the unique ID of objects.
+	"The receiver accesses the unique ID of objects.
 	However it never explicity sets the ID of a proxy (a proxy is created with this).
 	Instead, it's instanceAccessor may set the ID within the persistent object itself"
 	
@@ -70,9 +60,7 @@ value: valueObject in: targetObject
 
 valueIn: anObject
 
-	"6/8/2000
-	
-	The receiver accesses the unique ID of objects.
+	"The receiver accesses the unique ID of objects.
 	anObject should be DBproxy-wrapped"
 	
 	^anObject _id! !

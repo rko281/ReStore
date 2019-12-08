@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBBlockEvaluator subclass: #SSWDBCollectionBlockReceiver
-	instanceVariableNames: 'collectionSpec collection'
+	instanceVariableNames: 'collectionSpec collection currentMode'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCollectionBlockReceiver guid: (GUID fromString: '{f3ba2a03-cc13-4840-b5f2-b0c421a00fd1}')!
-SSWDBCollectionBlockReceiver comment: ''!
+SSWDBCollectionBlockReceiver comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBCollectionBlockReceiver categoriesForClass!Unclassified! !
 !SSWDBCollectionBlockReceiver methodsFor!
 
@@ -82,6 +84,20 @@ conditionWithQuery: aQuery
 		is: (SSWSQLOperator messageSelector: #includedIn:)
 		to: aQuery asSubQuery!
 
+currentMode
+
+	"currentMode stores a Symbol indicating the mode in which the next message send will be interpreted - this denotes any special handling of the next message.
+	Should be reset to nil after each message is processed"
+
+	^currentMode!
+
+currentMode: aSymbol
+
+	"currentMode stores a Symbol indicating the mode in which the next message send will be interpreted - this denotes any special handling of the next message.
+	Should be reset to nil after each message is processed"
+
+	currentMode := aSymbol!
+
 currentTable
 
 	self error: 'not appropriate'!
@@ -127,6 +143,15 @@ isEmpty
 		is: ((SSWSQLOperator messageSelector: #includedIn:) invert; yourself)
 		to: self targetFieldCollectQuery asSubQuery!
 
+isKindOf: aClass 
+
+	"Overriden due to 'odd' behaviour of #class in the receiver"
+
+	^(Array 
+		with: SSWDBCollectionBlockReceiver
+		with: SSWDBGeneralCollectionBlockReceiver
+		with: SSWDBOwnedCollectionBlockReceiver) includes: aClass!
+
 last
 
 	self currentMode: #last!
@@ -140,6 +165,10 @@ localSelectQueryFrom: aOneArgBlock
 qualifyCollectionParserWith: aBlock
 
 	self collectionParser qualifyWith: aBlock!
+
+resetCurrentMode
+
+	self currentMode: nil!
 
 select: aBlock
 
@@ -196,6 +225,8 @@ validateSizeMode
 !SSWDBCollectionBlockReceiver categoriesFor: #collectionSpec:!accessing!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #conditionWithAggregatedQuery:!helpers!private! !
 !SSWDBCollectionBlockReceiver categoriesFor: #conditionWithQuery:!helpers!private! !
+!SSWDBCollectionBlockReceiver categoriesFor: #currentMode!accessing!public! !
+!SSWDBCollectionBlockReceiver categoriesFor: #currentMode:!accessing!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #currentTable!accessing!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #finalField!accessing!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #finalFieldFor:!helpers!private! !
@@ -203,9 +234,11 @@ validateSizeMode
 !SSWDBCollectionBlockReceiver categoriesFor: #hasFinalField!public!testing! !
 !SSWDBCollectionBlockReceiver categoriesFor: #includes:!parsing-collection messages!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #isEmpty!parsing-collection messages!public! !
+!SSWDBCollectionBlockReceiver categoriesFor: #isKindOf:!public!testing! !
 !SSWDBCollectionBlockReceiver categoriesFor: #last!parsing-collection messages!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #localSelectQueryFrom:!helpers!private! !
 !SSWDBCollectionBlockReceiver categoriesFor: #qualifyCollectionParserWith:!helpers!private! !
+!SSWDBCollectionBlockReceiver categoriesFor: #resetCurrentMode!helpers!private! !
 !SSWDBCollectionBlockReceiver categoriesFor: #select:!parsing-collection messages!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #selectQueryFrom:!helpers!private! !
 !SSWDBCollectionBlockReceiver categoriesFor: #size!parsing-collection messages!public! !

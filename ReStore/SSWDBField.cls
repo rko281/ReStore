@@ -6,22 +6,20 @@ SSWDBTableComponent subclass: #SSWDBField
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBField guid: (GUID fromString: '{266e4dd6-398e-11d5-b1df-444553540000}')!
-SSWDBField comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBField comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBField categoriesForClass!Unclassified! !
 !SSWDBField methodsFor!
 
 = anSSWDBField
-
-	"27/4/2002"
 
 	^self == anSSWDBField 
 		or: [anSSWDBField notNil and: [self table = anSSWDBField table and: [self name = anSSWDBField name]]]!
 
 aboutToBeUnstored: anObject
 
-	"30/9/2001
-
-	Delete the component of anObject referenced by the receiver, if dependent"
+	"Delete the component of anObject referenced by the receiver, if dependent"
 
 	self isDependent ifTrue: [(self accessor valueIn: anObject) unstore]
 !
@@ -45,31 +43,19 @@ beUnrelated
 
 	isRelated := false!
 
+canBeParameterized
+
+	^true!
+
 fieldNamed: aString
 
-	"27/4/02
-
-	Polymorphic with field collections"
+	"Polymorphic with field collections"
 
 	^self name = aString 
 		ifTrue: [self]
 		ifFalse: [nil]!
 
-forUpdate
-
-	"17/9/2001	(issue#0009)
-
-	Return a field equivalent to the receiver, but for use in an Update query.
-	At present, ReStore only supports updates against one table (i.e. no joins).
-	Hence the <table name>. prefix is unnecessary in update queries
-	 - in fact it is specifically disallowed in some DBs"
-
-	"An unquoted version of the name sufficies"
-	^self name asUnquotedString!
-
 hash
-
-	"27/4/2002"
 
 	^self table hash bitXor: self name hash!
 
@@ -93,10 +79,6 @@ isDependent
 	
 	^isDependent!
 
-isEmbedded
-
-	^self accessor isEmbedded!
-
 isFieldCollection
 
 	"Just a single field"
@@ -111,23 +93,17 @@ isRelated
 
 name
 
-	"5/8/2000
-	
-	name stores the name of this field"
+	"name stores the name of this field"
 	
 	^name!
 
 name: aString
 
-	"5/8/2000
-	
-	name stores the name of this field"
+	"name stores the name of this field"
 	
 	name := aString!
 
 printOn: aStream
-
-	"6/8/2000"
 
 	super printOn: aStream.
 
@@ -144,46 +120,69 @@ requiresAliasing
 	"Return whether this field always requires aliasing"
 	^false!
 
+sqlCanBeParameterized
+
+	"When expressing this field as a value, can its SQL be parameterized?
+	Different to canBeParameterized!!"
+
+	^false!
+
+withFunction: aString
+
+	"Return an SSWDBFunctionField base on the receiver with the given function String"
+	
+	^self withFunction: aString arguments: #()!
+
+withFunction: aString arguments: aCollection
+
+	"Return an SSWDBFunctionField base on the receiver with the given function String and arguments"
+	
+	^SSWDBFunctionField new
+		field: self;
+		function: aString;
+		arguments: aCollection;
+		yourself!
+
 writeAliasedSQLOn: aStream
 
-	"5/8/2000
-
-	For situations where duplicate field names are anticipated
+	"For situations where duplicate field names are anticipated
 	- write the SQL of the receiver on aStream, but use aliased names to force uniqueness"
 	
 	aStream nextPutAliasedField: self!
 
 writeSQLDefinitionOn: aStream
 
-	"9/3/01"
-	
-	aStream
-		nextPutAll: self name!
+	aStream nextPutIdentifier: self name!
+
+writeSQLForUpdateOn: aStream
+
+	"Write the receiver field to aStream, specifically as part of an Update query.
+	At present, ReStore only supports updates against one table (i.e. no joins).
+	Hence the <table name>. prefix is unnecessary in update queries - in fact it is specifically disallowed in some DBs"
+
+	^aStream nextPutIdentifier: self name!
 
 writeSQLOn: aStream
 
-	"5/8/2000
-	
-	Use <table name>.<field name> notation to avoid ambiguity"
+	"Use <table name>.<field name> notation to avoid ambiguity"
 
 	self table writeSQLNameOn: aStream.
 
 	aStream 
 		nextPut: $.;
-		nextPutAll: self name! !
+		nextPutIdentifier: self name! !
 !SSWDBField categoriesFor: #=!comparing!public! !
 !SSWDBField categoriesFor: #aboutToBeUnstored:!actions!public! !
 !SSWDBField categoriesFor: #accessorPath!accessing!public! !
 !SSWDBField categoriesFor: #beDependent!defining!public! !
 !SSWDBField categoriesFor: #beRelated!defining!public! !
 !SSWDBField categoriesFor: #beUnrelated!defining!public! !
+!SSWDBField categoriesFor: #canBeParameterized!public!testing! !
 !SSWDBField categoriesFor: #fieldNamed:!accessing!public! !
-!SSWDBField categoriesFor: #forUpdate!accessing!public! !
 !SSWDBField categoriesFor: #hash!comparing!public! !
 !SSWDBField categoriesFor: #initialize!initialize/release!public! !
 !SSWDBField categoriesFor: #isAll!public!testing! !
 !SSWDBField categoriesFor: #isDependent!public!testing! !
-!SSWDBField categoriesFor: #isEmbedded!public!testing! !
 !SSWDBField categoriesFor: #isFieldCollection!public!testing! !
 !SSWDBField categoriesFor: #isRelated!public!testing! !
 !SSWDBField categoriesFor: #name!accessing!public! !
@@ -191,7 +190,11 @@ writeSQLOn: aStream
 !SSWDBField categoriesFor: #printOn:!printing!public! !
 !SSWDBField categoriesFor: #relatedComponentsOf:do:!evaluating!public! !
 !SSWDBField categoriesFor: #requiresAliasing!public!testing! !
+!SSWDBField categoriesFor: #sqlCanBeParameterized!public!testing! !
+!SSWDBField categoriesFor: #withFunction:!evaluating!public! !
+!SSWDBField categoriesFor: #withFunction:arguments:!evaluating!public! !
 !SSWDBField categoriesFor: #writeAliasedSQLOn:!output!public! !
 !SSWDBField categoriesFor: #writeSQLDefinitionOn:!output!public! !
+!SSWDBField categoriesFor: #writeSQLForUpdateOn:!printing!public! !
 !SSWDBField categoriesFor: #writeSQLOn:!output!public! !
 

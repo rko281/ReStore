@@ -6,7 +6,9 @@ DBField subclass: #SSWODBCField
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!
 SSWODBCField guid: (GUID fromString: '{4031cf23-9276-11d5-b1e0-0010a70883e2}')!
-SSWODBCField comment: ''!
+SSWODBCField comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWODBCField categoriesForClass!Unclassified! !
 !SSWODBCField methodsFor!
 
@@ -22,9 +24,7 @@ initializeForColumn: aDBColAttr
 
 numberToNumeric: aNumberOrBoolean
 
-	"16/8/2001
-
-	Overridden to allow Numeric-based Booleans"
+	"Overridden to allow Numeric-based Booleans"
 
 	(aNumberOrBoolean isKindOf: Boolean) 
 	ifTrue: 
@@ -121,35 +121,29 @@ setUtf16String: aStringOrObject
 
 shouldTranslate: anObject class: aClass
 
-	"Private - 16/8/01
-
-	Override the superclass implementation to allow Booleans to masquerade as other classes
+	"Override the superclass implementation to allow Booleans to masquerade as other classes
 	 (some DBs do not offer direct BOOLEAN support)"
+
+	(anObject class = SSWDBAllocatedID and: [aClass = Number]) ifTrue: [^true].
 
 	^((anObject isKindOf: Boolean) and: [self sqlDialect trueObject class isKindOf: aClass])
 		or: [super shouldTranslate: anObject class: aClass]!
 
 sqlDialect
 
-	"18/9/2001 
-
-	Derive from the statement"
+	"Derive from the statement"
 
 	^self statement sqlDialect!
 
 statement
 
-	"16/8/2001 
-
-	statement stores the SSWODBC...Statement to which this field relates"
+	"statement stores the SSWODBC...Statement to which this field relates"
 
 	^statement!
 
 statement: anSSWODBCStatement
 
-	"16/8/2001 
-
-	statement stores the SSWODBC...Statement to which this field relates"
+	"statement stores the SSWODBC...Statement to which this field relates"
 
 	statement := anSSWODBCStatement! !
 !SSWODBCField categoriesFor: #initializeForColumn:!accessing!private! !
@@ -168,8 +162,6 @@ statement: anSSWODBCStatement
 !SSWODBCField class methodsFor!
 
 newForCol: aColAttr statement: anSSWODBCStatement
-
-	"18/9/2001"
 
 	^(self newForCol: aColAttr)
 		statement: anSSWODBCStatement;

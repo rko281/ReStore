@@ -6,7 +6,9 @@ SSWDBQueryTableField subclass: #SSWDBQueryIDField
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBQueryIDField guid: (GUID fromString: '{e0a20d08-a937-4c77-9bb7-e39c78770d2d}')!
-SSWDBQueryIDField comment: ''!
+SSWDBQueryIDField comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBQueryIDField categoriesForClass!Unclassified! !
 !SSWDBQueryIDField methodsFor!
 

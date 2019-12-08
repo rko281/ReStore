@@ -1,10 +1,8 @@
 ﻿| package |
 package := Package name: 'SSW ReStore Tables'.
 package paxVersion: 1;
-	basicComment: 'ReStore for Dolphin Smalltalk 
-Version 2.00
-©2003-2018 John Aspinall
-
+	basicComment: 'ReStore
+©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
 
@@ -19,6 +17,7 @@ package classNames
 	add: #SSWDBIDAccessor;
 	add: #SSWDBInheritedTable;
 	add: #SSWDBIntermediateTable;
+	add: #SSWDBNonParameterizedStaticField;
 	add: #SSWDBPrivateAccessor;
 	add: #SSWDBQueryField;
 	add: #SSWDBQueryTable;
@@ -37,8 +36,10 @@ package classNames
 
 package methodNames
 	add: #Class -> #defineAs:in:;
+	add: #Object -> #convertValue:;
 	add: #Object -> #dependent;
 	add: #Object -> #related;
+	add: #Object -> #targetClass;
 	add: #Object -> #unrelated;
 	add: #SSWDBClassWithInfo -> #defineAs:in:;
 	add: #SSWSQLCondition -> #copyForQueryTable:;
@@ -83,7 +84,7 @@ Object subclass: #SSWAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SSWDBClassDefinition
-	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar idCacheSize'
+	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -153,7 +154,7 @@ SSWDBRelatedWrapper subclass: #SSWDBDependentWrapper
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLTable subclass: #SSWDBTable
-	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs idCacheSize abbreviations reStore insertStatement readStatement refreshStatement readAllBatchSize'
+	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -163,7 +164,7 @@ SSWDBTable subclass: #SSWDBInheritedTable
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBInheritedTable subclass: #SSWDBAbstractSubTable
-	instanceVariableNames: 'rootClass'
+	instanceVariableNames: 'rootClass classCondition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -178,7 +179,7 @@ SSWDBAbstractSubTable subclass: #SSWDBIntermediateTable
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBAbstractSubTable subclass: #SSWDBSubTable
-	instanceVariableNames: 'classCondition'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -197,6 +198,11 @@ SSWDBField subclass: #SSWDBStaticField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWDBStaticField subclass: #SSWDBNonParameterizedStaticField
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 
 "Global Aliases"!
 
@@ -207,9 +213,7 @@ SSWDBField subclass: #SSWDBStaticField
 
 defineAs: aSymbol in: anSSWDBTable
 
-	"19/5/2001
-
-	The receiver has been specified as the kind of object held in inst var named aSymbol
+	"The receiver has been specified as the kind of object held in inst var named aSymbol
 	for the class whose DB table is anSSWDBTable.
 
 	Add the receiver to anSSWDBTable returning the object created"
@@ -219,11 +223,15 @@ defineAs: aSymbol in: anSSWDBTable
 
 !Object methodsFor!
 
+convertValue: aValue
+
+	"Field behaviour; needed when the result of a function is a fixed value"
+
+	^aValue!
+
 dependent
 
-	"17/8/2001
-
-	Return a dependent version of the receiver"
+	"Return a dependent version of the receiver"
 
 	^SSWDBDependentWrapper on: self
 
@@ -237,13 +245,21 @@ related
 
 !
 
+targetClass
+
+	"Required when a static value (e.g. String, Number) is used in place of a field (e.g. in a SQL function)"
+
+	^self class!
+
 unrelated
 
 	"Return an unrelated version of the receiver"
 
 	^SSWDBUnrelatedWrapper on: self! !
+!Object categoriesFor: #convertValue:!converting!public! !
 !Object categoriesFor: #dependent!defining!public! !
 !Object categoriesFor: #related!defining!public! !
+!Object categoriesFor: #targetClass!accessing!public! !
 !Object categoriesFor: #unrelated!defining!public! !
 
 !Object class methodsFor!
@@ -271,17 +287,13 @@ hasPersistentSuperclass
 
 isPersistencyInherited
 
-	"18/4/2001
-	
-	Return whether the receiver's persistency is inherited by any subclasses"
+	"Return whether the receiver's persistency is inherited by any subclasses"
 
 	^self subclassesInheritingPersistency isEmpty not!
 
 persistencyRootClass
 
-	"18/4/2001
-	
-	Return the superclass at which the receiver's inherited persistency begins.
+	"Return the superclass at which the receiver's inherited persistency begins.
 	ASSERT: self hasPersistentSuperclass"
 
 	^self allSuperclasses detect: [ :sup | sup reStoreTableClass == SSWDBSuperTable]!
@@ -303,10 +315,7 @@ reStoreDefinition
 
 reStoreTableClass
 
-	"Created 18/4/2001
-	Modified 26/7/2001	New intermediate table class (issue#0003)
-	
-	Deduce and return the correct class to use for the receiver's ReStore Table"
+	"Deduce and return the correct class to use for the receiver's ReStore Table"
 
 	^self hasPersistentSuperclass
 	ifTrue: 
@@ -320,9 +329,7 @@ reStoreTableClass
 
 shouldInheritPersistency
 
-	"18/4/2001
-	
-	Return a Boolean indicating whether the receiver should inherit persistence
+	"Return a Boolean indicating whether the receiver should inherit persistence
 	information defined by its superclasses.
 	
 	By default, this is governed by the superclass implementation of shouldSubclassesInheritPersistence"
@@ -331,9 +338,7 @@ shouldInheritPersistency
 
 shouldSubclassesInheritPersistency
 
-	"18/4/2001
-	
-	Return a Boolean indicating whether the receiver class' persistency 
+	"Return a Boolean indicating whether the receiver class' persistency 
 	should be inherited by its subclasses.
 	
 	Default - true. Can be overriden if required.
@@ -344,9 +349,7 @@ shouldSubclassesInheritPersistency
 
 subclassesInheritingPersistency
 
-	"18/4/2001
-	
-	Return a collection of those subclasses of the receiver class
+	"Return a collection of those subclasses of the receiver class
 	which are persistent and inherit the receiver's peristency - i.e. share a table"
 
 	| inheritingPersistentSubclasses |
@@ -384,9 +387,7 @@ tableIn: anSSWReStore
 
 defineAs: aSymbol in: anSSWDBTable
 
-	"19/5/2001
-
-	The receiver has been specified as the kind of object held in inst var named aSymbol
+	"The receiver has been specified as the kind of object held in inst var named aSymbol
 	for the class whose DB table is anSSWDBTable.
 
 	Add the receiver to anSSWDBTable returning the object created
@@ -426,14 +427,12 @@ copyForQueryTable: aQueryTable
 
 instVarAccessorFor: aClass
 
-	"30/9/2001
-
-	Create and return an inst var accessor (instance of SSWInstVarAccessor or subclass)
+	"Create and return an inst var accessor (instance of SSWInstVarAccessor or subclass)
 	appropriate for accessing an inst var holding an instance of the the given class"
 
 	"Special cases"
 	((aClass includesBehavior: String) and: [self shouldMapEmptyStringsToNil]) ifTrue: 
-		[^SSWTransformingInstVarAccessor newWithTransformation: ##(Message selector: #orNilIfEmpty)].
+		[^SSWTransformingInstVarAccessor newWithTransformation: (Message selector: #orNilIfEmpty)].
 
 	"Default"
 	^SSWInstVarAccessor new! !
@@ -452,9 +451,7 @@ add: anSSWDBTable joinedWithField: anSSWDBField
 
 addAliasingDuplicates: anSSWDBTable joinedWithField: anSSWDBField
 
-	"22/5/2001
-
-	Add the given table joined with the given field; return the table added.
+	"Add the given table joined with the given field; return the table added.
 	Unlike add:joinedWith:, duplicate occurrences of anSSWDBTable are not permitted
 	 - if anSSWDBTable already occurs in the receiver, then it is aliased"
 
@@ -492,9 +489,7 @@ lastJoinField
 
 occurrencesOfIncludingRepetitions: aTable
 
-	"22/5/2001
-
-	Return the number of occurrences of the given table in the receiver.
+	"Return the number of occurrences of the given table in the receiver.
 	Include any previous repetitions, disguised as QueryTables"
 
 	"Each table can appear only once as itself.

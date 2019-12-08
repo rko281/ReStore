@@ -1,0 +1,573 @@
+﻿| package |
+package := Package name: 'SSW ReStore Tests'.
+package paxVersion: 1;
+	basicComment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #DetailedPerson;
+	add: #DetailedPerson1;
+	add: #DetailedPerson2;
+	add: #GenericOwnedTest;
+	add: #GenericTest;
+	add: #MidPerson;
+	add: #OwnedTest;
+	add: #OwnerTest;
+	add: #ReStoreTestWithID;
+	add: #SimpleAddress;
+	add: #SimplePerson;
+	add: #SimplePerson2;
+	add: #SimpleProduct;
+	add: #SimpleProductOrder;
+	add: #SSWReStoreAbstractQueryTest;
+	add: #SSWReStoreAggregateQueryTest;
+	add: #SSWReStoreBlockAndOrQueryTest;
+	add: #SSWReStoreBlockIfNilQueryTest;
+	add: #SSWReStoreCollectionSubQueryTest;
+	add: #SSWReStoreCollectQueryTest;
+	add: #SSWReStoreCommitTests;
+	add: #SSWReStoreDataIDTest;
+	add: #SSWReStoreDefaultReadTest;
+	add: #SSWReStoreDefaultTest;
+	add: #SSWReStoreDefaultWriteTest;
+	add: #SSWReStoreDependentObjectTest;
+	add: #SSWReStoreDependentOrderedCollectionTest;
+	add: #SSWReStoreDependentOwnedOrderedCollectionTest;
+	add: #SSWReStoreDependentOwnedSortedCollectionTest;
+	add: #SSWReStoreDependentSortedCollectionTest;
+	add: #SSWReStoreFullTableTest;
+	add: #SSWReStoreFunctionTest;
+	add: #SSWReStoreGeneralAffiliationTest;
+	add: #SSWReStoreGeneralCollectionReadWithComponentsTest;
+	add: #SSWReStoreGeneralCollectionSubQueryTest;
+	add: #SSWReStoreGeneralTest;
+	add: #SSWReStoreGenericCollectionTest;
+	add: #SSWReStoreGenericNonRelatedCollectionTest;
+	add: #SSWReStoreGenericObjectTest;
+	add: #SSWReStoreGenericRelatedCollectionTest;
+	add: #SSWReStoreGenericTest;
+	add: #SSWReStoreHierarchyTest;
+	add: #SSWReStoreImplicitTrueQueryTest;
+	add: #SSWReStoreIsNilQueryTest;
+	add: #SSWReStoreJoinQueryTest;
+	add: #SSWReStoreNonRelatedDependentObjectTest;
+	add: #SSWReStoreNonRelatedDependentOrderedCollectionTest;
+	add: #SSWReStoreNonRelatedDependentOwnedOrderedCollectionTest;
+	add: #SSWReStoreNonRelatedDependentSortedCollectionTest;
+	add: #SSWReStoreNonRelatedObjectTest;
+	add: #SSWReStoreNonRelatedOrderedCollectionTest;
+	add: #SSWReStoreNonRelatedOwnedOrderedCollectionTest;
+	add: #SSWReStoreNonRelatedSortedCollectionTest;
+	add: #SSWReStoreNotNilQueryTest;
+	add: #SSWReStoreObjectAPITests;
+	add: #SSWReStoreOwnedCollectionReadWithComponentsTest;
+	add: #SSWReStoreOwnedCollectionSubQueryTest;
+	add: #SSWReStorePersonTest;
+	add: #SSWReStoreProcessAffiliationTest;
+	add: #SSWReStoreProductOrdersTest;
+	add: #SSWReStoreQueryByExampleTest;
+	add: #SSWReStoreQueryTest;
+	add: #SSWReStoreReadWithComponentsTest;
+	add: #SSWReStoreRefreshNoVersTest;
+	add: #SSWReStoreRefreshTest;
+	add: #SSWReStoreRelatedObjectTest;
+	add: #SSWReStoreRelatedOrderedCollectionTest;
+	add: #SSWReStoreRelatedOwnedOrderedCollectionTest;
+	add: #SSWReStoreRelatedOwnedSortedCollectionTest;
+	add: #SSWReStoreRelatedSortedCollectionTest;
+	add: #SSWReStoreRemoteTest;
+	add: #SSWReStoreSortTest;
+	add: #SSWReStoreSpeedTest;
+	add: #SSWReStoreSQLInjectionTest;
+	add: #SSWReStoreTableTest;
+	add: #SSWReStoreTest;
+	add: #SSWReStoreTransactionlessUpdateClashTest;
+	add: #SSWReStoreTypeTest;
+	add: #SSWReStoreUpdateClashTest;
+	add: #SSWReStoreUpdateClashTestPersistent;
+	add: #SubPerson;
+	add: #SuperPerson;
+	add: #Test;
+	add: #TypeTest;
+	yourself.
+
+package methodNames
+	add: #SSWReStore -> #simulateReconnect;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'SSW ReStore for Dolphin'
+	'SSW ReStore Main'
+	'SSW ReStore MVP'
+	'SSW ReStore Querying'
+	'SSW ReStore SQL Entities'
+	'..\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
+
+package setManualPrerequisites: #(
+	'SSW ReStore MVP').
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #GenericTest
+	instanceVariableNames: 'name component'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'componentDefinition'!
+Object subclass: #OwnerTest
+	instanceVariableNames: 'name number single1 single2 single3 ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #ReStoreTestWithID
+	instanceVariableNames: 'name nmbr other'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SimpleAddress
+	instanceVariableNames: 'line1 postcode'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SimplePerson
+	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SimplePerson2
+	instanceVariableNames: 'firstName forename surname emailAddress time friend bestFriend notes'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'useForename useBestFriend useLongNotes useNotes'!
+Object subclass: #SimpleProduct
+	instanceVariableNames: 'description supplierPrice retailPrice'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SimpleProductOrder
+	instanceVariableNames: 'customer product quantity date'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SuperPerson
+	instanceVariableNames: 'surname firstName'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #Test
+	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #TypeTest
+	instanceVariableNames: 'char varchar medText largeText unsizedText integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SuperPerson subclass: #DetailedPerson
+	instanceVariableNames: 'dob dateOfBirth friend bestFriend'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SuperPerson subclass: #DetailedPerson1
+	instanceVariableNames: 'friend2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SuperPerson subclass: #DetailedPerson2
+	instanceVariableNames: 'dob dateOfBirth friend bestFriend notes'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'useDateOfBirth useBestFriend useLongNotes'!
+SuperPerson subclass: #MidPerson
+	instanceVariableNames: 'middleName'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+MidPerson subclass: #SubPerson
+	instanceVariableNames: 'age'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Test subclass: #GenericOwnedTest
+	instanceVariableNames: 'owner deepTest'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Test subclass: #OwnedTest
+	instanceVariableNames: 'owner'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TestCase subclass: #SSWReStoreTest
+	instanceVariableNames: 'reStore'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'queryCount'!
+SSWReStoreTest subclass: #SSWReStoreDataIDTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreGeneralTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreGenericTest
+	instanceVariableNames: 'testObject reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreHierarchyTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreImplicitTrueQueryTest
+	instanceVariableNames: 'instances'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreObjectAPITests
+	instanceVariableNames: 'reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStorePersonTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreRefreshTest
+	instanceVariableNames: 'reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreRemoteTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreTypeTest
+	instanceVariableNames: 'date time datetime'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreUpdateClashTest
+	instanceVariableNames: 'reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreUpdateClashTestPersistent
+	instanceVariableNames: 'reStore2 singleA1 singleB1 singleC1 singleA2 singleB2 singleC2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericTest subclass: #SSWReStoreGenericCollectionTest
+	instanceVariableNames: 'collection'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericTest subclass: #SSWReStoreGenericObjectTest
+	instanceVariableNames: 'component'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericCollectionTest subclass: #SSWReStoreGenericNonRelatedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericCollectionTest subclass: #SSWReStoreGenericRelatedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericNonRelatedCollectionTest subclass: #SSWReStoreNonRelatedOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericNonRelatedCollectionTest subclass: #SSWReStoreNonRelatedOwnedOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericNonRelatedCollectionTest subclass: #SSWReStoreNonRelatedSortedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreNonRelatedOrderedCollectionTest subclass: #SSWReStoreNonRelatedDependentOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreNonRelatedOwnedOrderedCollectionTest subclass: #SSWReStoreNonRelatedDependentOwnedOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreNonRelatedSortedCollectionTest subclass: #SSWReStoreNonRelatedDependentSortedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedOwnedOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedSortedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedOrderedCollectionTest subclass: #SSWReStoreDependentOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedOwnedOrderedCollectionTest subclass: #SSWReStoreDependentOwnedOrderedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedOwnedOrderedCollectionTest subclass: #SSWReStoreRelatedOwnedSortedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedOwnedSortedCollectionTest subclass: #SSWReStoreDependentOwnedSortedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedSortedCollectionTest subclass: #SSWReStoreDependentSortedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericObjectTest subclass: #SSWReStoreNonRelatedObjectTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericObjectTest subclass: #SSWReStoreRelatedObjectTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreNonRelatedObjectTest subclass: #SSWReStoreNonRelatedDependentObjectTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedObjectTest subclass: #SSWReStoreDependentObjectTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStorePersonTest subclass: #SSWReStoreAbstractQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStorePersonTest subclass: #SSWReStoreCommitTests
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStorePersonTest subclass: #SSWReStoreSpeedTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStorePersonTest subclass: #SSWReStoreTableTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreDefaultTest
+	instanceVariableNames: 'reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryByExampleTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreSortTest
+	instanceVariableNames: 'simplePersonCompareMethod'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreSQLInjectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDefaultTest subclass: #SSWReStoreDefaultReadTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDefaultTest subclass: #SSWReStoreDefaultWriteTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDefaultTest subclass: #SSWReStoreGeneralAffiliationTest
+	instanceVariableNames: 'reStore3 sessionHolder'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDefaultTest subclass: #SSWReStoreProcessAffiliationTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreBlockAndOrQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreBlockIfNilQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreCollectQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreFunctionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreIsNilQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreJoinQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreNotNilQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreQueryTest subclass: #SSWReStoreProductOrdersTest
+	instanceVariableNames: 'widget gadget wobulator customer1 customer2 customer3 customer4'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreProductOrdersTest subclass: #SSWReStoreAggregateQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreProductOrdersTest subclass: #SSWReStoreCollectionSubQueryTest
+	instanceVariableNames: 'customers goldPlatedWobulator'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreProductOrdersTest subclass: #SSWReStoreReadWithComponentsTest
+	instanceVariableNames: 'customers'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreCollectionSubQueryTest subclass: #SSWReStoreGeneralCollectionSubQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreCollectionSubQueryTest subclass: #SSWReStoreOwnedCollectionSubQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreReadWithComponentsTest subclass: #SSWReStoreGeneralCollectionReadWithComponentsTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreReadWithComponentsTest subclass: #SSWReStoreOwnedCollectionReadWithComponentsTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTableTest subclass: #SSWReStoreFullTableTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRefreshTest subclass: #SSWReStoreRefreshNoVersTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreUpdateClashTest subclass: #SSWReStoreTransactionlessUpdateClashTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!SSWReStore methodsFor!
+
+simulateReconnect
+
+	"Simultate a disconnect; reconnect sequence of the receiver, however do not cycle the connection.
+	This is to allow data to be preserved by transirent in-memory test databases (e.g. SQLite :memory: mode)"
+	
+	"Disconnect"
+	self
+		clearProxyCache;
+		clearNextIDCache;
+		clearTransaction;
+		clearDBTableNames;
+		clearStatementCache.
+	self class deactivated: self.
+
+	"Reconnect"
+	self objectProxyClass isNil ifTrue: [self setDefaultTransactionMode].
+	self transactionMutex: Mutex new.
+	self class activated: self.
+	self persistentSystemClasses do: [ :each | self addClass: each]! !
+!SSWReStore categoriesFor: #simulateReconnect!connection!public! !
+
+"End of package definition"!
+

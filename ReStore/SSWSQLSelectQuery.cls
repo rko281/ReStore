@@ -6,15 +6,15 @@ SSWSQLConditionalQuery subclass: #SSWSQLSelectQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLSelectQuery guid: (GUID fromString: '{6266c934-3983-11d5-b1df-444553540000}')!
-SSWSQLSelectQuery comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLSelectQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLSelectQuery categoriesForClass!Unclassified! !
 !SSWSQLSelectQuery methodsFor!
 
 actualFields
 
-	"28/9/2000
-	
-	If the receiver represents the selection of all fields from multiple tables, 
+	"If the receiver represents the selection of all fields from multiple tables, 
 	then special fields must be used"
 
 	^(self fields isAll and: [self tables size > 1])
@@ -33,35 +33,27 @@ asAggregatedQuery
 
 field: anSSWDBField
 
-	"21/1/2001
-	
-	Set a single field as the result field for the receiver"
+	"Set a single field as the result field for the receiver"
 
 	^self fields: (SSWSQLFieldCollection with: anSSWDBField)!
 
 fieldAliases
 
-	"26/4/2002 
-
-	fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
+	"fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
 	assigned to that field by the receiver"
 
 	^fieldAliases!
 
 fieldAliases: anIdentityDictionary
 
-	"26/4/2002 
-
-	fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
+	"fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
 	assigned to that field by the receiver"
 
 	fieldAliases := anIdentityDictionary!
 
 fieldNamed: aString
 
-	"25/4/2002
-
-	Return the field with the given name (which must be an alias if the receiver has fieldAliases)"
+	"Return the field with the given name (which must be an alias if the receiver has fieldAliases)"
 
 	^self fieldAliases isNil
 	ifTrue: 
@@ -72,18 +64,14 @@ fieldNamed: aString
 
 fields
 
-	"5/8/2000
-	
-	fields stores the collection of SSWSQLFields read by the receiver.
+	"fields stores the collection of SSWSQLFields read by the receiver.
 	This is stored as an SSWSQLFieldCollection"
 	
 	^fields!
 
 fields: anSSWSQLFieldCollection
 
-	"5/8/2000
-	
-	fields stores the collection of SSWSQLFields read by the receiver.
+	"fields stores the collection of SSWSQLFields read by the receiver.
 	This is stored as an SSWSQLFieldCollection"
 	
 	fields := anSSWSQLFieldCollection!
@@ -94,15 +82,11 @@ hasOrdering
 
 isReadQuery
 
-	"19/8/2000"
-	
 	^true!
 
 preExecIn: anSSWReStore
 
-	"27/4/2002
-
-	The receiver is about to be executed in anSSWReStore.
+	"The receiver is about to be executed in anSSWReStore.
 	Carry out pre-exec validation"
 
 	"If querying for generalised all fields in one table, replace with the true 'all fields in table' object"
@@ -118,8 +102,6 @@ preExecIn: anSSWReStore
 			fullTable])!
 
 writeSQLOn: aStream
-
-	"5/8/2000"
 
 	aStream nextPutAll: 'SELECT '.
 
@@ -152,8 +134,6 @@ writeSQLOn: aStream
 
 new
 
-	"14/8/2000"
-	
 	^super new
 		fields: SSWSQLFieldCollection new;
 		yourself! !

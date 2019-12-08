@@ -6,7 +6,9 @@ SSWDBWrapper subclass: #SSWDBObjectWithComponents
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBObjectWithComponents guid: (GUID fromString: '{20b24c39-7603-434e-ac26-ff0b6be81ede}')!
-SSWDBObjectWithComponents comment: ''!
+SSWDBObjectWithComponents comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBObjectWithComponents categoriesForClass!Unclassified! !
 !SSWDBObjectWithComponents methodsFor!
 
@@ -150,5 +152,5 @@ new
 	^super new
 		exclusions: IdentitySet new;
 		yourself! !
-!SSWDBObjectWithComponents class categoriesFor: #new!public! !
+!SSWDBObjectWithComponents class categoriesFor: #new!instance creation!public! !
 

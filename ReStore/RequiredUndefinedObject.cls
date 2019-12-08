@@ -6,7 +6,9 @@ Object subclass: #RequiredUndefinedObject
 	poolDictionaries: ''
 	classInstanceVariableNames: 'soleInstance'!
 RequiredUndefinedObject guid: (GUID fromString: '{2abef0f0-30cf-4b9b-b857-72f45a62297d}')!
-RequiredUndefinedObject comment: ''!
+RequiredUndefinedObject comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !RequiredUndefinedObject categoriesForClass!Kernel-Objects! !
 !RequiredUndefinedObject methodsFor!
 
@@ -20,7 +22,7 @@ hash
 
 isRequiredForSimilarity
 
-	"Private - This is the purpose of the receiver"
+	"This is the purpose of the receiver"
 	^true!
 
 orNilIfEmpty
@@ -35,16 +37,21 @@ qualify: instances in: aReStore via: aCollection
 
 	^instances qualifyWith: [ :each | (each chainPerform: aCollection) = nil]!
 
-writeSQLOn: aStream
+reStoreValue
 
-	nil writeSQLOn: aStream! !
-!RequiredUndefinedObject categoriesFor: #=!accessing!public!testing! !
-!RequiredUndefinedObject categoriesFor: #hash!accessing!public!testing! !
-!RequiredUndefinedObject categoriesFor: #isRequiredForSimilarity!accessing!private!testing! !
+	^nil!
+
+writeSQLOn: aStream forCondition: aSQLCondition
+
+	nil writeSQLOn: aStream forCondition: aSQLCondition! !
+!RequiredUndefinedObject categoriesFor: #=!comparing!public! !
+!RequiredUndefinedObject categoriesFor: #hash!comparing!public! !
+!RequiredUndefinedObject categoriesFor: #isRequiredForSimilarity!public!testing! !
 !RequiredUndefinedObject categoriesFor: #orNilIfEmpty!accessing!public! !
 !RequiredUndefinedObject categoriesFor: #printOn:!printing!public! !
 !RequiredUndefinedObject categoriesFor: #qualify:in:via:!accessing!public! !
-!RequiredUndefinedObject categoriesFor: #writeSQLOn:!printing!public! !
+!RequiredUndefinedObject categoriesFor: #reStoreValue!accessing!public! !
+!RequiredUndefinedObject categoriesFor: #writeSQLOn:forCondition:!printing!public! !
 
 !RequiredUndefinedObject class methodsFor!
 

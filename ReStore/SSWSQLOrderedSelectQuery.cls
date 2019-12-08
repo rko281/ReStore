@@ -6,7 +6,9 @@ SSWSQLSelectQuery subclass: #SSWSQLOrderedSelectQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLOrderedSelectQuery guid: (GUID fromString: '{6266c935-3983-11d5-b1df-444553540000}')!
-SSWSQLOrderedSelectQuery comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLOrderedSelectQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLOrderedSelectQuery categoriesForClass!Unclassified! !
 !SSWSQLOrderedSelectQuery methodsFor!
 
@@ -20,30 +22,22 @@ hasOrdering
 
 orderAscendingBy: anSSWSQLDatabaseField
 
-	"18/9/2000"
-	
 	self orderingSpecs add: (SSWDBOrderingSpec ascending: anSSWSQLDatabaseField)!
 
 orderDescendingBy: anSSWSQLDatabaseField
 
-	"18/9/2000"
-	
 	self orderingSpecs add: (SSWDBOrderingSpec descending: anSSWSQLDatabaseField)!
 
 orderingSpecs
 
-	"18/9/2000
-	
-	orderingSpecs stores an OrderedCollection of SSWDBOrderingSpecs
+	"orderingSpecs stores an OrderedCollection of SSWDBOrderingSpecs
 	which define the ordering used by this query (criteria is an SSWDBField)"
 	
 	^orderingSpecs!
 
 orderingSpecs: anOrderedCollection
 
-	"18/9/2000
-	
-	orderingSpecs stores an OrderedCollection of SSWDBOrderingSpecs
+	"orderingSpecs stores an OrderedCollection of SSWDBOrderingSpecs
 	which define the ordering used by this query (criteria is an SSWDBField)"
 	
 	orderingSpecs := anOrderedCollection!
@@ -84,8 +78,6 @@ writeUnorderedSQLOn: aStream
 
 new
 
-	"18/9/2000"
-	
 	^super new
 		orderingSpecs: OrderedCollection new;
 		yourself! !

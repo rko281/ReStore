@@ -1,10 +1,8 @@
 ﻿| package |
 package := Package name: 'SSW ReStore MVP'.
 package paxVersion: 1;
-	basicComment: 'ReStore for Dolphin Smalltalk 
-Version 2.00
-©2003-2018 John Aspinall
-
+	basicComment: 'ReStore
+©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
 
@@ -13,7 +11,7 @@ package methodNames
 	add: #ListModel -> #_collectionAdditions;
 	add: #ListModel -> #directAdd:;
 	add: #ListModel -> #directAdd:suggestedIndex:;
-	add: #ListModel -> #isSorted;
+	add: #ListModel -> #isSortedCollection;
 	add: #ListModel -> #onRefresh;
 	add: #ListModel -> #onRollback;
 	add: #ListModel -> #ownedCollectionSpecClass;
@@ -47,44 +45,34 @@ package!
 
 _changesFrom: anOrderedCollection
 
-	"Private - 20/5/2001
-
-	Ask the contained collection"
+	"Ask the contained collection"
 
 	^list _changesFrom: anOrderedCollection!
 
 _collectionAdditions
 
-	"Private - 20/5/2001
-
-	Ask the contained collection"
+	"Ask the contained collection"
 
 	^list _collectionAdditions
 !
 
 directAdd: anObject
 
-	"Private - 16/4/2001
-
-	Forward to the list (avoiding event triggering)"
+	"Forward to the list (avoiding event triggering)"
 
 	^self list directAdd: anObject
 !
 
 directAdd: anObject suggestedIndex: anInteger
 
-	"Private - 16/4/2001
-
-	Forward to the list (avoiding event triggering)"
+	"Forward to the list (avoiding event triggering)"
 
 	^self list directAdd: anObject
 !
 
-isSorted
+isSortedCollection
 
-	"27/4/2001"
-
-	^self list isSorted
+	^self list isSortedCollection
 !
 
 onRefresh
@@ -95,17 +83,13 @@ onRefresh
 
 onRollback
 
-	"25/4/2002
-
-	When a ListModel is rolled back, it should notify interested parties of the change"
+	"When a ListModel is rolled back, it should notify interested parties of the change"
 
 	self trigger: #listChanged!
 
 ownedCollectionSpecClass 
 
-	"Private - 16/4/2001
-
-	Defer to the actual collection"
+	"Defer to the actual collection"
 
 	^self list ownedCollectionSpecClass 
 
@@ -113,9 +97,7 @@ ownedCollectionSpecClass
 
 staticCollectionSpecClass 
 
-	"Private - 16/4/2001
-
-	Defer to the actual collection"
+	"Defer to the actual collection"
 
 	^self list staticCollectionSpecClass
 
@@ -124,7 +106,7 @@ staticCollectionSpecClass
 !ListModel categoriesFor: #_collectionAdditions!comparing!private! !
 !ListModel categoriesFor: #directAdd:!adding!private! !
 !ListModel categoriesFor: #directAdd:suggestedIndex:!adding!private! !
-!ListModel categoriesFor: #isSorted!public!testing! !
+!ListModel categoriesFor: #isSortedCollection!public!testing! !
 !ListModel categoriesFor: #onRefresh!event handling!public! !
 !ListModel categoriesFor: #onRollback!event handling!public! !
 !ListModel categoriesFor: #ownedCollectionSpecClass!constants!private! !

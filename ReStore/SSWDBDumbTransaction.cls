@@ -6,15 +6,15 @@ SSWDBAbstractSingleTransaction subclass: #SSWDBDumbTransaction
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBDumbTransaction guid: (GUID fromString: '{03578021-659b-11d5-b1df-0010a70883e2}')!
-SSWDBDumbTransaction comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBDumbTransaction comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBDumbTransaction categoriesForClass!Unclassified! !
 !SSWDBDumbTransaction methodsFor!
 
 canCommit
 
-	"22/4/2001
-	
-	The purpose of the receiver is to absorb objects traversed when not in a 'real' transaction.
+	"The purpose of the receiver is to absorb objects traversed when not in a 'real' transaction.
 	As such, it cannot commit any changes"
 	
 	^false!
@@ -38,9 +38,7 @@ hasFailedCommit
 
 isDumb
 
-	"22/4/2001
-	
-	The purpose of the receiver is to absorb objects traversed when not in a 'real' transaction.
+	"The purpose of the receiver is to absorb objects traversed when not in a 'real' transaction.
 	As such, it is a dumb transaction"
 	
 	^true!

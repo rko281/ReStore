@@ -6,21 +6,19 @@ SSWDBCollectionChange subclass: #SSWDBCollectionAddition
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCollectionAddition guid: (GUID fromString: '{5a3e3dc7-3990-11d5-b1df-444553540000}')!
-SSWDBCollectionAddition comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBCollectionAddition comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBCollectionAddition categoriesForClass!Unclassified! !
 !SSWDBCollectionAddition methodsFor!
 
 applyTo: aCollection
 
-	"21/4/2001"
-	
 	self affectedEntry addTo: aCollection!
 
 commitFor: aCollectionProxy
 
-	"22/9/2000"
-	
-"	self affectedEntry target isNil
+	"	self affectedEntry target isNil
 		ifTrue: [self affectedEntry targetID: nil]
 		ifFalse: [self affectedEntry targetID: self affectedEntry target _id]."
 
@@ -28,8 +26,6 @@ commitFor: aCollectionProxy
 
 prepareToCommitFor: aCollectionProxy
 
-	"21/4/2001"
-	
 	| table |
 
 	super prepareToCommitFor: aCollectionProxy.
@@ -41,7 +37,7 @@ prepareToCommitFor: aCollectionProxy
 	self affectedEntry 
 		table: table;
 		sourceID: aCollectionProxy _ownerID;
-		entryID: (aCollectionProxy _reStore nextIDForTable: table)! !
+		entryID: (aCollectionProxy _reStore allocateIDFor: self affectedEntry in: table)! !
 !SSWDBCollectionAddition categoriesFor: #applyTo:!actions!public! !
 !SSWDBCollectionAddition categoriesFor: #commitFor:!actions!public! !
 !SSWDBCollectionAddition categoriesFor: #prepareToCommitFor:!actions!public! !
@@ -49,8 +45,6 @@ prepareToCommitFor: aCollectionProxy
 !SSWDBCollectionAddition class methodsFor!
 
 added: anObject at: keyObject
-
-	"20/5/2001"
 
 	^self newWithEntry:
 		(SSWDBKeyedCollectionEntry new

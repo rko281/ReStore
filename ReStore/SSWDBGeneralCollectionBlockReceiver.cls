@@ -6,7 +6,9 @@ SSWDBCollectionBlockReceiver subclass: #SSWDBGeneralCollectionBlockReceiver
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBGeneralCollectionBlockReceiver guid: (GUID fromString: '{23663306-2fe8-4b00-bab4-1ada2a9baeb2}')!
-SSWDBGeneralCollectionBlockReceiver comment: ''!
+SSWDBGeneralCollectionBlockReceiver comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBGeneralCollectionBlockReceiver categoriesForClass!Unclassified! !
 !SSWDBGeneralCollectionBlockReceiver methodsFor!
 

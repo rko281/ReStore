@@ -6,7 +6,9 @@ SSWSQLQuery subclass: #SSWSQLSubQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLSubQuery guid: (GUID fromString: '{0f2149cd-5dfa-413d-903b-854fa3a10dfa}')!
-SSWSQLSubQuery comment: ''!
+SSWSQLSubQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLSubQuery categoriesForClass!Kernel-Objects! !
 !SSWSQLSubQuery methodsFor!
 

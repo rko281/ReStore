@@ -1,0 +1,601 @@
+﻿| package |
+package := Package name: 'SSW ReStore for Dolphin'.
+package paxVersion: 1;
+	basicComment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'.
+
+
+package methodNames
+	add: #BlockFrame -> #_method:;
+	add: #CompiledCode -> #readsOrWritesAnyInstVar;
+	add: #CompiledCode -> #sswByteCodeDispatcher;
+	add: #CompiledCode -> #sswReadsInstVar:at:;
+	add: #CompiledCode -> #sswWritesInstVar:at:;
+	add: #DateAndTime -> #withResolution:;
+	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
+	add: #SSWDBBlockArgument -> #postProcessDNU:;
+	add: #SSWDBBlockArgument -> #postProcessDNU:from:;
+	add: #SSWDBBlockArgument -> #postProcessIfNilFor:in:at:;
+	add: #SSWDBBlockArgument -> #preProcessNextMessageFor:in:;
+	add: #SSWDBBlockArgument -> #simulateMessageSend:;
+	add: #SSWDBBlockParser -> #handleMustBeBooleanIn:;
+	add: #SSWDBProxy -> #_allReferences;
+	add: #SSWDBProxy -> #_proxyClass;
+	add: #SSWDBProxy -> #_proxyInstVarAt:;
+	add: #SSWDBQueryCondition -> #mustBeBoolean;
+	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
+	add: #SSWMSAccessDialect -> #dialectReservedWords;
+	add: #SSWPostgreSQLDialect -> #legacyNameTransformationFor:with:;
+	add: #SSWReStore -> #binaryStoreOn:;
+	add: #SSWReStore -> #connectString:;
+	add: #SSWReStore -> #createConnection;
+	add: #SSWReStore -> #dsn:;
+	add: #SSWReStore -> #openODBC;
+	add: #SSWReStore -> #pwd:;
+	add: #SSWReStore -> #uid:;
+	add: #SSWSQLDialect -> #dialectReservedWords;
+	add: #SSWSQLDialect -> #isReservedWord:;
+	add: #SSWSQLDialect -> #legacyNameTransformationFor:with:;
+	add: #SSWSQLDialect -> #useLegacyNameTransformations;
+	add: #StackFrame -> #_method:;
+	add: #StackFrame -> #sswByteCodeDispatcher;
+	yourself.
+
+package globalNames
+	add: #ReStore;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	add: #ReStore;
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'SSW ReStore Main'
+	'SSW ReStore ODBC'
+	'SSW ReStore Querying'
+	'SSW ReStore SQL Entities'
+	'..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell').
+
+package!
+
+"Class Definitions"!
+
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!BlockFrame methodsFor!
+
+_method: aCompiledMethod 
+
+	super method: aCompiledMethod! !
+!BlockFrame categoriesFor: #_method:!accessing!private! !
+
+!CompiledCode methodsFor!
+
+readsOrWritesAnyInstVar
+
+	1 to: self methodClass instSize do: 
+		[ :index | 
+		(self sswReadsInstVar: 'dummy' at: index) ifTrue: [^true].
+		(self sswWritesInstVar: 'dummy' at: index) ifTrue: [^true]].
+
+	^false!
+
+sswByteCodeDispatcher
+	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
+
+	"Private - Answer a <ByteCodeDispatcher> on the receiver."
+
+	^ByteCodeDispatcher on: self!
+
+sswReadsInstVar: aString at: anInteger 
+	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
+
+	"Answer whether the receiver accesses the instance variable named, aString, which
+	is the instance variable of its method class with the specified <integer> index."
+
+	| extra |
+	extra := self extraIndex.
+	^((extra between: 1 and: 5) or: [extra == 7]) not 
+		and: [self sswByteCodeDispatcher readsInstVarAt: anInteger]!
+
+sswWritesInstVar: aString at: anInteger  
+	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
+
+	"Answer whether the receiver accesses the instance variable named, aString, which
+	is the instance variable of its method class with the specified <integer> index."
+
+	^(self extraIndex between: 1 and: 6) not 
+		and: [self sswByteCodeDispatcher writesInstVarAt: anInteger]! !
+!CompiledCode categoriesFor: #readsOrWritesAnyInstVar!public!testing! !
+!CompiledCode categoriesFor: #sswByteCodeDispatcher!accessing!private! !
+!CompiledCode categoriesFor: #sswReadsInstVar:at:!public!testing! !
+!CompiledCode categoriesFor: #sswWritesInstVar:at:!public!testing! !
+
+!DateAndTime methodsFor!
+
+withResolution: anInteger
+
+	"Return a copy of the receiver with the resolution (number of fractional digits) anInteger, i.e. 0 for seconds resolution, 3 for milliseconds etc."
+
+	| multplier |
+
+	multplier := 10 ** anInteger.
+
+	^##(self) new
+		setRataDie: rataDie 
+		seconds: ((seconds * multplier) truncated / multplier)
+		offset: offset! !
+!DateAndTime categoriesFor: #withResolution:!accessing!public! !
+
+!SSWDBBlockArgument methodsFor!
+
+isJumpOnNilBytecode: anInteger
+
+	^##(Array with: OpcodePool.NearJumpIfNil with: OpcodePool.NearJumpIfNotNil with: OpcodePool.LongJumpIfNil with: OpcodePool.LongJumpIfNotNil) includes: anInteger!
+
+postProcessDNU: anObject
+
+	^self postProcessDNU: anObject from: Processor activeProcess topFrame sender sender!
+
+postProcessDNU: anObject from: aStackFrame
+
+	"Following doesNotUnderstand: handling, pre-check the next bytecode to be executed in the sending stack frame.
+	This is necessary to detect the following inlined message combinations:
+		isNil
+		notNil
+		isNil and: [...]
+		isNil or: [...]
+		notNil and: [...]
+		notNil or: [...]
+	If these are detected, the isNil/notNil condition is added to the query result and subsequent query processing is modified accordingly"
+
+	| bytecodes ip nextBytecode isJumpIfNil isLongJump checkOffset jumpOffset postCheckBytecode preJumpBytecode postJumpBytecode trueBytecode falseBytecode postCheckResult preJumpResult postJumpResult isNil method |
+
+	bytecodes := aStackFrame method byteCodes.
+	ip := aStackFrame ip.
+	nextBytecode := bytecodes at: ip.
+
+	"Check for Break bytecode - means we are debugging; need to skip it"
+	(nextBytecode = OpcodePool.Break) ifTrue: 
+		[ip := ip + ##(ByteCodeDispatcher lengthOfInstruction: OpcodePool.Break).
+		nextBytecode := bytecodes at: ip].
+
+	"isNil / notNil in isolation - evaluate as standard = / ~= nil and skip the next bytecode"
+	nextBytecode = OpcodePool.ShortSendIsNil ifTrue: 
+		[aStackFrame ip: ip + ##(ByteCodeDispatcher lengthOfInstruction: OpcodePool.ShortSendIsNil).
+		^anObject = nil].
+	nextBytecode = OpcodePool.ShortSendNotNil ifTrue: 
+		[aStackFrame ip: ip + ##(ByteCodeDispatcher lengthOfInstruction: OpcodePool.ShortSendNotNil).
+		^anObject ~= nil].
+
+	"ifNil: compiles down to a Dup followed byt a JumpIfNil bytecode"
+	nextBytecode = OpcodePool.Dup ifTrue: 
+		[nextBytecode := bytecodes at: (ip + 1).
+		nextBytecode = OpcodePool.LongJumpIfNotNil ifTrue: [self error: 'ifNil: with long jump in query block - cannot handle'].
+		nextBytecode = OpcodePool.NearJumpIfNotNil ifTrue: [^self postProcessIfNilFor: anObject in: aStackFrame at: ip + 1]].
+
+	"isNil / notNil followed by and: / or: compile down to a JumpIf(Not)Nil bytecode - this requires special handling"
+	(self isJumpOnNilBytecode: nextBytecode) ifFalse: [^self preProcessNextMessageFor: anObject in: aStackFrame].
+
+	"There are 8(!!) different known possibilities to consider when deciding if this is an isNil or notNil test:
+
+	 - JumpIfNil to ^True = isNil
+	 - JumpIfNil to ^False = notNil
+	 - JumpIfNil to other bytecode with ^True in the jumped-over code = notNil
+	 - JumpIfNil to other bytecode without ^True in the jumped-over code = isNil
+
+	 - JumpIfNotNil to ^True = notNil
+	 - JumpIfNotNil to ^False = isNil
+	 - JumpIfNotNil to other bytecode with ^True in the jumped-over code = isNil
+	 - JumpIfNotNil to other bytecode without ^True in the jumped-over code = notNil
+
+	Presumably these could change with a change in the compiler, so we have full SUnit coverage for all combinations"
+
+	checkOffset := ByteCodeDispatcher lengthOfInstruction: nextBytecode.
+	isJumpIfNil := (nextBytecode = OpcodePool.NearJumpIfNil or: [nextBytecode = OpcodePool.LongJumpIfNil]).
+	isLongJump := (nextBytecode = OpcodePool.LongJumpIfNotNil or: [nextBytecode = OpcodePool.LongJumpIfNil]).
+
+	isLongJump
+		ifTrue: [jumpOffset := checkOffset + (bytecodes swordAtOffset: ip)] 
+		ifFalse: [jumpOffset := checkOffset + (bytecodes sbyteAtOffset: ip)].
+
+	"Result bytecodes differ between block frames (push result, jump/return) and method frames (return result)"
+	postCheckBytecode := bytecodes at: (ip + checkOffset).
+	postJumpBytecode := bytecodes at: (ip + jumpOffset).
+	aStackFrame isBlockFrame
+	ifTrue: 
+		[preJumpBytecode := bytecodes at: (ip + jumpOffset - ##((ByteCodeDispatcher lengthOfInstruction: OpcodePool.PushPseudo) + ##(ByteCodeDispatcher lengthOfInstruction: OpcodePool.ReturnFromBlock))).
+		trueBytecode := OpcodePool.PushPseudo "PushTrue".
+		falseBytecode := ##(OpcodePool.PushPseudo + 1) "PushFalse"]
+	ifFalse: 
+		[preJumpBytecode := bytecodes at: (ip + jumpOffset - ##(ByteCodeDispatcher lengthOfInstruction: OpcodePool.ReturnPseudo)).
+		trueBytecode := OpcodePool.ReturnPseudo. "ReturnTrue"
+		falseBytecode := OpcodePool.ReturnFalse].
+
+	postCheckBytecode = trueBytecode ifTrue: [postCheckResult := true].
+	preJumpBytecode = trueBytecode ifTrue: [preJumpResult := true].
+	postJumpBytecode = falseBytecode ifTrue: [postJumpResult := false].
+
+	(postJumpResult == false or: [postCheckResult == true or: [preJumpResult == true]])
+		ifTrue: [isNil := isJumpIfNil not]
+		ifFalse: [isNil := isJumpIfNil].
+
+	isNil ifFalse: [isJumpIfNil := isJumpIfNil not].
+
+	"Replace the JumpIf(Not)Nil with a JumpIfFalse to avoid shortcutting of the and: / or: block"	
+	bytecodes := bytecodes copy.
+
+	isLongJump
+		ifTrue: [bytecodes at: ip put: (isJumpIfNil ifTrue: [OpcodePool.LongJumpIfTrue] ifFalse: [OpcodePool.LongJumpIfFalse])]
+		ifFalse: [bytecodes at: ip put: (isJumpIfNil ifTrue: [OpcodePool.NearJumpIfTrue] ifFalse: [OpcodePool.NearJumpIfFalse])].
+
+	method := aStackFrame method copy.
+	method setByteCodes: bytecodes.
+	aStackFrame _method: method.
+
+	^isNil 
+		ifTrue: [anObject = nil]
+		ifFalse: [anObject ~= nil]!
+
+postProcessIfNilFor: anObject in: aStackFrame at: ip
+
+	"ifNil: bytecodes consist of:
+		Push test case
+		Dup
+		JumpIfNil to after block
+		Block bytecodes beginning Pop
+		<continues>.
+
+	We handle this by rewriting as: 
+		Push test case
+		Dup
+		Block bytecodes beginning Pop
+		send isNull: 
+		<continues>
+
+	Note this is only (relatively easily) possible since the (Near)JumpIfNil consits of two bytes, and the send isNull: also consists of two bytes (if the method isn't too large)"
+
+	| method isNilIndex newMethod bytecodes newBytecodes blockLength blockStart blockEnd newBlockStart newBlockEnd |
+
+	method := aStackFrame method.
+	isNilIndex := method literals indexOf: #ifNil:.
+	(isNilIndex between: 1 and: 31) ifFalse: [self error: 'cannot handle ifNil: in this query block - try refactoring into a smaller method'].
+
+	bytecodes := method byteCodes.
+	blockLength := bytecodes at: ip + 1.
+	blockStart := ip + 2.
+	blockEnd := blockStart + blockLength - 1.
+
+	"Check for follow-on ifNotNil: block - we can't handle this (yet?)"
+	(((bytecodes at: blockEnd) between: OpcodePool.ShortJump and: ##(OpcodePool.ShortJump + 7)) or: [(bytecodes at: blockEnd - 1) = OpcodePool.NearJump or: [(bytecodes at: blockEnd -2) = OpcodePool.LongJump]]) ifTrue: [self error: 'cannnot handle ifNil:ifNotNil: in query block'].
+
+	newBlockStart := ip.
+	newBlockEnd := newBlockStart + blockLength - 1.
+
+	newMethod := method copy.
+	newBytecodes := bytecodes copyReplaceFrom: newBlockStart to: newBlockEnd with: (bytecodes copyFrom: blockStart to: blockEnd).
+	newBytecodes 
+		at: newBlockEnd + 1 put: OpcodePool.Send;
+		at: newBlockEnd + 2 put: isNilIndex + 31.
+
+	newMethod setByteCodes: newBytecodes.
+	aStackFrame _method: newMethod.
+
+	^anObject!
+
+preProcessNextMessageFor: anObject in: aStackFrame
+
+	"Check if the next message needs special handling, usually due to anObject (block evaluator) being an argument rather than the receiver"
+
+	| dispatcher nextMessage |
+
+	dispatcher := aStackFrame sswByteCodeDispatcher.
+	nextMessage := dispatcher peekForSelector.
+
+	"Collection>>includes: -> self>>includedIn:"
+	(nextMessage = #includes: and: [(anObject isKindOf: SSWDBCollectionBlockReceiver) not]) ifTrue: 
+		[aStackFrame ip: dispatcher ip.
+		^anObject includedIn: (aStackFrame process at: aStackFrame sp)].
+	
+	"String>>match: -> self>>matches:"
+	nextMessage = #match: ifTrue: 
+		[aStackFrame ip: dispatcher ip.
+		^anObject matches: (aStackFrame process at: aStackFrame sp)].
+
+	"No special handling"
+	^anObject!
+
+simulateMessageSend: aMessage
+
+	"Attempt to simulate the method named aSymbol in the current class's methodDictionary, turning it into equivalent SQL function(s).
+	Limitations - the method (and any methods it invokes) must NOT directly access inst vars, other than simple getter accessor methods.
+	Also any messages sent my the method must map to SQL functions in the current dialect.
+	If any of these do not hold true a parseError will occur (or possibly something weirder)"
+
+	| method |
+
+	method := self currentClass lookupMethod: aMessage selector.
+	method isNil ifTrue: [self parseError: (self currentClass name, ' does not implement #', aMessage selector)].
+
+	"Check the method has no direct inst var accesses - we can't allow these since the method is actually evaluated with the receiver as, er, the receiver..."
+	method readsOrWritesAnyInstVar ifTrue: [self parseError: aMessage selector, ' directly accesses inst vars - cannot convert to SQL'].
+
+	"Make a local copy of the method in this class in order to invoke it"
+	method := method copy.
+	method methodClass: self basicClass.
+
+	"Try it!!"
+	^method value: self withArguments: aMessage arguments! !
+!SSWDBBlockArgument categoriesFor: #isJumpOnNilBytecode:!parsing - internal!private! !
+!SSWDBBlockArgument categoriesFor: #postProcessDNU:!parsing - internal!public! !
+!SSWDBBlockArgument categoriesFor: #postProcessDNU:from:!parsing - internal!private! !
+!SSWDBBlockArgument categoriesFor: #postProcessIfNilFor:in:at:!parsing - internal!private! !
+!SSWDBBlockArgument categoriesFor: #preProcessNextMessageFor:in:!parsing - internal!private! !
+!SSWDBBlockArgument categoriesFor: #simulateMessageSend:!helpers!public! !
+
+!SSWDBBlockParser methodsFor!
+
+handleMustBeBooleanIn: aCondition
+
+	"Private - aCondition(Collection) has been subject to an inlined and: / or: message in a query block, resulting in a mustBeBoolean send.
+	Deduce which from the original sender's bytecodes, returning the appropriate value to ensure the argument block is evaluated (true for and:, false for or:).
+	Also update the receiver to ensure this condition is combined with the eventual result"
+
+	| senderFrame bytecodes ip bytecode length nextBytecode jumpOffset blockEndpoint temp |
+
+	senderFrame := Processor activeProcess topFrame sender sender.
+	bytecodes := senderFrame method byteCodes.
+	ip := senderFrame ip.
+	bytecode := bytecodes at: ip.
+	length := ByteCodeDispatcher lengthOfInstruction: bytecode.
+	nextBytecode := bytecodes at: ip + length.
+
+	(nextBytecode = OpcodePool.ReturnFalse or: [nextBytecode = OpcodePool.ReturnPseudo "ReturnTrue" or: [(bytecodes at: ip + 2) = OpcodePool.ReturnFromBlock "Jump+2 over Push<result>; ReturnFromBlock"]]) 
+	ifTrue: 
+		[blockEndpoint := SmallInteger maximum]
+	ifFalse: 
+		[(bytecode = OpcodePool.LongJumpIfFalse or: [bytecode = OpcodePool.LongJumpIfTrue]) 
+		ifTrue: 
+			[jumpOffset := length + (bytecodes swordAtOffset: ip)]
+		ifFalse: 
+			[(bytecode = OpcodePool.NearJumpIfFalse or: [bytecode = OpcodePool.NearJumpIfTrue]) 
+				ifTrue: [jumpOffset := length + (bytecodes sbyteAtOffset: ip)]
+				ifFalse: [jumpOffset := length + (bytecode - ##(OpcodePool.ShortJumpIfFalse - 1))]].
+		blockEndpoint := ip + jumpOffset].
+
+	self isAccumulatingConditions: true.
+
+	"First possibility - last condition within a sequence of OR tests"
+	(nextBytecode = OpcodePool.PushPseudo "PushTrue" or: [nextBytecode = OpcodePool.ReturnPseudo "ReturnTrue"]) ifTrue:
+		[self currentConditions isEmpty
+		ifTrue: 
+			[self currentConditions add: aCondition; beOR; addLast: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
+			self currentConditions: self currentConditions last]
+		ifFalse: 
+			[self currentConditions add: aCondition.
+			temp := self newConditionCollection beOR.
+			temp _add: temp "will become: currentCondiitions"; add: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
+			self currentConditions become: temp.
+			self currentConditions: self currentConditions last].
+		^false].
+
+	"Second possibility - condition within a sequence of OR tests, but not the last"
+	(bytecode = OpcodePool.NearJumpIfTrue or: [bytecode = OpcodePool.LongJumpIfTrue]) ifTrue:
+		[self currentConditions add: aCondition; beOR.
+		^false].
+
+	"and: possibilities"
+	((bytecode between: 118 and: 125 "JumpIfFalse+offsets") or: [bytecode  = OpcodePool.NearJumpIfFalse or: [bytecode = OpcodePool.LongJumpIfFalse]]) ifTrue:
+		["For and:, a PushFalse bytecode would be after the jump"
+		nextBytecode := bytecodes at: blockEndpoint.
+		(nextBytecode = ##(OpcodePool.PushPseudo+1) "PushFalse" or: [nextBytecode = OpcodePool.ReturnFalse]) ifFalse: 
+			["Condition within a sequence of and: tests but not the last"
+			self currentConditions add: aCondition; beAND. 
+			^true].
+		"Last condition in a sequence of and: tests"
+		self currentConditions isEmpty 
+		ifTrue: 
+			[self currentConditions add: aCondition; beAND; blockEndpoint: blockEndpoint; addLast: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
+			self currentConditions: self currentConditions last]
+		ifFalse: 
+			[self currentConditions add: aCondition.
+			temp := self newConditionCollection beAND.
+			temp _add: temp "will become: currentCondiitions"; add: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
+			self currentConditions become: temp.
+			self currentConditions: self currentConditions last].
+		^true].
+
+	self parseError: 'unexpected bytecodes encountered during and: / or: block parsing'! !
+!SSWDBBlockParser categoriesFor: #handleMustBeBooleanIn:!parsing - internal!private! !
+
+!SSWDBProxy methodsFor!
+
+_allReferences
+
+	"For references to the receiver, not the proxiedObject"
+
+	<primitive: 153>
+	^nil primitiveFailed!
+
+_proxyClass
+
+	^super basicClass!
+
+_proxyInstVarAt: index
+
+	^super instVarAt: index! !
+!SSWDBProxy categoriesFor: #_allReferences!non forwarding!public! !
+!SSWDBProxy categoriesFor: #_proxyClass!accessing:direct!private! !
+!SSWDBProxy categoriesFor: #_proxyInstVarAt:!accessing:direct!private! !
+
+!SSWDBQueryCondition methodsFor!
+
+mustBeBoolean
+
+	"Private - Received when this condition has been subject to an inlined and: / or: message in a query block.
+	Ask the parser to handle"
+
+	^self parser handleMustBeBooleanIn: self! !
+!SSWDBQueryCondition categoriesFor: #mustBeBoolean!evaluating!private! !
+
+!SSWDBQueryConditionCollection methodsFor!
+
+mustBeBoolean
+
+	"Private - Received when this condition has been subject to an inlined and: / or: message in a query block.
+	Ask the parser to handle"
+
+	^self parser handleMustBeBooleanIn: self! !
+!SSWDBQueryConditionCollection categoriesFor: #mustBeBoolean!evaluating!private! !
+
+!SSWMSAccessDialect methodsFor!
+
+dialectReservedWords
+
+	"Access 2013 (and others?) appears to (sometimes?) truncate the result of SQL_KEYWORDS to 255 characters, omitting some important reserved words (e.g. NUMBER).
+	Attempt to handle this by returning a hardcoded set here"
+
+	^#('ALPHANUMERIC' 'AUTOINCREMENT' 'BINARY' 'BYTE' 'COUNTER' 'CURRENCY' 'DATABASE' 'DATABASENAME' 'DATETIME' 'DISALLOW' 'DISTINCTROW' 'DOUBLEFLOAT' 'FLOAT4' 'FLOAT8' 'GENERAL' 'IEEEDOUBLE' 'IEEESINGLE' 'IGNORE' 'INT' 'INTEGER1' 'INTEGER2' 'INTEGER4' 'LEVEL' 'LOGICAL' 'LOGICAL1' 'LONG' 'LONGBINARY' 'LONGCHAR' 'LONGTEXT' 'MEMO' 'MONEY' 'NOTE' 'NUMBER' 'OLEOBJECT' 'OPTION' 'OWNERACCESS' 'PARAMETERS' 'PERCENT' 'PIVOT' 'SHORT' 'SINGLE' 'SINGLEFLOAT' 'SMALLINT' 'STDEV' 'STDEVP' 'STRING' 'TABLEID' 'TEXT' 'TOP' 'TRANSFORM' 'UNSIGNEDBYTE' 'VALUES' 'VAR' 'VARBINARY' 'VARP' 'YESNO')! !
+!SSWMSAccessDialect categoriesFor: #dialectReservedWords!constants!public! !
+
+!SSWPostgreSQLDialect methodsFor!
+
+legacyNameTransformationFor: aSymbol with: aString
+
+	"ReStore has always used lowercase with Postgres"
+
+	^(super legacyNameTransformationFor: aSymbol with: aString) asLowercase! !
+!SSWPostgreSQLDialect categoriesFor: #legacyNameTransformationFor:with:!helpers!private! !
+
+!SSWReStore methodsFor!
+
+binaryStoreOn: aStream 
+
+	"Override so the ReStore global is stored as a singleton proxy when saving the package (rather than a binary global)"
+
+	self == ##(self) globalDefault ifFalse: [^super binaryStoreOn: aStream].
+
+	(STBOutFiler on: aStream) 
+		override: self with: (STBSingletonProxy forClass: ##(self) using: #globalDefault);
+		nextPut: self!
+
+connectString: aString
+
+	"Forward to the connection itself"
+
+	self connection isNil ifTrue: [self createConnection].
+	self connection connectString: aString!
+
+createConnection
+
+	self connection: SSWODBCConnection new!
+
+dsn: aString
+
+	"Forward to the connection itself"
+
+	self connection isNil ifTrue: [self createConnection].
+	self connection dsn: aString!
+
+openODBC
+
+	"Convenience - open the 32bit ODBC control panel"
+
+	ShellLibrary default shellOpen: 'odbcad32'!
+
+pwd: aString
+
+	"Forward to the connection itself"
+	
+	self connection isNil ifTrue: [self createConnection].
+	self connection pwd: aString!
+
+uid: aString
+
+	"Forward to the connection itself"
+	
+	self connection isNil ifTrue: [self createConnection].
+	self connection uid: aString! !
+!SSWReStore categoriesFor: #binaryStoreOn:!binary filing!public! !
+!SSWReStore categoriesFor: #connectString:!connection!public! !
+!SSWReStore categoriesFor: #createConnection!initialize/release!public! !
+!SSWReStore categoriesFor: #dsn:!connection!public! !
+!SSWReStore categoriesFor: #openODBC!connection!public! !
+!SSWReStore categoriesFor: #pwd:!connection!public! !
+!SSWReStore categoriesFor: #uid:!connection!public! !
+
+!SSWSQLDialect methodsFor!
+
+dialectReservedWords
+
+	"Reserved words are Strings which cannot be used for field or table names in this SQL Dialect. 
+	Thse are usually known by the connection, however if a dialect includes additional reserved words unknown by the connection, they should be returned here.
+
+	Clients should use isReservedWord: to check if a word is reserved"
+
+	^#()!
+
+isReservedWord: aString
+
+	^(self dialectReservedWords includes: aString asUppercase) or: 
+		[self connection reservedWords includes: aString asUppercase]!
+
+legacyNameTransformationFor: aSymbol with: aString
+
+	"Private - Transform the given Symbol into a DB-style String appropriate/conventional for this dialect, using the strategy used in older versions of ReStore.
+	This also checks for reserved word clashes and handles by appending aString to the transformed name"
+
+	| transformedName |
+
+	transformedName := aSymbol sswInUnderscoreFormat asUppercase.
+
+	^(self isReservedWord: transformedName) 
+		ifTrue: [transformedName, aString]
+		ifFalse: [transformedName]!
+
+useLegacyNameTransformations
+
+	"Previously ReStore translated inst var and class names to database names as follows:
+	1) transform to uppercase snake case, e.g. dateOfBirth to DATE_OF_BIRTH
+	2) append _FIELD (inst var) or _TABLE (class name) if the name is reserved, e.g. Order -> ORDER -> ORDER_TABLE
+
+	ReStore now uses lowercase snake case, with all identifiers quoted to avoid reserved word clashes..
+
+	Send this method to continue to use the previous transformations"
+
+	self 
+		instVarNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_FIELD'];
+		classNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_TABLE']! !
+!SSWSQLDialect categoriesFor: #dialectReservedWords!constants!public! !
+!SSWSQLDialect categoriesFor: #isReservedWord:!public!testing! !
+!SSWSQLDialect categoriesFor: #legacyNameTransformationFor:with:!helpers!private! !
+!SSWSQLDialect categoriesFor: #useLegacyNameTransformations!initializing!public! !
+
+!StackFrame methodsFor!
+
+_method: aCompiledMethod 
+
+	self method: aCompiledMethod!
+
+sswByteCodeDispatcher
+
+	"Return a ByteCodeDispatcher on the receiver's method, initialized at the same IP as the receiver.
+	Named to match the copied non-dev implementation in CompiledCode"
+
+	^self method sswByteCodeDispatcher
+		ip: self ip;
+		yourself! !
+!StackFrame categoriesFor: #_method:!accessing!private! !
+!StackFrame categoriesFor: #sswByteCodeDispatcher!accessing!private! !
+
+"End of package definition"!
+

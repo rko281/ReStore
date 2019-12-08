@@ -6,15 +6,15 @@ SSWDBSingleTransaction subclass: #SSWDBSingleTransactionWithVersioning
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBSingleTransactionWithVersioning guid: (GUID fromString: '{d7154f77-36ed-4fed-83ec-4733b4e34795}')!
-SSWDBSingleTransactionWithVersioning comment: ''!
+SSWDBSingleTransactionWithVersioning comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBSingleTransactionWithVersioning categoriesForClass!Unclassified! !
 !SSWDBSingleTransactionWithVersioning methodsFor!
 
 commitFailures
 
-	"23/4/2001
-	
-	Return the actual objects (not proxies) which failed to commit"
+	"Return the actual objects (not proxies) which failed to commit"
 	
 	^self proxyCommitFailures collect: [ :proxy | proxy _proxiedObject]!
 
@@ -30,6 +30,7 @@ commitTo: aDBConnection
 
 	"Iteratively commit, resolving update conflicts and retrying if all are resolved"
 	[aDBConnection beginRWTxn.
+	self preCommit.
 	conflicts := toCommit reject: [ :proxyObj | proxyObj _commitChanges].
 	resolved := OrderedCollection new.
 	failures := OrderedCollection new.
@@ -40,8 +41,8 @@ commitTo: aDBConnection
 			[ :proxyObj | 
 			([proxyObj _resolveUpdateConflicts] on: Error do: [ :exc | exc return: false])
 				ifTrue: [resolved add: proxyObj]
-				ifFalse: [failures add: proxyObj _proxiedObject]]].	"Use the proxiedObject so we get 
-												the proxy after _swapReferences"
+				ifFalse: [failures add: proxyObj _proxiedObject]]].	"Use the proxiedObject so we get the proxy after _swapReferences"
+
 	failures isEmpty and: [resolved isEmpty not]] whileTrue.
 
 	"currentReferencedObjects usually empty, but could contain objects ref'd during conflict resolution"
@@ -52,23 +53,20 @@ commitTo: aDBConnection
 	self hasFailedCommit 
 	ifTrue: 
 		[aDBConnection rollbackTxn.
+		self freeStatements.
 		self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swapReferences])]
 	ifFalse: 
 		[aDBConnection commitTxn.
-		self changedObjects do: [ :proxyObj | proxyObj _postCommitChanges]].
+		self postCommit].
 
 	self resetChangedObjects!
 
 ensureHasFailedCommit
 
-	"Private - 24/4/2001"
-	
 	self hasFailedCommit ifFalse: [self error: 'Transaction has not failed a commit'].!
 
 hasFailedCommit
 
-	"12/3/01"
-	
 	^self proxyCommitFailures notNil and: [self proxyCommitFailures isEmpty not]!
 
 postRollback
@@ -78,26 +76,20 @@ postRollback
 
 proxyCommitFailures
 
-	"23/4/2001
-	
-	proxyCommitFailures stores an OrderdCollection of those proxy objects which error
+	"proxyCommitFailures stores an OrderdCollection of those proxy objects which error
 	when an attempt is made to commit them"
 	
 	^proxyCommitFailures!
 
 proxyCommitFailures: anOrderedCollection
 
-	"23/4/2001
-	
-	proxyCommitFailures stores an OrderdCollection of those proxy objects which error
+	"proxyCommitFailures stores an OrderdCollection of those proxy objects which error
 	when an attempt is made to commit them"
 	
 	proxyCommitFailures := anOrderedCollection!
 
 refreshAndRollforward
 
-	"20/10/2000"
-	
 	self ensureHasFailedCommit.
 	
 	self proxyCommitFailures do: 
@@ -106,8 +98,6 @@ refreshAndRollforward
 
 rollbackAndRefresh
 
-	"20/10/2000"
-	
 	self ensureHasFailedCommit.
 	
 	self proxyCommitFailures do: 

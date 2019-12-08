@@ -6,7 +6,9 @@ SSWDBStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBStaticCacheDictionarySpec guid: (GUID fromString: '{fb382c11-7c2e-11d5-b1df-0010a70883e2}')!
-SSWDBStaticCacheDictionarySpec comment: ''!
+SSWDBStaticCacheDictionarySpec comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBStaticCacheDictionarySpec categoriesForClass!Unclassified! !
 !SSWDBStaticCacheDictionarySpec methodsFor!
 
@@ -20,33 +22,25 @@ createNonProxiedInstanceFromRow: aDBRow
 
 entryClass
 
-	"19/7/2001
-	
-	Return the class of collection entry appropriate for the receiver"
+	"Return the class of collection entry appropriate for the receiver"
 	
 	^SSWDBDictionaryEntry!
 
 keyAccessor
 
-	"19/7/2001
-
-	keyAccessor stores an SSWInstVarAccessor that accesses the attribute of an object
+	"keyAccessor stores an SSWInstVarAccessor that accesses the attribute of an object
 	that is the key at which that object should be stored in the dictionary"
 
 	^keyAccessor!
 
 keyAccessor: anSSWInstVarAccessor
 
-	"19/7/2001
-
-	keyAccessor stores an SSWInstVarAccessor that accesses the attribute of an object
+	"keyAccessor stores an SSWInstVarAccessor that accesses the attribute of an object
 	that is the key at which that object should be stored in the dictionary"
 
 	keyAccessor := anSSWInstVarAccessor!
 
 keyedOn: aSymbol
-
-	"30/9/2001"
 
 	self keyAccessor: (SSWInstVarAccessor toAccess: aSymbol in: self targetClass)! !
 !SSWDBStaticCacheDictionarySpec categoriesFor: #createNonProxiedInstanceFromRow:!actions!public! !

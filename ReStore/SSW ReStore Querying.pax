@@ -1,10 +1,8 @@
 ﻿| package |
 package := Package name: 'SSW ReStore Querying'.
 package paxVersion: 1;
-	basicComment: 'ReStore for Dolphin Smalltalk 
-Version 2.00
-©2003-2018 John Aspinall
-
+	basicComment: 'ReStore
+©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
 
@@ -32,12 +30,6 @@ package classNames
 package methodNames
 	add: #Boolean -> #asSQLConditions;
 	add: #Class -> #isPersistentIn:;
-	add: #CompiledCode -> #readsOrWritesAnyInstVar;
-	add: #CompiledCode -> #sswByteCodeDispatcher;
-	add: #CompiledCode -> #sswReadsInstVar:at:;
-	add: #CompiledCode -> #sswWritesInstVar:at:;
-	add: #DBError -> #isCommunicationLinkFailure;
-	add: #DBError -> #isRecordDeletedError;
 	add: #DeafObject -> #_id;
 	add: #Object -> #||;
 	add: #Object -> #concatenatedWith:;
@@ -48,6 +40,7 @@ package methodNames
 	add: #Object -> #similarityComparator;
 	add: #SSWDBClassWithInfo -> #isPersistentIn:;
 	add: #SSWDBCollectionSpec -> #dbBlockCollectionReceiver;
+	add: #SSWDBFunctionField -> #forConcatenation;
 	add: #SSWDBGeneralCollectionSpec -> #dbBlockCollectionReceiver;
 	add: #SSWDBOwnedCollectionSpec -> #dbBlockCollectionReceiver;
 	add: #SSWSQLCondition -> #convertValue:;
@@ -75,7 +68,6 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'SSW ReStore Base Additions'
 	'SSW ReStore Collections'
@@ -107,8 +99,8 @@ Object subclass: #SSWDBInstancesCollection
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-String variableByteSubclass: #WildcardString
-	instanceVariableNames: ''
+Object subclass: #WildcardString
+	instanceVariableNames: 'string'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -148,7 +140,7 @@ ReadStream subclass: #SSWDBReadStream
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 ProtoObject subclass: #SSWDBBlockEvaluator
-	instanceVariableNames: 'parser currentMode'
+	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -158,7 +150,7 @@ SSWDBBlockEvaluator subclass: #SSWDBBlockArgument
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBBlockEvaluator subclass: #SSWDBCollectionBlockReceiver
-	instanceVariableNames: 'collectionSpec collection'
+	instanceVariableNames: 'collectionSpec collection currentMode'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -197,64 +189,8 @@ asSQLConditions
 
 isPersistentIn: anSSWReStore
 
-	"Private - 6/8/2000"
-	
 	^anSSWReStore isClassPersistent: self! !
 !Class categoriesFor: #isPersistentIn:!private!testing! !
-
-!CompiledCode methodsFor!
-
-readsOrWritesAnyInstVar
-
-	1 to: self methodClass instSize do: 
-		[ :index | 
-		(self sswReadsInstVar: 'dummy' at: index) ifTrue: [^true].
-		(self sswWritesInstVar: 'dummy' at: index) ifTrue: [^true]].
-
-	^false!
-
-sswByteCodeDispatcher
-	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
-
-	"Private - Answer a <ByteCodeDispatcher> on the receiver."
-
-	^ByteCodeDispatcher on: self!
-
-sswReadsInstVar: aString at: anInteger 
-	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
-
-	"Answer whether the receiver accesses the instance variable named, aString, which
-	is the instance variable of its method class with the specified <integer> index."
-
-	| extra |
-	extra := self extraIndex.
-	^((extra between: 1 and: 5) or: [extra == 7]) not 
-		and: [self sswByteCodeDispatcher readsInstVarAt: anInteger]!
-
-sswWritesInstVar: aString at: anInteger  
-	"Reimplementation of this method for ReStore use, since the original is in the development category and is stripped during image deployment"
-
-	"Answer whether the receiver accesses the instance variable named, aString, which
-	is the instance variable of its method class with the specified <integer> index."
-
-	^(self extraIndex between: 1 and: 6) not 
-		and: [self sswByteCodeDispatcher writesInstVarAt: anInteger]! !
-!CompiledCode categoriesFor: #readsOrWritesAnyInstVar!public!testing! !
-!CompiledCode categoriesFor: #sswByteCodeDispatcher!accessing!private! !
-!CompiledCode categoriesFor: #sswReadsInstVar:at:!public!testing! !
-!CompiledCode categoriesFor: #sswWritesInstVar:at:!public!testing! !
-
-!DBError methodsFor!
-
-isCommunicationLinkFailure
-
-	^tag notNil and: [tag errors anySatisfy: [ :each | each isCommunicationLinkFailure]]!
-
-isRecordDeletedError
-
-	^tag notNil and: [tag errors anySatisfy: [ :each | each isInvalidCursorPosition]]! !
-!DBError categoriesFor: #isCommunicationLinkFailure!public!testing! !
-!DBError categoriesFor: #isRecordDeletedError!public!testing! !
 
 !DeafObject methodsFor!
 
@@ -301,9 +237,6 @@ qualify: instances in: aReStore via: aCollection
 			[| accessor chain |
 			accessor := field accessor.
 			chain := aCollection copyWith: accessor name.
-			[accessor isEmbedded] whileTrue: 
-				[accessor := accessor embeddedAccessor. "Will be undefined if embedded package not loaded; this is OK"
-				chain := chain copyWith: accessor name].
 			(field targetClass isPersistentIn: aReStore)
 			ifTrue: 
 				[(value _dbProxyIfNone: [nil])
@@ -329,9 +262,7 @@ similarityComparator
 
 isPersistentIn: anSSWReStore
 
-	"Private - 15/4/2001
-
-	Required class-like behavior"
+	"Required class-like behavior"
 
 	^false! !
 !SSWDBClassWithInfo categoriesFor: #isPersistentIn:!private!testing! !
@@ -344,6 +275,13 @@ dbBlockCollectionReceiver
 
 	^self subclassResponsibility! !
 !SSWDBCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+
+!SSWDBFunctionField methodsFor!
+
+forConcatenation
+
+	^SSWDBQueryConditionCollection with: self! !
+!SSWDBFunctionField categoriesFor: #forConcatenation!converting!public! !
 
 !SSWDBGeneralCollectionSpec methodsFor!
 
@@ -468,15 +406,9 @@ writeAliasedSQLOn: aStream
 
 asWildcard
 
-	| wildcard |
-
-	wildcard := WildcardString new: self size.
-
-	self
-		replaceBytesOf: wildcard
-		from: 1 to: self size startingAt: 1.
-
-	^wildcard
+	^WildcardString new
+		string: self;
+		yourself
 ! !
 !String categoriesFor: #asWildcard!converting!public! !
 

@@ -6,35 +6,41 @@ SSWDBTable subclass: #SSWDBInheritedTable
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBInheritedTable guid: (GUID fromString: '{266e4dcd-398e-11d5-b1df-444553540000}')!
-SSWDBInheritedTable comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBInheritedTable comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBInheritedTable categoriesForClass!Unclassified! !
 !SSWDBInheritedTable methodsFor!
 
 classField
 
-	"10/4/2001
-	
-	classField stores the SSWDBField which defines which class of object a row represents.
-	Note this is also a member of the receiver's controlFields (see setDefaultClassField)
-	but is additionally held in this instance variable for efficient access"
+	"classField stores the DBField which defines which class of object a row represents.
+	Note this is also a member of the receiver's controlFields (see setDefaultClassField) but is additionally held here
+	a) for efficient access
+	b) as a non-parameterizable field - class conditions are statically written into the receiver's SQL"
 	
 	^classField!
 
 classField: anSSWDBField
 
-	"10/4/2001
-	
-	classField stores the SSWDBField which defines which class of object a row represents.
+	"classField stores the SSWDBField which defines which class of object a row represents.
 	Note this is also a member of the receiver's controlFields (see setDefaultClassField)
 	but is additionally held in this instance variable for efficient access"
 	
 	classField := anSSWDBField!
 
+initializeClassField: aDBField
+	
+	^aDBField
+		table: self;
+		accessor: SSWDBClassAccessor new;
+		name: (self sqlDialect transformInstVarName: aDBField accessor nameInDB);
+		targetClass: Metaclass;
+		yourself!
+
 initializeIn: anSSWReStore
 
-	"19/4/2001
-
-	Overriden to setup the classField"
+	"Overriden to setup the classField"
 
 	super initializeIn: anSSWReStore.
 	self setDefaultClassField!
@@ -46,22 +52,9 @@ instanceClassFromRow: aDBRow
 	^self classField convertValue: (aDBRow atField: self classField)!
 
 setDefaultClassField
-
-	"Created 10/4/2001
-	Modified 12/9/2001		Use dialect name transformation (issue#0007)"
 	
-	| field |
-	
-	field := SSWDBStaticField new.
-	
-	field
-		table: self;
-		accessor: SSWDBClassAccessor new;
-		name: (self sqlDialect transformInstVarName: field accessor nameInDB);
-		targetClass: Metaclass.
-	
-	self classField: field.
-	self controlFields add: field!
+	self controlFields add: (self initializeClassField: SSWDBStaticField new).
+	self classField: (self initializeClassField: SSWDBNonParameterizedStaticField new)!
 
 withAllFields
 
@@ -84,6 +77,7 @@ withAllFields
 	^withAllFields! !
 !SSWDBInheritedTable categoriesFor: #classField!accessing!public! !
 !SSWDBInheritedTable categoriesFor: #classField:!accessing!public! !
+!SSWDBInheritedTable categoriesFor: #initializeClassField:!defining!private! !
 !SSWDBInheritedTable categoriesFor: #initializeIn:!initializing!public! !
 !SSWDBInheritedTable categoriesFor: #instanceClassFromRow:!instance creation!private! !
 !SSWDBInheritedTable categoriesFor: #setDefaultClassField!defining!public! !

@@ -6,7 +6,9 @@ Object subclass: #SSWSQLFieldValueConjunction
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLFieldValueConjunction guid: (GUID fromString: '{6266c928-3983-11d5-b1df-444553540000}')!
-SSWSQLFieldValueConjunction comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLFieldValueConjunction comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLFieldValueConjunction categoriesForClass!Unclassified! !
 !SSWSQLFieldValueConjunction methodsFor!
 
@@ -16,17 +18,13 @@ SSWSQLFieldValueConjunction comment: 'Copyright 2000/2001 Solutions Software Lim
 
 field
 
-	"5/8/2000
-	
-	field stores the single field which is the subject of the receiver SQL clause"
+	"field stores the single field which is the subject of the receiver SQL clause"
 	
 	^field!
 
 field: anSSWSQLField
 
-	"5/8/2000
-	
-	field stores the single field which is the subject of the receiver SQL clause"
+	"field stores the single field which is the subject of the receiver SQL clause"
 	
 	field := anSSWSQLField!
 
@@ -37,40 +35,29 @@ hash
 
 value
 
-	"5/8/2000
-	
-	value stores an object which is associated with the field in the receiver clause"
+	"value stores an object which is associated with the field in the receiver clause"
 	
 	^value!
 
 value: anObject
 
-	"5/8/2000
-	
-	value stores an object which is associated with the field in the receiver clause"
+	"value stores an object which is associated with the field in the receiver clause"
 
 	value := anObject!
 
 writeConjunctionSQLOn: aStream
 
-	"Private - 5/8/2000
-	
-	Append to aStream whatever String/Character joins
+	"Append to aStream whatever String/Character joins
 	the receiver's field to the receiver's value"
 	
 	self subclassResponsibility!
 
 writeFieldSQLOn: aStream
 
-	"Private - 17/9/2001"
-	
 	self field writeSQLOn: aStream!
 
 writeSQLOn: aStream
 
-	"Created 5/8/2000
-	Modified: 17/9/2001	Refactored to allow overriding (issue#0009)"
-	
 	self writeFieldSQLOn: aStream.
 	aStream space.
 	self writeConjunctionSQLOn: aStream.
@@ -79,8 +66,6 @@ writeSQLOn: aStream
 
 writeValueSQLOn: aStream
 
-	"Private - 17/9/2001"
-	
 	self value writeSQLOn: aStream forField: self field! !
 !SSWSQLFieldValueConjunction categoriesFor: #=!comparing!public! !
 !SSWSQLFieldValueConjunction categoriesFor: #field!accessing!public! !
@@ -97,8 +82,6 @@ writeValueSQLOn: aStream
 
 field: anSSWDBField value: aValue
 
-	"21/1/2001"
-	
 	^self new
 		field: anSSWDBField;
 		value: aValue;

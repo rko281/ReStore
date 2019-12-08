@@ -1,14 +1,9 @@
 ﻿| package |
 package := Package name: 'ReStore'.
 package paxVersion: 1;
-	basicComment: 'ReStore for Dolphin Smalltalk 
-Version 2.00
-©2003-2018 John Aspinall
-
-https://github.com/rko281/ReStore
-
-
-See customer and orders package for usage examples.'.
+	basicComment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'.
 
 
 package binaryGlobalNames: (Set new
@@ -17,12 +12,11 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: (IdentitySet new
-	add: 'examples\customer and orders';
-	yourself).
+package setPrerequisites: #(
+	'SSW ReStore Examples').
 
 package setManualPrerequisites: #(
-	'customer and orders').
+	'SSW ReStore Examples').
 
 package!
 

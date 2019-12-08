@@ -6,26 +6,22 @@ SSWDBCollectionChange subclass: #SSWDBCollectionUpdate
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCollectionUpdate guid: (GUID fromString: '{62572521-5cd7-11d5-b1df-0010a70883e2}')!
-SSWDBCollectionUpdate comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBCollectionUpdate comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBCollectionUpdate categoriesForClass!Unclassified! !
 !SSWDBCollectionUpdate methodsFor!
 
 applyTo: aCollection
 
-	"21/4/2001"
-	
 	self affectedEntry target: self newTarget!
 
 canRemoveValue
-
-	"28/9/2001"
 
 	^true!
 
 commitFor: aCollectionProxy
 
-	"22/9/2000"
-	
 	self affectedEntry isPersistent ifTrue: 
 		[aCollectionProxy _collectionSpec 
 			updateEntry: self affectedEntry 
@@ -34,18 +30,14 @@ commitFor: aCollectionProxy
 
 newTarget
 
-	"22/5/2001
-
-	newTarget stores the object which is now in the position of the collection
+	"newTarget stores the object which is now in the position of the collection
 	associated with the receiver's entry"
 
 	^newTarget!
 
 newTarget: anObject
 
-	"22/5/2001
-
-	newTarget stores the object which is now in the position of the collection
+	"newTarget stores the object which is now in the position of the collection
 	associated with the receiver's entry"
 
 	newTarget := anObject! !
@@ -58,8 +50,6 @@ newTarget: anObject
 !SSWDBCollectionUpdate class methodsFor!
 
 entry: aCollectionEntry newTarget: anObject
-
-	"20/5/2001"
 
 	^(self newWithEntry: aCollectionEntry)
 		newTarget: anObject;

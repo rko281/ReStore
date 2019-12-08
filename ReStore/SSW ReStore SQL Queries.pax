@@ -1,10 +1,8 @@
 ﻿| package |
 package := Package name: 'SSW ReStore SQL Queries'.
 package paxVersion: 1;
-	basicComment: 'ReStore for Dolphin Smalltalk 
-Version 2.00
-©2003-2018 John Aspinall
-
+	basicComment: 'ReStore
+©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
 
@@ -16,7 +14,6 @@ package classNames
 	add: #SSWSQLInsertQuery;
 	add: #SSWSQLObjectQuery;
 	add: #SSWSQLOrderedSelectQuery;
-	add: #SSWSQLParameterisedInsertQuery;
 	add: #SSWSQLQuery;
 	add: #SSWSQLSelectQuery;
 	add: #SSWSQLSubQuery;
@@ -72,11 +69,6 @@ SSWSQLObjectQuery subclass: #SSWSQLInsertQuery
 	classInstanceVariableNames: ''!
 SSWSQLObjectQuery subclass: #SSWSQLUpdateObjectQuery
 	instanceVariableNames: 'fieldUpdates'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWSQLInsertQuery subclass: #SSWSQLParameterisedInsertQuery
-	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

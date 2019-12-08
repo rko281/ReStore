@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache executeStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
+	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
 	classVariableNames: ''
-	poolDictionaries: 'ODBCConstants'
+	poolDictionaries: ''
 	classInstanceVariableNames: 'globalDefault activeReStores'!
 SSWReStore guid: (GUID fromString: '{5a3e3dd2-3990-11d5-b1df-444553540000}')!
-SSWReStore comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWReStore comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWReStore categoriesForClass!Unclassified! !
 !SSWReStore methodsFor!
 
@@ -26,15 +28,13 @@ abandonTransaction
 
 actualProxyForObject: anObject ifNone: aBlock
 
-	"20/8/2000
-	
-	Locate within the receiver's proxyCache the proxy object wrapping anObject.
+	"Locate within the receiver's proxyCache the proxy object wrapping anObject.
 	Ensure that we return a proxy (not a reference-swapped real object)"
 
 	"Base types (String, Number etc.) - these are never proxified"
 	anObject class isPersistentBaseClass ifTrue: [^aBlock value].
 
-	(self tableForClass: anObject class) notNil ifTrue:
+	(self tableForClass: anObject class ifAbsent: [nil]) notNil ifTrue:
 		[(self locateProxyForObject: anObject ifNone: [nil])
 			ifNil: [^aBlock value]
 			ifNotNil: [ :proxy | proxy isDBProxy ifTrue: [^proxy]]].
@@ -46,16 +46,14 @@ actualProxyForObject: anObject ifNone: aBlock
 
 addClass: aClass
 
-	"6/8/2000
-	
-	Add aClass as a persistent class known to the receiver.
+	"Add aClass as a persistent class known to the receiver.
 	If the class is already known, this will refresh its SSWDBTable.
 	
 	Return the table created by the addition"
 	
 	| table |
 	
-	table := self createTableForClass: aClass.
+	table := aClass tableIn: self.
 	table isNil ifTrue: [^nil].
 
 	"Remove any pre-existing table"
@@ -82,9 +80,7 @@ addClasses: aCollection
 
 addClassWithSubclasses: aClass
 
-	"6/8/2000
-	
-	Add aClass and all its subclasses as persistent classes known to the receiver"
+	"Add aClass and all its subclasses as persistent classes known to the receiver"
 	
 	aClass withAllSubclasses do: [ :class | self addClass: class]!
 
@@ -101,30 +97,57 @@ affiliations
 
 	^affiliations ifNil: [affiliations := WeakIdentityDictionary newWithWeakKeys: 16]!
 
+allocateIDFor: anObject in: aDBTable
+
+	^self transaction allocateIDFor: anObject tableRecord: (self tableRecordFor: aDBTable)!
+
+alterInstVar: aSymbol in: aClass
+
+	"Alter the definition of the column corresponding to oldInstVar (a Symbol) in aClass to match its current type definition.
+	This will use the database's default transfomation from the old to the new type which may result in data loss.
+	Use changedClassOfInstVar:in:modifyUsing: for explicit data conversion"
+
+	| table field columns definitionTable |
+
+	"Ensure the receiver is up-to-date with the definition of aClass"
+	table := self addClass: aClass.
+
+	"Check old iv field already exists"
+	field := table fieldAccessing: aSymbol.
+	columns := self columnsInTable: table.
+	(columns anySatisfy: [ :col | col name asUppercase = field name asUppercase]) ifFalse:
+		[(self error: 'No column corresponding to inst var ', aSymbol)].
+
+	definitionTable := table rootTable forCreation.
+	definitionTable == table 
+		ifTrue: [self addClass: aClass]
+		ifFalse: [self addClassWithSubclasses: definitionTable instanceClass].
+
+	self evaluateInTxn: 
+		[self sqlDialect alterField: field table: definitionTable in: self.
+		true]!
+
 applyUpdates: anSSWSQLCollection toObject: anSSWDBObjectProxy
 
-	"6/8/2000
-	
-	Return a Boolean indicating whether the update succeeds"
-	
+	"Return a Boolean indicating whether the update succeeds"
+
+	| query statement |
+
+	query := SSWSQLUpdateObjectQuery forObject: anSSWDBObjectProxy withUpdates: anSSWSQLCollection.
+	statement := self transaction statementForUpdateQuery: query ifAbsent: [self prepareStatementForQuery: query].
+
 	"If the update query succeeds, exactly 1 row should be affected"
-	^(self executeQuery: 
-		(SSWSQLUpdateObjectQuery 
-			forObject: anSSWDBObjectProxy 
-			withUpdates: anSSWSQLCollection)) = 1!
+	statement values: query values; exec.
+	^statement rowsAffected = 1!
 
 beginDumbTransaction
 
-	"Private - 22/4/2001
-	
-	Begin a dumb transaction to absorb object traversals"
+	"Begin a dumb transaction to absorb object traversals"
 	
 	self transaction: (SSWDBDumbTransaction new begin; yourself)!
 
 beginTransaction
 
-	"21/1/2001"
-	
 	| newTransaction |
 
 	"An explicit beginTransaction is implicitly also a rollback for a dumb transaction"
@@ -135,16 +158,6 @@ beginTransaction
 
 	self transaction: newTransaction!
 
-binaryStoreOn: aStream 
-
-	"Override so the ReStore global is stored as a singleton proxy when saving the package (rather than a binary global)"
-
-	self == ##(self) globalDefault ifFalse: [^super binaryStoreOn: aStream].
-
-	(STBOutFiler on: aStream) 
-		override: self with: (STBSingletonProxy forClass: ##(self) using: #globalDefault);
-		nextPut: self!
-
 cachedInstancesOf: aClass
 
 	"Careful with this - despite the naming similarity to instancesOf: it is only intended for use with refreshObjects: and related methods"
@@ -153,9 +166,7 @@ cachedInstancesOf: aClass
 
 cachedObjectOfClass: aClass withID: anID ifAbsent: aBlock
 
-	"6/8/2000
-	
-	Return the cached object (actually a proxy) of the given class with the given unique ID.
+	"Return the cached object (actually a proxy) of the given class with the given unique ID.
 	If none is found, evaluate aBlock"
 	
 	^(self classCacheFor: aClass) at: anID ifAbsent: aBlock!
@@ -183,11 +194,9 @@ cachedObjectOfClass: aClass withID: anID
 
 cacheObject: aPersistentObjectProxy
 
-	"Created 6/8/2000
-	Modified 5/9/2001		Use _class to avoid fetching inherited objects (issue#0015)
+	"Add the given persistent object proxy to the receiver's cache"
 	
-	Add the given persistent object proxy to the receiver's cache"
-	
+	"Use _class to avoid fetching inherited objects (issue#0015)"
 	(self classCacheFor: aPersistentObjectProxy _class) at: aPersistentObjectProxy _id put: aPersistentObjectProxy!
 
 changedClassOfInstVar: aSymbol in: aClass modifyUsing: aBlock
@@ -195,7 +204,7 @@ changedClassOfInstVar: aSymbol in: aClass modifyUsing: aBlock
 	"The definition of the inst var named aSymbol in aClass has changed.
 	Modify the column definition corresponding to aSymbol, using aBlock to modify existing records"
 
-	| table origField columns |
+	| table definitionTable origField columns |
 
 	"Ensure the receiver is up-to-date with the definition of aClass"
 	table := self addClass: aClass.
@@ -205,6 +214,8 @@ changedClassOfInstVar: aSymbol in: aClass modifyUsing: aBlock
 	columns := self columnsInTable: table.
 	(columns anySatisfy: [ :col | col name asUppercase = origField name asUppercase]) ifFalse:
 		[(self error: 'No column corresponding to inst var ', aSymbol)].
+
+	definitionTable := table rootTable forCreation.
 
 	self evaluateAsTxn: 
 		[| tempField updator |
@@ -216,75 +227,67 @@ changedClassOfInstVar: aSymbol in: aClass modifyUsing: aBlock
 							accessor: ((self sqlDialect instVarAccessorFor: aClass) access: aSymbol in: aClass);
 							yourself).
 		tempField accessor name: #temp__.
-		self sqlDialect addFields: (Array with: tempField) to: table in: self. 
+		definitionTable == table ifFalse: [definitionTable addDataField: tempField].
+		self sqlDialect addFields: (Array with: tempField) to: definitionTable in: self. 
 		
 		"Modify the data"
 		(self instancesOf: aClass) modify: [ :each | each temp__: (aBlock value: each)].
 
 		"Drop the original column with the original definition"
-		self sqlDialect dropColumnNamed: origField name fromTable: table in: self.
+		self sqlDialect dropColumnNamed: origField name fromTable: definitionTable in: self.
 
 		"Re-add the column with its new definition"
-		self sqlDialect addFields: (Array with: origField) to: table in: self. 
+		self sqlDialect addFields: (Array with: origField) to: definitionTable in: self. 
 		
 		"Copy the data back from the temp column"
 		updator := (aSymbol, ':') asSymbol.
 		(self instancesOf: aClass) modify: [ :each | each perform: updator with: each temp__].
 
 		"Re-add class to remove temp field, and drop it"
-		self addClass: aClass.
-		self sqlDialect dropColumnNamed: tempField name fromTable: table in: self.
+		definitionTable == table 
+			ifTrue: [self addClass: aClass]
+			ifFalse: [self addClassWithSubclasses: definitionTable instanceClass].
+		self sqlDialect dropColumnNamed: tempField name fromTable: definitionTable in: self.
 		true]!
 
 classCacheFor: aClass
 
-	"6/8/2000
-	
-	Return the subcache of the receiver's proxyCache responsible for caching
+	"Return the subcache of the receiver's proxyCache responsible for caching
 	proxied instances of aClass"
 	
 	"Proxies are cached under the registerClass of their associated table"
 	^self proxyCache 
 		at: (self tableForClass: aClass) registerClass 
-		ifAbsentPut: [WeakIdentityDictionary new: 32]!
+		ifAbsentPut: [WeakIdentityDictionary new: 128]!
 
 clearDBTableNames
 
-	"12/5/2001"
-	
 	self dbTableNames: nil!
 
 clearNextIDCache
 
-	"14/8/2000"
-	
 	self nextIDCache: IdentityDictionary new!
 
 clearProxyCache
 
-	"14/8/2000"
-	
 	self proxyCache: IdentityDictionary new!
 
 clearStatementCache
 
-	executeStatement isNil ifFalse: 
-		[executeStatement free.
-		executeStatement := nil].
+	nextIDStatement ifNotNil: 
+		[ :stmt |
+		stmt free.
+		self nextIDStatement: nil].
 
 	self tableCache do: [ :each | each freePreparedStatements]!
 
 clearTableCache
 
-	"14/8/2000"
-	
 	self 
 		tableCache: IdentityDictionary new;
 		clearNextIDCache!
 
 clearTransaction
-
-	"Private - 1/5/2001"
 
 	self transaction: nil!
 
@@ -316,8 +319,7 @@ commitAll: aCollection
 
 commitTransaction
 
-	"Created 21/1/2001
-	Modified: 3/10/2001	Trap and recover from errors during commit (Issue#0023)"
+	"Trap and attempt to recover from errors during commit (Issue#0023)"
 
 	self isTransactionInProgress ifFalse: [self error: 'No transaction in progress'].
 
@@ -362,7 +364,7 @@ connect
 	"Reinitializate the mutex"
 	self transactionMutex: Mutex new.
 
-	[self connection connect] on: DBError do:
+	[self connection connect] on: self dbErrorClass do:
 		[ :exc |
 		self connection free.
 		exc signal].
@@ -376,52 +378,41 @@ connect
 
 connection
 
-	"6/8/2000
-	
-	connection stores the DBConnection with which the receiver communicates with the database"
+	"connection stores the DBConnection with which the receiver communicates with the database"
 	
 	^connection!
 
 connection: aDBConnection
 
-	"6/8/2000
-	
-	connection stores the DBConnection with which the receiver communicates with the database"
+	"connection stores the DBConnection with which the receiver communicates with the database"
 	
 	connection := aDBConnection!
 
-createConnection
-
-	self connection: SSWODBCConnection new!
-
 createProxyForNewObject: anObject
 
-	"Created 6/8/2000
-	Modified 22/9/2001	Error if no active transaction (issue#0022)
-	
-	Create and return a proxy for the given non-persistent object"
+	"Create and return a proxy for the given non-persistent object.
+	Error if no active transaction (issue#0022)"
 
-	| id |
+	| proxy table id |
 
 	(self hasTransaction and: [self transaction canCommit]) ifFalse:
 		[self error: 'Cannot store an object outside of a transaction'].
 
-	id := (self tableForClass: anObject class) idDataField 
-		ifNil: [nil]
-		ifNotNil: [ :idDataField | idDataField accessor valueIn: anObject].
+	proxy := (self objectProxyClassFor: anObject class) _forNewObject: anObject withID: nil inReStore: self.
 
-	id isNil ifTrue: [id := self nextIDFor: anObject].
+	table := self tableForClass: anObject class.
+	id := table idDataField ifNotNil: [ :idDataField | idDataField accessor valueIn: anObject].
+	id isNil 
+		ifTrue: [proxy _id: (self allocateIDFor: anObject in: table)]
+		ifFalse: [proxy _id: id].
 
-	^((self objectProxyClassFor: anObject class)
-		_forNewObject: anObject withID: id inReStore: self)
-			_intern;
-			yourself!
+	proxy _intern.
+
+	^proxy!
 
 createProxyForObjectOfClass: aClass withID: anInteger
 
-	"6/8/2000
-	
-	Return an unrecovered proxy for the given class/ID"
+	"Return an unrecovered proxy for the given class/ID"
 	
 	^((self objectProxyClassFor: aClass)
 		 _forObjectOfClass: aClass withID: anInteger inReStore: self)
@@ -445,23 +436,6 @@ createProxyForRow: aDBRow fromTable: aDBTable withID: anInteger
 	
 	^proxy yourself		!
 
-createTableForClass: aClass
-
-	"Private - Create and return the DB Table for aClass..
-	NB the table is not added to the receiver's tableCache"
-	
-	| table |
-	
-	table := aClass tableIn: self.
-	table isDefined ifFalse: [^nil].
-
-	"Append meaningful postfixes in the case of a reserved word clash"
-	(self sqlDialect isReservedWord: table name) ifTrue: [table name: (table name, '_TABLE')].
-	table dataFields do: 
-		[ :field | (self sqlDialect isReservedWord: field name) ifTrue: [field name: (field name, '_FIELD')]].
-
-	^table!
-
 createTableRecordFor: anSSWDBTable
 
 	"Private - Create in the database the DBTableRecord for aClass."
@@ -480,6 +454,10 @@ createTableRecordFor: anSSWDBTable
 
 	self evaluateInTxn: [self insertProxy: record. true]!
 
+dbErrorClass
+
+	^self connection dbErrorClass!
+
 dbIncludesTableForClass: aClass
 
 	^(self tableForClass: aClass ifAbsent: [nil])
@@ -488,15 +466,11 @@ dbIncludesTableForClass: aClass
 
 dbIncludesTableNamed: aString
 
-	"12/5/2001"
-
 	^self dbTableNames includes: aString asUppercase!
 
 dbTableNames
 
-	"12/5/2001
-	
-	dbTableNames stores the Collection of table name Strings returned from 'self connection tables'.
+	"dbTableNames stores the Collection of table name Strings returned from 'self connection tables'.
 	This is cached for use by client methods as it can be an expensive operation.
 
 	Lazy initialized; methods which may change the DB's table definitions should reset this to nil"
@@ -508,9 +482,7 @@ dbTableNames
 
 dbTableNames: aCollectionOrNil
 
-	"12/5/2001
-	
-	dbTableNames stores the Collection of table name Strings returned from 'self connection tables'.
+	"dbTableNames stores the Collection of table name Strings returned from 'self connection tables'.
 	This is cached for use by client methods as it can be an expensive operation.
 
 	Lazy initialized; methods which may change the DB's table definitions should reset this to nil"
@@ -531,9 +503,7 @@ defaultReadAllBatchSize
 
 deferredObjectOfClass: aClass withID: anInteger
 
-	"6/8/2000
-	
-	Return the object with the given class/ID from the receiver's proxyCache.
+	"Return the object with the given class/ID from the receiver's proxyCache.
 	If not present, create, cache and return an unrecovered (deferred) proxy for that object"
 	
 	^self cachedObjectOfClass: aClass withID: anInteger ifAbsent:
@@ -552,10 +522,20 @@ deferredObjectOfClass: aClass withID: anInteger version: versionInteger
 		ifUnrecovered: [ :proxy | proxy]
 		ifUntouched: [ :proxy | proxy _version < versionInteger ifTrue: [proxy _forgetProxiedObject]. proxy]!
 
+deleteProxy: aProxydObject
+
+	"Delete aProxydObject from the database"
+
+	| query statement |
+
+	query := SSWSQLDeleteObjectQuery forObject: aProxydObject.
+
+	statement := aProxydObject _dbTable deleteStatementGeneratedFrom: query.
+	statement values: query values.
+	statement exec; close!
+
 deregisterProxy: anSSWDBObjectProxy
 
-	"6/8/2000"
-	
 	self uncacheObject: anSSWDBObjectProxy!
 
 destroyAllClasses
@@ -588,9 +568,7 @@ destroyAllTables
 
 destroyClass: aClass
 
-	"12/5/2001
-
-	Remove from the database the definition(s) of the table(s) associated with the given class"
+	"Remove from the database the definition(s) of the table(s) associated with the given class"
 
 	| table |
 
@@ -616,9 +594,7 @@ disaffiliateWith: anObject
 
 disconnect
 
-	"14/8/2000
-	
-	'Hard' disconnect - caches are cleared"
+	"Disconnect from the database and clear all caches"
 	
 	self isConnected ifFalse: [self error: 'Not connected'].
 
@@ -627,17 +603,11 @@ disconnect
 		clearNextIDCache;
 		clearTransaction;
 		clearDBTableNames;
-		softDisconnect.
+		clearStatementCache.
+
+	self connection close.
 
 	self class deactivated: self!
-
-dsn: aString
-
-	"14/8/2000
-	
-	Forward to the connection itself"
-	
-	self connection dsn: aString!
 
 enableFullTableRecords
 
@@ -647,18 +617,18 @@ enableFullTableRecords
 
 	self supportsFullTableRecords: true.
 	self addClass: SSWDBTableRecord.
-	self evaluateAsTxn:
-		[(self tableForClass: SSWDBTableRecord) synchronizeDefinition.
-		(self instancesOf: SSWDBTableRecord satisfying: [ :each | each fullTableName = nil]) 
-			modify: [ :each | each fullTableName: each tableName].
-		true]
+
+	"Separate transactions to ensure column names are updated"
+	self 
+		evaluateAsTxn: [(self tableForClass: SSWDBTableRecord) synchronizeDefinition. true];
+		evaluateAsTxn: 
+			[(self instancesOf: SSWDBTableRecord satisfying: [ :each | each fullTableName = nil]) modify: [ :each | each fullTableName: each tableName].
+			true]
 !
 
 ensureCanChangeTransactionMode
 
-	"Private - 12/5/2001
-
-	Cannot change mode if connected to DB"
+	"Cannot change mode if connected to DB"
 
 	self isConnected ifTrue: [self error: 'Cannot change transaction mode whilst connected']!
 
@@ -679,9 +649,7 @@ evaluateAsTransaction: aBlock
 
 evaluateAsTransactionUntilSuccess: aBlock
 
-	"21/1/2001
-
-	Evaluate aBlock within a transaction then commit.
+	"Evaluate aBlock within a transaction then commit.
 	If the commit fails, rollback and refresh the transaction 
 	and re-evaluate aBlock until the commit succeeds"
 
@@ -741,41 +709,33 @@ executeQuery: anSSWSQLQuery cursorType: aSymbol
 
 	^anSSWSQLQuery isReadQuery
 		ifTrue: [statement results]
-		ifFalse: [statement closeAfter: [ :stmt | stmt numRows]]!
+		ifFalse: [statement rowsAffected]!
 
 executeSQL: aString
 
-	"12/5/01
-
-	Raw SQL execution - for privileged clients only"
-
-	^self executeStatement exec: aString!
+	^self connection exec: aString!
 
 executeSQLAsTxn: aCollectionOfStrings
 
-	"12/5/01
-
-	Raw SQL execution - for privileged clients only"
+	"Raw SQL execution - for privileged clients only"
 
 	self evaluateAsTxn:
 		[aCollectionOfStrings do: [ :aString | self executeSQL: aString].
 		true]!
 
-executeStatement
+executeSQLFrom: aBlock
 
-	"Return a prepared statement for executing general non-read queries.
-	This is faster than allocating a new statement each time"
+	"Evaluate aBlock with a new SQLWriteStream, evaluating the contents.
+	Raw SQL execution - for privileged clients only"
 
-	^executeStatement ifNil: [executeStatement := self connection newStatement]!
+	| stream |
 
-executeStatement: aStatement
-
-	executeStatement := aStatement!
+	stream := self sqlDialect sqlWriteStream.
+	aBlock value: stream.
+	^self executeSQL: stream contents!
 
 fetchObjectOfClass: aClass withQuery: anSSWSQLQuery ifNone: aBlock
 
-	"6/8/2000"
-	
 	| row |
 	
 	row := self rowFromQuery: anSSWSQLQuery.
@@ -786,8 +746,6 @@ fetchObjectOfClass: aClass withQuery: anSSWSQLQuery ifNone: aBlock
 
 fetchObjectsOfClass: aClass withQuery: anSSWSQLQuery into: aCollection
 
-	"6/8/2000"
-	
 	| table |
 		
 	table := self tableForClass: aClass.
@@ -796,8 +754,6 @@ fetchObjectsOfClass: aClass withQuery: anSSWSQLQuery into: aCollection
 
 fetchObjectsOfClass: aClass withStatement: aDBPreparedStatement into: aCollection
 
-	"6/8/2000"
-	
 	| table index |
 		
 	table := self tableForClass: aClass.
@@ -812,9 +768,7 @@ fetchObjectsOfClass: aClass withStatement: aDBPreparedStatement into: aCollectio
 
 finalize
 
-	"4/9/2001
-
-	Ensure the receiver is disconnected prior to GC  (issue#0016)"
+	"Ensure the receiver is disconnected prior to GC  (issue#0016)"
 
 	[self disconnect] on: Error do: [ :sig | "Ignore possible 'not connected' error; refactor to avoid this" sig return: nil]	!
 
@@ -866,16 +820,16 @@ hasChanged: anObject
 
 	^anObject _checkHasChangedIn: self!
 
+hasConnection
+
+	^self connection notNil!
+
 hasTransaction
 
-	"Private - 21/1/2001"
-	
 	^self transaction notNil!
 
 hasTransactionChanges
 
-	"12/3/2001"
-	
 	"Critical due to hasChanges interrogating the internals of the transaction"
 	^self transactionCritical: [self isTransactionInProgress and: [self transaction hasChanges]]!
 
@@ -887,29 +841,23 @@ haveAnyChanged: aCollection
 
 insertProxy: aProxydObject
 
-	"21/1/2001
-	
-	aProxydObject is a proxy which is not yet persistent. Insert it into the database"
+	"aProxydObject is a proxy which is not yet persistent. Insert it into the database"
 
 	| query statement |
 
-	query := SSWSQLParameterisedInsertQuery forObject: aProxydObject.
+	query := SSWSQLInsertQuery forObject: aProxydObject.
 
-	statement := (self tableForClass: aProxydObject class) insertStatementGeneratedFrom: [query].
-	statement values: (query objectValues collect: [ :each | each odbcObject]).
+	statement := aProxydObject _dbTable insertStatementGeneratedFrom: query.
+	statement values: query values.
 	statement exec; close!
 
 instancesOf: aClass
 
-	"23/3/2001"
-	
 	^SSWDBInstancesCollection forClass: aClass in: self!
 
 instancesOf: aClass satisfying: qualifierBlock
 
-	"27/3/2001
-	
-	Convenience method"
+	"Convenience method"
 	
 	^(self instancesOf: aClass) satisfying: qualifierBlock!
 
@@ -919,9 +867,7 @@ isAffiliatedWith: anObject
 
 isClassPersistent: aClass
 
-	"6/8/2000
-	
-	Return a Boolean indicating whether the given class is a persistent class
+	"Return a Boolean indicating whether the given class is a persistent class
 	known to this reStore"
 	
 	^(self tableCache includesKey: aClass) or:
@@ -930,11 +876,9 @@ isClassPersistent: aClass
 
 isConnected
 
-	"12/5/2001
+	"Pass-thru to the connection"
 
-	Pass-thru to the connection"
-
-	^self connection isConnected!
+	^self hasConnection and: [self connection isConnected]!
 
 isInCurrentTransaction: anObject
 
@@ -946,8 +890,6 @@ isSystemClass: aClass
 
 isTransactionInProgress
 
-	"21/1/2001"
-	
 	^self hasTransaction and: [self transaction isDumb not]!
 
 lazyRefresh: anObject
@@ -966,9 +908,7 @@ lazyRefreshAll: aCollection
 
 locateProxyForObject: anObject ifNone: aBlock
 
-	"20/8/2000
-	
-	Locate within the receiver's proxyCache the proxy object wrapping anObject.
+	"Locate within the receiver's proxyCache the proxy object wrapping anObject.
 	If none found, return the result of evaluating aBlock"
 	
 	^(self classCacheFor: anObject class) detect: 
@@ -979,60 +919,56 @@ locateProxyForObject: anObject ifNone: aBlock
 
 nextIDCache
 
-	"6/8/2000
-	
-	nextIDCache stores a Dictionary mapping SSWDBTables 
-	to the persistent SSWDBTableNextID instance governing allocation of table IDs"
+	"nextIDCache stores a Dictionary mapping SSWDBTables 
+	to the persistent SSWDBTableRecord instance governing allocation of table IDs"
 	
 	^nextIDCache!
 
 nextIDCache: anIdentityDictionary
 
-	"6/8/2000
-	
-	nextIDCache stores a Dictionary mapping SSWDBTables 
-	to the persistent SSWDBTableNextID instance governing allocation of table IDs"
+	"nextIDCache stores a Dictionary mapping SSWDBTables 
+	to the persistent SSWDBTableRecord instance governing allocation of table IDs"
 	
 	nextIDCache := anIdentityDictionary!
 
-nextIDFor: anObject
-
-	"19/8/2000"
-
-	^self nextIDForTable: (self tableForClass: anObject class)!
-
 nextIDForTable: anSSWDBTable
 
-	"19/8/2000"
-	
-	| nextTableID directNextTableID nextID instances |
+	"Return the next ID for the given table, updating the table's database record accordingly.
+	Usually only used for the NEXT_ID table itself"
 
-	"Note that SSWDBTableRecord creation is done manually, 
-	since we need to keep it outside of general transaction management"
-	nextTableID := self nextIDCache at: anSSWDBTable ifAbsentPut:
-		[(self instancesOf: SSWDBTableRecord) detect: [ :seq | seq tableName = anSSWDBTable name] ifNone:
-			[self createTableRecordFor: anSSWDBTable.
-			(self instancesOf: SSWDBTableRecord) detect: [ :seq | seq tableName = anSSWDBTable name]]].
+	| tableRecord directTableRecord nextID statement |
+
+	tableRecord := self tableRecordFor: anSSWDBTable.
 	
 	"Avoid invoking change detection system by referencing nextTableID directly"
-	directNextTableID := nextTableID _proxiedObject.
-	nextID := directNextTableID nextCachedID.
+	directTableRecord := tableRecord _proxiedObject.
 
-	^nextID notNil 
-	ifTrue: 
-		[nextID]
-	ifFalse:
-		["Need to update nextTableID, ensuring we don't update if it has been changed (by another ReStore)"					
-		nextID := directNextTableID nextID + anSSWDBTable idCacheSize.
-		instances := self instancesOf: SSWDBTableRecord satisfying: 
-			[ :each | 
-			(each tableName = anSSWDBTable name) & (each nextID = directNextTableID nextID)].	
+	"Need to update nextTableID, ensuring we don't update if it has been changed by another ReStore"					
+	nextID := directTableRecord nextID + 1.
 
-		(instances modify: [ :each | each nextID: nextID]) = 1
-			ifTrue: [directNextTableID cacheUpToID: nextID]
-			ifFalse: [nextTableID  _recoverProxiedObject].
+	statement := self nextIDStatement.
+	statement values: (Array with: nextID with: directTableRecord _id with: directTableRecord nextID); exec.
+	statement rowsAffected = 1 ifTrue: [^nextID].
 
-		self nextIDForTable: anSSWDBTable]!
+	"Refresh and try again"
+	tableRecord _recoverProxiedObject.
+	^self nextIDForTable: anSSWDBTable!
+
+nextIDStatement
+
+	^nextIDStatement ifNil: 
+		[| table |
+		table := self tableForClass: SSWDBTableRecord.
+		nextIDStatement := 
+			self prepareStatementForQuery: 
+				(SSWSQLUpdateQuery new
+					table: table;
+					conditions: ((SSWSQLCondition field: (table fieldAccessing: #_id) equalTo: SSWSQLQueryParameter) & (SSWSQLCondition field: (table fieldAccessing: #nextID) equalTo: SSWSQLQueryParameter));
+					fieldUpdates: (SSWSQLFieldAssignmentCollection with: (SSWSQLFieldAssignment field: (table fieldAccessing: #nextID) value: SSWSQLQueryParameter));
+					yourself)]!
+
+nextIDStatement: anObject
+	nextIDStatement := anObject!
 
 nextShortTableNameFor: anSSWDBTable
 
@@ -1081,18 +1017,14 @@ objectFromRow: aDatabaseRow table: anSSWDBTable
 
 objectProxyClass
 
-	"1/10/2000
-
-	objectProxyClass stores the class of Proxy to use for Objects (as opposed to collections).
+	"objectProxyClass stores the class of Proxy to use for Objects (as opposed to collections).
 	This will usually be SSWDBObjectProxy or one of its subclasses"
 	
 	^objectProxyClass!
 
 objectProxyClass: aClass
 
-	"1/10/2000
-
-	objectProxyClass stores the class of Proxy to use for Objects (as opposed to collections).
+	"objectProxyClass stores the class of Proxy to use for Objects (as opposed to collections).
 	This will usually be SSWDBObjectProxy or one of its subclasses"
 	
 	objectProxyClass := aClass!
@@ -1101,11 +1033,13 @@ objectProxyClassFor: aClass
 
 	^aClass preferredObjectProxyClass ifNil: [self objectProxyClass]!
 
-openODBC
+onStartup
 
-	"Convenience - open the 32bit ODBC control panel"
+	self connection isNil ifFalse: [self connection onStartup].
 
-	ShellLibrary default shellOpen: 'odbcad32'!
+	"Clear the statement cache of any active ReStores, 
+	since these will reference the connection active in the previous session"
+	self clearStatementCache!
 
 persistentSystemClasses
 
@@ -1123,15 +1057,11 @@ prepareStatementForQuery: anSSWSQLQuery
 
 preWriteValidate: anObject
 
-	"20/8/2000"
-	
 	(self tableForClass: anObject class) storeNonPersistentComponentsOf: anObject!
 
 proxy: anSSWDBProxy forwarded: aMessage
 
-	"22/10/2000
-	
-	anSSWDBProxy has just forwarded aMessage to its proxiedObject.
+	"anSSWDBProxy has just forwarded aMessage to its proxiedObject.
 	Take any necessary actions here and forward to other interested parties"
 
 	transaction == nil ifTrue: [self beginDumbTransaction].
@@ -1140,9 +1070,7 @@ proxy: anSSWDBProxy forwarded: aMessage
 
 proxyCache
 
-	"6/8/2000
-	
-	proxyCache stores a Dictionary mapping classes of persistent objects 
+	"proxyCache stores a Dictionary mapping classes of persistent objects 
 	to a further dictionary mapping the unique IDs of persistent database objects
 	to the proxy (SSWDBObjectProxy) which represents that object in the image.
 	The sub-dictionary is weak-valued by default"
@@ -1151,22 +1079,12 @@ proxyCache
 
 proxyCache: aDictionary
 
-	"6/8/2000
-	
-	proxyCache stores a Dictionary mapping classes of persistent objects 
+	"proxyCache stores a Dictionary mapping classes of persistent objects 
 	to a further dictionary mapping the unique IDs of persistent database objects
 	to the proxy (SSWDBObjectProxy) which represents that object in the image.
 	The sub-dictionary is weak-valued by default"
 	
 	proxyCache := aDictionary!
-
-pwd: aString
-
-	"14/8/2000
-	
-	Forward to the connection itself"
-	
-	self connection pwd: aString!
 
 readAllBatchSize
 
@@ -1267,8 +1185,6 @@ refreshAllObjects
 
 refreshAndRollforwardTransaction
 
-	"24/4/2001"
-	
 	self isTransactionInProgress ifFalse: [self error: 'No transaction in progress'].
 
 	self transactionCritical: 
@@ -1277,9 +1193,7 @@ refreshAndRollforwardTransaction
 
 refreshClasses
 
-	"6/8/2000
-
-	Regenerate each table in the tableCache from its class"
+	"Regenerate each table in the tableCache from its class"
 
 	self tableCache copy keysDo: [ :class | self addClass: class]!
 
@@ -1315,25 +1229,11 @@ refreshProxyIfUpdated: anSSWDBObjectProxy
 
 registerProxy: anSSWDBObjectProxy
 
-	"6/8/2000"
-	
 	self cacheObject: anSSWDBObjectProxy!
 
 removeFromTransaction: aProxy
 
-	"22/5/2001"
-
 	self transaction removeProxy: aProxy!
-
-removeProxy: aProxydObject
-
-	"21/1/2001
-	
-	Remove aProxydObject from the database and the receiver ReStore"
-
-	^self 
-		uncacheObject: aProxydObject;
-		executeQuery: (SSWSQLDeleteObjectQuery forObject: aProxydObject)!
 
 renamedClass: aClass from: aSymbol
 
@@ -1351,7 +1251,7 @@ renamedClass: aClass from: aSymbol
 	newDefinitionTable := newTable forCreation.
 	newDefinitionTable isNil ifTrue: [^self].
 
-	oldTable := self createTableForClass: aClass.
+	oldTable := aClass tableIn: self.
 	oldTable name: (self sqlDialect transformClassName: aSymbol).
 	oldTable fullName: oldTable name.
 	self validateTable: oldTable.
@@ -1368,7 +1268,7 @@ renamedInstVar: newInstVar from: oldInstVar in: aClass
 	"Rename the column corresponding to oldInstVar (a Symbol) in aClass to match newInstVar.
 	Assumes standard field naming was used on the class"
 
-	| table newField oldField columns |
+	| table definitionTable newField oldField columns |
 
 	"Ensure the receiver is up-to-date with the definition of aClass"
 	table := self addClass: aClass.
@@ -1387,13 +1287,15 @@ renamedInstVar: newInstVar from: oldInstVar in: aClass
 		true].
 
 	"Re-add the class to drop the oldField"
-	self addClass: aClass!
+	self addClass: aClass.
+	definitionTable := table rootTable forCreation.
+	definitionTable == table ifFalse: [self addClassWithSubclasses: definitionTable instanceClass]!
 
 renameTable: oldTable to: newTable
 
 	"Private - Rename the old-named table to the new name, updating relevant objects"
 
-	| instances oldRecord |
+	| instances |
 
 	self sqlDialect renameTableNamed: oldTable name to: newTable name in: self.
 
@@ -1403,9 +1305,10 @@ renameTable: oldTable to: newTable
 	instances modify: [ :each | each tableName: newTable name].
 
 	"Clear any cached TableRecord for the old table"
-	oldRecord := self nextIDCache detect: [ :each | each tableName = oldTable name] ifNone: [nil].
-	oldRecord notNil ifTrue:
-		[| cachedOldTable |
+	(self nextIDCache detect: [ :each | each tableName = oldTable name] ifNone: [nil]) ifNotNil:
+		[ :oldRecord || cachedOldTable |
+		oldRecord tableName: newTable name.
+		self supportsFullTableRecords ifTrue: [oldRecord fullTableName: newTable fullName].
 		cachedOldTable := self nextIDCache keyAtValue: oldRecord.
 		cachedOldTable isNil ifFalse: [self nextIDCache removeKey: cachedOldTable]].
 
@@ -1435,8 +1338,6 @@ rollbackAll: aCollection
 
 rollbackAndRefreshTransaction
 
-	"21/1/2001"
-	
 	self isTransactionInProgress ifFalse: [self error: 'No transaction in progress'].
 
 	self transactionCritical:
@@ -1459,9 +1360,7 @@ rollbackTransaction
 
 rowFromQuery: anSSWSQLQuery
 
-	"6/8/2000
-	
-	Return the sole/first row obtained by execuing anSSWSQLQuery"
+	"Return the sole/first row obtained by execuing anSSWSQLQuery"
 	
 	| results row |
 		
@@ -1475,8 +1374,6 @@ rowFromQuery: anSSWSQLQuery
 
 rowsFromQuery: anSSWSQLQuery do: aBlock
 
-	"6/8/2000"
-	
 	| results |
 		
 	results := self executeQuery: anSSWSQLQuery.
@@ -1487,8 +1384,6 @@ rowsFromQuery: anSSWSQLQuery do: aBlock
 
 rowsFromStatement: aDBPreparedStatement do: aBlock
 
-	"6/8/2000"
-	
 	aDBPreparedStatement exec.
 
 	aDBPreparedStatement results do: [ :row | aBlock value: row].
@@ -1504,19 +1399,6 @@ selectChanged: aCollection
 setDefaultTransactionMode
 
 	self useTransactionsWithVersioning!
-
-softDisconnect
-
-	"14/8/2000
-	
-	Disconnect from the DB but do not clear the proxy cache"
-
-	self clearStatementCache.
-
-	"Going through a Txn cycle seems to help when disconnecting"
-	self connection rollbackTxn.
-
-	self connection close!
 
 softRollback
 
@@ -1571,9 +1453,7 @@ supportsVersioning
 
 synchronizeAllClasses
 
-	"12/5/2001
-
-	Synchronize the definitions of all the tables associated with the receiver's classes"
+	"Synchronize the definitions of all the tables associated with the receiver's classes"
 
 	[self evaluateAsTxn:
 		[self persistentSystemClasses do: 
@@ -1589,9 +1469,7 @@ synchronizeAllClasses
 
 synchronizeClass: aClass
 
-	"12/5/2001
-
-	Synchronize the definition(s) of the table(s) associated with the given class"
+	"Synchronize the definition(s) of the table(s) associated with the given class"
 
 	[self evaluateAsTxn:
 		[self persistentSystemClasses do: 
@@ -1605,18 +1483,14 @@ synchronizeClass: aClass
 
 tableCache
 
-	"6/8/2000
-	
-	tableCache stores a Dictionary mapping classes (known as persistent to the receiver)
+	"tableCache stores a Dictionary mapping classes (known as persistent to the receiver)
 	to their equivalent SSWDBTable"
 	
 	^tableCache!
 
 tableCache: anIdentityDictionary
 
-	"6/8/2000
-	
-	tableCache stores a Dictionary mapping classes (known as persistent to the receiver)
+	"tableCache stores a Dictionary mapping classes (known as persistent to the receiver)
 	to their equivalent SSWDBTable"
 	
 	tableCache := anIdentityDictionary!
@@ -1629,38 +1503,34 @@ tableForClass: aClass ifAbsent: aBlock
 	
 	^self tableCache at: aClass ifAbsent: aBlock!
 
+tableRecordFor: aDBTable
+
+	^self nextIDCache at: aDBTable ifAbsentPut: [(self instancesOf: SSWDBTableRecord) detect: [ :seq | seq tableName = aDBTable name] ifNone: [self error: 'nextID not found for table ', aDBTable tableName]].!
+
 transaction
 
-	"20/10/2000
-	
-	transaction stores an SSWDBTransaction which manages 
+	"transaction stores an SSWDBTransaction which manages 
 	the writing/rollback of object changes within this ReStore"
 	
 	^transaction!
 
 transaction: anSSWDBTransaction
 
-	"20/10/2000
-	
-	transaction stores an SSWDBTransaction which manages 
+	"transaction stores an SSWDBTransaction which manages 
 	the writing/rollback of object changes within this ReStore"
 	
 	transaction := anSSWDBTransaction!
 
 transactionClass
 
-	"21/1/2001
-	
-	transactionClass stores the class of transaction (SSWDBTransaction subclass) 
+	"transactionClass stores the class of transaction (SSWDBTransaction subclass) 
 	which the receiver uses"
 	
 	^transactionClass!
 
 transactionClass: aSSWDBTransactionSubclass
 
-	"21/1/2001
-	
-	transactionClass stores the class of transaction (SSWDBTransaction subclass) 
+	"transactionClass stores the class of transaction (SSWDBTransaction subclass) 
 	which the receiver uses"
 	
 	self isTransactionInProgress ifTrue: [self error: 'Cannot change transactionClass whilst transaction in progress'].
@@ -1669,8 +1539,6 @@ transactionClass: aSSWDBTransactionSubclass
 
 transactionCommitFailures
 
-	"23/4/2001"
-	
 	self isTransactionInProgress ifFalse: [self error: 'No transaction in progress'].
 	
 	^self transaction hasFailedCommit
@@ -1679,60 +1547,40 @@ transactionCommitFailures
 
 transactionCritical: aBlock
 
-	"25/4/2002
-
-	Evaluate aBlock under the guard of the transactionMutex"
+	"Evaluate aBlock under the guard of the transactionMutex"
 
 	^self transactionMutex critical: aBlock!
 
 transactionCritical: aBlock ifLocked: lockedBlock
 
-	"25/4/2002
-
-	Evaluate aBlock under the guard of the transactionMutex"
+	"Evaluate aBlock under the guard of the transactionMutex"
 
 	^self transactionMutex critical: aBlock ifLocked: lockedBlock!
 
 transactionMutex
 
-	"25/4/2002
-
-	transactionMutex holds a Mutex which guards access to critical areas of transaction functionality.
+	"transactionMutex holds a Mutex which guards access to critical areas of transaction functionality.
 	This prevents transactions being corrupted by access to objects during commit/rollback"
 
 	^transactionMutex!
 
 transactionMutex: aMutex
 
-	"25/4/2002
-
-	transactionMutex holds a Mutex which guards access to critical areas of transaction functionality.
+	"transactionMutex holds a Mutex which guards access to critical areas of transaction functionality.
 	This prevents transactions being corrupted by access to objects during commit/rollback"
 
 	transactionMutex := aMutex!
 
-uid: aString
-
-	"14/8/2000
-	
-	Forward to the connection itself"
-	
-	self connection uid: aString!
-
 uncacheObject: aPersistentObjectProxy
 
-	"Created 6/8/2000
-	Modified 5/9/2001		Use _class to avoid fetching inherited objects (issue#0015)
-	
-	Remove the given persistent object proxy to the receiver's cache"
-	
+	"Remove the given persistent object proxy to the receiver's cache"
+
+	"Use _class to avoid fetching inherited objects (issue#0015)"
 	(self classCacheFor: aPersistentObjectProxy _class) removeKey: aPersistentObjectProxy _id!
 
 unstoreNextIDsForTables: aCollection
 
-	"Private - 3/10/2001
-
-	Forget and unstore the NEXT_ID entries for aCollection of (dropped) SSWDBTables"
+	"Forget and unstore the NEXT_ID entries for aCollection of (dropped) SSWDBTables"
 
 	| droppedNames |
 
@@ -1745,9 +1593,7 @@ unstoreNextIDsForTables: aCollection
 
 useTransactionsWithoutVersioning
 
-	"29/4/2001
-
-	Set the receiver to use (single) transactions *without* version counting
+	"Set the receiver to use (single) transactions *without* version counting
 	 - for single-user, transaction controlled DB updating"
 
 	self 	
@@ -1759,16 +1605,15 @@ useTransactionsWithoutVersioning
 
 useTransactionsWithVersioning
 
-	"29/4/2001
-
-	Set the receiver to use (single) transactions with version counting
+	"Set the receiver to use (single) transactions with version counting
 	 - for optimistic-locking, multi-user, transaction controlled DB updating"
 
 	self
 		ensureCanChangeTransactionMode;
 		transactionClass: SSWDBSingleTransactionWithVersioning;
-		objectProxyClass: SSWDBVersionedCachingObjectProxy;
-		refreshClasses
+		objectProxyClass: SSWDBVersionedCachingObjectProxy.
+
+	self isConnected ifTrue: [self refreshClasses]
 !
 
 validateTable: anSSWDBTable
@@ -1801,10 +1646,11 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #addClassWithSubclasses:!class maintenance!public! !
 !SSWReStore categoriesFor: #affiliateWith:using:!initialize/release!public! !
 !SSWReStore categoriesFor: #affiliations!accessing!public! !
+!SSWReStore categoriesFor: #allocateIDFor:in:!cache management!public! !
+!SSWReStore categoriesFor: #alterInstVar:in:!class maintenance!public! !
 !SSWReStore categoriesFor: #applyUpdates:toObject:!public!read/write objects! !
 !SSWReStore categoriesFor: #beginDumbTransaction!private!transaction management! !
 !SSWReStore categoriesFor: #beginTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #binaryStoreOn:!binary filing!public! !
 !SSWReStore categoriesFor: #cachedInstancesOf:!public!querying! !
 !SSWReStore categoriesFor: #cachedObjectOfClass:withID:ifAbsent:!cache management!public! !
 !SSWReStore categoriesFor: #cachedObjectOfClass:withID:ifAbsent:ifUnrecovered:ifUntouched:!cache management!public! !
@@ -1825,12 +1671,11 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #connect!connection!public! !
 !SSWReStore categoriesFor: #connection!accessing!public! !
 !SSWReStore categoriesFor: #connection:!accessing!public! !
-!SSWReStore categoriesFor: #createConnection!initialize/release!public! !
 !SSWReStore categoriesFor: #createProxyForNewObject:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #createProxyForObjectOfClass:withID:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #createProxyForRow:fromTable:withID:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #createTableForClass:!class maintenance!private! !
 !SSWReStore categoriesFor: #createTableRecordFor:!class maintenance!private! !
+!SSWReStore categoriesFor: #dbErrorClass!connection!public! !
 !SSWReStore categoriesFor: #dbIncludesTableForClass:!class maintenance!public! !
 !SSWReStore categoriesFor: #dbIncludesTableNamed:!public!testing! !
 !SSWReStore categoriesFor: #dbTableNames!accessing!public! !
@@ -1839,6 +1684,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #defaultReadAllBatchSize!constants!private! !
 !SSWReStore categoriesFor: #deferredObjectOfClass:withID:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #deferredObjectOfClass:withID:version:!proxy manipulation!public! !
+!SSWReStore categoriesFor: #deleteProxy:!public!read/write objects! !
 !SSWReStore categoriesFor: #deregisterProxy:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #destroyAllClasses!class maintenance!public! !
 !SSWReStore categoriesFor: #destroyAllTables!class maintenance!public! !
@@ -1846,7 +1692,6 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #destroyTable:!class maintenance!private! !
 !SSWReStore categoriesFor: #disaffiliateWith:!initialize/release!public! !
 !SSWReStore categoriesFor: #disconnect!connection!public! !
-!SSWReStore categoriesFor: #dsn:!connection!public! !
 !SSWReStore categoriesFor: #enableFullTableRecords!class maintenance!public! !
 !SSWReStore categoriesFor: #ensureCanChangeTransactionMode!initialize/release!private! !
 !SSWReStore categoriesFor: #ensureNoActiveTransaction!private!transaction management! !
@@ -1859,8 +1704,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #executeQuery:cursorType:!connection!public! !
 !SSWReStore categoriesFor: #executeSQL:!connection!public! !
 !SSWReStore categoriesFor: #executeSQLAsTxn:!connection!public! !
-!SSWReStore categoriesFor: #executeStatement!accessing!public! !
-!SSWReStore categoriesFor: #executeStatement:!accessing!public! !
+!SSWReStore categoriesFor: #executeSQLFrom:!connection!public! !
 !SSWReStore categoriesFor: #fetchObjectOfClass:withQuery:ifNone:!public!querying! !
 !SSWReStore categoriesFor: #fetchObjectsOfClass:withQuery:into:!public!querying! !
 !SSWReStore categoriesFor: #fetchObjectsOfClass:withStatement:into:!public!querying! !
@@ -1872,6 +1716,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #hasActiveAffiliation!public!testing! !
 !SSWReStore categoriesFor: #hasAffiliations!public!testing! !
 !SSWReStore categoriesFor: #hasChanged:!public!transactionless api! !
+!SSWReStore categoriesFor: #hasConnection!public!testing! !
 !SSWReStore categoriesFor: #hasTransaction!private!transaction management! !
 !SSWReStore categoriesFor: #hasTransactionChanges!public!transaction api! !
 !SSWReStore categoriesFor: #haveAnyChanged:!public!transactionless api! !
@@ -1889,21 +1734,21 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #locateProxyForObject:ifNone:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #nextIDCache!accessing!public! !
 !SSWReStore categoriesFor: #nextIDCache:!accessing!public! !
-!SSWReStore categoriesFor: #nextIDFor:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #nextIDForTable:!cache management!public! !
+!SSWReStore categoriesFor: #nextIDStatement!accessing!public! !
+!SSWReStore categoriesFor: #nextIDStatement:!accessing!public! !
 !SSWReStore categoriesFor: #nextShortTableNameFor:!class maintenance!private! !
 !SSWReStore categoriesFor: #objectFromRow:table:!public!querying! !
 !SSWReStore categoriesFor: #objectProxyClass!accessing!public! !
 !SSWReStore categoriesFor: #objectProxyClass:!accessing!public! !
 !SSWReStore categoriesFor: #objectProxyClassFor:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #openODBC!connection!public! !
+!SSWReStore categoriesFor: #onStartup!initialize/release!public! !
 !SSWReStore categoriesFor: #persistentSystemClasses!class maintenance!private! !
 !SSWReStore categoriesFor: #prepareStatementForQuery:!connection!public! !
 !SSWReStore categoriesFor: #preWriteValidate:!public!read/write objects! !
 !SSWReStore categoriesFor: #proxy:forwarded:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #proxyCache!accessing!public! !
 !SSWReStore categoriesFor: #proxyCache:!accessing!public! !
-!SSWReStore categoriesFor: #pwd:!connection!public! !
 !SSWReStore categoriesFor: #readAllBatchSize!accessing!public! !
 !SSWReStore categoriesFor: #readAllBatchSize:!accessing!public! !
 !SSWReStore categoriesFor: #reconnect!connection!public! !
@@ -1918,7 +1763,6 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #refreshProxyIfUpdated:!public!read/write objects! !
 !SSWReStore categoriesFor: #registerProxy:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #removeFromTransaction:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #removeProxy:!public!read/write objects! !
 !SSWReStore categoriesFor: #renamedClass:from:!class maintenance!public! !
 !SSWReStore categoriesFor: #renamedInstVar:from:in:!class maintenance!public! !
 !SSWReStore categoriesFor: #renameTable:to:!class maintenance!private! !
@@ -1932,7 +1776,6 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #rowsFromStatement:do:!public!querying! !
 !SSWReStore categoriesFor: #selectChanged:!public!transaction management! !
 !SSWReStore categoriesFor: #setDefaultTransactionMode!initialize/release!private! !
-!SSWReStore categoriesFor: #softDisconnect!connection!public! !
 !SSWReStore categoriesFor: #softRollback!public!transaction api! !
 !SSWReStore categoriesFor: #sqlDialect!accessing!public! !
 !SSWReStore categoriesFor: #supportsFullTableRecords!accessing!public! !
@@ -1944,6 +1787,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #tableCache:!accessing!public! !
 !SSWReStore categoriesFor: #tableForClass:!cache management!public! !
 !SSWReStore categoriesFor: #tableForClass:ifAbsent:!cache management!public! !
+!SSWReStore categoriesFor: #tableRecordFor:!cache management!public! !
 !SSWReStore categoriesFor: #transaction!accessing!public! !
 !SSWReStore categoriesFor: #transaction:!accessing!public! !
 !SSWReStore categoriesFor: #transactionClass!accessing!public! !
@@ -1953,7 +1797,6 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #transactionCritical:ifLocked:!private!transaction management! !
 !SSWReStore categoriesFor: #transactionMutex!accessing!public! !
 !SSWReStore categoriesFor: #transactionMutex:!accessing!public! !
-!SSWReStore categoriesFor: #uid:!connection!public! !
 !SSWReStore categoriesFor: #uncacheObject:!cache management!public! !
 !SSWReStore categoriesFor: #unstoreNextIDsForTables:!class maintenance!private! !
 !SSWReStore categoriesFor: #useTransactionsWithoutVersioning!initialize/release!public! !
@@ -1964,19 +1807,12 @@ validateTable: anSSWDBTable
 
 activated: anSSWReStore
 
-	"Created 16/4/2001
-	Modified 4/9/2001		Make anSSWReStore finalizable (issue#0016)"
-
 	self activeReStores add: anSSWReStore.
 	anSSWReStore beFinalizable!
 
 activeReStores
 
-	"Created 16/4/2001
-	Modified 4/9/2001		Use a WeakIdentitySet (issue#0016)
-
-	activeReStores stores a WeakIdentitySet of all instances of the receiver
-	that are active (have allocated proxies)"
+	"activeReStores stores a WeakIdentitySet of all instances of the receiver that are active (have allocated proxies)"
 
 	activeReStores == nil ifTrue: [activeReStores := WeakIdentitySet new].
 
@@ -1995,9 +1831,6 @@ affiliateFor: anObject
 	^self activeReStores detect: [ :each | each isAffiliatedWith: anObject] ifNone: [nil]!
 
 deactivated: anSSWReStore
-
-	"Created 16/4/2001
-	Modified 4/9/2001		Make anSSWReStore unfinalizable (issue#0016)"
 
 	self activeReStores remove: anSSWReStore ifAbsent: [nil].
 	anSSWReStore beUnfinalizable!
@@ -2030,27 +1863,19 @@ initializeReStoreGlobal
 
 new
 
-	"14/8/2000"
-	
 	^super new
 		clearProxyCache;
 		clearDBTableNames;
 		clearTableCache;
-		createConnection;
 		yourself!
 
 onStartup
 
-	"Clear the statement cache of any active ReStores, 
-	since these will reference the connection active in the previous session"
-
-	self activeReStores do: [ :each | each clearStatementCache]!
+	self activeReStores do: [ :each | each onStartup]!
 
 proxyForObject: anObject ifNone: aBlock
 
-	"16/4/2001
-
-	Locate and return the proxy wrapping anObject in the receiver's activeReStores.
+	"Locate and return the proxy wrapping anObject in the receiver's activeReStores.
 	If none found, return the result of evaluating aBlock"
 	
 	self activeReStores do:
@@ -2072,8 +1897,6 @@ reset
 	self initializeReStoreGlobal!
 
 resetActive
-
-	"Private - 22/9/2001	(renamed from resetActivate)"
 
 	activeReStores := nil!
 

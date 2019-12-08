@@ -6,7 +6,9 @@ SSWDBObjectWithRelatedComponents subclass: #SSWDBCollectionWithRelatedContents
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCollectionWithRelatedContents guid: (GUID fromString: '{a6c80a2a-76cb-4431-bb99-1428c9e7667d}')!
-SSWDBCollectionWithRelatedContents comment: ''!
+SSWDBCollectionWithRelatedContents comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBCollectionWithRelatedContents categoriesForClass!Unclassified! !
 !SSWDBCollectionWithRelatedContents methodsFor!
 

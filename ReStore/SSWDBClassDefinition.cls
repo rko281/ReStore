@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWDBClassDefinition
-	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar idCacheSize'
+	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBClassDefinition guid: (GUID fromString: '{0be1d2d5-2bb0-4ac3-959a-a758bb4dee08}')!
-SSWDBClassDefinition comment: ''!
+SSWDBClassDefinition comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBClassDefinition categoriesForClass!Kernel-Objects! !
 !SSWDBClassDefinition methodsFor!
 
@@ -20,9 +22,10 @@ asTableIn: aReStore
 
 	self tableName isNil ifFalse: [table name: self tableName].
 	self idInstVar isNil ifFalse: [table defineAsID: self idInstVar].
-	self idCacheSize isNil ifFalse: [table idCacheSize: self idCacheSize].
 		
-	^table!
+	^table isDefined
+		ifTrue: [table]
+		ifFalse: [nil]!
 
 define: aSymbol as: aClass
 
@@ -49,22 +52,6 @@ definedClass
 
 definedClass: anObject
 	definedClass := anObject!
-
-idCacheSize
-	^idCacheSize!
-
-idCacheSize: anInteger
-
-	"OPTIONAL:
-
-	Define the number of unique IDs that should be cached by ReStore when persisting instances of definedClass.
-	Caching IDs reduces querying when creating storing instances of the instanceClass but can lead to ID wastage if not all cached IDs have been used on logout.
-
-	Default is 10 (defined in SSWDBTable). 
-	Use a higher cache size for tables creating many instances.
-	Use a value of 1 where a continuous range is required"
-
-	idCacheSize := anInteger!
 
 idInstVar
 	^idInstVar!
@@ -104,8 +91,6 @@ tableName: aString
 !SSWDBClassDefinition categoriesFor: #defineAsID:!accessing!defining!public! !
 !SSWDBClassDefinition categoriesFor: #definedClass!accessing!private! !
 !SSWDBClassDefinition categoriesFor: #definedClass:!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #idCacheSize!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #idCacheSize:!accessing!defining!public! !
 !SSWDBClassDefinition categoriesFor: #idInstVar!accessing!private! !
 !SSWDBClassDefinition categoriesFor: #idInstVar:!accessing!private! !
 !SSWDBClassDefinition categoriesFor: #instVarDefinitions!accessing!private! !

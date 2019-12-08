@@ -6,21 +6,19 @@ SSWAccessor subclass: #SSWInstVarAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWInstVarAccessor guid: (GUID fromString: '{266e4dc6-398e-11d5-b1df-444553540000}')!
-SSWInstVarAccessor comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWInstVarAccessor comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWInstVarAccessor categoriesForClass!Unclassified! !
 !SSWInstVarAccessor methodsFor!
 
 = anSSWAccessor
 
-	"14/8/2000"
-	
 	^(self ownerClass = anSSWAccessor ownerClass) and: [self slot = anSSWAccessor slot]!
 
 access: aSymbol in: aClass
 
-	"6/8/2000
-	
-	Configure the receiver to access the inst var of aClass which is named aSymbol"
+	"Configure the receiver to access the inst var of aClass which is named aSymbol"
 	
 	| instVarSlot |
 
@@ -35,8 +33,6 @@ access: aSymbol in: aClass
 
 accesses: aSymbol
 
-	"14/8/2000"
-	
 	^self name = aSymbol!
 
 copyValueIn: sourceObject to: targetObject
@@ -48,57 +44,43 @@ copyValueIn: sourceObject to: targetObject
 
 hash
 
-	"14/8/2000"
-	
 	^self ownerClass hash + self slot hash!
 
 name
 
-	"20/8/2000
-
-	name stores the name of the instance variable accessed by the receiver,
+	"name stores the name of the instance variable accessed by the receiver,
 	as a Symbol"
 	
 	^name!
 
 name: aSymbol
 
-	"20/8/2000
-
-	name stores the name of the instance variable accessed by the receiver,
+	"name stores the name of the instance variable accessed by the receiver,
 	as a Symbol"
 	
 	name := aSymbol!
 
 ownerClass
 
-	"6/8/2000
-	
-	ownerClass stores the class whose instance variable is accessed by the receiver"
+	"ownerClass stores the class whose instance variable is accessed by the receiver"
 	
 	^ownerClass!
 
 ownerClass: aClass
 
-	"6/8/2000
-	
-	ownerClass stores the class whose instance variable is accessed by the receiver"
+	"ownerClass stores the class whose instance variable is accessed by the receiver"
 	
 	ownerClass := aClass!
 
 slot
 
-	"6/8/2000
-	
-	slot stores the index of the instance variable accessed by the receiver"
+	"slot stores the index of the instance variable accessed by the receiver"
 	
 	^slot!
 
 slot: anInteger
 
-	"6/8/2000
-	
-	slot stores the index of the instance variable accessed by the receiver"
+	"slot stores the index of the instance variable accessed by the receiver"
 	
 	slot := anInteger!
 
@@ -131,8 +113,6 @@ valueIn: targetObject
 
 toAccess: anInstVarName in: aClass
 
-	"6/8/2000"
-	
 	^self new
 		access: anInstVarName in: aClass;
 		yourself! !

@@ -6,21 +6,19 @@ SSWDBClassWithInfo subclass: #SSWDBScaledDecimalWithInfo
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBScaledDecimalWithInfo guid: (GUID fromString: '{f9276a82-4893-11d5-b1df-0010a70883e2}')!
-SSWDBScaledDecimalWithInfo comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBScaledDecimalWithInfo comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBScaledDecimalWithInfo categoriesForClass!Unclassified! !
 !SSWDBScaledDecimalWithInfo methodsFor!
 
 infoClass
 
-	"15/4/2001"
-
 	^ScaledDecimal!
 
 precision
 
-	"15/4/2001
-
-	precision stores the total number of digits that should be in this pseudo-ScaledDecimal.
+	"precision stores the total number of digits that should be in this pseudo-ScaledDecimal.
 	precision is optional; it is used by SQL (to create tables) and not ScaledDecimal itself
 	 - if omitted, a sensible fallback will be used"
 
@@ -28,9 +26,7 @@ precision
 
 precision: anInteger
 
-	"15/4/2001
-
-	precision stores the total number of digits that should be in this pseudo-ScaledDecimal.
+	"precision stores the total number of digits that should be in this pseudo-ScaledDecimal.
 	precision is optional; it is used by SQL (to create tables) and not ScaledDecimal itself
 	 - if omitted, a sensible fallback will be used"
 
@@ -38,17 +34,13 @@ precision: anInteger
 
 scale
 
-	"15/4/2001
-
-	scale stores the scale of ScaledDecimal which the receiver creates/represents"
+	"scale stores the scale of ScaledDecimal which the receiver creates/represents"
 
 	^scale!
 
 scale: anInteger
 
-	"15/4/2001
-
-	scale stores the scale of ScaledDecimal which the receiver creates/represents"
+	"scale stores the scale of ScaledDecimal which the receiver creates/represents"
 
 	scale := anInteger! !
 !SSWDBScaledDecimalWithInfo categoriesFor: #infoClass!constants!public! !

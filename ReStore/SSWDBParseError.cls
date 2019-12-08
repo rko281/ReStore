@@ -6,7 +6,9 @@ Error subclass: #SSWDBParseError
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBParseError guid: (GUID fromString: '{b65cbbf0-3145-4c8f-aec4-d48637941996}')!
-SSWDBParseError comment: ''!
+SSWDBParseError comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBParseError categoriesForClass!Kernel-Exception Handling! !
 !SSWDBParseError methodsFor!
 

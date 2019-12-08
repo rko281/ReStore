@@ -6,15 +6,15 @@ SSWSQLCollection variableSubclass: #SSWSQLTableCollection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLTableCollection guid: (GUID fromString: '{6266c925-3983-11d5-b1df-444553540000}')!
-SSWSQLTableCollection comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLTableCollection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLTableCollection categoriesForClass!Unclassified! !
 !SSWSQLTableCollection methodsFor!
 
 allFields
 
-	"28/9/2000
-	
-	Return an SSWLSQLFieldCollection which represents all fields in each of the receiver's tables"
+	"Return an SSWLSQLFieldCollection which represents all fields in each of the receiver's tables"
 	
 	| allFields |
 	
@@ -26,9 +26,7 @@ allFields
 
 soleTable
 
-	"17/8/2000
-	
-	Return the single member of the receiver.
+	"Return the single member of the receiver.
 	Error if there is not exactly one member"
 	
 	^self size = 1
@@ -37,9 +35,7 @@ soleTable
 
 soleTable: anSSWDBTable
 
-	"17/8/2000
-	
-	Set the single member of the receiver to anSSWDBTable"
+	"Set the single member of the receiver to anSSWDBTable"
 	
 	self 
 		removeAll: self copy;
@@ -47,9 +43,7 @@ soleTable: anSSWDBTable
 
 sqlConcatenator
 
-	"5/8/2000
-	
-	A comma is used to separate a list of tables in SQL"
+	"A comma is used to separate a list of tables in SQL"
 	
 	^', '! !
 !SSWSQLTableCollection categoriesFor: #allFields!output!public! !

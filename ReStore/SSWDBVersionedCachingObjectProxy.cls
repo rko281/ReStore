@@ -6,15 +6,15 @@ SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBVersionedCachingObjectProxy guid: (GUID fromString: '{36898ee1-3d8f-11d5-b1df-444553540000}')!
-SSWDBVersionedCachingObjectProxy comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBVersionedCachingObjectProxy comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBVersionedCachingObjectProxy categoriesForClass!Unclassified! !
 !SSWDBVersionedCachingObjectProxy methodsFor!
 
 _commitUpdates
 
-	"20/10/2000
-	
-	Reimplemented to include version increment"
+	"Reimplemented to include version increment"
 
 	| updates |
 
@@ -29,17 +29,13 @@ _commitUpdates
 
 _incrementVersion
 
-	"20/4/2001"
-
 	version == nil
 		ifTrue: [version := 1]
 		ifFalse: [version := version + 1]!
 
 _incrementVersionUpdate
 
-	"20/4/2001
-	
-	Create and return an update that will increment the version number
+	"Create and return an update that will increment the version number
 	of the row corresponding to the receiver's proxiedObject"
 	
 	^version == nil
@@ -48,17 +44,13 @@ _incrementVersionUpdate
 
 _matchStateOf: aProxy
 
-	"16/4/2001
-
-	Match the internal proxy (non data) state of aProxy"
+	"Match the internal proxy (non data) state of aProxy"
 
 	version := aProxy _version!
 
 _postCommitUpdates
 
-	"24/4/2001
-
-	Reimplemented to increment version"
+	"Reimplemented to increment version"
 
 	| updates |
 
@@ -79,9 +71,7 @@ _refreshIfUpdated
 
 _version
 
-	"19/4/2001
-	
-	version stores an Integer representing the version or revision number
+	"version stores an Integer representing the version or revision number
 	of the object proxy'd by the receiver.
 	
 	This number is incremented each time the object is changed in the DB"
@@ -90,9 +80,7 @@ _version
 
 _version: anInteger
 
-	"19/4/2001
-	
-	version stores an Integer representing the version or revision number
+	"version stores an Integer representing the version or revision number
 	of the object proxy'd by the receiver.
 	
 	This number is incremented each time the object is changed in the DB"
@@ -111,9 +99,7 @@ _version: anInteger
 
 _forNewObject: anObject withID: anInteger inReStore: aReStore
 
-	"19/4/2001
-
-	Overriden to set initial version number"
+	"Overriden to set initial version number"
 	
 	^(super _forNewObject: anObject withID: anInteger inReStore: aReStore)
 		_version: 1;
@@ -121,9 +107,7 @@ _forNewObject: anObject withID: anInteger inReStore: aReStore
 
 controlFields
 
-	"29/4/2001
-
-	Overriden to set version controlField"
+	"Overriden to set version controlField"
 
 	^super controlFields
 		add: self versionControlField;
@@ -138,17 +122,13 @@ modifyUpdatesFor: anSSWDBTable
 
 new
 
-	"19/4/2001
-
-	Overriden to set initial version number"
+	"Overriden to set initial version number"
 	
 	^super new
 		_version: 1;
 		yourself!
 
 versionControlField
-
-	"29/4/2001"
 
 	^SSWDBStaticField new
 		accessor: SSWDBVersionAccessor new;

@@ -6,39 +6,33 @@ SSWAccessor subclass: #SSWDBPrivateAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBPrivateAccessor guid: (GUID fromString: '{266e4dc2-398e-11d5-b1df-444553540000}')!
-SSWDBPrivateAccessor comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBPrivateAccessor comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBPrivateAccessor categoriesForClass!Unclassified! !
 !SSWDBPrivateAccessor methodsFor!
 
 access: aSymbol in: aClass
 
-	"19/8/2000
-	
-	Do nothing - the receiver is hard-wired to access a private aspect of an object"
+	"Do nothing - the receiver is hard-wired to access a private aspect of an object"
 	
 	^self !
 
 accesses: aSymbol
 
-	"14/8/2000
-	
-	Check against the specialSymbol"
+	"Check against the specialSymbol"
 	
 	^aSymbol == self specialSymbol!
 
 name
 
-	"29/4/2001
-
-	Use the specialSymbol for this"
+	"Use the specialSymbol for this"
 
 	^self specialSymbol!
 
 nameInDB
 
-	"19/8/2001
-
-	Return the name of the receiver as used for the basis of its (field) name in the database.
+	"Return the name of the receiver as used for the basis of its (field) name in the database.
 	Default - the specialSymbol (same as name).
 	Classes with other requirements may override"
 
@@ -46,9 +40,7 @@ nameInDB
 
 specialSymbol
 
-	"29/4/2001
-
-	Return a 'special' symbol denoting the private aspect 'accessed' by the receiver.
+	"Return a 'special' symbol denoting the private aspect 'accessed' by the receiver.
 	This will usually be prefixed with an underscore to avoid confusion with inst vars"
 
 	^self subclassResponsibility! !

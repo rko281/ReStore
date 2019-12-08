@@ -6,13 +6,13 @@ SSWDBCollectionProxy subclass: #SSWDBOwnedCollectionProxy
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBOwnedCollectionProxy guid: (GUID fromString: '{4aacf4a1-6267-11d5-b1df-0010a70883e2}')!
-SSWDBOwnedCollectionProxy comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBOwnedCollectionProxy comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBOwnedCollectionProxy categoriesForClass!Unclassified! !
 !SSWDBOwnedCollectionProxy methodsFor!
 
 _checkHasChanged
-
-	"27/4/2001"
 
 	^self _isDeleted or: [self _isPersistent not or: 
 		[(proxiedObject size ~= copyCollection size) 
@@ -20,45 +20,33 @@ _checkHasChanged
 
 _copyCollection
 
-	"22/1/2001
-	
-	The receiver automatically detects changes to its proxiedObject 
+	"The receiver automatically detects changes to its proxiedObject 
 	by maintaining a copy of its previous state. This is held in copyCollection"
 	
 	^copyCollection!
 
 _copyCollection: aCollection
 
-	"22/1/2001
-	
-	The receiver automatically detects changes to its proxiedObject 
+	"The receiver automatically detects changes to its proxiedObject 
 	by maintaining a copy of its previous state. This is held in copyCollection"
 	
 	copyCollection := aCollection!
 
 _isDeleted
 
-	"25/4/2001"
-
 	^proxiedObject == nil and: [copyCollection ~~ nil]!
 
 _isPersistent
 
-	"18/9/2000"
-	
 	^copyCollection ~~ nil or: [self _isRecovered not]!
 
 _postCommitChanges
-
-	"23/1/2001"
 
 	copyCollection := proxiedObject copy!
 
 _prepareToCommit
 
-	"23/1/2001
-
-	Prepare to 'commit' the receiver by ensuring that all elements added to the
+	"Prepare to 'commit' the receiver by ensuring that all elements added to the
 	proxiedObject point back to the owner, and that removed elements do not"
 
 	| added removed |
@@ -97,21 +85,17 @@ _prepareToCommit
 
 _proxiedObject: aCollection
 
-	"20/8/2000
-	
-	Overriden to set the copyCollection"
+	"Overriden to set the copyCollection"
 	
 	super _proxiedObject: aCollection.
 	copyCollection := aCollection copy!
 
 _rollbackChanges
 
-	"23/1/2001
-
-	Forget any changes by instantiating from the copyCollection.
+	"Forget any changes by instantiating from the copyCollection.
 	Also transfer over any events registered against the current proxiedObject"
 
-	| wasDeleted oldEvents me him |
+	| wasDeleted me him |
 
 	"Reinstate the proxiedObject if the receiver was deleted"
 	self _isDeleted 
@@ -122,22 +106,17 @@ _rollbackChanges
 	ifFalse:
 		[wasDeleted := false].
 
-	oldEvents := proxiedObject getEvents.
-
 	me := proxiedObject.
 	him := self.
 	self _swapReferences.
 
 	wasDeleted ifFalse:
 		[me _proxiedObject: me _copyCollection copy.
-		me _proxiedObject setEvents: oldEvents]
-!
+		him getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]]!
 
 _unstore
 
-	"25/5/2001
-
-	Point references to the proxiedObject to the copyCollection
+	"Point references to the proxiedObject to the copyCollection
 	 - this enables identity to be preserved in the event of a rollback"
 
 	self _isPersistent

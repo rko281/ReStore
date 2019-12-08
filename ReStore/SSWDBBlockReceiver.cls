@@ -6,20 +6,25 @@ SSWDBBlockArgument subclass: #SSWDBBlockReceiver
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBBlockReceiver guid: (GUID fromString: '{0cfeee99-7787-4b16-954c-b0c6f4cb0b64}')!
-SSWDBBlockReceiver comment: ''!
+SSWDBBlockReceiver comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBBlockReceiver categoriesForClass!Unclassified! !
 !SSWDBBlockReceiver methodsFor!
 
+_id
+
+	"Query on the ID field of the receiver's currentTable. 
+	Explicitly set the receiver's finalField to be the join field leading to the table; this will pop the joined table if it is not otherwise required"
+
+	self finalField: self finalField!
+
 currentTable
 
-	"14/8/2000"
-	
 	^currentTable!
 
 currentTable: anSSWDBTable
 
-	"14/8/2000"
-	
 	currentTable := anSSWDBTable!
 
 finalField
@@ -31,13 +36,13 @@ finalField
 	self hasFinalField ifTrue: [^super finalField].
 	
 	"Must be comparison on a joining field - use it as the finalField"
-	finalField := self parser fieldEncounters last.
+	finalField := self parser lastFieldEncounterFor: self.
 
 	"If this is the first encounter with this field then it is not required for a join - remove it.
 	Since it is the first encounter then it must by definition be responsible for the last (most recent) join"
-	(self parser fieldEncounters occurrencesOf: finalField) = 1 ifTrue: 
+	(self parser fieldEncountersWith: finalField) = 1 ifTrue: 
 		[self parser referencedTables removeLast.
-		self parser fieldEncounters remove: finalField].
+		self parser removeFieldEncountersWith: finalField].
 
 	^SSWDBQueryTableField forField: finalField in: finalField table!
 
@@ -54,6 +59,7 @@ path
 
 path: anObject
 	path := anObject! !
+!SSWDBBlockReceiver categoriesFor: #_id!accessing!public! !
 !SSWDBBlockReceiver categoriesFor: #currentTable!accessing!public! !
 !SSWDBBlockReceiver categoriesFor: #currentTable:!accessing!public! !
 !SSWDBBlockReceiver categoriesFor: #finalField!accessing!public! !

@@ -6,33 +6,29 @@ SSWSQLField subclass: #SSWSQLFunctionField
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLFunctionField guid: (GUID fromString: '{98f99d6b-3bcf-4a05-ac5a-f6b7eb406142}')!
-SSWSQLFunctionField comment: ''!
+SSWSQLFunctionField comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLFunctionField categoriesForClass!Unclassified! !
 !SSWSQLFunctionField methodsFor!
 
 arguments
 
-	"21/3/2001
-	
-	arguments stores the collection of objects which are the arguments to the receiver's function.
+	"arguments stores the collection of objects which are the arguments to the receiver's function.
 	e.g. in the expression MID(SURNAME, 4, 9) the arguments would be #(4 9)"
 	
 	^arguments!
 
 arguments: aCollection
 
-	"21/3/2001
-	
-	arguments stores the collection of objects which are the arguments to the receiver's function.
+	"arguments stores the collection of objects which are the arguments to the receiver's function.
 	e.g. in the expression MID(SURNAME, 4, 9) the arguments would be #(4 9)"
 	
 	arguments := aCollection!
 
 function
 
-	"21/3/2001
-	
-	function stores the SQL string of the function applied to the receiver's field,
+	"function stores the SQL string of the function applied to the receiver's field,
 	with %x placeholders for the arguments (at least one, for the receiver's field)
 	e.g. for the expression SIZE(SURNAME), the function would be 'SIZE(%1)'	"
 	
@@ -40,9 +36,7 @@ function
 
 function: aString
 
-	"21/3/2001
-	
-	function stores the SQL string of the function applied to the receiver's field,
+	"function stores the SQL string of the function applied to the receiver's field,
 	with %x placeholders for the arguments (at least one, for the receiver's field)
 	e.g. for the expression SIZE(SURNAME), the function would be 'SIZE(%)'	"
 	
@@ -55,9 +49,7 @@ requiresAliasing
 
 writeAliasedSQLOn: aStream
 
-	"21/3/2001
-	
-	The receiver does not support the concept of an 'aliased' name; 
+	"The receiver does not support the concept of an 'aliased' name; 
 	it either appears in conditions (alias not needed), or if in a result set it will be the sole field"
 	
 	^aStream nextPutAliasedField: self!

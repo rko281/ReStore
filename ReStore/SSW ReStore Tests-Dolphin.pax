@@ -1,0 +1,650 @@
+﻿| package |
+package := Package name: 'SSW ReStore Tests-Dolphin'.
+package paxVersion: 1;
+	basicComment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #Where;
+	yourself.
+
+package methodNames
+	add: #SSWODBCStatement -> #testExec;
+	add: #SSWReStoreBlockAndOrQueryTest -> #note;
+	add: #SSWReStoreFullTableTest -> #test21VerifyLegacyNameTransformationMode;
+	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern1;
+	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern2;
+	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern3a;
+	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern3b;
+	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern4;
+	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern1;
+	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern2;
+	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern3a;
+	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern3b;
+	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern4;
+	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern1;
+	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern2;
+	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern3a;
+	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern3b;
+	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern4;
+	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern1;
+	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern2;
+	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3a;
+	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3b;
+	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern4;
+	add: #SSWReStoreTableTest -> #test21VerifyLegacyNameTransformationMode;
+	add: #SSWReStoreTest -> #countQueries;
+	add: #SSWReStoreTest -> #debugStream;
+	add: #SSWReStoreTest -> #dsn;
+	add: #SSWReStoreTest -> #initConnectionFor:;
+	add: #SSWReStoreTest -> #queryCount;
+	add: #SSWReStoreTest -> #resetQueryCount;
+	add: #SSWReStoreTest -> #stopQueryCounting;
+	add: 'SSWReStoreTest class' -> #incrementQueryCount;
+	add: 'SSWReStoreTest class' -> #isDolphin;
+	add: 'SSWReStoreTest class' -> #listModelClass;
+	add: 'SSWReStoreTest class' -> #listModelOn:;
+	add: 'SSWReStoreTest class' -> #queryCount;
+	add: 'SSWReStoreTest class' -> #resetQueryCount;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
+	'SSW ReStore ODBC'
+	'SSW ReStore Tests').
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #Where
+	instanceVariableNames: 'select'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+!SSWODBCStatement methodsFor!
+
+testExec
+
+	SSWReStoreTest incrementQueryCount.
+	^self _testExec! !
+!SSWODBCStatement categoriesFor: #testExec!public! !
+
+!SSWReStoreBlockAndOrQueryTest methodsFor!
+
+note
+
+	"Bytecode translation checks
+
+
+(0 to: 255) allSatisfy: [ :b | ((ByteArray with: b) sbyteAtOffset: 0) = (##(InstructionInterpreter basicNew) decodeNearOffset: b)]
+
+
+(0 to: 255) allSatisfy: [ :b1 | 
+	(0 to: 255) allSatisfy: [ :b2 | ((ByteArray with: b1 with: b2) swordAtOffset: 0) = (ByteCodeDispatcher decodeLongJump: b1 byte2: b2)]]"! !
+!SSWReStoreBlockAndOrQueryTest categoriesFor: #note!public!Running! !
+
+!SSWReStoreFullTableTest methodsFor!
+
+test21VerifyLegacyNameTransformationMode
+
+	| table |
+
+	"Test normal handling first"
+	reStore addClass: Where.
+	table := reStore tableForClass: Where.
+
+	self assert: table name equals: 'where'.
+	self assert: (table fieldAccessing: #select) name = 'select'.
+
+	"Now switch to legacy"
+	reStore sqlDialect useLegacyNameTransformations.
+	reStore addClass: Where.
+	table := reStore tableForClass: Where.
+
+	reStore sqlDialect class name = #SSWPostgreSQLDialect
+	ifTrue: 
+		["ReStore has always used lowercase with Postgres"
+		self assert: table name equals: 'where_0'.
+		self assert: (table fieldAccessing: #select) name equals: 'select_field']
+	ifFalse: 
+		[self assert: table name equals: 'WHERE_0'.
+		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD']! !
+!SSWReStoreFullTableTest categoriesFor: #test21VerifyLegacyNameTransformationMode!public!unit tests! !
+
+!SSWReStoreIsNilQueryTest methodsFor!
+
+testIsNilJumpBytecodePattern1
+
+	"JumpIfNil to ^True"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 17 219 16 226 11 222 5 226 13 43 132 119 58 106 226 13 44 132 106 216 48 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | (each friend isNil or: [each firstName = 'John']) or: [each firstName = 'Zoe']].
+	marker2 := 234.
+
+	self assert: (results size = 4).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testIsNilJumpBytecodePattern2
+
+	"JumpIfNotNil to ^False"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 223 5 226 13 43 132 106 59 106 216 47 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | each friend isNil and: [each firstName = 'John']].
+	marker2 := 234.
+
+	self assert: (results size = 0).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testIsNilJumpBytecodePattern3a
+
+	"JumpIfNotNil immediately followed by ^True"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 223 2 58 106 226 13 43 132 106 216 47 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | each friend isNil or: [each firstName = 'John']].
+	marker2 := 234.
+
+	self assert: (results size = 3).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testIsNilJumpBytecodePattern3b
+
+	"JumpIfNotNil to just after ^True"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 17 226 11 223 7 226 13 43 132 119 58 106 226 13 206 16 132 106 216 49 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | (each friend isNil and: [each firstName = 'John']) or: [each firstName = 'Zoe']].
+	marker2 := 234.
+
+	self assert: (results size = 1).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testIsNilJumpBytecodePattern4
+
+	"JumpIfNil to non-return without ^True in jumped-over code "
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 16 226 11 222 4 226 13 223 6 226 15 206 16 132 106 59 106 216 49 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | (each friend isNil or: [each test isNil]) and: [each firstName = 'Zoe']].
+	marker2 := 234.
+
+	self assert: (results size = 1).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testMethodIsNilJumpBytecodePattern1
+
+	"JumpIfNil to ^True"
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern1) byteCodes.
+	self assert: bytecodes = #[171 222 4 173 32 132 118 102 173 33 132 105].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testIsNilJumpBytecodePattern1].
+
+	self assert: (results size = 4)!
+
+testMethodIsNilJumpBytecodePattern2
+
+	"JumpIfNotNil immediately followed by ^True"
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern2) byteCodes.
+	self assert: bytecodes = #[171 223 4 173 32 132 105 103].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testIsNilJumpBytecodePattern2].
+
+	self assert: (results size = 0)!
+
+testMethodIsNilJumpBytecodePattern3a
+
+	"JumpIfNil to non-return without ^True in jumped-over code "
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern3a) byteCodes.
+	self assert: bytecodes = #[171 223 1 102 173 32 132 105].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testIsNilJumpBytecodePattern3a].
+
+	self assert: (results size = 3)!
+
+testMethodIsNilJumpBytecodePattern3b
+
+	"JumpIfNil to non-return without ^True in jumped-over code "
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern3b) byteCodes.
+	self assert: bytecodes = #[171 223 5 173 32 132 118 102 173 34 132 105].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testIsNilJumpBytecodePattern3b].
+
+	self assert: (results size = 1)!
+
+testMethodIsNilJumpBytecodePattern4
+
+	"JumpIfNil to non-return without ^True in jumped-over code "
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern4) byteCodes.
+	self assert: bytecodes = #[171 222 3 173 223 4 175 34 132 105 103].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testIsNilJumpBytecodePattern4].
+
+	self assert: (results size = 1)! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern1!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern2!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern3a!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern3b!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern4!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern1!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern2!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern3a!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern3b!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern4!public!unit tests! !
+
+!SSWReStoreNotNilQueryTest methodsFor!
+
+testMethodNotNilJumpBytecodePattern1
+
+	"JumpIfNotNil to ^True"
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern1) byteCodes.
+	self assert: bytecodes = #[171 223 4 173 32 132 118 102 173 33 132 105].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testNotNilJumpBytecodePattern1].
+
+	self assert: (results size = 4)!
+
+testMethodNotNilJumpBytecodePattern2
+
+	"JumpIfNil to ^False"
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern2) byteCodes.
+	self assert: bytecodes = #[171 222 4 173 32 132 105 103].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testNotNilJumpBytecodePattern2].
+
+	self assert: (results size = 1)!
+
+testMethodNotNilJumpBytecodePattern3a
+
+	"JumpIfNil immediately followed by ^True"
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern3a) byteCodes.
+	self assert: bytecodes = #[171 222 1 102 173 32 132 105].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testNotNilJumpBytecodePattern3a].
+
+	self assert: (results size = 3)!
+
+testMethodNotNilJumpBytecodePattern3b
+
+	"JumpIfNil to just after ^True"
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern3b) byteCodes.
+	self assert: bytecodes = #[171 222 5 173 32 132 118 102 173 34 132 105].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testNotNilJumpBytecodePattern3b].
+
+	self assert: (results size = 1)!
+
+testMethodNotNilJumpBytecodePattern4
+
+	"JumpIfNotNil to non-return without ^True in jumped-over code "
+
+	| instances bytecodes results |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern4) byteCodes.
+	self assert: bytecodes = #[171 223 3 173 223 4 175 34 132 105 103].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	results := instances select: [ :each | each testNotNilJumpBytecodePattern4].
+
+	self assert: (results size = 1)!
+
+testNotNilJumpBytecodePattern1
+
+	"JumpIfNotNil to ^True"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 17 219 16 226 11 223 5 226 13 43 132 119 58 106 226 13 44 132 106 216 48 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | (each friend notNil or: [each firstName = 'Jim']) or: [each firstName = 'David']].
+	marker2 := 234.
+
+	self assert: (results size = 4).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testNotNilJumpBytecodePattern2
+
+	"JumpIfNil to ^False"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 222 5 226 13 43 132 106 59 106 216 47 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | each friend notNil and: [each firstName = 'John']].
+	marker2 := 234.
+
+	self assert: (results size = 1).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testNotNilJumpBytecodePattern3a
+
+	"JumpIfNil immediately followed by ^True"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 222 2 58 106 226 13 43 132 106 216 47 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | each friend notNil or: [each firstName = 'Jim']].
+	marker2 := 234.
+
+	self assert: (results size = 3).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testNotNilJumpBytecodePattern3b
+
+	"JumpIfNil to just after ^True"
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 17 226 11 222 7 226 13 43 132 119 58 106 226 13 206 16 132 106 216 49 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | (each friend notNil and: [each firstName = 'Jim']) or: [each firstName = 'Zoe']].
+	marker2 := 234.
+
+	self assert: (results size = 1).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234!
+
+testNotNilJumpBytecodePattern4
+
+	"JumpIfNotNil to non-return without ^True in jumped-over code "
+
+	| instances bytecodes results marker1 marker2 |
+
+	"Verify the bytecodes haven't changed from those we're trying to test"
+	bytecodes := Processor activeProcess topFrame method byteCodes.
+	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 16 226 11 223 4 226 13 223 6 226 15 206 16 132 106 59 106 216 49 91 238 234].
+
+	instances := reStore instancesOf: SimplePerson.
+
+	marker1 := 123.
+	results := instances select: [ :each | (each friend notNil or: [each test isNil]) and: [each firstName = 'Zoe']].
+	marker2 := 234.
+
+	self assert: (results size = 1).
+
+	"So they're not unreferenced"
+	self assert: marker1 = 123.
+	self assert: marker2 = 234! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern1!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern2!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern3a!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern3b!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern4!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern1!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern2!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern3a!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern3b!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern4!public!unit tests! !
+
+!SSWReStoreTableTest methodsFor!
+
+test21VerifyLegacyNameTransformationMode
+
+	| table |
+
+	"Test normal handling first"
+	reStore addClass: Where.
+	table := reStore tableForClass: Where.
+
+	self assert: table name equals: 'where'.
+	self assert: (table fieldAccessing: #select) name = 'select'.
+
+	"Now switch to legacy"
+	reStore sqlDialect useLegacyNameTransformations.
+	reStore addClass: Where.
+	table := reStore tableForClass: Where.
+
+	reStore sqlDialect class name = #SSWPostgreSQLDialect
+	ifTrue: 
+		["ReStore has always used lowercase with Postgres"
+		self assert: table name equals: 'where_table'.
+		self assert: (table fieldAccessing: #select) name equals: 'select_field']
+	ifFalse: 
+		[self assert: table name equals: 'WHERE_TABLE'.
+		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD']! !
+!SSWReStoreTableTest categoriesFor: #test21VerifyLegacyNameTransformationMode!public!unit tests! !
+
+!SSWReStoreTest methodsFor!
+
+countQueries
+
+	self resetQueryCount.
+
+	SSWODBCStatement methodDictionary 
+		at: #_testExec put: SSWODBCStatement>>#exec;
+		at: #exec put: SSWODBCStatement>>#testExec.
+	SSWODBCStatement flushMethodCache!
+
+debugStream
+
+	^Keyboard default isCtrlDown 
+		ifTrue: [Transcript] 
+		ifFalse: [nil]!
+
+dsn
+
+	"Return a specific DSN to use for tests, or nil to use the default (memory-based SQLite)"
+
+	^nil!
+
+initConnectionFor: aReStore
+
+	"Default requires SQLite3 ODBC Driver to be installed"
+
+	self dsn
+		ifNil: [aReStore connectString: 'DRIVER=SQLite3 ODBC Driver;Database=file::memory:?cache=shared']
+		ifNotNil: [ :dsn | aReStore dsn: dsn]!
+
+queryCount
+
+	^SSWReStoreTest queryCount!
+
+resetQueryCount
+
+	^SSWReStoreTest resetQueryCount!
+
+stopQueryCounting
+
+	(SSWODBCStatement methodDictionary removeKey: #_testExec ifAbsent: [nil]) ifNotNil: 
+		[ :origExec |
+		SSWODBCStatement methodDictionary at: #exec put: origExec.
+		SSWODBCStatement flushMethodCache]! !
+!SSWReStoreTest categoriesFor: #countQueries!public!running! !
+!SSWReStoreTest categoriesFor: #debugStream!public!unit tests! !
+!SSWReStoreTest categoriesFor: #dsn!accessing!public! !
+!SSWReStoreTest categoriesFor: #initConnectionFor:!public!running! !
+!SSWReStoreTest categoriesFor: #queryCount!accessing!public! !
+!SSWReStoreTest categoriesFor: #resetQueryCount!public!running! !
+!SSWReStoreTest categoriesFor: #stopQueryCounting!public!running! !
+
+!SSWReStoreTest class methodsFor!
+
+incrementQueryCount
+
+	queryCount isNil
+		ifTrue: [queryCount := 1] 
+		ifFalse: [queryCount := queryCount + 1]!
+
+isDolphin
+
+	^true!
+
+listModelClass
+
+	^ListModel!
+
+listModelOn: aCollection
+
+	^ListModel on: aCollection!
+
+queryCount
+
+	^queryCount!
+
+resetQueryCount
+
+	queryCount := 0! !
+!SSWReStoreTest class categoriesFor: #incrementQueryCount!public! !
+!SSWReStoreTest class categoriesFor: #isDolphin!public!testing! !
+!SSWReStoreTest class categoriesFor: #listModelClass!public! !
+!SSWReStoreTest class categoriesFor: #listModelOn:!public! !
+!SSWReStoreTest class categoriesFor: #queryCount!public! !
+!SSWReStoreTest class categoriesFor: #resetQueryCount!public! !
+
+"End of package definition"!
+

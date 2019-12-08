@@ -6,7 +6,9 @@ DBForwardOnlyResultSet subclass: #SSWODBCForwardOnlyResultSet
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWODBCForwardOnlyResultSet guid: (GUID fromString: '{91952fb5-bbfd-4e69-a36d-268a26de19c7}')!
-SSWODBCForwardOnlyResultSet comment: ''!
+SSWODBCForwardOnlyResultSet comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWODBCForwardOnlyResultSet categoriesForClass!ODBC Interface! !
 !SSWODBCForwardOnlyResultSet methodsFor!
 

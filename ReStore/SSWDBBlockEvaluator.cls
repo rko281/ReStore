@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 ProtoObject subclass: #SSWDBBlockEvaluator
-	instanceVariableNames: 'parser currentMode'
+	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBBlockEvaluator guid: (GUID fromString: '{5a3e3dcc-3990-11d5-b1df-444553540000}')!
-SSWDBBlockEvaluator comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBBlockEvaluator comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBBlockEvaluator categoriesForClass!Unclassified! !
 !SSWDBBlockEvaluator methodsFor!
 
@@ -23,20 +25,6 @@ chainPerform: aCollection
 
 	^aCollection inject: self into: [ :receiver :symbol | receiver perform: symbol]
 !
-
-currentMode
-
-	"currentMode stores a Symbol indicating the mode in which the next message send will be interpreted - this denotes any special handling of the next message.
-	Should be reset to nil after each message is processed"
-
-	^currentMode!
-
-currentMode: aSymbol
-
-	"currentMode stores a Symbol indicating the mode in which the next message send will be interpreted - this denotes any special handling of the next message.
-	Should be reset to nil after each message is processed"
-
-	currentMode := aSymbol!
 
 currentTable
 
@@ -111,15 +99,9 @@ perform: selector with: argument1
 	<primitive: 83>
 	^Error perform: selector failedFor: self withArgs: (Array with: argument1)!
 
-resetCurrentMode
-
-	self currentMode: nil!
-
 reStore
 
-	"14/8/2000
-	
-	reStore stores the SSWReStore for which the receiver parses blocks"
+	"reStore stores the SSWReStore for which the receiver parses blocks"
 	
 	^self parser reStore!
 
@@ -130,8 +112,6 @@ subclassResponsibility
 	^nil subclassResponsibility! !
 !SSWDBBlockEvaluator categoriesFor: #||!parsing - functions!public! !
 !SSWDBBlockEvaluator categoriesFor: #chainPerform:!message sending!public! !
-!SSWDBBlockEvaluator categoriesFor: #currentMode!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #currentMode:!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #currentTable!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #finalField!public!testing! !
 !SSWDBBlockEvaluator categoriesFor: #forConcatenation!converting!public! !
@@ -144,7 +124,6 @@ subclassResponsibility
 !SSWDBBlockEvaluator categoriesFor: #path!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #perform:!message sending!public! !
 !SSWDBBlockEvaluator categoriesFor: #perform:with:!message sending!public! !
-!SSWDBBlockEvaluator categoriesFor: #resetCurrentMode!helpers!public! !
 !SSWDBBlockEvaluator categoriesFor: #reStore!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #subclassResponsibility!helpers!private! !
 

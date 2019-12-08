@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWSQLDialect
-	instanceVariableNames: 'connection connectionReservedWords maxColumnNameLength maxTableNameLength customFunctions maxColumnBytes unsizedStringSize'
+	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize'
 	classVariableNames: ''
-	poolDictionaries: 'ODBCConstants'
+	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLDialect guid: (GUID fromString: '{24d06227-afdd-43ac-934f-2a8fcd601791}')!
-SSWSQLDialect comment: ''!
+SSWSQLDialect comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLDialect categoriesForClass!Unclassified! !
 !SSWSQLDialect methodsFor!
 
@@ -18,10 +20,10 @@ addFields: aCollection to: aTable in: anSSWReStore
 
 	self supportsMultipleAddColumns
 	ifTrue:
-		[stream := WriteStream on: (String new: 32).
+		[stream := self sqlWriteStream.
 		stream 
 			nextPutAll: 'ALTER TABLE ';
-			nextPutAll: aTable name.
+			nextPutIdentifier: aTable name.
 		aCollection 
 			do: 
 				[ :field | 
@@ -32,26 +34,31 @@ addFields: aCollection to: aTable in: anSSWReStore
 	ifFalse:
 		[aCollection do:
 			[ :field || innerStream |
-			innerStream := WriteStream on: (String new: 32).
+			innerStream := self sqlWriteStream.
 			innerStream 
 				nextPutAll: 'ALTER TABLE ';
-				nextPutAll: aTable name;
+				nextPutIdentifier: aTable name;
 				nextPutAll: ' ADD '.
 			field writeSQLDefinitionOn: innerStream.
 			anSSWReStore executeSQL: innerStream contents]]!
 
-aggregateFunctions
+alterField: aField table: aTable in: aReStore
 
-	"Return a mapping from Smalltalk method names to an equivalent SQL aggregarte (COUNT etc.) function supported by this dialect.
-	Subclasses should reimplement if they implement additional aggregate functions"
+	aReStore executeSQLFrom: 
+		[ :stream | 
+		stream 
+			nextPutAll: 'ALTER TABLE ';
+			nextPutIdentifier: aTable name;
+			nextPutAll: ' ALTER COLUMN '.
+		aField writeSQLDefinitionOn: stream]!
 
-	^##(Dictionary new
-		at: #count put: 'COUNT(%1)';
-		at: #sum put: 'SUM(%1)';
-		at: #minimum put: 'MIN(%1)';
-		at: #maximum put: 'MAX(%1)';
-		at: #average put: 'AVG(%1)';
-		yourself)!
+asIdentifier: aString
+
+	| stream |
+	
+	stream := self sqlWriteStream.
+	stream nextPutIdentifier: aString.
+	^stream contents!
 
 boolean
 
@@ -65,7 +72,21 @@ canDescribeParameters
 
 char
 
-	^'CHAR(%1)'!
+	^'CHAR(<1p>)'!
+
+classNameTransformation
+
+	"classNmeTransformation stores a one-arg Block which is evaluated with a class name and should deliver an equivalent database name.
+	Standard tranformation is (e.g.) CustomerOrder -> customer_order"
+
+	^classNameTransformation!
+
+classNameTransformation: aBlock
+
+	"classNmeTransformation stores a one-arg Block which is evaluated with a class name and should deliver an equivalent database name.
+	Standard tranformation is (e.g.) CustomerOrder -> customer_order"
+
+	classNameTransformation := aBlock!
 
 commonFunctions
 
@@ -75,31 +96,44 @@ commonFunctions
 	Subclasses should NOT override this method but instead implement dialectSpecificFunctions with any additional functions they support.
 	If subclasses support a common function differently (or do not support it at all) they should add this to dialectSpecificFunctions, returning the alternative definition (or nil)"
 
-	^##(Dictionary new
+	^Dictionary new
 
 		"Conversion functions"
-		at: #asInteger put: 'CAST(%1 AS INTEGER)';
+		at: #asInteger put: 'CAST(%1 AS INTEGER)' asSQLFunctionIntegerResult;
 
 		"Numeric functions"
-		at: #+ put: '(%1 + %2)';
-		at: #- put: '(%1 - %2)';
-		at: #* put: '(%1 * %2)';
-		at: #/ put: '(%1 / %2)';
-		at: #\\ put: '(%1 %% %2)';
-		at: #between:and: put: '%1 BETWEEN %2 AND %3';
-		at: #abs put: 'ABS(%1)';
-		at: #rounded put: 'ROUND(%1)';
+		at: #+ put: '(%1 + %2)' asSQLFunction;
+		at: #- put: '(%1 - %2)' asSQLFunction;
+		at: #* put: '(%1 * %2)' asSQLFunction;
+		at: #/ put: '(%1 / %2)' asSQLFunction;
+		at: #\\ put: '(%1 %% %2)' asSQLFunctionIntegerResult;
+		at: #between:and: put: '%1 BETWEEN %2 AND %3' asSQLFunctionBooleanResult;
+		at: #abs put: 'ABS(%1)' asSQLFunction;
+		at: #rounded put: 'ROUND(%1)' asSQLFunctionIntegerResult;
 
 		"String functions"
-		at: #size put: 'LEN(%1)';
-		at: #, put: '(%1 || %2)';
-		at: #indexOfSubCollection: put: 'INSTR(%1,%2)';
-		at: #midString:from: put: 'SUBSTRING(%1 FROM %3 FOR %2)';
-		at: #trimBlanks put: 'TRIM(%1)';
-		at: #asUppercase put: 'UPPER(%1)';
-		at: #asLowercase put: 'LOWER(%1)';
+		at: #size put: 'LEN(%1)' asSQLFunctionIntegerResult;
+		at: #, put: '(%1 || %2)' asSQLFunction;
+		at: #indexOfSubCollection: put: 'INSTR(%1,%2)' asSQLFunctionIntegerResult;
+		at: #midString:from: put: 'SUBSTRING(%1 FROM %3 FOR %2)' asSQLFunction;
+		at: #trimBlanks put: 'TRIM(%1)' asSQLFunction;
+		at: #asUppercase put: 'UPPER(%1)' asSQLFunction;
+		at: #asLowercase put: 'LOWER(%1)' asSQLFunction;
 
-		yourself)!
+		"Aggregate functions"
+		at: #count put: 'COUNT(%1)' asSQLFunctionIntegerResult beAggregateFunction;
+		at: #sum put: 'SUM(%1)' asSQLFunction beAggregateFunction;
+		at: #minimum put: 'MIN(%1)' asSQLFunction beAggregateFunction;
+		at: #maximum put: 'MAX(%1)' asSQLFunction beAggregateFunction;
+		at: #average put: 'AVG(%1)' asSQLFunction beAggregateFunction;
+
+		"Logical functions"
+		at: #ifNil: put: 'IFNULL(%1,%2)' asSQLFunction;
+		at: #ifNull: put: 'IFNULL(%1,%2)' asSQLFunction;
+		at: #ifNull:ifNotNull: put: ('CASE WHEN %1 IS NULL THEN %2 ELSE %3 END' asSQLFunction resultParamIndex: 2);
+		at: #then:else: put: ('CASE WHEN %1 THEN %2 ELSE %3 END' asSQLFunction resultParamIndex: 2);
+
+		yourself!
 
 connection
 	^connection!
@@ -107,52 +141,12 @@ connection
 connection: anObject
 	connection := anObject!
 
-connectionReservedWords
-
-	"9/3/2001
-	
-	Reserved words are Strings which cannot be used for field or table names in this SQL Dialect. 
-	connectionReservedWords are set by ReStore on logging in, from the ODBC SQLKeywords function.
-
-	Clients should use isReservedWord: to check if a word is reserved;
-	this additionally checks staticReservedWords"
-
-	^connectionReservedWords!
-
-connectionReservedWords: aCollection
-
-	"9/3/2001
-	
-	Reserved words are Strings which cannot be used for field or table names in this SQL Dialect. 
-	connectionReservedWords are set by ReStore on logging in, from the ODBC SQLKeywords function.
-
-	Clients should use isReservedWord: to check if a word is reserved;
-	this additionally checks staticReservedWords"
-
-	connectionReservedWords := aCollection!
-
 cursorType
 
 	"Return the Symbol-ic name of the ODBC cursor type that will be used when creating statements. 
 	See DBAbstractStatement>>cursorType for further details"
 
 	^#forwardOnly!
-
-customFunctions
-
-	"customFunctions stores a mapping from Smalltalk method names (which may not actually be implemented!!) to an equivalent SQL function.
-	See the other function methods in the constants category for how these are specified.
-	Note that, unlike the constant functions, customFunctions is designed to be configured by client code.
-	This may be to add dialect-specific functions without modifying core ReStore classes, or to add pseudo methods/functions for querying convenience, e.g.
-
-		at: #plusPercent: put: '%1 * (1 + (%2 / 100))'
-
-	Also note that, since the dialect is created following login, these must be set up after login"
-
-	^customFunctions!
-
-customFunctions: anObject
-	customFunctions := anObject!
 
 date
 
@@ -211,11 +205,15 @@ datetimeWithResolution
 
 	"Parameter is resolution (0=seconds, 3=milliseconds etc.)"
 
-	^'DATETIME(%1)'!
+	^'DATETIME(<1p>)'!
 
 decimal
 
-	^'DECIMAL(%1,%2)'!
+	^'DECIMAL(<1p>,<2p>)'!
+
+defaultClassNameTransformation
+
+	^[ :name | name sswInUnderscoreFormat]!
 
 defaultDateTimeResolution
 
@@ -223,12 +221,37 @@ defaultDateTimeResolution
 
 	^0!
 
+defaultInstVarNameTransformation
+
+	^[ :name | name sswInUnderscoreFormat]!
+
 defaultMaxColumnBytes
 
 	"default value for maxColumnBytes - see that method's comment"
 	
 	"Default to the same as Dolphin's DBConnect hard-coded value"
-	^##(2 raisedTo: 16)!
+	^65536 "(2 raisedTo: 16)"!
+
+defaultMaxColumnNameLength
+
+	"Return an appropriate/known value for when the connection is unable to determine"
+	^self subclassResponsibility!
+
+defaultMaxTableNameLength
+
+	"Return an appropriate/known value for when the connection is unable to determine"
+	^self subclassResponsibility!
+
+defaultSQLFunctions
+
+	| allDefaults |
+
+	allDefaults := Dictionary new.
+
+	self commonFunctions keysAndValuesDo: [ :message :sql | allDefaults at: message put: sql].
+	self dialectSpecificFunctions keysAndValuesDo: [ :message :sql | allDefaults at: message put: sql].
+
+	^allDefaults!
 
 defaultUnsizedStringSize
 
@@ -242,7 +265,7 @@ dialectSpecificFunctions
 	"Return a mapping from Smalltalk method names to an equivalent SQL function supported by this dialect.
 	Subclasses should reimplement as appropriate"
 
-	^##(Dictionary new)!
+	^Dictionary new!
 
 double
 
@@ -250,43 +273,73 @@ double
 
 dropColumnNamed: colString fromTable: anSSWDBTable in: anSSWReStore
 
-	anSSWReStore executeSQL: ('ALTER TABLE %1 DROP COLUMN %2' formatWith: anSSWDBTable name with: colString)!
+	anSSWReStore executeSQLFrom: 
+		[ :stream | 
+		stream 
+			nextPutAll: 'ALTER TABLE ';
+			nextPutIdentifier: anSSWDBTable name;
+			nextPutAll: ' DROP COLUMN ';
+			nextPutIdentifier: colString]!
 
 falseObject
 
 	"The object which represents the false Boolean in this dialect"
 
-	^##(false asParameter)!
+	^0!
 
 float
 
 	^'FLOAT'!
 
+identifierQuoteClose
+
+	"Return the closing character used to wrap identifiers in quotes.
+	SQL standard is actually double quote char but in some dialects this requires specific config changes.
+	Instead we use the backtick character which is widely supported by default, and override where necessary"
+
+	^$`!
+
+identifierQuoteOpen
+
+	"Return the opening character used to wrap identifiers in quotes.
+	SQL standard is actually double quote char but in some dialects this requires specific config changes.
+	Instead we use the backtick character which is widely supported by default, and override where necessary"
+
+	^$`!
+
 initialize
 
 	self
 		maxColumnBytes: self defaultMaxColumnBytes;
-		unsizedStringSize: self defaultUnsizedStringSize!
+		unsizedStringSize: self defaultUnsizedStringSize;
+		sqlFunctions: self defaultSQLFunctions;
+		classNameTransformation: self defaultClassNameTransformation;
+		instVarNameTransformation: self defaultInstVarNameTransformation!
 
 initializeFor: aDBConnection
 
 	self
 		connection: aDBConnection;
-		connectionReservedWords: ((aDBConnection getLongInfoString: SQL_KEYWORDS) subStrings: $,);
-		maxColumnNameLength: aDBConnection maxColumnNameLength;
-		maxTableNameLength: aDBConnection maxTableNameLength;
-		customFunctions: Dictionary new!
+		maxColumnNameLength: (aDBConnection maxColumnNameLength ifNil: [self defaultMaxColumnNameLength]);
+		maxTableNameLength: (aDBConnection maxTableNameLength ifNil: [self defaultMaxTableNameLength])!
+
+instVarNameTransformation
+
+	"classNmeTransformation stores a one-arg Block which is evaluated with an instance variable name and should deliver an equivalent database name.
+	Standard tranformation is (e.g.) customerOrder -> customer_order"
+
+	^instVarNameTransformation!
+
+instVarNameTransformation: aBlock
+
+	"classNmeTransformation stores a one-arg Block which is evaluated with an instance variable name and should deliver an equivalent database name.
+	Standard tranformation is (e.g.) customerOrder -> customer_order"
+
+	instVarNameTransformation := aBlock!
 
 integer
 
 	^'INTEGER'!
-
-isReservedWord: aString
-
-	"30/4/2001"
-
-	^(self staticReservedWords includes: aString asUppercase) or: 
-		[self connectionReservedWords includes: aString asUppercase]!
 
 longText
 
@@ -367,27 +420,39 @@ postLoginScript
 
 	^nil!
 
+printParameterPlaceholder: anInteger on: aStream
+
+	"Defer to the connection"
+	self connection printParameterPlaceholder: anInteger on: aStream!
+
 renameField: oldField to: newField in: aReStore
 
 	"Simple implementation for dialects with no explicit rename column support"
 
-	| table updator |
+	| table definitionTable updator |
 
 	table := newField table.
+	definitionTable := table rootTable forCreation.
 
 	"Add a new column with the new name"
-	self addFields: (Array with: newField) to: table in: aReStore. 
+	self addFields: (Array with: newField) to: definitionTable in: aReStore. 
 		
 	"Update all instances in DB so newInstVar column value = oldInstVar column value"
 	updator := (newField accessor name, ':') asSymbol.
 	(aReStore instancesOf: table instanceClass) modify: [ :each | each perform: updator with: (each perform: oldField accessor name)].
 
 	"Drop the old column"
-	self dropColumnNamed: oldField name fromTable: table in: aReStore!
+	self dropColumnNamed: oldField name fromTable: definitionTable in: aReStore!
 
 renameTableNamed: oldName to: newName in: anSSWReStore
 
-	anSSWReStore executeSQL: ('ALTER TABLE %1 RENAME TO %2' formatWith: oldName with: newName)!
+	anSSWReStore executeSQLFrom: 
+		[ :stream | 
+		stream 
+			nextPutAll: 'ALTER TABLE ';
+			nextPutIdentifier: oldName;
+			nextPutAll: ' RENAME TO ';
+			nextPutIdentifier: newName]!
 
 shouldCheckAutoCommit
 
@@ -426,19 +491,33 @@ shouldUseColumnsStatement
 
 sqlFunctionFor: aMessageSelector
 
-	^self dialectSpecificFunctions at: aMessageSelector ifAbsent: 
-		[self commonFunctions at: aMessageSelector ifAbsent: 
-			[self aggregateFunctions at: aMessageSelector ifAbsent: 
-				[self customFunctions at: aMessageSelector ifAbsent: [nil]]]]!
+	^self sqlFunctions at: aMessageSelector ifAbsent: [nil]!
 
-staticReservedWords
+sqlFunctions
 
-	"Reserved words are Strings which cannot be used for field or table names in this SQL Dialect. 
-	staticReservedWords are primarily the same as the class method odbcReservedWords, however subclasses can add to this if required.
+	"sqlFunctions stores a mapping from Smalltalk method names (which may not actually be implemented!!) to an equivalent SQL function.
+	It is initialized from the various function methods in the constants category, however client code may add initial functions after login, e.g.
 
-	Clients should use isReservedWord: to check if a word is reserved; this additionally checks connectionReservedWords"
+		at: #plusPercent: put: '%1 * (1 + (%2 / 100))'
 
-	^self class odbcReservedWords!
+	Also note that, since the dialect is created following login, these must be (re)set up after login"
+
+	^sqlFunctions!
+
+sqlFunctions: aDictionary
+
+	"sqlFunctions stores a mapping from Smalltalk method names (which may not actually be implemented!!) to an equivalent SQL function.
+	It is initialized from the various function methods in the constants category, however client code may add initial functions after login, e.g.
+
+		at: #plusPercent: put: '%1 * (1 + (%2 / 100))'
+
+	Also note that, since the dialect is created following login, these must be (re)set up after login"
+
+	sqlFunctions := aDictionary!
+
+sqlWriteStream
+
+	^SSWSQLWriteStream newIn: self!
 
 supportsImplicitTrueConditions
 
@@ -479,41 +558,21 @@ timeStringFor: aTime
 
 transformClassName: aSymbol
 
-	"Transform the given class name into a table-style String appropriate for this dialect"
+	"Transform the given class name into a DB-style String appropriate/conventional for this dialect"
 
-	^self transformName: aSymbol into: #Table!
+	^self classNameTransformation value: aSymbol!
 
 transformInstVarName: aSymbol
 
-	"Transform the given instvar name into a field/column-style String appropriate for this dialect"
+	"Transform the given inst var name into a DB-style String appropriate/conventional for this dialect"
 
-	^self transformName: aSymbol into: #Field!
-
-transformName: aSymbol
-
-	"Transform the given Symbol into a DB-style String appropriate/conventional for this dialect.
-	'Basic' transformation with no checking (e.g. reserved word clashes)"
-
-	^aSymbol sswInUnderscoreFormat!
-
-transformName: aSymbol into: typeSymbol
-
-	"Private - Transform the given Symbol into a DB-style String appropriate/conventional for this dialect.
-	Also check for reserved word clashes, and handle appropriately - typeSymbol describes the type of name and is used in reserved-word conflict resolution"
-
-	| transformedName |
-
-	transformedName := self transformName: aSymbol.
-
-	^(self isReservedWord: transformedName) 
-		ifTrue: [transformedName, '_', (self transformName: typeSymbol)]
-		ifFalse: [transformedName]!
+	^self instVarNameTransformation value: aSymbol!
 
 trueObject
 
 	"The object which represents the true Boolean in this dialect"
 
-	^##(true asParameter)!
+	^1!
 
 unsizedString
 
@@ -521,7 +580,7 @@ unsizedString
 	defaultStringSize is used to determine the most appropriate column type does not imply a limit unless <= maxVarchar (see defaultStringSize method comment)"
 
 	^self unsizedStringSize <= self maxVarchar 
-		ifTrue: [self varchar formatWith: self unsizedStringSize printString]
+		ifTrue: [self varchar expandMacrosWith: self unsizedStringSize]
 		ifFalse: [self unsizedStringTypeForSize: self unsizedStringSize]!
 
 unsizedStringSize
@@ -571,72 +630,19 @@ updateDelaySeconds
 
 varchar
 
-	^'VARCHAR(%1)'!
-
-writeSQLForDate: aDate on: aStream
-
-	"For multi-datasource compatability, use standard ODBC date escape sequence {d'yyyy-MM-dd'}.
-	Subclasses may override to do their own thing (particularly if they do not support an actual DATE type) "
-
-	aStream
-		nextPut: ${;
-		nextPut: $d;
-		nextPut: $'.
-
-	aDate printOn: aStream format: 'yyyy-MM-dd'.
-
-	aStream
-		nextPut: $';
-		nextPut: $}!
-
-writeSQLForDateAndTime: aDateAndTime on: aStream
-
-	"For multi-datasource compatability, use standard ODBC date escape sequence {ts 'yyyy-MM-dd hh:mm:ss'}.
-	Subclasses may override to do their own thing"
-
-	aStream 
-		nextPutAll: '{ts';
-		nextPut: $'.
-	aDateAndTime printOn: aStream format: 'yyyy-MM-dd HH:mm:ssffffff'.
-	aStream
-		nextPut: $';
-		nextPut: $}!
-
-writeSQLForFalseOn: aStream
-
-	self falseObject writeSQLOn: aStream!
-
-writeSQLForTime: aTime on: aStream
-
-	"For multi-datasource compatability, use standard ODBC date escape sequence {t 'hh:mm:ss.mmmmmm'}.
-	Subclasses may override to do their own thing (particularly if they do not support an actual TIME type)"
-
-	aStream
-		nextPutAll: '{t';
-		nextPut: $'.
-
-	aTime printOn: aStream format: 'HH:mm:ss'.
-
-	aStream
-		nextPut: $';
-		nextPut: $}!
-
-writeSQLForTrueOn: aStream
-
-	self trueObject writeSQLOn: aStream! !
+	^'VARCHAR(<1p>)'! !
 !SSWSQLDialect categoriesFor: #addFields:to:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #aggregateFunctions!constants!public! !
+!SSWSQLDialect categoriesFor: #alterField:table:in:!maintenance!public! !
+!SSWSQLDialect categoriesFor: #asIdentifier:!helpers!public! !
 !SSWSQLDialect categoriesFor: #boolean!datatypes!public! !
 !SSWSQLDialect categoriesFor: #canDescribeParameters!public!testing! !
 !SSWSQLDialect categoriesFor: #char!datatypes!public! !
+!SSWSQLDialect categoriesFor: #classNameTransformation!accessing!public! !
+!SSWSQLDialect categoriesFor: #classNameTransformation:!accessing!public! !
 !SSWSQLDialect categoriesFor: #commonFunctions!constants!public! !
 !SSWSQLDialect categoriesFor: #connection!accessing!private! !
 !SSWSQLDialect categoriesFor: #connection:!accessing!private! !
-!SSWSQLDialect categoriesFor: #connectionReservedWords!accessing!public! !
-!SSWSQLDialect categoriesFor: #connectionReservedWords:!accessing!public! !
 !SSWSQLDialect categoriesFor: #cursorType!constants!public! !
-!SSWSQLDialect categoriesFor: #customFunctions!accessing!public! !
-!SSWSQLDialect categoriesFor: #customFunctions:!accessing!public! !
 !SSWSQLDialect categoriesFor: #date!datatypes!public! !
 !SSWSQLDialect categoriesFor: #dateAndTimeFormat!constants!public! !
 !SSWSQLDialect categoriesFor: #dateAndTimeFrom:!conversions!public! !
@@ -647,18 +653,26 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #datetime!datatypes!public! !
 !SSWSQLDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
 !SSWSQLDialect categoriesFor: #decimal!datatypes!public! !
+!SSWSQLDialect categoriesFor: #defaultClassNameTransformation!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
+!SSWSQLDialect categoriesFor: #defaultInstVarNameTransformation!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultMaxColumnBytes!constants!public! !
+!SSWSQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
+!SSWSQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
+!SSWSQLDialect categoriesFor: #defaultSQLFunctions!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultUnsizedStringSize!constants!public! !
 !SSWSQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWSQLDialect categoriesFor: #double!datatypes!public! !
 !SSWSQLDialect categoriesFor: #dropColumnNamed:fromTable:in:!maintenance!public! !
 !SSWSQLDialect categoriesFor: #falseObject!constants!public! !
 !SSWSQLDialect categoriesFor: #float!datatypes!public! !
+!SSWSQLDialect categoriesFor: #identifierQuoteClose!constants!public! !
+!SSWSQLDialect categoriesFor: #identifierQuoteOpen!constants!public! !
 !SSWSQLDialect categoriesFor: #initialize!initializing!public! !
 !SSWSQLDialect categoriesFor: #initializeFor:!initializing!public! !
+!SSWSQLDialect categoriesFor: #instVarNameTransformation!accessing!public! !
+!SSWSQLDialect categoriesFor: #instVarNameTransformation:!accessing!public! !
 !SSWSQLDialect categoriesFor: #integer!datatypes!public! !
-!SSWSQLDialect categoriesFor: #isReservedWord:!public!testing! !
 !SSWSQLDialect categoriesFor: #longText!datatypes!public! !
 !SSWSQLDialect categoriesFor: #maxAllocatedStatements!constants!public! !
 !SSWSQLDialect categoriesFor: #maxChar!constants!public! !
@@ -672,6 +686,7 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #maxTableNameLength:!accessing!public! !
 !SSWSQLDialect categoriesFor: #maxVarchar!constants!public! !
 !SSWSQLDialect categoriesFor: #postLoginScript!constants!public! !
+!SSWSQLDialect categoriesFor: #printParameterPlaceholder:on:!helpers!public! !
 !SSWSQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
 !SSWSQLDialect categoriesFor: #renameTableNamed:to:in:!maintenance!public! !
 !SSWSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
@@ -679,8 +694,10 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
 !SSWSQLDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
 !SSWSQLDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
-!SSWSQLDialect categoriesFor: #sqlFunctionFor:!helpers!public! !
-!SSWSQLDialect categoriesFor: #staticReservedWords!constants!public! !
+!SSWSQLDialect categoriesFor: #sqlFunctionFor:!accessing!public! !
+!SSWSQLDialect categoriesFor: #sqlFunctions!accessing!public! !
+!SSWSQLDialect categoriesFor: #sqlFunctions:!accessing!public! !
+!SSWSQLDialect categoriesFor: #sqlWriteStream!helpers!public! !
 !SSWSQLDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
 !SSWSQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
 !SSWSQLDialect categoriesFor: #time!datatypes!public! !
@@ -689,8 +706,6 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #timeStringFor:!conversions!public! !
 !SSWSQLDialect categoriesFor: #transformClassName:!helpers!public! !
 !SSWSQLDialect categoriesFor: #transformInstVarName:!helpers!public! !
-!SSWSQLDialect categoriesFor: #transformName:!helpers!public! !
-!SSWSQLDialect categoriesFor: #transformName:into:!helpers!private! !
 !SSWSQLDialect categoriesFor: #trueObject!constants!public! !
 !SSWSQLDialect categoriesFor: #unsizedString!datatypes!public! !
 !SSWSQLDialect categoriesFor: #unsizedStringSize!accessing!public! !
@@ -699,11 +714,6 @@ writeSQLForTrueOn: aStream
 !SSWSQLDialect categoriesFor: #unsizedStringTypes!datatypes!public! !
 !SSWSQLDialect categoriesFor: #updateDelaySeconds!constants!public! !
 !SSWSQLDialect categoriesFor: #varchar!datatypes!public! !
-!SSWSQLDialect categoriesFor: #writeSQLForDate:on:!public!writing sql! !
-!SSWSQLDialect categoriesFor: #writeSQLForDateAndTime:on:!public!writing sql! !
-!SSWSQLDialect categoriesFor: #writeSQLForFalseOn:!public!writing sql! !
-!SSWSQLDialect categoriesFor: #writeSQLForTime:on:!public!writing sql! !
-!SSWSQLDialect categoriesFor: #writeSQLForTrueOn:!public!writing sql! !
 
 !SSWSQLDialect class methodsFor!
 
@@ -744,12 +754,6 @@ newFor: aDBConnection
 		initializeFor: aDBConnection;
 		yourself!
 
-odbcReservedWords
-
-	"Return the set of default ODBC reserved words, as defined by Microsoft ODBC Programmer's Reference"
-
-	^##('ABSOLUTE IS ACTION ISOLATION ADA JOIN ADD KEY ALL LANGUAGE ALLOCATE LAST ALTER LEADING AND LEFT ANY LEVEL ARE LIKE AS LOCAL ASC LOWER ASSERTION MATCH AT MAX AUTHORIZATION MIN AVG MINUTE BEGIN MODULE BETWEEN MONTH BIT NAMES BIT_LENGTH NATIONAL BOTH NATURAL BY NCHAR CASCADE NEXT CASCADED NO CASE NONE CAST NOT CATALOG NULL CHAR NULLIF CHAR_LENGTH NUMERIC CHARACTER OCTET_LENGTH CHARACTER_LENGTH OF CHECK ON CLOSE ONLY COALESCE OPEN COLLATE OPTION COLLATION OR COLUMN ORDER COMMIT OUTER CONNECT OUTPUT CONNECTION OVERLAPS CONSTRAINT PAD CONSTRAINTS PARTIAL CONTINUE PASCAL CONVERT POSITION CORRESPONDING PRECISION COUNT PREPARE CREATE PRESERVE CROSS PRIMARY CURRENT PRIOR CURRENT_DATE PRIVILEGES CURRENT_TIME PROCEDURE CURRENT_TIMESTAMP PUBLIC CURRENT_USER READ CURSOR REAL DATE REFERENCES DAY RELATIVE DEALLOCATE RESTRICT DEC REVOKE DECIMAL RIGHT DECLARE ROLLBACK DEFAULT ROWS DEFERRABLE SCHEMA DEFERRED SCROLL DELETE SECOND DESC SECTION DESCRIBE SELECT DESCRIPTOR SESSION DIAGNOSTICS SESSION_USER DISCONNECT SET DISTINCT SIZE DOMAIN SMALLINT DOUBLE SOME DROP SPACE ELSE SQL END SQLCA END-EXEC SQLCODE ESCAPE SQLERROR EXCEPT SQLSTATE EXCEPTION SQLWARNING EXEC SUBSTRING EXECUTE SUM EXISTS SYSTEM_USER EXTERNAL TABLE EXTRACT TEMPORARY FALSE THEN FETCH TIME FIRST TIMESTAMP FLOAT TIMEZONE_HOUR FOR TIMEZONE_MINUTE FOREIGN TO FORTRAN TRAILING FOUND TRANSACTION FROM TRANSLATE FULL TRANSLATION GET TRIM GLOBAL TRUE GO UNION GOTO UNIQUE GRANT UNKNOWN GROUP UPDATE HAVING UPPER HOUR USAGE IDENTITY USER IMMEDIATE USING IN VALUE INCLUDE VALUES INDEX VARCHAR INDICATOR VARYING INITIALLY VIEW INNER WHEN INPUT WHENEVER INSENSITIVE WHERE INSERT WITH INT WORK INTEGER WRITE INTERSECT YEAR INTERVAL ZONE INTO' subStrings)!
-
 subclassFor: aDBConnection
 
 	"Return the correct subclass of the receiver to use for the given DBConnection"
@@ -761,6 +765,5 @@ subclassFor: aDBConnection
 !SSWSQLDialect class categoriesFor: #isCompatibleWithConnection:!public!testing! !
 !SSWSQLDialect class categoriesFor: #new!instance creation!public! !
 !SSWSQLDialect class categoriesFor: #newFor:!instance creation!public! !
-!SSWSQLDialect class categoriesFor: #odbcReservedWords!constants!public! !
 !SSWSQLDialect class categoriesFor: #subclassFor:!accessing!public! !
 

@@ -6,7 +6,9 @@ SSWDBInheritedTable subclass: #SSWDBSuperTable
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBSuperTable guid: (GUID fromString: '{266e4dcf-398e-11d5-b1df-444553540000}')!
-SSWDBSuperTable comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBSuperTable comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBSuperTable categoriesForClass!Unclassified! !
 !SSWDBSuperTable methodsFor!
 

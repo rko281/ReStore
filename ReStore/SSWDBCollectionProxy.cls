@@ -6,41 +6,35 @@ SSWDBProxy subclass: #SSWDBCollectionProxy
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCollectionProxy guid: (GUID fromString: '{5a3e3dd9-3990-11d5-b1df-444553540000}')!
-SSWDBCollectionProxy comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBCollectionProxy comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBCollectionProxy categoriesForClass!Unclassified! !
 !SSWDBCollectionProxy methodsFor!
 
 _checkHasChanged
 
-	"22/1/2001
-
-	Default - collection proxies do not keep track of their changes"
+	"Default - collection proxies do not keep track of their changes"
 
 	^false!
 
 _collectionSpec
 
-	"14/8/2000
-	
-	collectionSpec stores the SSWDBCollectionSpec which, given the receiver's ownerID,
+	"collectionSpec stores the SSWDBCollectionSpec which, given the receiver's ownerID,
 	can query for the members of the collection proxy'd by the receiver"
 	
 	^collectionSpec!
 
 _collectionSpec: anSSWDBCollectionSpec
 
-	"14/8/2000
-	
-	dbCollectionSpec stores the SSWDBCollectionSpec which, given the receiver's ownerID,
+	"dbCollectionSpec stores the SSWDBCollectionSpec which, given the receiver's ownerID,
 	can query for the members of the collection proxy'd by the receiver"
 	
 	collectionSpec := anSSWDBCollectionSpec!
 
 _commitChanges
 
-	"22/1/2001
-	
-	Default: no action for collections"
+	"Default: no action for collections"
 	
 	^true!
 
@@ -58,9 +52,7 @@ _forceRefreshWithContents
 
 _owner
 
-	"14/8/2000
-	
-	owner stores the proxy of the object to which the collection proxy'd by the receiver belongs.
+	"owner stores the proxy of the object to which the collection proxy'd by the receiver belongs.
 	Holding this ensures that the owner is not GC'd before the collection.
 
 	NB owner ALWAYS holds the actual proxy, not the owning object itself"
@@ -69,9 +61,7 @@ _owner
 
 _owner: anObject
 
-	"14/8/2000
-	
-	owner stores the object to which the collection proxy'd by the receiver belongs.
+	"owner stores the object to which the collection proxy'd by the receiver belongs.
 	Holding this ensures that the owner is not GC'd before the collection.
 
 	NB owner ALWAYS holds the actual proxy, not the owning object itself"
@@ -80,32 +70,24 @@ _owner: anObject
 
 _ownerID
 
-	"14/8/2000
-	
-	Return the unique ID (Integer) of the object to which the collection proxy'd by the receiver belongs"
+	"Return the unique ID (Integer) of the object to which the collection proxy'd by the receiver belongs"
 	
 	^owner _id!
 
 _postSwapReferences
 
-	"22/5/2001
-
-	Inform the owner"
+	"Inform the owner"
 
 	owner _collectionProxySwapped: self!
 
 _prepareToCommit
 
-	"26/4/2001
-
-	Default: no action for collections"
+	"Default: no action for collections"
 
 	^self!
 
 _recoverProxiedObject
 
-	"18/9/2000"
-	
 	collectionSpec recoverCollectionForProxy: self!
 
 _refreshIfUpdated
@@ -126,8 +108,6 @@ _unrecoveredProxyString
 
 class
 
-	"8/10/2000"
-	
 	^proxiedObject == nil
 		ifTrue: [collectionSpec collectionClass]
 		ifFalse: [proxiedObject class]!

@@ -6,7 +6,9 @@ SSWDBStaticCollectionSpec subclass: #SSWDBSortedStaticCollectionSpec
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBSortedStaticCollectionSpec guid: (GUID fromString: '{e4f21821-655e-11d5-b1df-0010a70883e2}')!
-SSWDBSortedStaticCollectionSpec comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBSortedStaticCollectionSpec comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBSortedStaticCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBSortedStaticCollectionSpec methodsFor!
 
@@ -37,9 +39,7 @@ orderingSpecs: anOrderedCollection
 
 queryClass
 
-	"18/9/2000
-	
-	Return the class of select query appropriate for the receiver"
+	"Return the class of select query appropriate for the receiver"
 	
 	^SSWSQLOrderedSelectQuery!
 
@@ -50,8 +50,6 @@ refreshCollectionForProxy: aCollectionProxy
 	^self recoverCollectionForProxy: aCollectionProxy!
 
 selectQueryIn: anSSWReStore
-
-	"30/4/2001"
 
 	| query |
 

@@ -6,24 +6,22 @@ DeafObject subclass: #SSWDBDeletedObject
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBDeletedObject guid: (GUID fromString: '{36513de1-63fc-11d5-b1df-0010a70883e2}')!
-SSWDBDeletedObject comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBDeletedObject comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBDeletedObject categoriesForClass!Unclassified! !
 !SSWDBDeletedObject methodsFor!
 
 deletedObjectClass
 
-	"22/5/2001
-
-	deletedObjectClass stores the Class of object for which the receiver 
+	"deletedObjectClass stores the Class of object for which the receiver 
 	represents a deleted instance"
 
 	^deletedObjectClass!
 
 deletedObjectClass: aClass
 
-	"22/5/2001
-
-	deletedObjectClass stores the Class of object for which the receiver 
+	"deletedObjectClass stores the Class of object for which the receiver 
 	represents a deleted instance"
 
 	deletedObjectClass := aClass!
@@ -34,32 +32,24 @@ displayOn: aStream
 
 id
 
-	"22/5/2001
-
-	id stores the unique ID of the instance of deletedObjectClass
+	"id stores the unique ID of the instance of deletedObjectClass
 	that the receiver represents"
 
 	^id!
 
 id: anInteger
 
-	"22/5/2001
-
-	id stores the unique ID of the instance of deletedObjectClass
+	"id stores the unique ID of the instance of deletedObjectClass
 	that the receiver represents"
 
 	id := anInteger!
 
 isDBDeleted
 
-	"23/4/2001"
-	
 	^true!
 
 printOn: aStream
 
-	"23/4/2001"
-		
 	aStream 
 		nextPutAll: 'A deleted ';
 		nextPutAll: self deletedObjectClass name;
@@ -68,9 +58,7 @@ printOn: aStream
 
 shallowCopy
 
-	"27/4/2001
-
-	Do not copy the receiver"
+	"Do not copy the receiver"
 
 	^self
 !
@@ -93,8 +81,6 @@ unstore
 !SSWDBDeletedObject class methodsFor!
 
 newForClass: aClass id: anInteger
-
-	"22/5/2001"
 
 	^self basicNew
 		deletedObjectClass: aClass;

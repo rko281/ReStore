@@ -1,10 +1,8 @@
 ﻿| package |
 package := Package name: 'SSW ReStore Base Additions'.
 package paxVersion: 1;
-	basicComment: 'ReStore for Dolphin Smalltalk 
-Version 2.00
-©2003-2018 John Aspinall
-
+	basicComment: 'ReStore
+©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
 
@@ -18,22 +16,14 @@ package classNames
 	add: #SSWDBStringWithInfo;
 	add: #SSWDBVariableStringWithInfo;
 	add: #SSWDBWrapper;
-	add: #UnquotedString;
 	yourself.
 
 package methodNames
-	add: #BlockFrame -> #_method:;
-	add: #DateAndTime -> #withResolution:;
 	add: #False -> #asInteger;
 	add: #Object -> #_instVarAt:;
 	add: #Object -> #_instVarAt:put:;
-	add: #Object -> #_isKindOf:;
 	add: #Object -> #chainPerform:;
 	add: #Object -> #includedIn:;
-	add: #ProtoObject -> #_isKindOf:;
-	add: #StackFrame -> #_method:;
-	add: #StackFrame -> #sswByteCodeDispatcher;
-	add: #String -> #asUnquotedString;
 	add: #String -> #orNilIfEmpty;
 	add: #Symbol -> #sswInUnderscoreFormat;
 	add: #True -> #asInteger;
@@ -80,11 +70,6 @@ Object subclass: #SSWDBWrapper
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-String variableByteSubclass: #UnquotedString
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 DeafObject subclass: #SSWDBDeletedObject
 	instanceVariableNames: 'deletedObjectClass id'
 	classVariableNames: ''
@@ -121,37 +106,12 @@ SSWDBStringWithInfo subclass: #SSWDBVariableStringWithInfo
 
 "Loose Methods"!
 
-!BlockFrame methodsFor!
-
-_method: aCompiledMethod 
-
-	super method: aCompiledMethod! !
-!BlockFrame categoriesFor: #_method:!accessing!private! !
-
 !Boolean class methodsFor!
 
 isPersistentBaseClass
 
-	"30/9/2001"
-
 	^true! !
 !Boolean class categoriesFor: #isPersistentBaseClass!public!testing! !
-
-!DateAndTime methodsFor!
-
-withResolution: anInteger
-
-	"Return a copy of the receiver with the resolution (number of fractional digits) anInteger, i.e. 0 for seconds resolution, 3 for milliseconds etc."
-
-	| multplier |
-
-	multplier := 10 ** anInteger.
-
-	^##(self) new
-		setRataDie: rataDie 
-		seconds: ((seconds * multplier) // multplier)
-		offset: offset! !
-!DateAndTime categoriesFor: #withResolution:!accessing!public! !
 
 !DateAndTime class methodsFor!
 
@@ -166,9 +126,7 @@ withMillisecondResolution
 
 asInteger
 
-	"9/4/2001
-
-	For DB support"
+	"For DB support"
 
 	^0! !
 !False categoriesFor: #asInteger!converting!public! !
@@ -177,9 +135,7 @@ asInteger
 
 isPersistentBaseClass
 
-	"30/9/2001
-
-	NB not all subclasses are valid, but this is not important"
+	"NB not all subclasses are valid, but this is not important"
 
 	^true! !
 !Magnitude class categoriesFor: #isPersistentBaseClass!public!testing! !
@@ -188,8 +144,6 @@ isPersistentBaseClass
 
 isPersistentBaseClass
 
-	"30/9/2001"
-
 	^true! !
 !Metaclass class categoriesFor: #isPersistentBaseClass!public!testing! !
 
@@ -197,25 +151,15 @@ isPersistentBaseClass
 
 _instVarAt: anInteger
 
-	"Private - 21/1/2001
-	
-	Make the receiver polymorphic with proxies"
+	"Make the receiver polymorphic with proxies"
 	
 	^self instVarAt: anInteger!
 
 _instVarAt: anInteger put: anObject
 
-	"Private - 21/1/2001
-	
-	Make the receiver polymorphic with proxies"
+	"Make the receiver polymorphic with proxies"
 	
 	^self instVarAt: anInteger put: anObject!
-
-_isKindOf: aClass
-
-	"Like isKindOf: aClass, but is not passed through by proxies - for reflective methods"
-
-	<primitive: 57>!
 
 chainPerform: aCollection
 
@@ -232,7 +176,6 @@ includedIn: aCollection
 	^aCollection includes: self! !
 !Object categoriesFor: #_instVarAt:!accessing!private! !
 !Object categoriesFor: #_instVarAt:put:!accessing!private! !
-!Object categoriesFor: #_isKindOf:!message sending!private! !
 !Object categoriesFor: #chainPerform:!actions!public! !
 !Object categoriesFor: #includedIn:!public!testing! !
 
@@ -240,9 +183,7 @@ includedIn: aCollection
 
 isPersistentBaseClass
 
-	"30/9/2001
-	
-	Return whether the receiver class is a valid persistent base class
+	"Return whether the receiver class is a valid persistent base class
 	 - a class which can be represented in the DB by a single field type, rather than a table.
 
 	false by default, subclasses which are so valid may override"
@@ -250,22 +191,11 @@ isPersistentBaseClass
 	^false! !
 !Object class categoriesFor: #isPersistentBaseClass!persistency!public! !
 
-!ProtoObject methodsFor!
-
-_isKindOf: aClass
-
-	"Like isKindOf: aClass, but is not passed through by proxies - for reflective methods"
-
-	<primitive: 57>! !
-!ProtoObject categoriesFor: #_isKindOf:!message sending!private! !
-
 !ScaledDecimal class methodsFor!
 
 withPrecision: precisionInteger scale: scaleInteger 
 
-	"15/5/2001
-
-	Return an instance of an SSWDBScaledDecimalWithInfo which can represent this"
+	"Return an instance of an SSWDBScaledDecimalWithInfo which can represent this"
 
 	^(self withScale: scaleInteger)
 		precision: precisionInteger;
@@ -273,9 +203,7 @@ withPrecision: precisionInteger scale: scaleInteger
 
 withScale: scaleInteger
 
-	"15/5/2001
-
-	Return an instance of an SSWDBScaledDecimalWithInfo which can represent this"
+	"Return an instance of an SSWDBScaledDecimalWithInfo which can represent this"
 
 	^SSWDBScaledDecimalWithInfo new
 		scale: scaleInteger;
@@ -283,47 +211,13 @@ withScale: scaleInteger
 !ScaledDecimal class categoriesFor: #withPrecision:scale:!public!specification! !
 !ScaledDecimal class categoriesFor: #withScale:!public!specification! !
 
-!StackFrame methodsFor!
-
-_method: aCompiledMethod 
-
-	self method: aCompiledMethod!
-
-sswByteCodeDispatcher
-
-	"Return a ByteCodeDispatcher on the receiver's method, initialized at the same IP as the receiver.
-	Named to match the copied non-dev implementation in CompiledCode"
-
-	^self method sswByteCodeDispatcher
-		ip: self ip;
-		yourself! !
-!StackFrame categoriesFor: #_method:!accessing!private! !
-!StackFrame categoriesFor: #sswByteCodeDispatcher!accessing!private! !
-
 !String methodsFor!
 
-asUnquotedString
-
-	"12/9/2001"
-
-	| unquoted |
-
-	unquoted := UnquotedString new: self size.
-
-	self
-		replaceBytesOf: unquoted
-		from: 1 to: self size startingAt: 1.
-
-	^unquoted!
-
 orNilIfEmpty
-
-	"30/9/2001"
 
 	^self isEmpty
 		ifTrue: [nil]
 		ifFalse: [self]! !
-!String categoriesFor: #asUnquotedString!converting!public! !
 !String categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !
 
 !String class methodsFor!
@@ -336,9 +230,7 @@ dbMaxFieldSize
 
 fixedSize: anInteger
 
-	"15/4/2001
-
-	For DB support: specifies a fixed-sized String of anInteger characters"
+	"For DB support: specifies a fixed-sized String of anInteger characters"
 
 	^SSWDBFixedStringWithInfo new
 		fieldSize: anInteger;
@@ -346,15 +238,11 @@ fixedSize: anInteger
 
 isPersistentBaseClass
 
-	"30/9/2001"
-
 	^true!
 
 maxSize: anInteger
 
-	"15/4/2001
-
-	For DB support: specifies a variable-sized String with a maximum size of anInteger"
+	"For DB support: specifies a variable-sized String with a maximum size of anInteger"
 
 	^SSWDBVariableStringWithInfo new
 		fieldSize: anInteger;
@@ -369,32 +257,32 @@ maxSize: anInteger
 sswInUnderscoreFormat
 
 	"Return a String which is the receiver in 'underscore format' (e.g. for SQL).
-	e.g. the underscore form of the symbol #dateOfBirth would be 'DATE_OF_BIRTH'		"
+	e.g. the underscore form of the symbol #dateOfBirth would be 'date_of_birth'.
+
+	NB - previously this method returned all-uppercase strings; it now returns all-lowercase"
 	
 	| readStream writeStream wasLowercase |
 	
 	readStream := ReadStream on: self.
-	writeStream := WriteStream on: String new.
+	writeStream := WriteStream on: (String new: self size).
 	wasLowercase := false.
 
 	[readStream atEnd] whileFalse: 
 		[| char |
 		char := readStream next.
 		(char isUppercase and: [wasLowercase])
-			ifTrue: [writeStream nextPut: $_; nextPut: char]
-			ifFalse: [writeStream nextPut: char asUppercase].
+			ifTrue: [writeStream nextPut: $_; nextPut: char asLowercase]
+			ifFalse: [writeStream nextPut: char asLowercase].
 		wasLowercase := char isLowercase].
 			
 	^writeStream contents! !
-!Symbol categoriesFor: #sswInUnderscoreFormat!evaluating!public! !
+!Symbol categoriesFor: #sswInUnderscoreFormat!converting!evaluating!public! !
 
 !True methodsFor!
 
 asInteger
 
-	"9/4/2001
-
-	For DB support"
+	"For DB support"
 
 	^1! !
 !True categoriesFor: #asInteger!converting!public! !
@@ -402,8 +290,6 @@ asInteger
 !UndefinedObject methodsFor!
 
 orNilIfEmpty
-
-	"30/9/2001"
 
 	^nil! !
 !UndefinedObject categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !

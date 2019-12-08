@@ -6,15 +6,15 @@ SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBStaticDictionarySpec guid: (GUID fromString: '{51e5267a-93ea-11d5-b1e0-444553540000}')!
-SSWDBStaticDictionarySpec comment: ''!
+SSWDBStaticDictionarySpec comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBStaticDictionarySpec categoriesForClass!Unclassified! !
 !SSWDBStaticDictionarySpec methodsFor!
 
 aboutToBeUnstored: aProxyObject
 
-	"30/9/2001
-	
-	Also unstore member keys, if the receiver is so dependent"
+	"Also unstore member keys, if the receiver is so dependent"
 
 	self isKeyDependent ifTrue: [(self accessor valueIn: aProxyObject) keysDo: [ :each | each unstore]].
 
@@ -34,9 +34,7 @@ beKeyUnrelated
 
 createCollectionTable
 
-	"18/8/2001
-
-	Intercept to set the Class of the key field in the collection table"
+	"Intercept to set the Class of the key field in the collection table"
 		
 	super createCollectionTable.
 
@@ -63,27 +61,21 @@ isKeyRelated
 
 keyClass
 
-	"18/8/01
-
-	keyClass stores the Class of the objects that are the keys to this Dictionary.
+	"keyClass stores the Class of the objects that are the keys to this Dictionary.
 	This should be a valid base class (String, Date etc.) or a persistent class"
 
 	^keyClass!
 
 keyClass: aBasicClass
 
-	"18/8/01
-
-	keyClass stores the Class of the objects that are the keys to this Dictionary.
+	"keyClass stores the Class of the objects that are the keys to this Dictionary.
 	This should be a valid base class (String, Date etc.) or a persistent class"
 
 	keyClass := aBasicClass!
 
 setKeyClass: aClass
 
-	"30/9/2001
-	
-	Double-despatch to the argument"
+	"Double-despatch to the argument"
 	
 	aClass beKeyClassOf: self
 ! !

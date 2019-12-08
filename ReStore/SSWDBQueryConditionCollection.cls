@@ -6,7 +6,9 @@ SSWSQLConditionCollection variableSubclass: #SSWDBQueryConditionCollection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBQueryConditionCollection guid: (GUID fromString: '{8fc6fd1c-d815-47c0-bb6d-8d073b2df2b1}')!
-SSWDBQueryConditionCollection comment: ''!
+SSWDBQueryConditionCollection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBQueryConditionCollection categoriesForClass!Unclassified! !
 !SSWDBQueryConditionCollection methodsFor!
 
@@ -45,7 +47,9 @@ asSQLFields
 	"Convert the receiver to the standard non-query subsystem representation for fields"
 
 	"The receiver represents the concept of a result field which is a composite condition"
-	^self asSQLConditions!
+	^self size = 1 
+		ifTrue: [self first asSQLFields] 
+		ifFalse: [self asSQLConditions]!
 
 blockEndpoint
 	^blockEndpoint!
@@ -92,13 +96,6 @@ forConcatenation
 
 	^true!
 
-mustBeBoolean
-
-	"Private - Received when this condition has been subject to an inlined and: / or: message in a query block.
-	Ask the parser to handle"
-
-	^self parser handleMustBeBooleanIn: self!
-
 parser
 	^parser!
 
@@ -140,7 +137,6 @@ sqlOr: aCondition
 !SSWDBQueryConditionCollection categoriesFor: #copyEmpty:!copying!public! !
 !SSWDBQueryConditionCollection categoriesFor: #copyLikeOfSize:!copying!public! !
 !SSWDBQueryConditionCollection categoriesFor: #forConcatenation!converting!public! !
-!SSWDBQueryConditionCollection categoriesFor: #mustBeBoolean!evaluating!private! !
 !SSWDBQueryConditionCollection categoriesFor: #parser!accessing!private! !
 !SSWDBQueryConditionCollection categoriesFor: #parser:!accessing!private! !
 !SSWDBQueryConditionCollection categoriesFor: #postCondition!accessing!private! !

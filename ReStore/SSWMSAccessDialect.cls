@@ -6,7 +6,9 @@ SSWSQLDialect subclass: #SSWMSAccessDialect
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWMSAccessDialect guid: (GUID fromString: '{afd771ea-5cc7-4d40-9dc1-eb018e9e13c7}')!
-SSWMSAccessDialect comment: ''!
+SSWMSAccessDialect comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWMSAccessDialect categoriesForClass!Unclassified! !
 !SSWMSAccessDialect methodsFor!
 
@@ -17,20 +19,6 @@ boolean
 canDescribeParameters
 
 	^false!
-
-connectionReservedWords
-
-	"Access 2013 (and others?) appears to (sometimes?) truncate the result of SQL_KEYWORDS to 255 characters, omitting some important reserved words (e.g. NUMBER).
-	Attempt to handle this by comparing the connectionReservedWords with a complete set returned from an earlier version of Access.
-	Prefer the hardcoded set if this is larger than the connection set"
-
-	| expectedReservedWords |
-
-	expectedReservedWords := #('ALPHANUMERIC' 'AUTOINCREMENT' 'BINARY' 'BYTE' 'COUNTER' 'CURRENCY' 'DATABASE' 'DATABASENAME' 'DATETIME' 'DISALLOW' 'DISTINCTROW' 'DOUBLEFLOAT' 'FLOAT4' 'FLOAT8' 'GENERAL' 'IEEEDOUBLE' 'IEEESINGLE' 'IGNORE' 'INT' 'INTEGER1' 'INTEGER2' 'INTEGER4' 'LEVEL' 'LOGICAL' 'LOGICAL1' 'LONG' 'LONGBINARY' 'LONGCHAR' 'LONGTEXT' 'MEMO' 'MONEY' 'NOTE' 'NUMBER' 'OLEOBJECT' 'OPTION' 'OWNERACCESS' 'PARAMETERS' 'PERCENT' 'PIVOT' 'SHORT' 'SINGLE' 'SINGLEFLOAT' 'SMALLINT' 'STDEV' 'STDEVP' 'STRING' 'TABLEID' 'TEXT' 'TOP' 'TRANSFORM' 'UNSIGNEDBYTE' 'VALUES' 'VAR' 'VARBINARY' 'VARP' 'YESNO').
-
-	^expectedReservedWords size >= connectionReservedWords size
-		ifTrue: [expectedReservedWords]
-		ifFalse: [connectionReservedWords]!
 
 date
 
@@ -44,29 +32,46 @@ datetimeWithResolution
 
 	^self datetime!
 
+defaultMaxColumnNameLength
+
+	^64!
+
+defaultMaxTableNameLength
+
+	^64!
+
 dialectSpecificFunctions
 
-	^##(Dictionary new
+	^Dictionary new
+
+		"Conversion functions"
+		at: #asInteger put: 'ROUND(%1,0)' asSQLFunctionIntegerResult;
 
 		"Numeric functions"
-		at: #\\ put: '(%1 MOD %2)';
+		at: #\\ put: '(%1 MOD %2)' asSQLFunctionIntegerResult;
 
 		"String functions"
-		at: #, put: '(%1 + %2)';
-		at: #midString:from: put: 'MID(%1,%3,%2)';
-		at: #asciiValue put: 'ASC(%1)';
-		at: #leftString: put: 'LEFT(%1,%2)';
-		at: #rightString: put: 'RIGHT(%1,%2)';
+		at: #, put: '(%1 + %2)' asSQLFunction;
+		at: #midString:from: put: 'MID(%1,%3,%2)' asSQLFunction;
+		at: #asciiValue put: 'ASC(%1)' asSQLFunctionIntegerResult;
+		at: #leftString: put: 'LEFT(%1,%2)' asSQLFunction;
+		at: #rightString: put: 'RIGHT(%1,%2)' asSQLFunction;
 		
 		"Date functions"
-		at: #addDays: put: 'DATEADD(''d'',%2,%1)';
-		at: #addMonths: put: 'DATEADD(''m'',%2,%1)';
-		at: #addYears: put: 'DATEADD(''yyyy'',%2,%1)';
-		at: #dayOfMonth put: 'DATEPART(''d'',%1)';
-		at: #monthIndex put: 'DATEPART(''m'',%1)';
-		at: #year put: 'DATEPART(''yyyy'',%1)';
+		at: #addDays: put: 'DATEADD(''d'',%2,%1)' asSQLFunction;
+		at: #addMonths: put: 'DATEADD(''m'',%2,%1)' asSQLFunction;
+		at: #addYears: put: 'DATEADD(''yyyy'',%2,%1)' asSQLFunction;
+		at: #dayOfMonth put: 'DATEPART(''d'',%1)' asSQLFunctionIntegerResult;
+		at: #monthIndex put: 'DATEPART(''m'',%1)' asSQLFunctionIntegerResult;
+		at: #year put: 'DATEPART(''yyyy'',%1)' asSQLFunctionIntegerResult;
 
-		yourself)!
+		"Logical functions"
+		at: #ifNil: put: 'IIF(ISNULL(%1),%2,%1)' asSQLFunction;
+		at: #ifNull: put: 'IIF(ISNULL(%1),%2,%1)' asSQLFunction;
+		at: #ifNull:ifNotNull: put: ('IIF(ISNULL(%1),%2,%3)' asSQLFunction resultParamIndex: 2);
+		at: #then:else: put: ('IIF(%1,%2,%3)' asSQLFunction resultParamIndex: 2);
+
+		yourself!
 
 longText
 
@@ -86,8 +91,8 @@ maxDateTimeResolution
 renameTableNamed: oldName to: newName in: anSSWReStore
 
 	anSSWReStore 
-		executeSQL: ('SELECT * INTO %2 FROM %1' formatWith: oldName with: newName);
-		executeSQL: ('DROP TABLE %1' formatWith: oldName)!
+		executeSQLFrom: [ :stream | stream nextPutAll: 'SELECT * INTO '; nextPutIdentifier: newName; nextPutAll: ' FROM '; nextPutIdentifier: oldName];
+		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; nextPutIdentifier: oldName]!
 
 shouldMapEmptyStringsToNil
 
@@ -110,20 +115,13 @@ updateDelaySeconds
 
 	"Arrived at anecdotally... refresh SUnit tests fail with 4 seconds, pass with 5"
 
-	^5!
-
-writeSQLForDate: aDate on: aStream
-
-	self writeSQLForDateAndTime: aDate asDateAndTime on: aStream!
-
-writeSQLForTime: aTime on: aStream
-
-	self writeSQLForDateAndTime: aTime asDateAndTime on: aStream! !
+	^5! !
 !SSWMSAccessDialect categoriesFor: #boolean!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #canDescribeParameters!public!testing! !
-!SSWMSAccessDialect categoriesFor: #connectionReservedWords!constants!public! !
 !SSWMSAccessDialect categoriesFor: #date!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
+!SSWMSAccessDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
+!SSWMSAccessDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
 !SSWMSAccessDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWMSAccessDialect categoriesFor: #longText!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #maxAllocatedStatements!constants!public! !
@@ -133,8 +131,6 @@ writeSQLForTime: aTime on: aStream
 !SSWMSAccessDialect categoriesFor: #time!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #trueObject!constants!public! !
 !SSWMSAccessDialect categoriesFor: #updateDelaySeconds!constants!public! !
-!SSWMSAccessDialect categoriesFor: #writeSQLForDate:on:!public!writing sql! !
-!SSWMSAccessDialect categoriesFor: #writeSQLForTime:on:!public!writing sql! !
 
 !SSWMSAccessDialect class methodsFor!
 

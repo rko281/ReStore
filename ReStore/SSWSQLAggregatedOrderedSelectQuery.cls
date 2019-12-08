@@ -6,7 +6,9 @@ SSWSQLOrderedSelectQuery subclass: #SSWSQLAggregatedOrderedSelectQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLAggregatedOrderedSelectQuery guid: (GUID fromString: '{52a01adb-1424-4593-ab2a-9886f0d6649f}')!
-SSWSQLAggregatedOrderedSelectQuery comment: ''!
+SSWSQLAggregatedOrderedSelectQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLAggregatedOrderedSelectQuery categoriesForClass!Unclassified! !
 !SSWSQLAggregatedOrderedSelectQuery methodsFor!
 

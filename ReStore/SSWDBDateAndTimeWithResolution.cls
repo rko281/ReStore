@@ -6,7 +6,9 @@ SSWDBClassWithInfo subclass: #SSWDBDateAndTimeWithResolution
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBDateAndTimeWithResolution guid: (GUID fromString: '{9e464b5e-ac2b-431e-b153-4c7068cdede8}')!
-SSWDBDateAndTimeWithResolution comment: ''!
+SSWDBDateAndTimeWithResolution comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBDateAndTimeWithResolution categoriesForClass!Unclassified! !
 !SSWDBDateAndTimeWithResolution methodsFor!
 

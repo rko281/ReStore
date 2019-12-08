@@ -6,7 +6,9 @@ SSWDBCollectionSpec subclass: #SSWDBOwnedCollectionSpec
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBOwnedCollectionSpec guid: (GUID fromString: '{fb82fd82-49e2-11d5-b1df-0010a70883e2}')!
-SSWDBOwnedCollectionSpec comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBOwnedCollectionSpec comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBOwnedCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBOwnedCollectionSpec methodsFor!
 
@@ -39,33 +41,25 @@ orderingSpecs: anOrderedCollection
 
 owner: aSymbol
 
-	"30/9/2001"
-	
 	self ownerAccessor: (SSWInstVarAccessor toAccess: aSymbol in: self targetClass)!
 
 ownerAccessor
 
-	"14/8/2000
-	
-	ownerAccessor stores an Accessor configured to access instance variable 
+	"ownerAccessor stores an Accessor configured to access instance variable 
 	of the targetClass that holds the reference to the owner object"
 	
 	^ownerAccessor!
 
 ownerAccessor: anInstVarAccessor
 
-	"14/8/2000
-	
-	ownerAccessor stores an Accessor configured to access instance variable 
+	"ownerAccessor stores an Accessor configured to access instance variable 
 	of the targetClass that holds the reference to the owner object"
 	
 	ownerAccessor := anInstVarAccessor!
 
 ownerClass
 
-	"22/1/2001
-	
-	Return the class of object that owns the collection specified by the receiver"
+	"Return the class of object that owns the collection specified by the receiver"
 	
 	^self table instanceClass!
 
@@ -239,7 +233,7 @@ selectQueryIn: anSSWReStore
 
 setOrderingSpecs
 
-	self templateCollection isSorted
+	self templateCollection isSortedCollection
 	ifTrue: 
 		[self orderingSpecs: (self templateCollection orderingSpecsFor: self targetClass in: self reStore)]
 	ifFalse: 
@@ -249,8 +243,6 @@ setOrderingSpecs
 
 setOwnerFieldFrom: anSSWReStore
 
-	"14/8/2000"
-	
 	| targetTable |
 	
 	targetTable := anSSWReStore tableForClass: self targetClass.
@@ -259,26 +251,20 @@ setOwnerFieldFrom: anSSWReStore
 
 setTargetClass: aClass
 
-	"30/9/2001
-	
-	Double-despatch to the argument"
+	"Double-despatch to the argument"
 	
 	aClass beTargetClassOf: self!
 
 targetClass
 
-	"14/8/2000
-	
-	targetClass stores the Class of object held in the collection specified by the receiver.
+	"targetClass stores the Class of object held in the collection specified by the receiver.
 	Instances of this class must hold a reference to their owner object"
 	
 	^targetClass!
 
 targetClass: aClass
 
-	"14/8/2000
-	
-	targetClass stores the Class of object held in the collection specified by the receiver.
+	"targetClass stores the Class of object held in the collection specified by the receiver.
 	Instances of this class must hold a reference to their owner object"
 	
 	targetClass := aClass!

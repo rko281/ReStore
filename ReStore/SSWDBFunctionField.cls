@@ -6,33 +6,48 @@ SSWDBQueryField subclass: #SSWDBFunctionField
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBFunctionField guid: (GUID fromString: '{266e4dc9-398e-11d5-b1df-444553540000}')!
-SSWDBFunctionField comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBFunctionField comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBFunctionField categoriesForClass!Unclassified! !
 !SSWDBFunctionField methodsFor!
 
+anySatisfy: aBlock
+
+	"Make the receiver polymorphic with an SQLConditionCollection"
+	
+	^aBlock value: self!
+
 arguments
 
-	"21/3/2001
-	
-	arguments stores the collection of objects which are the arguments to the receiver's function.
+	"arguments stores the collection of objects which are the arguments to the receiver's function.
 	e.g. in the expression MID(SURNAME, 4, 9) the arguments would be #(4 9)"
 	
 	^arguments!
 
 arguments: aCollection
 
-	"21/3/2001
-	
-	arguments stores the collection of objects which are the arguments to the receiver's function.
+	"arguments stores the collection of objects which are the arguments to the receiver's function.
 	e.g. in the expression MID(SURNAME, 4, 9) the arguments would be #(4 9)"
 	
 	arguments := aCollection!
 
+convertValue: aValue
+
+	"Convert the given DB value object to the receiver's targetClass.
+	Return the converted object"
+
+	^self function convertValue: aValue forFunctionField: self!
+
+fieldAtIndex: anInteger
+
+	^anInteger = 1
+		ifTrue: [self field]
+		ifFalse: [self arguments at: (anInteger - 1)]!
+
 function
 
-	"21/3/2001
-	
-	function stores the SQL string of the function applied to the receiver's field,
+	"function stores the SQL string of the function applied to the receiver's field,
 	with %x placeholders for the arguments (at least one, for the receiver's field)
 	e.g. for the expression SIZE(SURNAME), the function would be 'SIZE(%1)'	"
 	
@@ -40,9 +55,7 @@ function
 
 function: aString
 
-	"21/3/2001
-	
-	function stores the SQL string of the function applied to the receiver's field,
+	"function stores the SQL string of the function applied to the receiver's field,
 	with %x placeholders for the arguments (at least one, for the receiver's field)
 	e.g. for the expression SIZE(SURNAME), the function would be 'SIZE(%)'	"
 	
@@ -50,18 +63,30 @@ function: aString
 
 hasAggregateFunction
 
-	^self field table sqlDialect aggregateFunctions includes: self function!
+	^self function isAggregateFunction!
+
+isEmpty
+
+	"Make the receiver polymorphic with an SQLConditionCollection"
+	
+	^false!
 
 requiresAliasing
 
 	"Function fields need aliasing for effective lookup, e.g. COUNT(ID) AS Field1"
 	^true!
 
+reStore
+
+	^self table reStore!
+
+targetClass
+
+	^self function targetClassForFunctionField: self!
+
 writeAliasedSQLOn: aStream
 
-	"21/3/2001
-	
-	The receiver does not support the concept of an 'aliased' name; 
+	"The receiver does not support the concept of an 'aliased' name; 
 	it either appears in conditions (alias not needed), or if in a result set it will be the sole field"
 	
 	^aStream nextPutAliasedField: self!
@@ -70,7 +95,7 @@ writeSQLOn: aStream
 
 	| funcStream |
 	
-	funcStream := ReadStream on: self function.
+	funcStream := ReadStream on: self function parameterizedString.
 
 	[funcStream atEnd] whileFalse:
 		["Handle doubled-up %%"
@@ -83,12 +108,18 @@ writeSQLOn: aStream
 			argIndex = 0
 				ifTrue: [self field writeSQLOn: aStream]
 				ifFalse: [(self arguments at: argIndex) writeSQLOn: aStream]]]! !
+!SSWDBFunctionField categoriesFor: #anySatisfy:!public!testing! !
 !SSWDBFunctionField categoriesFor: #arguments!accessing!public! !
 !SSWDBFunctionField categoriesFor: #arguments:!accessing!public! !
+!SSWDBFunctionField categoriesFor: #convertValue:!helpers!public! !
+!SSWDBFunctionField categoriesFor: #fieldAtIndex:!accessing!public! !
 !SSWDBFunctionField categoriesFor: #function!accessing!public! !
 !SSWDBFunctionField categoriesFor: #function:!accessing!public! !
 !SSWDBFunctionField categoriesFor: #hasAggregateFunction!public!testing! !
+!SSWDBFunctionField categoriesFor: #isEmpty!public!testing! !
 !SSWDBFunctionField categoriesFor: #requiresAliasing!public!testing! !
+!SSWDBFunctionField categoriesFor: #reStore!accessing!public! !
+!SSWDBFunctionField categoriesFor: #targetClass!helpers!public! !
 !SSWDBFunctionField categoriesFor: #writeAliasedSQLOn:!output!public! !
 !SSWDBFunctionField categoriesFor: #writeSQLOn:!output!public! !
 

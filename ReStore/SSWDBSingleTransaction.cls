@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBAbstractSingleTransaction subclass: #SSWDBSingleTransaction
-	instanceVariableNames: ''
+	instanceVariableNames: 'updateStatementsCache'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBSingleTransaction guid: (GUID fromString: '{5a3e3dd6-3990-11d5-b1df-444553540000}')!
-SSWDBSingleTransaction comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBSingleTransaction comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBSingleTransaction categoriesForClass!Unclassified! !
 !SSWDBSingleTransaction methodsFor!
 
@@ -16,18 +18,22 @@ commitTo: aDBConnection
 	Use aDBConnection for database-level transaction (Txn) control."
 	
 	aDBConnection beginRWTxn.
+	self preCommit.
 	self changedObjects do: [ :proxyObj | proxyObj _commitChanges].
 	aDBConnection commitTxn.
-	self changedObjects do: [ :proxyObj | proxyObj _postCommitChanges].
+
+	self postCommit.
 
 	self resetChangedObjects.
 	self beginObjectCollection
 !
 
+freeStatements
+
+	self updateStatementsCache do: [ :stmts | stmts do: [ :stmt | stmt free]]!
+
 hasChanges
 
-	"12/3/01"
-	
 	^self currentReferencedObjects anySatisfy: [ :obj | obj _checkHasChanged]!
 
 hasFailedCommit
@@ -38,14 +44,23 @@ hasFailedCommit
 	
 	^false!
 
+postCommit
+
+	self postCommitAllocatedIDs.
+	self changedObjects do: [ :proxyObj | proxyObj _postCommitChanges].
+	self freeStatements!
+
 postRollback
 
 	self endObjectCollection!
 
+preCommit
+
+	self updateStatementsCache: IdentityDictionary new.
+	self commitAllocatedIDs!
+
 rollback
 
-	"20/10/2000"
-	
 	| rolledBack |
 
 	rolledBack := OrderedCollection new: (self currentReferencedObjects size * 2).
@@ -60,10 +75,27 @@ rollback
 
 	self postRollback.
 
-	^rolledBack! !
+	^rolledBack!
+
+statementForUpdateQuery: anUpdateQuery ifAbsent: aBlock
+
+	^(self updateStatementsCache at: anUpdateQuery table ifAbsentPut: [Dictionary new])
+		at: anUpdateQuery updatedFields ifAbsentPut: [aBlock value]!
+
+updateStatementsCache
+	^updateStatementsCache!
+
+updateStatementsCache: anObject
+	updateStatementsCache := anObject! !
 !SSWDBSingleTransaction categoriesFor: #commitTo:!actions!public! !
+!SSWDBSingleTransaction categoriesFor: #freeStatements!actions!private! !
 !SSWDBSingleTransaction categoriesFor: #hasChanges!public!testing! !
 !SSWDBSingleTransaction categoriesFor: #hasFailedCommit!public!testing! !
+!SSWDBSingleTransaction categoriesFor: #postCommit!actions!private! !
 !SSWDBSingleTransaction categoriesFor: #postRollback!actions!private! !
+!SSWDBSingleTransaction categoriesFor: #preCommit!actions!private! !
 !SSWDBSingleTransaction categoriesFor: #rollback!actions!public! !
+!SSWDBSingleTransaction categoriesFor: #statementForUpdateQuery:ifAbsent:!public! !
+!SSWDBSingleTransaction categoriesFor: #updateStatementsCache!public! !
+!SSWDBSingleTransaction categoriesFor: #updateStatementsCache:!public! !
 

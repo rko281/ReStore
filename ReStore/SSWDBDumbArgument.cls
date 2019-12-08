@@ -6,7 +6,9 @@ Object subclass: #SSWDBDumbArgument
 	poolDictionaries: ''
 	classInstanceVariableNames: 'current'!
 SSWDBDumbArgument guid: (GUID fromString: '{995c23ce-d02c-4c8e-9181-111c48934fbb}')!
-SSWDBDumbArgument comment: ''!
+SSWDBDumbArgument comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBDumbArgument categoriesForClass!Kernel-Objects! !
 !SSWDBDumbArgument methodsFor!
 

@@ -6,7 +6,9 @@ DBResultSet subclass: #SSWODBCResultSet
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWODBCResultSet guid: (GUID fromString: '{63906dc1-74e4-4a2f-9c30-abf926240a0f}')!
-SSWODBCResultSet comment: ''!
+SSWODBCResultSet comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWODBCResultSet categoriesForClass!ODBC Interface! !
 !SSWODBCResultSet methodsFor!
 

@@ -6,15 +6,15 @@ ReadStream subclass: #SSWDBReadStream
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBReadStream guid: (GUID fromString: '{5a3e3dd7-3990-11d5-b1df-444553540000}')!
-SSWDBReadStream comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBReadStream comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBReadStream categoriesForClass!Unclassified! !
 !SSWDBReadStream methodsFor!
 
 atEnd
 
-	"28/3/2001
-	
-	Overriden to test via readLimit"
+	"Overriden to test via readLimit"
 	
 	^self position = readLimit!
 
@@ -24,9 +24,7 @@ atStart
 
 close
 
-	"28/3/2001
-	
-	Close the DBResultSet (and hence the DBStatement).
+	"Close the DBResultSet (and hence the DBStatement).
 	Not essential as finalization will do this, but it is good practice"
 	
 	collection close!
@@ -35,7 +33,7 @@ collectionFirst
 
 	"Private - Check for error - usually 'record deleted' - requery"
 
-	^[collection first] on: DBError do: 
+	^[collection first] on: self reStore dbErrorClass do: 
 		[ :exc | 
 		self reinitialize.
 
@@ -46,7 +44,7 @@ collectionLast
 
 	"Private - Check for error - usually 'record deleted' - requery"
 
-	^[collection last] on: DBError do: 
+	^[collection last] on: self reStore dbErrorClass do: 
 		[ :exc | 
 		self reinitialize.
 
@@ -57,7 +55,7 @@ collectionNext
 
 	"Private - Check for error - usually 'record deleted' "
 
-	^[collection next] on: DBError do: 
+	^[collection next] on: self reStore dbErrorClass do: 
 		[ :exc |
 		"If a 'deleted' error, skip until we find a valid next. Otherwise try resync"
 		exc isRecordDeletedError
@@ -69,7 +67,7 @@ collectionPrevious
 
 	"Private - Check for error - usually 'record deleted' - requery"
 
-	^[collection previous] on: DBError do: 
+	^[collection previous] on: self reStore dbErrorClass do: 
 		[ :exc | 
 		"Skip until we find a valid previous"
 		exc isRecordDeletedError
@@ -102,9 +100,7 @@ first
 
 initialize
 
-	"Private - 28/3/2001
-	
-	Overriden to set readLimit from collection (DBResultSet) or instancesCollection,
+	"Overriden to set readLimit from collection (DBResultSet) or instancesCollection,
 	as most efficient"
 
 	position := 0.
@@ -117,18 +113,14 @@ initialize
 
 instancesCollection
 
-	"28/3/2001
-	
-	instancesCollection stores the SSWDBInstancesCollection which the receiver
+	"instancesCollection stores the SSWDBInstancesCollection which the receiver
 	is a stream 'onto' (in fact, a DBResultSet is the receiver's collection"
 	
 	^instancesCollection!
 
 instancesCollection: anSSWDBInstancesCollection
 
-	"28/3/2001
-	
-	instancesCollection stores the SSWDBInstancesCollection which the receiver
+	"instancesCollection stores the SSWDBInstancesCollection which the receiver
 	is a stream 'onto' (in fact, a DBResultSet is the receiver's collection"
 	
 	instancesCollection := anSSWDBInstancesCollection!
@@ -151,9 +143,7 @@ last
 
 next
 
-	"28/3/2001
-	
-	Pass on to the receiver's collection (DBResultSet) which handles next"
+	"Pass on to the receiver's collection (DBResultSet) which handles next"
 	
 	| row |
 	
@@ -179,9 +169,7 @@ on: anSSWDBInstancesCollection
 
 position: anInteger
 
-	"27/3/2001
-	
-	Overriden to update the collection (DBResultSet)"
+	"Overriden to update the collection (DBResultSet)"
 	
 	super position: anInteger.
 	collection at: anInteger!
@@ -209,6 +197,10 @@ reinitialize
 	collection := self instancesCollection resultSet.
 	self initialize!
 
+reStore
+
+	^self instancesCollection reStore!
+
 resync
 
 	"Reinitialize the receiver by requerying"
@@ -219,9 +211,7 @@ resync
 
 setToEnd
 
-	"28/3/2001
-	
-	Overriden to set position via accessor"
+	"Overriden to set position via accessor"
 	
 	self position: readLimit!
 
@@ -261,6 +251,7 @@ syncTo: aPersistentObject
 !SSWDBReadStream categoriesFor: #position:!evaluating!public! !
 !SSWDBReadStream categoriesFor: #previous!evaluating!public! !
 !SSWDBReadStream categoriesFor: #reinitialize!initializing!public! !
+!SSWDBReadStream categoriesFor: #reStore!accessing!public! !
 !SSWDBReadStream categoriesFor: #resync!initializing!public! !
 !SSWDBReadStream categoriesFor: #setToEnd!actions!public! !
 !SSWDBReadStream categoriesFor: #syncTo:!initializing!public! !

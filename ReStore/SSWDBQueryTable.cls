@@ -6,13 +6,13 @@ Object subclass: #SSWDBQueryTable
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBQueryTable guid: (GUID fromString: '{266e4dcb-398e-11d5-b1df-444553540000}')!
-SSWDBQueryTable comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBQueryTable comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBQueryTable categoriesForClass!Unclassified! !
 !SSWDBQueryTable methodsFor!
 
 = anSSWDBQueryTable
-
-	"1/5/2002"
 
 	^self name = anSSWDBQueryTable name and: [self repetitionIndex = anSSWDBQueryTable repetitionIndex]!
 
@@ -32,31 +32,23 @@ collectionAccessing: aSymbol
 
 fieldAccessing: aSymbol
 
-	"14/3/01
-	
-	Forward to the real table"
+	"Forward to the real table"
 	
 	^self table fieldAccessing: aSymbol!
 
 hash
 
-	"1/5/2002"
-
 	^self name hash + self repetitionIndex!
 
 hasStaticConditions
 
-	"14/3/01
-	
-	Forward to the real table"
+	"Forward to the real table"
 	
 	^self table hasStaticConditions!
 
 idField
 
-	"14/3/01
-	
-	Generate an ID field with the same details as that of the receiver's table,
+	"Generate an ID field with the same details as that of the receiver's table,
 	but belonging to the receiver"
 	
 	^SSWDBQueryTableField forField: self table idField in: self!
@@ -67,24 +59,18 @@ instanceClass
 
 name
 
-	"1/5/2002"
-
 	^self table name!
 
 repetitionIndex
 
-	"14/3/01
-	
-	repetitionIndex specifies which repetition of the receiver's table the receiver replaces.
+	"repetitionIndex specifies which repetition of the receiver's table the receiver replaces.
 	e.g. the first repetition (second occurrence) has a repetitionIndex of 1"
 	
 	^repetitionIndex!
 
 repetitionIndex: anInteger
 
-	"14/3/01
-	
-	repetitionIndex specifies which repetition of the receiver's table the receiver replaces.
+	"repetitionIndex specifies which repetition of the receiver's table the receiver replaces.
 	e.g. the first repetition (second occurrence) has a repetitionIndex of 1"
 	
 	repetitionIndex := anInteger!
@@ -118,9 +104,7 @@ staticConditions
 
 table
 
-	"14/3/01
-	
-	The receiver is created to stand in place of a regular SSWDBTable when 
+	"The receiver is created to stand in place of a regular SSWDBTable when 
 	that table is referenced more than once in a query (in different roles).
 	The second (third, fourth...) occurrences are replaced by instances of the receiver's class.
 	
@@ -130,9 +114,7 @@ table
 
 table: anSSWDBTable
 
-	"14/3/01
-	
-	The receiver is created to stand in place of a regular SSWDBTable when 
+	"The receiver is created to stand in place of a regular SSWDBTable when 
 	that table is referenced more than once in a query (in different roles).
 	The second (third, fourth...) occurrences are replaced by instances of the receiver's class.
 	
@@ -188,8 +170,6 @@ writeSQLOn: aStream
 
 forRepetition: anInteger of: anSSWDBTable
 
-	"14/3/01"
-	
 	^self new
 		table: anSSWDBTable;
 		repetitionIndex: anInteger;

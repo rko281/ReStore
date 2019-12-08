@@ -6,35 +6,29 @@ SSWSQLTableQuery subclass: #SSWSQLConditionalQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLConditionalQuery guid: (GUID fromString: '{6266c932-3983-11d5-b1df-444553540000}')!
-SSWSQLConditionalQuery comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLConditionalQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLConditionalQuery categoriesForClass!Unclassified! !
 !SSWSQLConditionalQuery methodsFor!
 
 conditions
 
-	"6/8/2000
-	
-	conditions stores an SQLConditionCollection which filters this query"
+	"conditions stores an SQLConditionCollection which filters this query"
 	
 	^conditions!
 
 conditions: anSQLConditionCollection
 
-	"6/8/2000
-	
-	conditions stores an SQLConditionCollection which filters this query"
+	"conditions stores an SQLConditionCollection which filters this query"
 	
 	conditions := anSQLConditionCollection!
 
 hasConditions
 
-	"21/3/2001"
-	
 	^self conditions isEmpty not!
 
 parameterisedFields
-
-	"26/4/2001"
 
 	| parameterisedFields |
 
@@ -50,9 +44,7 @@ parameterisedFields
 
 writeWhereClauseOn: aStream
 
-	"21/3/2001
-	
-	Write the SQL for the WHERE clause for the receiver's conditions on aStream.
+	"Write the SQL for the WHERE clause for the receiver's conditions on aStream.
 	If no conditions, do nothing"
 	
 	| allConditions |

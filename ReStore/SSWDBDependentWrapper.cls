@@ -6,7 +6,9 @@ SSWDBRelatedWrapper subclass: #SSWDBDependentWrapper
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBDependentWrapper guid: (GUID fromString: '{61531103-b0e9-11d5-b1e0-444553540000}')!
-SSWDBDependentWrapper comment: ''!
+SSWDBDependentWrapper comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBDependentWrapper categoriesForClass!Unclassified! !
 !SSWDBDependentWrapper methodsFor!
 
@@ -20,9 +22,7 @@ defineAs: aSymbol in: aDBTable
 
 dependentObject
 
-	"24/9/2001
-
-	dependentObject stores the object for which the receiver represents a database-dependent variant.
+	"dependentObject stores the object for which the receiver represents a database-dependent variant.
 	'dependent' in this sense means the object is dependent on another object for its existence in a DB"
 
 	^self object! !

@@ -6,15 +6,15 @@ SSWSQLTableComponent subclass: #SSWDBTableComponent
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBTableComponent guid: (GUID fromString: '{266e4dd0-398e-11d5-b1df-444553540000}')!
-SSWDBTableComponent comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBTableComponent comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBTableComponent categoriesForClass!Unclassified! !
 !SSWDBTableComponent methodsFor!
 
 aboutToBeUnstored: anObject
 
-	"30/9/2001
-
-	anObject (which originated in the receiver's table) is about to be removed from the DB.
+	"anObject (which originated in the receiver's table) is about to be removed from the DB.
 	Carry out any necessary actions"
 
 	"Default - no action"
@@ -22,9 +22,7 @@ aboutToBeUnstored: anObject
 
 accessor
 
-	"6/8/2000
-	
-	accessor stores an 'Accessor' object which is used to get and set the value
+	"accessor stores an 'Accessor' object which is used to get and set the value
 	represented by this component in its eventual Smalltalk object.
 	The accessor does this via #valueIn: and value:in: - typically it is an SSWInstVarAccessor"
 	
@@ -32,9 +30,7 @@ accessor
 
 accessor: anAccessor
 
-	"6/8/2000
-	
-	accessor stores an 'Accessor' object which is used to get and set the value
+	"accessor stores an 'Accessor' object which is used to get and set the value
 	represented by this component in its eventual Smalltalk object.
 	The accessor does this via #valueIn: and value:in: - typically it is an SSWInstVarAccessor"
 	
@@ -51,8 +47,6 @@ newReadAllParameters
 	^Array new: self table readAllBatchSize!
 
 printOn: aStream
-
-	"6/8/2000"
 
 	super printOn: aStream.
 

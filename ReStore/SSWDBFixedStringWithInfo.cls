@@ -6,5 +6,7 @@ SSWDBStringWithInfo subclass: #SSWDBFixedStringWithInfo
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBFixedStringWithInfo guid: (GUID fromString: '{f9276a84-4893-11d5-b1df-0010a70883e2}')!
-SSWDBFixedStringWithInfo comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBFixedStringWithInfo comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBFixedStringWithInfo categoriesForClass!Unclassified! !

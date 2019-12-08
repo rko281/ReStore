@@ -6,15 +6,15 @@ SSWSQLTableCollection variableSubclass: #SSWSQLJoinedTableCollection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLJoinedTableCollection guid: (GUID fromString: '{6266c926-3983-11d5-b1df-444553540000}')!
-SSWSQLJoinedTableCollection comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLJoinedTableCollection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLJoinedTableCollection categoriesForClass!Unclassified! !
 !SSWSQLJoinedTableCollection methodsFor!
 
 add: anSSWDBTable joinedWith: anSSWSQLCondition
 
-	"21/3/2001
-
-	Add the given table joined with the given condition; return the table added.
+	"Add the given table joined with the given condition; return the table added.
 	Duplicate entries are permitted - see withoutDuplicates"
 
 	self add: anSSWDBTable. 
@@ -23,33 +23,25 @@ add: anSSWDBTable joinedWith: anSSWSQLCondition
 
 copy
 
-	"27/3/01"
-	
 	^super copy
 		joinConditions: self joinConditions copy;
 		yourself!
 
 copyLikeOfSize: anInteger
 
-	"27/4/2002"
-	
 	^(super copyLikeOfSize: anInteger)
 		joinConditions: self joinConditions copy;
 		yourself!
 
 doWithJoins: aTwoArgBlock
 
-	"21/3/2001
-	
-	Iterate over the receiver's *joined* tables, evaluating aTwoArgBlock with each table-join condition pair.
+	"Iterate over the receiver's *joined* tables, evaluating aTwoArgBlock with each table-join condition pair.
 	NB this IGNORES the receiver's first entry (i.e. its soleTable) since this has no matching join condition"
 	
 	2 to: self size do: [ :index | aTwoArgBlock value: (self at: index) value: (self joinConditions at: (index - 1))]!
 
 hasJoins
 
-	"17/8/2000"
-	
 	^self joinConditions size > 0!
 
 includes: anSSWDBTable joinedWith: anSSWSQLCondition
@@ -80,9 +72,7 @@ joinConditions: anOrderedCollection
 
 merge: anSSWSQLJoinedTableCollection
 
-	"27/3/2001
-	
-	Add the tables and joins from anSSWSQLJoinedTableCollection to the receiver.
+	"Add the tables and joins from anSSWSQLJoinedTableCollection to the receiver.
 	NB if the receiver is non-empty, this method does *not* add the first (starting) table
 	 - this is *assumed* to be the same. 	Also excludes duplicates"
 	
@@ -94,8 +84,6 @@ merge: anSSWSQLJoinedTableCollection
 
 removeLast
 
-	"21/3/2001"
-	
 	self joinConditions removeLast. 
 	^super removeLast!
 
@@ -107,9 +95,7 @@ tableJoinedWithField: anSSWDBField
 
 withoutDuplicates
 
-	"21/3/2001
-		
-	Return a copy of the receiver, excluding duplicate entries.
+	"Return a copy of the receiver, excluding duplicate entries.
 	A duplicate entry is defined as the same table joined with the same condition"
 	
 	| withoutDuplicates |
@@ -138,16 +124,12 @@ withoutDuplicates
 
 new
 
-	"21/3/2001"
-	
 	^super new
 		joinConditions: SSWSQLConditionCollection forAND;
 		yourself!
 
 new: aSize
 
-	"21/3/2001"
-	
 	^(super new: aSize)
 		joinConditions: SSWSQLConditionCollection forAND;
 		yourself! !

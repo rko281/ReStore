@@ -6,7 +6,9 @@ OrderedCollection variableSubclass: #ConcatenatedCollection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 ConcatenatedCollection guid: (GUID fromString: '{d03919e9-3951-41b3-91e9-3b52f6d66f63}')!
-ConcatenatedCollection comment: ''!
+ConcatenatedCollection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !ConcatenatedCollection categoriesForClass!Collections-Sequenceable! !
 !ConcatenatedCollection methodsFor!
 

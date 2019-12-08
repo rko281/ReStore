@@ -4,9 +4,11 @@ Object subclass: #SSWSQLOperator
 	instanceVariableNames: 'sqlString messageSelector isInverted'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: ''!
+	classInstanceVariableNames: 'messageSQLMap messageInverseSQLMap'!
 SSWSQLOperator guid: (GUID fromString: '{6266c92b-3983-11d5-b1df-444553540000}')!
-SSWSQLOperator comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLOperator comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLOperator categoriesForClass!Unclassified! !
 !SSWSQLOperator methodsFor!
 
@@ -19,8 +21,6 @@ SSWSQLOperator comment: 'Copyright 2000/2001 Solutions Software Limited'!
 
 compare: value1 with: value2
 
-	"5/8/2000"
-	
 	| result |
 	
 	result := value1 perform: self messageSelector with: value2.
@@ -35,8 +35,6 @@ hash
 
 invert
 
-	"23/3/2001"
-	
 	self isInverted
 	ifTrue: 
 		[self sqlString: (self class sqlStringForMessage: self messageSelector).
@@ -60,9 +58,7 @@ isInequality
 
 isInverted
 
-	"23/3/2001
-	
-	isInverted stores a Boolean indicating whether the receiver should invert
+	"isInverted stores a Boolean indicating whether the receiver should invert
 	its result following a compare:with:.
 	NB If the receiver isInverted, then its message selector will be *un*inverted,
 	but the sqlString *will* be inverted. e.g.
@@ -73,9 +69,7 @@ isInverted
 
 isInverted: aBoolean
 
-	"23/3/2001
-	
-	isInverted stores a Boolean indicating whether the receiver should invert
+	"isInverted stores a Boolean indicating whether the receiver should invert
 	its result following a compare:with:.
 	NB If the receiver isInverted, then its message selector will be *un*inverted,
 	but the sqlString *will* be inverted. e.g.
@@ -86,9 +80,7 @@ isInverted: aBoolean
 
 isSetValue
 
-	"21/1/2001
-	
-	If the receiver is being used to set a value (rather than compare), 
+	"If the receiver is being used to set a value (rather than compare), 
 	then #value: is the messageSelector, '=' is the sqlString.
 	
 	This is needed to as messageSelector #= is mapped to ' IS ' when used with NULL"
@@ -101,17 +93,13 @@ isValidForOrdering
 
 messageSelector
 
-	"5/8/2000
-	
-	messageSelector stores the Smalltalk message name which is equivalent to the receiver's sqlString"
+	"messageSelector stores the Smalltalk message name which is equivalent to the receiver's sqlString"
 	
 	^messageSelector!
 
 messageSelector: aSymbol
 
-	"5/8/2000
-	
-	messageSelector stores the Smalltalk message name which is equivalent to the receiver's sqlString"
+	"messageSelector stores the Smalltalk message name which is equivalent to the receiver's sqlString"
 	
 	messageSelector := aSymbol!
 
@@ -131,25 +119,19 @@ orderingSpecFor: anObject
 
 sqlString
 
-	"5/8/2000
-	
-	sqlString stores the SQL text for this operator"
+	"sqlString stores the SQL text for this operator"
 	
 	^sqlString!
 
 sqlString: aString
 
-	"5/8/2000
-	
-	sqlString stores the SQL text for this operator"
+	"sqlString stores the SQL text for this operator"
 	
 	sqlString := aString!
 
 sqlStringFor: aTargetValue
 
-	"5/8/2000
-	
-	aTargetValue is necessary as some SQL operators change form 
+	"aTargetValue is necessary as some SQL operators change form 
 	depending on the target value (e.g. IS NULL)"
 	
 	^(aTargetValue = nil and: [self isSetValue not])
@@ -166,9 +148,7 @@ sqlStringFor: aTargetValue
 
 writeSQLOn: aStream forTarget: aTargetValue
 
-	"5/8/2000
-	
-	aTargetValue is necessary as some SQL operators change form 
+	"aTargetValue is necessary as some SQL operators change form 
 	depending on the target value (e.g. IS NULL)"
 	
 	aStream nextPutAll: (self sqlStringFor: aTargetValue)! !
@@ -195,8 +175,6 @@ writeSQLOn: aStream forTarget: aTargetValue
 
 equals
 
-	"5/8/2000"
-	
 	^self messageSelector: #=!
 
 greaterThan
@@ -206,43 +184,36 @@ greaterThan
 
 inverseSQLStringForMessage: aSymbol
 
-	"23/3/2001
-	
-	Return the SQL text equivalent to the inverse of the given Smalltalk message.
+	"Return the SQL text equivalent to the inverse of the given Smalltalk message.
 	NB - no fallback (c.f. sqlStringForMessage:); error if no inverse found"
 	
 	^self messageInverseSQLMap at: aSymbol ifAbsent: [self error: 'No inverse defined for this message']!
 
 messageForSQLString: aString
 
-	"5/8/2000
-	
-	Return the SQL text equivalent to the given Smalltalk message"
+	"Return the SQL text equivalent to the given Smalltalk message"
 	
 	^self messageSQLMap keyAtValue: aString asUppercase ifAbsent: [aString asSymbol]!
 
 messageInverseSQLMap
 
-	"23/2/2001
+	"Maps Smalltalk message selectors to the equivalent SQL text for the *inverse* of that operation"
 	
-	Maps Smalltalk message selectors to the equivalent SQL text
-	for the *inverse* of that operation"
-	
-	^##(Dictionary new
-		at: #=			put: '<>';
-		at: #~=			put: '=';
-		at: #<			put: '>=';
-		at: #>			put: '<=';
-		at: #>=			put: '<';
-		at: #<=			put: '>';
-		at: #like:			put: 'NOT LIKE';
-		at: #includedIn: 	put: 'NOT IN';
-		yourself)!
+	^messageInverseSQLMap ifNil: 
+		[messageInverseSQLMap := 
+			(IdentityDictionary new
+				at: #=			put: '<>';
+				at: #~=			put: '=';
+				at: #<			put: '>=';
+				at: #>			put: '<=';
+				at: #>=			put: '<';
+				at: #<=			put: '>';
+				at: #like:			put: 'NOT LIKE';
+				at: #includedIn: 		put: 'NOT IN';
+				yourself)]!
 
 messageSelector: aSymbol
 
-	"5/8/2000"
-	
 	^self new
 		messageSelector: aSymbol;
 		sqlString: (self sqlStringForMessage: aSymbol);
@@ -250,36 +221,30 @@ messageSelector: aSymbol
 
 messageSQLMap
 
-	"5/8/2000
-	
-	Maps Smalltalk message selectors to equivalent SQL text.
+	"Maps Smalltalk message selectors to equivalent SQL text.
 	Absent selectors map to their String equivalent"
 	
-	^##(Dictionary new
-		at: #~=			put: '<>';
-		at: #like:			put: 'LIKE';
-		at: #includedIn: 	put: 'IN';
-		at: #value: 		put: '=';
-		yourself)!
+	^messageSQLMap ifNil: 
+		[messageSQLMap := 
+			(IdentityDictionary new
+				at: #~=			put: '<>';
+				at: #like:			put: 'LIKE';
+				at: #includedIn: 	put: 'IN';
+				at: #value: 		put: '=';
+				yourself)]!
 
 new
 
-	"23/3/2001"
-	
 	^super new
 		isInverted: false;
 		yourself!
 
 setValue
 
-	"21/1/2001"
-	
 	^self messageSelector: #value:!
 
 sqlString: aString
 
-	"5/8/2000"
-	
 	^self new
 		messageSelector: (self messageForSQLString: aString);
 		sqlString: aString;
@@ -287,9 +252,7 @@ sqlString: aString
 
 sqlStringForMessage: aSymbol
 
-	"5/8/2000
-	
-	Return the SQL text equivalent to the given Smalltalk message"
+	"Return the SQL text equivalent to the given Smalltalk message"
 	
 	^self messageSQLMap at: aSymbol ifAbsent: [aSymbol asString]! !
 !SSWSQLOperator class categoriesFor: #equals!instance creation!public! !

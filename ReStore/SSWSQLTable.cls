@@ -6,13 +6,13 @@ Object subclass: #SSWSQLTable
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLTable guid: (GUID fromString: '{767240f7-a555-11d5-b1e0-444553540000}')!
-SSWSQLTable comment: ''!
+SSWSQLTable comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLTable categoriesForClass!Unclassified! !
 !SSWSQLTable methodsFor!
 
 = anSSWSQLTable
-
-	"27/4/2002"
 
 	^self == anSSWSQLTable or: [self name = anSSWSQLTable name]!
 
@@ -22,24 +22,27 @@ displayOn: aStream
 
 hash
 
-	"27/4/2002"
-
 	^self name hash!
+
+hasStaticConditions
+
+	"Return a Boolean indicating if the receiver table has any SSWSQLConditions which are always applied when SELECTing from the receiver table.
+	Unlike conditions that may be derived from other fields these conditions do not vary from object to object - they are static for all reads from this table.
+	
+	Default - false. Subclasses returning true should implement staticConditions accordingly"
+	
+	^false!
 
 name
 
-	"5/8/2000
-	
-	name stores the name of this table"
+	"name stores the name of this table"
 		
 	^name
 !
 
 name: aString
 
-	"5/8/2000
-	
-	name stores the name of this table"
+	"name stores the name of this table"
 	
 	name := aString
 !
@@ -54,20 +57,17 @@ printOn: aStream
 
 writeSQLNameOn: aStream
 
-	"5/8/2000"
-	
-	aStream nextPutAll: self name
+	aStream nextPutIdentifier: self name
 !
 
 writeSQLOn: aStream
 
-	"5/8/2000"
-	
 	self writeSQLNameOn: aStream
 ! !
 !SSWSQLTable categoriesFor: #=!comparing!public! !
 !SSWSQLTable categoriesFor: #displayOn:!displaying!public! !
 !SSWSQLTable categoriesFor: #hash!comparing!public! !
+!SSWSQLTable categoriesFor: #hasStaticConditions!public!testing! !
 !SSWSQLTable categoriesFor: #name!accessing!public! !
 !SSWSQLTable categoriesFor: #name:!accessing!public! !
 !SSWSQLTable categoriesFor: #printOn:!displaying!public! !

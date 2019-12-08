@@ -6,7 +6,9 @@ SSWSQLFieldValueConjunction subclass: #SSWSQLCondition
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLCondition guid: (GUID fromString: '{6266c929-3983-11d5-b1df-444553540000}')!
-SSWSQLCondition comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLCondition comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLCondition categoriesForClass!Unclassified! !
 !SSWSQLCondition methodsFor!
 
@@ -25,7 +27,7 @@ SSWSQLCondition comment: 'Copyright 2000/2001 Solutions Software Limited'!
 = anSSWSQLCondition
 
 	"Class test necessary for when the receiver is used as a result field in a query - in this case the receiver may be compared to a DBField"
-	^anSSWSQLCondition class = ##(self) and: [super = anSSWSQLCondition and: [self operator = anSSWSQLCondition operator]]!
+	^anSSWSQLCondition class = SSWSQLCondition and: [super = anSSWSQLCondition and: [self operator = anSSWSQLCondition operator]]!
 
 aggregatedConditions
 
@@ -35,15 +37,11 @@ aggregatedConditions
 
 anySatisfy: aBlock
 
-	"21/3/2001
-	
-	Make the receiver polymorphic with an SQLConditionCollection"
+	"Make the receiver polymorphic with an SQLConditionCollection"
 	
 	^aBlock value: self!
 
 asFieldAssignment
-
-	"17/9/2001"
 
 	^SSWSQLFieldAssignment field: self field value: self value!
 
@@ -60,17 +58,13 @@ canInvertValue
 
 collect: aBlock
 
-	"21/3/2001
-	
-	Make the receiver polymorphic with an SQLConditionCollection"
+	"Make the receiver polymorphic with an SQLConditionCollection"
 	
 	^Array with: (aBlock value: self)!
 
 do: aBlock
 
-	"21/3/2001
-	
-	Make the receiver polymorphic with an SQLConditionCollection"
+	"Make the receiver polymorphic with an SQLConditionCollection"
 	
 	^aBlock value: self!
 
@@ -106,9 +100,7 @@ hasAggregateFunction
 
 isEmpty
 
-	"21/3/2001
-	
-	Make the receiver polymorphic with an SQLConditionCollection"
+	"Make the receiver polymorphic with an SQLConditionCollection"
 	
 	^false!
 
@@ -131,7 +123,7 @@ not
 	"No operator for an implicit true expression"
 	self isFieldOnly 
 	ifTrue: 
-		[self field: (self field withFunction: 'NOT(%1)' arguments: #())]
+		[self field: (self field withFunction: 'NOT(%1)' asSQLFunction arguments: #())]
 	ifFalse: 
 		[self canInvertValue 
 			ifTrue: [self value: self value not]
@@ -139,25 +131,19 @@ not
 
 operator
 
-	"5/8/2000
-	
-	operator stores the comparison operation for this condition"
+	"operator stores the comparison operation for this condition"
 	
 	^operator!
 
 operator: anSSWSQLOperator
 
-	"5/8/2000
-	
-	operator stores the comparison operation for this condition"
+	"operator stores the comparison operation for this condition"
 	
 	operator := anSSWSQLOperator!
 
 sqlAnd: aConditionOrCollection
 
-	"5/8/2000
-	
-	Return an SQLConditionCollection consisting of the receiver ANDed with the given
+	"Return an SQLConditionCollection consisting of the receiver ANDed with the given
 	SQLCondition or SQLConditionCollection (the two are polymorphic)"
 
 	^aConditionOrCollection isEmpty
@@ -178,9 +164,7 @@ sqlAndWithCondition: aConditionOrCollection
 
 sqlOr: aConditionOrCollection
 
-	"5/8/2000
-	
-	Return an SQLConditionCollection consisting of the receiver ORed with the given
+	"Return an SQLConditionCollection consisting of the receiver ORed with the given
 	SQLCondition or SQLConditionCollection (the two are polymorphic)"
 
 	^self newCollection
@@ -203,8 +187,6 @@ unaggregatedConditions
 
 writeConjunctionSQLOn: aStream
 
-	"Private - 5/8/2000"
-	
 	self operator writeSQLOn: aStream forTarget: self value!
 
 writeSQLOn: aStream
@@ -220,7 +202,11 @@ writeSQLOn: aStream
 			ifTrue: [SSWSQLCondition field: self field equalTo: self field]
 			ifFalse: [(SSWSQLCondition field: self field equalTo: self field) not]) writeSQLOn: aStream].
 
-	^super writeSQLOn: aStream! !
+	^super writeSQLOn: aStream!
+
+writeValueSQLOn: aStream
+
+	self value writeSQLOn: aStream forCondition: self! !
 !SSWSQLCondition categoriesFor: #&!evaluating!public! !
 !SSWSQLCondition categoriesFor: #|!evaluating!public! !
 !SSWSQLCondition categoriesFor: #=!comparing!public! !
@@ -251,47 +237,32 @@ writeSQLOn: aStream
 !SSWSQLCondition categoriesFor: #unaggregatedConditions!accessing!public! !
 !SSWSQLCondition categoriesFor: #writeConjunctionSQLOn:!output!private! !
 !SSWSQLCondition categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLCondition categoriesFor: #writeValueSQLOn:!output!public! !
 
 !SSWSQLCondition class methodsFor!
 
 equals
 
-	"6/8/2000"
-	
 	^self new
 		!
 
 field: anSSWDBField equalTo: aValue
 
-	"6/8/2000"
-	
 	^self new field: anSSWDBField equalTo: aValue!
-
-field: anSSWDBField greaterThan: aValue
-
-	^self field: anSSWDBField is: SSWSQLOperator greaterThan to: aValue
-!
 
 field: anSSWDBField is: anSSWSQLOperator to: aValue
 
-	"6/8/2000"
-	
 	^self new field: anSSWDBField is: anSSWSQLOperator to: aValue!
 
 field: anSSWDBField value: aValue
 
-	"21/1/2001"
-	
 	^self new field: anSSWDBField value: aValue!
 
 fieldOnly: anSSWDBField
 
-	"6/8/2000"
-	
 	^self new fieldOnly: anSSWDBField! !
 !SSWSQLCondition class categoriesFor: #equals!instance creation!public! !
 !SSWSQLCondition class categoriesFor: #field:equalTo:!instance creation!output!public! !
-!SSWSQLCondition class categoriesFor: #field:greaterThan:!instance creation!output!public! !
 !SSWSQLCondition class categoriesFor: #field:is:to:!instance creation!output!public! !
 !SSWSQLCondition class categoriesFor: #field:value:!instance creation!output!public! !
 !SSWSQLCondition class categoriesFor: #fieldOnly:!instance creation!output!public! !

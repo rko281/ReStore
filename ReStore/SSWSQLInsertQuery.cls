@@ -6,35 +6,37 @@ SSWSQLObjectQuery subclass: #SSWSQLInsertQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLInsertQuery guid: (GUID fromString: '{6266c92f-3983-11d5-b1df-444553540000}')!
-SSWSQLInsertQuery comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLInsertQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLInsertQuery categoriesForClass!Unclassified! !
 !SSWSQLInsertQuery methodsFor!
 
 fields
 
-	"17/8/2000
-	
-	Return the fields involved in this insert, as an SSWSQLFieldCollection"
+	"Return the fields involved in this insert, as an SSWSQLFieldCollection"
 	
 	^self table allFields!
 
+parameterisedFields
+
+	"In the receiver, all fields are parameterised"
+
+	^self fields!
+
 values
 
-	"17/8/2000
-	
-	Return the values to be inserted by the receiver, as an SSWSQLFieldCollection"	
+	"Return the values to be inserted by the receiver, as an SSWSQLFieldCollection"	
 
 	^self fields collect: [ :field | field accessor valueIn: self object]!
 
 writeSQLOn: aStream
 
-	"17/8/2000"
-	
 	aStream nextPutAll: 'INSERT INTO '.
 	self table writeSQLOn: aStream.
 	
 	aStream space; nextPut: $(.
-	self fields do: [ :field | aStream nextPutAll: field name] separatedBy: [aStream nextPutAll: ', '].
+	self fields do: [ :field | aStream nextPutIdentifier: field name] separatedBy: [aStream nextPutAll: ', '].
 
 	aStream nextPutAll: ') VALUES ('.
 	self values with: self fields do: [ :value :field | value writeSQLOn: aStream forField: field. aStream nextPutAll: ', '].
@@ -43,6 +45,7 @@ writeSQLOn: aStream
 		nextPut: $)
 ! !
 !SSWSQLInsertQuery categoriesFor: #fields!output!public! !
+!SSWSQLInsertQuery categoriesFor: #parameterisedFields!output!public! !
 !SSWSQLInsertQuery categoriesFor: #values!output!public! !
 !SSWSQLInsertQuery categoriesFor: #writeSQLOn:!output!public! !
 

@@ -1,45 +1,39 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 WriteStream subclass: #SSWSQLWriteStream
-	instanceVariableNames: 'dialect fieldAliases tableAliases parameterizedFields parameterizedValues'
+	instanceVariableNames: 'dialect fieldAliases tableAliases parameterizedFields parameterizedValues placeholderCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLWriteStream guid: (GUID fromString: '{3d2e72e1-a7ae-11d5-b1e0-444553540000}')!
-SSWSQLWriteStream comment: ''!
+SSWSQLWriteStream comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLWriteStream categoriesForClass!Unclassified! !
 !SSWSQLWriteStream methodsFor!
 
 dialect
 
-	"16/8/01 JPA
-
-	dialect stores the SSWSQLDialect of the database for which the receiver stream is writing SQL"
+	"dialect stores the SSWSQLDialect of the database for which the receiver stream is writing SQL"
 
 	^dialect!
 
 dialect: anSSWSQLDialect
 
-	"16/8/01 JPA
-
-	dialect stores the SSWSQLDialect of the database for which the receiver stream is writing SQL"
+	"dialect stores the SSWSQLDialect of the database for which the receiver stream is writing SQL"
 
 	dialect := anSSWSQLDialect!
 
 fieldAliases
 
-	"26/4/2002 
-
-	fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
+	"fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
 	assigned to that field by the receiver"
 
 	^fieldAliases!
 
 fieldAliases: anIdentityDictionary
 
-	"26/4/2002 
-
-	fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
+	"fieldAliases stores an IdentityDictionary mapping SSWSQLFields to an aliased name
 	assigned to that field by the receiver"
 
 	fieldAliases := anIdentityDictionary!
@@ -50,15 +44,21 @@ hasParameterizedFields
 
 nextFieldAlias
 
-	^self dialect transformName: ('field_', (self fieldAliases size + 1) printString) asSymbol
+	^self dialect transformInstVarName: ('field_', (self fieldAliases size + 1) printString) asSymbol
 
 !
 
+nextPut: anObject forField: aField
+
+	"Always use a parameterized field if possible"
+
+	(aField canBeParameterized and: [anObject sqlCanBeParameterized]) 
+		ifTrue: [self nextPutParameterizedValue: anObject forField: aField]
+		ifFalse: [anObject writeSQLOn: self]!
+
 nextPutAliasedField: anSSWSQLField
 
-	"25/4/2002
-
-	Append to the receiver an aliased representation of anSSWSQLField"
+	"Append to the receiver an aliased representation of anSSWSQLField"
 
 	anSSWSQLField writeSQLOn: self.
 	self
@@ -67,45 +67,31 @@ nextPutAliasedField: anSSWSQLField
 
 nextPutAliasedTable: anSSWSQLTable
 
-	"29/4/2002
-
-	Append to the receiver an aliased representation of anSSWSQLTable"
+	"Append to the receiver an aliased representation of anSSWSQLTable"
 
 	self nextPutAll: (self tableAliases at: anSSWSQLTable ifAbsentPut: [self nextTableAlias])!
 
-nextPutDate: aDate
+nextPutIdentifier: aString
 
-	self dialect writeSQLForDate: aDate on: self!
-
-nextPutDateAndTime: aDateAndTime
-
-	self dialect writeSQLForDateAndTime: aDateAndTime on: self!
-
-nextPutFalse
-
-	"Append to the receiver the dialect's representation of false"
-
-	self dialect writeSQLForFalseOn: self!
+	self 
+		nextPut: self dialect identifierQuoteOpen;
+		nextPutAll: aString;
+		nextPut: self dialect identifierQuoteClose!
 
 nextPutParameterizedValue: anObject forField: aField
 
-	self nextPut: $?.
+	self nextPutParameterPlaceholder.
 	self parameterizedFields add: aField.
 	self parameterizedValues add: anObject!
 
-nextPutTime: aTime
+nextPutParameterPlaceholder
 
-	self dialect writeSQLForTime: aTime on: self!
-
-nextPutTrue
-
-	"Append to the receiver the dialect's representation of true"
-
-	self dialect writeSQLForTrueOn: self!
+	self placeholderCount: self placeholderCount + 1.
+	self dialect printParameterPlaceholder: self placeholderCount on: self!
 
 nextTableAlias
 
-	^self dialect transformName: ('table', (self tableAliases size + 1) printString) asSymbol!
+	^self dialect transformClassName: ('table', (self tableAliases size + 1) printString) asSymbol!
 
 parameterizedFields
 	^parameterizedFields!
@@ -119,20 +105,22 @@ parameterizedValues
 parameterizedValues: anObject
 	parameterizedValues := anObject!
 
+placeholderCount
+	^placeholderCount!
+
+placeholderCount: anObject
+	placeholderCount := anObject!
+
 tableAliases
 
-	"29/4/2002 
-
-	tableAliases stores an IdentityDictionary mapping SSWSQLTables to an aliased name
+	"tableAliases stores an IdentityDictionary mapping SSWSQLTables to an aliased name
 	assigned to that field by the receiver"
 
 	^tableAliases!
 
 tableAliases: anIdentityDictionary
 
-	"29/4/2002 
-
-	tableAliases stores an IdentityDictionary mapping SSWSQLTables to an aliased name
+	"tableAliases stores an IdentityDictionary mapping SSWSQLTables to an aliased name
 	assigned to that field by the receiver"
 
 	tableAliases := anIdentityDictionary! !
@@ -142,19 +130,19 @@ tableAliases: anIdentityDictionary
 !SSWSQLWriteStream categoriesFor: #fieldAliases:!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #hasParameterizedFields!public!testing! !
 !SSWSQLWriteStream categoriesFor: #nextFieldAlias!accessing!public! !
+!SSWSQLWriteStream categoriesFor: #nextPut:forField:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutAliasedField:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutAliasedTable:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutDate:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutDateAndTime:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutFalse!printing!public! !
+!SSWSQLWriteStream categoriesFor: #nextPutIdentifier:!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextPutParameterizedValue:forField:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutTime:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutTrue!printing!public! !
+!SSWSQLWriteStream categoriesFor: #nextPutParameterPlaceholder!printing!public! !
 !SSWSQLWriteStream categoriesFor: #nextTableAlias!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #parameterizedFields!accessing!private! !
 !SSWSQLWriteStream categoriesFor: #parameterizedFields:!accessing!private! !
 !SSWSQLWriteStream categoriesFor: #parameterizedValues!accessing!private! !
 !SSWSQLWriteStream categoriesFor: #parameterizedValues:!accessing!private! !
+!SSWSQLWriteStream categoriesFor: #placeholderCount!accessing!public! !
+!SSWSQLWriteStream categoriesFor: #placeholderCount:!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #tableAliases!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #tableAliases:!accessing!public! !
 
@@ -162,14 +150,13 @@ tableAliases: anIdentityDictionary
 
 newIn: anSSWSQLDialect
 
-	"16/8/2001"
-
 	^(self on: (String new: 32))
 		dialect: anSSWSQLDialect;
 		fieldAliases: IdentityDictionary new;
 		tableAliases: IdentityDictionary new;
 		parameterizedFields: OrderedCollection new;
 		parameterizedValues: OrderedCollection new;
+		placeholderCount: 0;
 		yourself! !
 !SSWSQLWriteStream class categoriesFor: #newIn:!instance creation!public! !
 

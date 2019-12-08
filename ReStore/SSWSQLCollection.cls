@@ -6,7 +6,9 @@ OrderedCollection variableSubclass: #SSWSQLCollection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLCollection guid: (GUID fromString: '{6266c921-3983-11d5-b1df-444553540000}')!
-SSWSQLCollection comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLCollection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLCollection categoriesForClass!Unclassified! !
 !SSWSQLCollection methodsFor!
 
@@ -26,9 +28,7 @@ isFieldCollection
 
 sqlConcatenator
 
-	"5/8/2000
-	
-	Return the String that concatenates the list of SQL entities held by the receiver
+	"Return the String that concatenates the list of SQL entities held by the receiver
 	(this should also contain any required whitespace characters)"
 	
 	^self subclassResponsibility!

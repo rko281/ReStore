@@ -6,46 +6,66 @@ SSWSQLDialect subclass: #SSWMySQLDialect
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWMySQLDialect guid: (GUID fromString: '{6645ca35-73aa-4a51-b909-d0cb2f7c228b}')!
-SSWMySQLDialect comment: ''!
+SSWMySQLDialect comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWMySQLDialect categoriesForClass!Unclassified! !
 !SSWMySQLDialect methodsFor!
+
+alterField: aField table: aTable in: aReStore
+
+	aReStore executeSQLFrom: 
+		[ :stream | 
+		stream 
+			nextPutAll: 'ALTER TABLE ';
+			nextPutIdentifier: aTable name;
+			nextPutAll: ' MODIFY COLUMN '.
+		aField writeSQLDefinitionOn: stream]!
 
 boolean
 
 	^'TINYINT'!
 
+defaultMaxColumnNameLength
+
+	^64!
+
+defaultMaxTableNameLength
+
+	^64!
+
 dialectSpecificFunctions
 
-	^##(Dictionary new
+	^Dictionary new
 
 		"Conversion functions"
-		at: #asInteger put: 'CAST(%1 AS UNSIGNED)';
+		at: #asInteger put: 'CAST(%1 AS UNSIGNED)' asSQLFunctionIntegerResult;
 
 		"String functions"
-		at: #, put: 'CONCAT(%1,%2)';
-		at: #size put: 'CHAR_LENGTH(%1)';
-		at: #leftString: put: 'LEFT(%1,%2)';
-		at: #rightString: put: 'RIGHT(%1,%2)';
-		at: #asciiValue put: 'ASCII(%1)';
-		at: #indexOfSubCollection: put: 'LOCATE(%2,%1)';
-		at: #indexOfSubCollection:startingAt: put: 'LOCATE(%2,%1,%3)';
-		at: #replaceAllOccurencesOf:with: put: 'REPLACE(%1,%2,%3)';
-		at: #reverse put: 'REVERSE(%1)';
-		at: #replaceFrom:length:with: put: 'INSERT(%1,%2,%3,%4)';
+		at: #, put: 'CONCAT(%1,%2)' asSQLFunction;
+		at: #size put: 'CHAR_LENGTH(%1)' asSQLFunctionIntegerResult;
+		at: #leftString: put: 'LEFT(%1,%2)' asSQLFunction;
+		at: #rightString: put: 'RIGHT(%1,%2)' asSQLFunction;
+		at: #asciiValue put: 'ASCII(%1)' asSQLFunctionIntegerResult;
+		at: #indexOfSubCollection: put: 'LOCATE(%2,%1)' asSQLFunctionIntegerResult;
+		at: #indexOfSubCollection:startingAt: put: 'LOCATE(%2,%1,%3)' asSQLFunctionIntegerResult;
+		at: #replaceAllOccurencesOf:with: put: 'REPLACE(%1,%2,%3)' asSQLFunction;
+		at: #reverse put: 'REVERSE(%1)' asSQLFunction;
+		at: #replaceFrom:length:with: put: 'INSERT(%1,%2,%3,%4)' asSQLFunction;
 
 		"Date functions"
-		at: #addDays: put: 'DATE_ADD(%1, INTERVAL %2 DAY)';
-		at: #addMonths: put: 'DATE_ADD(%1, INTERVAL %2 MONTH)';
-		at: #addYears: put: 'DATE_ADD(%1, INTERVAL %2 YEAR)';
-		at: #subtractDays: put: 'DATE_SUB(%1, INTERVAL %2 DAY)';
-		at: #weekday put: 'DAYNAME(%1)';
-		at: #dayOfMonth put: 'DAYOFMONTH(%1)';
-		at: #day put: 'DAYOFYEAR(%1)';
-		at: #monthIndex put: 'MONTH(%1)';
-		at: #monthName put: 'MONTHNAME(%1)';
-		at: #year put: 'YEAR(%1)';
+		at: #addDays: put: 'DATE_ADD(%1, INTERVAL %2 DAY)' asSQLFunction;
+		at: #addMonths: put: 'DATE_ADD(%1, INTERVAL %2 MONTH)' asSQLFunction;
+		at: #addYears: put: 'DATE_ADD(%1, INTERVAL %2 YEAR)' asSQLFunction;
+		at: #subtractDays: put: 'DATE_SUB(%1, INTERVAL %2 DAY)' asSQLFunction;
+		at: #weekday put: 'DAYNAME(%1)' asSQLFunctionStringResult;
+		at: #dayOfMonth put: 'DAYOFMONTH(%1)' asSQLFunctionIntegerResult;
+		at: #day put: 'DAYOFYEAR(%1)' asSQLFunctionIntegerResult;
+		at: #monthIndex put: 'MONTH(%1)' asSQLFunctionIntegerResult;
+		at: #monthName put: 'MONTHNAME(%1)' asSQLFunctionStringResult ;
+		at: #year put: 'YEAR(%1)' asSQLFunctionIntegerResult;
 
-		yourself)!
+		yourself!
 
 maxVarchar
 
@@ -56,18 +76,15 @@ maxVarchar
 
 renameField: oldField to: newField in: aReStore
 
-	| stream |
-
-	stream := WriteStream on: (String new: 32).
-	stream 
-		nextPutAll: 'ALTER TABLE ';
-		nextPutAll: newField table name;
-		nextPutAll: ' CHANGE ';
-		nextPutAll: oldField name;
-		space.
-
-	newField writeSQLDefinitionOn: stream.
-	aReStore executeSQL: stream contents!
+	aReStore executeSQLFrom: 
+		[ :stream | 
+		stream 
+			nextPutAll: 'ALTER TABLE ';
+			nextPutIdentifier: newField table name;
+			nextPutAll: ' CHANGE ';
+			nextPutIdentifier: oldField name;
+			space.
+		newField writeSQLDefinitionOn: stream]!
 
 shouldMaskSuccessWithInfo
 
@@ -82,11 +99,14 @@ unsizedStringTypes
 	"Full use of MEDIUMTEXT and LONGTEXT will require increasing the default maxColumnBytes (unrealistically so for LONGTEXT)"
 
 	^OrderedCollection new
-		add: (##((2 raisedTo: 16) - 1) "65535" -> 'TEXT');
-		add: (##((2 raisedTo: 24) - 1) "16,777,215" -> 'MEDIUMTEXT');
-		add: (##((2 raisedTo: 32) - 1) "4,294,967,295" -> 'LONGTEXT');
+		add: (65535 "((2 raisedTo: 16) - 1)" -> 'TEXT');
+		add: (16777215 "((2 raisedTo: 24) - 1)" -> 'MEDIUMTEXT');
+		add: (4294967295 "((2 raisedTo: 32) - 1)" -> 'LONGTEXT');
 		yourself! !
+!SSWMySQLDialect categoriesFor: #alterField:table:in:!maintenance!public! !
 !SSWMySQLDialect categoriesFor: #boolean!datatypes!public! !
+!SSWMySQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
+!SSWMySQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
 !SSWMySQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWMySQLDialect categoriesFor: #maxVarchar!constants!public! !
 !SSWMySQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !

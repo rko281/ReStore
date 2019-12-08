@@ -1,0 +1,61 @@
+﻿| package |
+package := Package name: 'SSW ReStore Examples'.
+package paxVersion: 1;
+	basicComment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'.
+
+
+package classNames
+	add: #Address;
+	add: #Customer;
+	add: #Order;
+	add: #Product;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'SSW ReStore for Dolphin').
+
+package setManualPrerequisites: #(
+	'SSW ReStore for Dolphin').
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #Address
+	instanceVariableNames: 'line1 postcode country'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #Customer
+	instanceVariableNames: 'firstName surname emailAddress dateOfBirth address orders'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #Order
+	instanceVariableNames: 'date product quantity customer'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #Product
+	instanceVariableNames: 'name description'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+"End of package definition"!
+

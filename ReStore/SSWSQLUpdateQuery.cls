@@ -6,32 +6,40 @@ SSWSQLConditionalQuery subclass: #SSWSQLUpdateQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLUpdateQuery guid: (GUID fromString: '{6266c936-3983-11d5-b1df-444553540000}')!
-SSWSQLUpdateQuery comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLUpdateQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLUpdateQuery categoriesForClass!Unclassified! !
 !SSWSQLUpdateQuery methodsFor!
 
 fieldUpdates
 
-	"19/8/2000
-	
-	fieldUpdates stores an SSWSQLFieldCollection of SSWSQLConditions that
+	"fieldUpdates stores an SSWSQLFieldCollection of SSWSQLConditions that
 	define the updates to be written by the receiver"
 	
 	^fieldUpdates!
 
 fieldUpdates: anSSWSQLFieldCollection 
 
-	"19/8/2000
-	
-	fieldUpdates stores an SSWSQLFieldCollection of SSWSQLConditions that
+	"fieldUpdates stores an SSWSQLFieldCollection of SSWSQLConditions that
 	define the updates to be written by the receiver"
 	
 	fieldUpdates := anSSWSQLFieldCollection !
 
+parameterisedFields
+
+	| parameterisedFields |
+
+	parameterisedFields := OrderedCollection new.
+
+	self fieldUpdates do:
+		[ :fieldUpdate |
+		fieldUpdate value == SSWSQLQueryParameter ifTrue: [parameterisedFields add: fieldUpdate field]].
+
+	^parameterisedFields, super parameterisedFields!
+
 writeSQLOn: aStream
 
-	"19/8/2000"
-	
 	aStream nextPutAll: 'UPDATE '.
 	self table writeSQLOn: aStream.
 	
@@ -41,5 +49,6 @@ writeSQLOn: aStream
 	self writeWhereClauseOn: aStream! !
 !SSWSQLUpdateQuery categoriesFor: #fieldUpdates!accessing!public! !
 !SSWSQLUpdateQuery categoriesFor: #fieldUpdates:!accessing!public! !
+!SSWSQLUpdateQuery categoriesFor: #parameterisedFields!evaluating!public! !
 !SSWSQLUpdateQuery categoriesFor: #writeSQLOn:!output!public! !
 

@@ -6,18 +6,28 @@ SSWSQLObjectQuery subclass: #SSWSQLDeleteObjectQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLDeleteObjectQuery guid: (GUID fromString: '{6266c92e-3983-11d5-b1df-444553540000}')!
-SSWSQLDeleteObjectQuery comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLDeleteObjectQuery comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLDeleteObjectQuery categoriesForClass!Unclassified! !
 !SSWSQLDeleteObjectQuery methodsFor!
 
+parameterisedFields
+
+	^{self table idField}!
+
+values
+
+	^{self object _id}!
+
 writeSQLOn: aStream
 
-	"5/8/2000"
-	
 	aStream nextPutAll: 'DELETE FROM '.
 	self table writeSQLOn: aStream.
 	
 	aStream nextPutAll: ' WHERE '.
 	self objectIDCondition writeSQLOn: aStream! !
+!SSWSQLDeleteObjectQuery categoriesFor: #parameterisedFields!accessing!public! !
+!SSWSQLDeleteObjectQuery categoriesFor: #values!accessing!public! !
 !SSWSQLDeleteObjectQuery categoriesFor: #writeSQLOn:!output!public! !
 

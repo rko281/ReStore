@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWSQLTable subclass: #SSWDBTable
-	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs idCacheSize abbreviations reStore insertStatement readStatement refreshStatement readAllBatchSize'
+	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBTable guid: (GUID fromString: '{266e4dcc-398e-11d5-b1df-444553540000}')!
-SSWDBTable comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBTable comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBTable categoriesForClass!Unclassified! !
 !SSWDBTable methodsFor!
 
@@ -36,17 +38,13 @@ abbreviations: aDictionary
 
 aboutToBeUnstored: anObject
 
-	"30/9/2001
-
-	anObject (which originated in the receiver table) is about to be removed from the DB.
+	"anObject (which originated in the receiver table) is about to be removed from the DB.
 	Notify the receiver's components so they can take any necessary action"
 
 	self componentsDo: [ :field | field aboutToBeUnstored: anObject]!
 
 addDataField: anSSWDBField
 
-	"Private - 20/8/2000"
-	
 	anSSWDBField table: self.
 	^self dataFields add: anSSWDBField!
 
@@ -61,12 +59,10 @@ allDataFieldsDo: aBlock
 
 allFields
 
-	"19/8/2000
-	
-	Return an SSWSQLFieldCollection of all the receiver's fields"
+	"Return an SSWSQLFieldCollection of all the receiver's fields"
 	
 	^self dataAndControlFields
-		add: self idField;
+		addFirst: self idField;
 		yourself!
 
 allFieldsDetect: aBlock ifNone: noneBlock
@@ -77,9 +73,7 @@ allFieldsDetect: aBlock ifNone: noneBlock
 
 allFieldsDo: aBlock
 
-	"19/4/2001
-
-	Faster than allFields do:"
+	"Faster than allFields do:"
 	
 	aBlock value: self idField.
 	self dataFields do: aBlock.
@@ -88,27 +82,21 @@ allFieldsDo: aBlock
 
 collectionAccessing: aSymbol
 
-	"14/8/2000
-	
-	Determine and return the collectionSpec of the receiver which accesses the inst var named aSymbol
+	"Determine and return the collectionSpec of the receiver which accesses the inst var named aSymbol
 	of the receiver's instanceClass"
 	
 	^self collectionSpecs detect: [ :spec | spec accessor accesses: aSymbol] ifNone: [nil]!
 
 collectionSpecs
 
-	"14/8/2000
-	
-	collectionSpecs stores a Collection of SSWDBCollectionSpecs which define the persistent
+	"collectionSpecs stores a Collection of SSWDBCollectionSpecs which define the persistent
 	collections held by instances of the receiver's instanceClass"
 	
 	^collectionSpecs!
 
 collectionSpecs: anOrderedCollection
 
-	"14/8/2000
-	
-	collectionSpecs stores a Collection of SSWDBCollectionSpecs which define the persistent
+	"collectionSpecs stores a Collection of SSWDBCollectionSpecs which define the persistent
 	collections held by instances of the receiver's instanceClass"
 	
 	collectionSpecs := anOrderedCollection!
@@ -119,9 +107,7 @@ componentAccessing: aSymbol
 
 componentsDo: aBlock
 
-	"24/9/2001
-
-	Evaluate aBlock with each component (field or collection spec) of the receiver"
+	"Evaluate aBlock with each component (field or collection spec) of the receiver"
 	
 	self dataFields do: aBlock.
 	self collectionSpecs do: aBlock!
@@ -137,9 +123,7 @@ componentsSelect: aBlock
 
 containedTableNameRoot
 
-	"Private - 12/5/2001
-	
-	Return the String to use as the root of all containedTables owned by the receiver"
+	"Return the String to use as the root of all containedTables owned by the receiver"
 	
 	"Use a double-underscore to avoid name clashes with any class tables.
 	ASSERT: class names NEVER contain an underscore"
@@ -147,9 +131,7 @@ containedTableNameRoot
 
 containedTables
 
-	"19/4/2001
-
-	At present, only collection specs can contain other tables"
+	"At present, only collection specs can contain other tables"
 
 	| containedTables |
 
@@ -161,9 +143,7 @@ containedTables
 
 controlFields
 
-	"19/4/2001
-	
-	controlFields stores a Collection of SSWDBFields that do not hold data,
+	"controlFields stores a Collection of SSWDBFields that do not hold data,
 	but provide assistance to the ReStore persistency mechanism.
 
 	Exact content and behaviour is dependent on the receiver's clients,
@@ -173,9 +153,7 @@ controlFields
 
 controlFields: aCollection
 
-	"19/4/2001
-	
-	controlFields stores a Collection of SSWDBFields that do not hold data,
+	"controlFields stores a Collection of SSWDBFields that do not hold data,
 	but provide assistance to the ReStore persistency mechanism.
 
 	Exact content and behaviour is dependent on the receiver's clients,
@@ -205,9 +183,7 @@ createDefinition
 
 createIDField
 
-	"14/8/2000
-
-	Define the receiver table's unique ID field - it is not named at this point"
+	"Define the receiver table's unique ID field - it is not named at this point"
 	
 	| field |
 	
@@ -221,8 +197,6 @@ createIDField
 	self idField: field!
 
 createInstanceFromRow: aDBRow
-
-	"Private - 14/8/2000"
 
 	| object id |
 	
@@ -255,8 +229,6 @@ createNonProxiedInstanceFromRow: aDBRow
 
 dataAndControlFields
 
-	"19/4/2001"
-	
 	^(SSWSQLFieldCollection new: 24)
 		addAll: self dataFields;
 		addAll: self controlFields;
@@ -265,18 +237,14 @@ dataAndControlFields
 
 dataFields
 
-	"6/8/2000
-	
-	dataFields stores an SSWSQLFieldCollection of SSWDBFields that define the data held by this table. 
+	"dataFields stores an SSWSQLFieldCollection of SSWDBFields that define the data held by this table. 
 	This specifically excludes the unique ID field and any control fields, which are held separately"
 	
 	^dataFields!
 
 dataFields: anSSWSQLFieldCollection
 
-	"6/8/2000
-	
-	dataFields stores an SSWSQLFieldCollection of SSWDBFields that define the data held by this table. 
+	"dataFields stores an SSWSQLFieldCollection of SSWDBFields that define the data held by this table. 
 	This specifically excludes the unique ID field and any control fields, which are held separately"
 	
 	dataFields := anSSWSQLFieldCollection!
@@ -306,9 +274,7 @@ define: aSymbol abbreviation: abbrevSymbol as: anObject
 
 define: aSymbol as: anObject
 
-	"6/8/2000
-	
-	General user method for table specification.	 
+	"General user method for table specification.	 
 	anObject could be a Class or ClassWithInfo (defining a field) or a CollectionSpec (defining a Collection).
 	Example usage of each type:
 		define: #name as: String;	
@@ -320,8 +286,6 @@ define: aSymbol as: anObject
 
 define: aSymbol asCollectionSpec: aCollectionSpec
 
-	"Private - 14/8/2000"
-	
 	^self collectionSpecs add:
 		(aCollectionSpec
 			accessor: (SSWInstVarAccessor toAccess: aSymbol in: self instanceClass);
@@ -330,13 +294,11 @@ define: aSymbol asCollectionSpec: aCollectionSpec
 
 define: aSymbol asFieldNamed: aString holding: aClass
 
-	"Private - 6/8/2000
-	
-	Return the field created"
+	"Return the field created"
 
 	aString size > self sqlDialect maxColumnNameLength ifTrue: 
-		[self error: ('Column %1 for %2 is larger than max length of %3!!i!!. Define a suitable abbreviation'
-					formatWith: aString with: aSymbol with: self sqlDialect maxColumnNameLength)].
+		[self error: ('Column <1s> for <2s> is larger than max length of <3d>. Define a suitable abbreviation'
+					expandMacrosWith: aString with: aSymbol with: self sqlDialect maxColumnNameLength)].
 	
 	^self addDataField:
 		(SSWDBStaticField new
@@ -347,19 +309,13 @@ define: aSymbol asFieldNamed: aString holding: aClass
 
 define: aSymbol asInstVarHolding: aClass
 
-	"Private - 6/8/2000
-	Modified 12/9/2001		Use dialect name transformation (issue#0007)
-	
-	Return the field created"
+	"Return the field created"
 	
 	^self define: aSymbol asFieldNamed: (self dbNameFor: aSymbol) holding: aClass!
 
 defineAsID: aSymbol
 
-	"Created 6/8/2000	
-	Modified 12/9/2001		Use dialect name transformation (issue#0007)
-	
-	Define the receiver's idField to access inst var aSymbol.
+	"Define the receiver's idField to access inst var aSymbol.
 	Use of this method enables persistent objects to store their unique ID within themselves.
 	This can be useful in some cases, although the unique ID is really internal information.
 	Return the idField"
@@ -368,9 +324,7 @@ defineAsID: aSymbol
 
 defineAsID: aSymbol fieldName: aString
 
-	"6/8/2000
-	
-	Define the receiver's idField to be named aString and to access inst var aSymbol.
+	"Define the receiver's idField to be named aString and to access inst var aSymbol.
 	Use of this method enables persistent objects to store their unique ID within themselves.
 	This can be useful in some cases, although the unique ID is really internal information.
 	Return the idField"
@@ -391,9 +345,7 @@ defineAsID: aSymbol fieldName: aString
 
 defineDefaultIDField
 
-	"19/8/2001
-
-	Define the default-named ID field.
+	"Define the default-named ID field.
 	Return the field defined"
 	
 	self createIDField.
@@ -404,9 +356,7 @@ defineDefaultIDField
 
 defineIDFieldName: aString
 
-	"19/8/2001
-
-	Define the receiver table's unique ID field to be named aString.
+	"Define the receiver table's unique ID field to be named aString.
 	Clients do not need to call this method if they are happy with the default name (based on #id_).
 	Return the field created"
 
@@ -421,6 +371,10 @@ definesName: aString
 
 	^self name = aString or: [self containedTables anySatisfy: [ :each | each definesName: aString]]!
 
+deleteStatementGeneratedFrom: aDeleteQuery
+
+	^deleteStatement ifNil: [deleteStatement := self reStore prepareStatementForQuery: aDeleteQuery]!
+
 dependentComponents
 
 	^self componentsSelect: [ :each | each isDependent]!
@@ -431,9 +385,7 @@ dependentDataFields
 
 dependentDataFieldsSelect: aBlock
 
-	"24/9/2001
-
-	Evaluate aBlock with each dependent component which is a data field, collecting those which answer true.
+	"Evaluate aBlock with each dependent component which is a data field, collecting those which answer true.
 	Faster than dependentDataFields select:"
 	
 	^self dataFields select: [ :field | field isDependent and: [aBlock value: field]]!
@@ -469,13 +421,15 @@ forCreation
 
 freePreparedStatements
 
-	insertStatement notNil ifTrue: [insertStatement := nil].
-	readStatement notNil ifTrue: [readStatement := nil].
-	refreshStatement notNil ifTrue: [refreshStatement := nil].
+	insertStatement notNil ifTrue: [insertStatement free].
+	readStatement notNil ifTrue: [readStatement free].
+	refreshStatement notNil ifTrue: [refreshStatement free].
+	deleteStatement notNil ifTrue: [deleteStatement free].
 
 	insertStatement := nil.
 	readStatement := nil.
 	refreshStatement := nil.
+	deleteStatement := nil.
 
 	self collectionSpecs do: [ :each | each freePreparedStatements].!
 
@@ -499,58 +453,17 @@ fullName: aString
 
 hasCollectionAccessing: aSymbol
 
-	"19/4/2001
-	
-	Return a Boolean indicating whether the receiver has a collectionSpec
+	"Return a Boolean indicating whether the receiver has a collectionSpec
 	accessing the instance variable name aSymbol"
 
 	^(self collectionAccessing: aSymbol) ~= nil !
 
 hasFieldAccessing: aSymbol
 
-	"19/4/2001
-	
-	Return a Boolean indicating whether the receiver has a Field
+	"Return a Boolean indicating whether the receiver has a Field
 	accessing the instance variable name aSymbol"
 
 	^(self fieldAccessing: aSymbol) notNil !
-
-hasStaticConditions
-
-	"11/4/2001
-	
-	Return a Boolean indicating if the receiver table has any SSWSQLConditions 
-	which are always applied when SELECTing from the receiver table.
-	Unlike conditions that may be derived from controlFields, these conditions
-	do not vary from object to object - they are static for all reads from this table.
-	
-	Default - false. Subclasses returning true should implement staticConditions accordingly"
-	
-	^false!
-
-idCacheSize
-
-	"12/5/2001
-
-	idCacheSize stores the number of unique IDs that should be cached by ReStore.
-	Caching IDs reduces querying when creating storing instances of the instanceClass,
-	but does lead to ID wastage if not all cached IDs have been used on logout.
-
-	Default is 10. Use a higher cache size for tables creating many instances"
-
-	^idCacheSize!
-
-idCacheSize: anInteger
-
-	"12/5/2001
-
-	idCacheSize stores the number of unique IDs that should be cached by ReStore.
-	Caching IDs reduces querying when creating storing instances of the instanceClass,
-	but does lead to ID wastage if not all cached IDs have been used on logout.
-
-	Default is 10. Use a higher cache size for tables creating many instances"
-
-	idCacheSize := anInteger!
 
 idDataField
 
@@ -570,9 +483,7 @@ idDataField: anObject
 
 idField
 
-	"6/8/2000
-	
-	idField stores the SSWDBField which holds the unique ID of records in this table.	
+	"idField stores the SSWDBField which holds the unique ID of records in this table.	
 	Lazy-defaulted if not set explicity"
 	
 	idField isNil ifTrue: [self defineDefaultIDField].
@@ -581,17 +492,11 @@ idField
 
 idField: anSSWDBField
 
-	"6/8/2000
-	
-	idField stores the SSWDBField which holds the unique ID of records in this table"
+	"idField stores the SSWDBField which holds the unique ID of records in this table"
 	
 	idField := anSSWDBField!
 
 initializeIn: anSSWReStore
-
-	"Created 19/4/2001
-	Modified 12/9/2001		Store dialect; apply dialect name transformation (issue#0007)
-	Modified: 14/11/2002		Now stores anSSWReStore directly"
 
 	self reStore: anSSWReStore.
 
@@ -601,23 +506,19 @@ initializeIn: anSSWReStore
 		field table: self.
 		field name: (self sqlDialect transformInstVarName: field accessor nameInDB)]!
 
-insertStatementGeneratedFrom: aBlock
+insertStatementGeneratedFrom: anInsertQuery
 
-	^insertStatement ifNil: [insertStatement := self reStore prepareStatementForQuery: aBlock value]!
+	^insertStatement ifNil: [insertStatement := self reStore prepareStatementForQuery: anInsertQuery]!
 
 instanceClass
 
-	"6/8/2000
-	
-	instanceClass stores the Class which is equivalent to this table"
+	"instanceClass stores the Class which is equivalent to this table"
 	
 	^instanceClass!
 
 instanceClass: aClass
 
-	"6/8/2000
-	
-	instanceClass stores the Class which is equivalent to this table"
+	"instanceClass stores the Class which is equivalent to this table"
 	
 	"CHECK HERE: never allow aClass whose name includes an _
 	as this can cause problems for the contained table mechanism"
@@ -633,9 +534,7 @@ instanceClassFromRow: aDBRow
 
 isDefined
 
-	"18/4/2001
-	
-	Return a Boolean indicating if the receiver table is 'defined'
+	"Return a Boolean indicating if the receiver table is 'defined'
 	i.e. if it has some meaningful fields/collections"
 	
 	^self dataFields size > 0 or: [self collectionSpecs size > 0]!
@@ -652,9 +551,7 @@ isValidForPersistence
 
 name
 
-	"5/8/2000
-	
-	Overriden to lazy initialize to default name"
+	"Overriden to lazy initialize to default name"
 	
 	name isNil ifTrue: [name := fullName := self defaultName].
 	
@@ -716,8 +613,6 @@ readStatement
 
 recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 	
-	"19/4/2001"
-
 	anSSWDBObjectProxy 
 		_proxiedObject: (self createInstanceFromRow: aDBRow);
 		_aquireCollectionProxiesUsing: self collectionSpecs.
@@ -764,9 +659,7 @@ refreshStatement
 
 registerClass
 
-	"10/4/2001
-
-	Return the class under which objects created from this table 
+	"Return the class under which objects created from this table 
 	should be registered in an SSWReStore's proxy cache.
 	Normally this is their own class. Subclassed may change this"
 
@@ -787,7 +680,7 @@ removeDefinition
 	creationTable isNil ifTrue: [^#()].
 
 	(self reStore dbIncludesTableNamed: creationTable name) ifTrue: 
-		[self reStore executeSQL: ('DROP TABLE ', creationTable name)].
+		[self reStore executeSQL: ('DROP TABLE ', (self sqlDialect asIdentifier: creationTable name))].
 
 	containedTables := creationTable containedTables.
 	containedTables do: [ :containedTable | containedTable removeDefinition].
@@ -841,11 +734,9 @@ rootTable
 
 sqlDefinition
 
-	"9/3/01"
-	
 	| stream |
 	
-	stream := WriteStream on: (String new: 64).
+	stream := self sqlDialect sqlWriteStream.
 	
 	self writeSQLDefinitionOn: stream.
 	
@@ -858,9 +749,7 @@ sqlDialect
 
 staticConditions
 
-	"11/4/2001
-	
-	Return an SSWSQLConditionCollection which is always applied
+	"Return an SSWSQLConditionCollection which is always applied
 	when SELECTing from the receiver table.
 	Unlike conditions that may be derived from controlFields, these conditions
 	do not vary from object to object - they are static for all reads from this table.
@@ -871,9 +760,7 @@ staticConditions
 
 storeNonPersistentComponentsOf: aProxyObject
 
-	"1/10/2000
-	
-	Ensure that each non-persistency-valid component of the proxiedObject of aProxyObject 
+	"Ensure that each non-persistency-valid component of the proxiedObject of aProxyObject 
 	accessed by the receiver's components exists in the aProxyObject's ReStore 
 	- store those that do not exist."
 	
@@ -918,7 +805,9 @@ synchronizeDefinition
 	ifFalse: 
 		[creationTable createDefinition].
 
-	creationTable containedTables do: [ :containedTable | containedTable synchronizeDefinition]!
+	creationTable containedTables do: [ :containedTable | containedTable synchronizeDefinition].
+
+	self reStore connection columnDescriptions removeKey: self ifAbsent: []!
 
 synchronizeFields
 
@@ -971,7 +860,7 @@ writeSQLDefinitionOn: aStream
 	
 	aStream
 		nextPutAll: 'CREATE TABLE ';
-		nextPutAll: self name;
+		nextPutIdentifier: self name;
 		nextPutAll: ' ('.
 	
 	self idField writeSQLDefinitionOn: aStream.
@@ -1022,6 +911,7 @@ writeSQLDefinitionOn: aStream
 !SSWDBTable categoriesFor: #defineDefaultIDField!defining!private! !
 !SSWDBTable categoriesFor: #defineIDFieldName:!defining!public! !
 !SSWDBTable categoriesFor: #definesName:!public!testing! !
+!SSWDBTable categoriesFor: #deleteStatementGeneratedFrom:!accessing!public! !
 !SSWDBTable categoriesFor: #dependentComponents!accessing!public! !
 !SSWDBTable categoriesFor: #dependentDataFields!evaluating!public! !
 !SSWDBTable categoriesFor: #dependentDataFieldsSelect:!evaluating!public! !
@@ -1034,9 +924,6 @@ writeSQLDefinitionOn: aStream
 !SSWDBTable categoriesFor: #fullName:!accessing!public! !
 !SSWDBTable categoriesFor: #hasCollectionAccessing:!public!testing! !
 !SSWDBTable categoriesFor: #hasFieldAccessing:!public!testing! !
-!SSWDBTable categoriesFor: #hasStaticConditions!public!testing! !
-!SSWDBTable categoriesFor: #idCacheSize!accessing!public! !
-!SSWDBTable categoriesFor: #idCacheSize:!accessing!public! !
 !SSWDBTable categoriesFor: #idDataField!accessing!public! !
 !SSWDBTable categoriesFor: #idDataField:!accessing!public! !
 !SSWDBTable categoriesFor: #idField!accessing!public! !
@@ -1083,30 +970,23 @@ writeSQLDefinitionOn: aStream
 
 forClass: aClass
 
-	"6/8/2000"
-	
 	^self new
 		instanceClass: aClass;
 		yourself!
 
 forClass: aClass in: anSSWReStore
 
-	"6/8/2000"
-	
 	^(self forClass: aClass)
 		initializeIn: anSSWReStore;
 		yourself!
 
 new
 
-	"6/8/2000"
-	
 	^super new
 		dataFields: SSWSQLFieldCollection new;
 		controlFields: SSWSQLFieldCollection new;
 		collectionSpecs: OrderedCollection new;
 		abbreviations: Dictionary new;
-		idCacheSize: 10;
 		yourself! !
 !SSWDBTable class categoriesFor: #forClass:!instance creation!public! !
 !SSWDBTable class categoriesFor: #forClass:in:!instance creation!public! !

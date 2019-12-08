@@ -6,7 +6,9 @@ SSWSQLCondition subclass: #SSWDBQueryCondition
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBQueryCondition guid: (GUID fromString: '{019d523c-7327-472c-8f85-167bce12d1e2}')!
-SSWDBQueryCondition comment: ''!
+SSWDBQueryCondition comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBQueryCondition categoriesForClass!Unclassified! !
 !SSWDBQueryCondition methodsFor!
 
@@ -63,16 +65,18 @@ concatenateWith: anObject
 
 	^anObject concatenateCondition: self!
 
+doesNotUnderstand: aMessage
+	
+	"Attempt to interpret selector as a function message send"
+	(self table reStore sqlDialect sqlFunctionFor: aMessage selector) ifNotNil: 
+		[ :function | 
+		^self parser applyFunction: function to: self withArguments: aMessage arguments].
+
+	^super doesNotUnderstand: aMessage!
+
 forConcatenation
 
 	^self!
-
-mustBeBoolean
-
-	"Private - Received when this condition has been subject to an inlined and: / or: message in a query block.
-	Ask the parser to handle"
-
-	^self parser handleMustBeBooleanIn: self!
 
 newCollection
 
@@ -100,7 +104,17 @@ sqlOr: aCondition
 	argument := self parser unprocessedConditionsCombinedWithArgument: aCondition.
 	receiver := self parser unprocessedConditionsCombinedWithReceiver: self.
 
-	^receiver _sqlOr: argument! !
+	^receiver _sqlOr: argument!
+
+withFunction: aString arguments: aCollection
+
+	"Return an SSWDBFunctionField base on the receiver with the given function String and arguments"
+
+	^SSWDBFunctionField new
+		field: self;
+		function: aString;
+		arguments: aCollection;
+		yourself! !
 !SSWDBQueryCondition categoriesFor: #_sqlAnd:!evaluating!private! !
 !SSWDBQueryCondition categoriesFor: #_sqlOr:!evaluating!private! !
 !SSWDBQueryCondition categoriesFor: #||!evaluating!public! !
@@ -108,11 +122,12 @@ sqlOr: aCondition
 !SSWDBQueryCondition categoriesFor: #asSQLFields!converting!public! !
 !SSWDBQueryCondition categoriesFor: #concatenateCondition:!evaluating!public! !
 !SSWDBQueryCondition categoriesFor: #concatenateWith:!evaluating!private! !
+!SSWDBQueryCondition categoriesFor: #doesNotUnderstand:!parsing - internal!public! !
 !SSWDBQueryCondition categoriesFor: #forConcatenation!converting!public! !
-!SSWDBQueryCondition categoriesFor: #mustBeBoolean!evaluating!private! !
 !SSWDBQueryCondition categoriesFor: #newCollection!accessing!public! !
 !SSWDBQueryCondition categoriesFor: #parser!accessing!private! !
 !SSWDBQueryCondition categoriesFor: #parser:!accessing!private! !
 !SSWDBQueryCondition categoriesFor: #sqlAnd:!evaluating!public! !
 !SSWDBQueryCondition categoriesFor: #sqlOr:!evaluating!public! !
+!SSWDBQueryCondition categoriesFor: #withFunction:arguments:!converting!public! !
 

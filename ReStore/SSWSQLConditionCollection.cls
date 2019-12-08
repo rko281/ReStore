@@ -6,7 +6,9 @@ SSWSQLCollection variableSubclass: #SSWSQLConditionCollection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLConditionCollection guid: (GUID fromString: '{6266c922-3983-11d5-b1df-444553540000}')!
-SSWSQLConditionCollection comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWSQLConditionCollection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLConditionCollection categoriesForClass!Unclassified! !
 !SSWSQLConditionCollection methodsFor!
 
@@ -30,9 +32,7 @@ _add: aConditionOrCollection
 
 add: aConditionOrCollection
 
-	"5/8/2000
-	
-	If the operand is another collection with the same concatenator, the receiver can merge with it"
+	"If the operand is another collection with the same concatenator, the receiver can merge with it"
 	
 	((aConditionOrCollection isKindOf: SSWSQLConditionCollection)
 		and: [aConditionOrCollection sqlConcatenator = self sqlConcatenator])
@@ -48,9 +48,7 @@ aggregatedConditions
 
 anySatisfy: aBlock
 
-	"26/4/2001
-
-	Recursive version needed since the receiver will hold conditions or other condition collections"
+	"Recursive version needed since the receiver will hold conditions or other condition collections"
 
 	self do: [ :each | (each anySatisfy: aBlock) ifTrue: [^true]].
 
@@ -58,9 +56,7 @@ anySatisfy: aBlock
 
 asFieldAssignment
 
-	"17/9/2001
-
-	Polymorphic with SQLCondition implementation"
+	"Polymorphic with SQLCondition implementation"
 
 	| assignment |
 
@@ -83,15 +79,11 @@ beOR
 
 copy
 
-	"27/3/01"
-	
 	^super copy
 		sqlConcatenator: self sqlConcatenator;
 		yourself!
 
 copyEmpty: anInteger
-
-	"5/8/2000"
 
 	^(super copyEmpty: anInteger)
 		sqlConcatenator: self sqlConcatenator;
@@ -116,29 +108,21 @@ hasAggregateFunction
 
 isAND
 
-	"23/3/2001"
-	
 	^self sqlConcatenator = self class concatenatorForAND!
 
 isEmpty
 
-	"23/3/2001
-
-	Account for a collection of empty collections"
+	"Account for a collection of empty collections"
 	
 	^super isEmpty or: [self allSatisfy: [ :each | each isEmpty]]!
 
 isOR
 
-	"23/3/2001"
-	
 	^self sqlConcatenator = self class concatenatorForOR!
 
 not
 
-	"23/3/2001
-	
-	Invert the receiver
+	"Invert the receiver
 	 - ANDs become ORs (and v.v.)
 	 - individual conditions are inverted"
 	
@@ -152,9 +136,7 @@ not
 
 sqlAnd: aConditionOrCollection
 
-	"5/8/2000
-	
-	Return an SQLConditionCollection consisting of the receiver ANDed with the given
+	"Return an SQLConditionCollection consisting of the receiver ANDed with the given
 	SQLCondition or SQLConditionCollection (the two are polymorphic)"
 
 	aConditionOrCollection isEmpty ifTrue: [^self].
@@ -172,27 +154,21 @@ sqlAndWithCondition: aConditionOrCollection
 
 sqlConcatenator
 
-	"5/8/2000
-	
-	sqlConcatenator stores the String which merges these conditions 
+	"sqlConcatenator stores the String which merges these conditions 
 	 - usually AND or OR"
 	
 	^sqlConcatenator!
 
 sqlConcatenator: aString
 
-	"5/8/2000
-	
-	sqlConcatenator stores the String which merges these conditions 
+	"sqlConcatenator stores the String which merges these conditions 
 	 - usually AND or OR"
 	
 	sqlConcatenator := aString!
 
 sqlOr: aConditionOrCollection
 
-	"5/8/2000
-	
-	Return an SQLConditionCollection consisting of the receiver ORed with the given
+	"Return an SQLConditionCollection consisting of the receiver ORed with the given
 	SQLCondition or SQLConditionCollection (the two are polymorphic)"
 
 	^self copyEmpty beOR
@@ -215,9 +191,7 @@ unaggregatedConditions
 
 writeSQLOn: aStream
 
-	"5/8/2000
-	
-	Wrap in parantheses"
+	"Wrap in parantheses"
 	
 	aStream nextPut: $(.
 	super writeSQLOn: aStream.
@@ -252,14 +226,10 @@ writeSQLOn: aStream
 
 concatenatorForAND
 
-	"5/8/2000"
-	
 	^' AND '!
 
 concatenatorForOR
 
-	"5/8/2000"
-	
 	^' OR '!
 
 forAND

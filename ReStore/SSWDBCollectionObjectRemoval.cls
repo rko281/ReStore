@@ -6,64 +6,52 @@ Object subclass: #SSWDBCollectionObjectRemoval
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCollectionObjectRemoval guid: (GUID fromString: '{d23b5502-b5a6-11d5-b1e0-444553540000}')!
-SSWDBCollectionObjectRemoval comment: ''!
+SSWDBCollectionObjectRemoval comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBCollectionObjectRemoval categoriesForClass!Unclassified! !
 !SSWDBCollectionObjectRemoval methodsFor!
 
 applyTo: aCollection
 
-	"28/9//2001
-
-	No action (the receiver is polymorphic with SSWDBCollectionChange)"
+	"No action (the receiver is polymorphic with SSWDBCollectionChange)"
 	
 	^self!
 
 canRemoveKey
 
-	"28/9/2001 
-
-	No (the receiver is polymorphic with SSWDBCollectionChange)"
+	"No (the receiver is polymorphic with SSWDBCollectionChange)"
 
 	^false!
 
 canRemoveValue
 
-	"28/9/2001 
-
-	No (the receiver is polymorphic with SSWDBCollectionChange)"
+	"No (the receiver is polymorphic with SSWDBCollectionChange)"
 
 	^false!
 
 commitFor: aCollection
 
-	"28/9//2001
-
-	No action (the receiver is polymorphic with SSWDBCollectionChange)"
+	"No action (the receiver is polymorphic with SSWDBCollectionChange)"
 	
 	^self!
 
 prepareToCommitFor: aCollectionProxy
 
-	"28/9/2001
-
-	Unstore the removedObject"
+	"Unstore the removedObject"
 
 	self removedObject unstore!
 
 removedObject
 
-	"28/9/2001
-
-	removedObject stores an Object (value) completely removed from a Collection.
+	"removedObject stores an Object (value) completely removed from a Collection.
 	The receiver represents the complete removal of this object"
 
 	^removedObject!
 
 removedObject: anObject
 
-	"28/9/2001
-
-	removedObject stores an Object (value) completely removed from a Collection.
+	"removedObject stores an Object (value) completely removed from a Collection.
 	The receiver represents the complete removal of this object"
 
 	removedObject := anObject! !
@@ -78,8 +66,6 @@ removedObject: anObject
 !SSWDBCollectionObjectRemoval class methodsFor!
 
 newWithObject: anObject
-
-	"28/9/2001"
 
 	^super new
 		removedObject: anObject;

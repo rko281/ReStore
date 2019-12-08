@@ -6,15 +6,15 @@ Object subclass: #SSWDBInstancesCollection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBInstancesCollection guid: (GUID fromString: '{5a3e3dd0-3990-11d5-b1df-444553540000}')!
-SSWDBInstancesCollection comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBInstancesCollection comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBInstancesCollection categoriesForClass!Unclassified! !
 !SSWDBInstancesCollection methodsFor!
 
 addAll: anSSWDBInstancesCollection
 
-	"29/3/2001
-
-	'Add' the given instances collection to the receiver so that its elements
+	"'Add' the given instances collection to the receiver so that its elements
 	are added to the receiver's following a query"
 
 	"Can only add same/inherited classes"
@@ -54,7 +54,7 @@ asSortedCollection
 
 	^self isSorted
 		ifTrue: [self collectInto: (SortedCollection sortBlock: self sortBlock)]
-		ifFalse: [self asSortedCollection: SortedCollection]!
+		ifFalse: [self asSortedCollection: SortedCollection defaultSortBlock]!
 
 asSortedCollection: aTwoArgBlock
 
@@ -82,8 +82,6 @@ collectInto: aCollection
 
 copy
 
-	"27/3/2001"
-	
 	^self shallowCopy
 		parser: self parser copy;
 		yourself
@@ -91,8 +89,6 @@ copy
 
 createParser
 
-	"Private - 23/3/2001"
-	
 	self parser: (SSWDBBlockParser newForReStore: self reStore argumentClass: self instancesClass)
 !
 
@@ -130,8 +126,6 @@ fetchObjectsWithQuery: aQuery into: aCollection
 
 first
 
-	"9/4/2001"
-	
 	^self detect: [ :each | true] ifNone: [#() errorSubscriptBounds: 1]!
 
 first: anInteger
@@ -155,24 +149,18 @@ includes: anObject
 
 instancesClass
 
-	"23/3/2001
-	
-	instancesClass stores the Class of persistent object which form the receiver's 'elements'	"
+	"instancesClass stores the Class of persistent object which form the receiver's 'elements'	"
 	
 	^instancesClass!
 
 instancesClass: aClass
 
-	"23/3/2001
-	
-	instancesClass stores the Class of persistent object which form the receiver's 'elements'	"
+	"instancesClass stores the Class of persistent object which form the receiver's 'elements'	"
 	
 	instancesClass := aClass!
 
 isEmpty
 
-	"23/3/2001"
-	
 	^self size = 0!
 
 isSorted
@@ -189,9 +177,7 @@ lookup: aBlock
 
 modify: aBlock
 
-	"29/3/2001
-	
-	Iterate over the elements in the database, modifying each according to aBlock.
+	"Iterate over the elements in the database, modifying each according to aBlock.
 	e.g. say the receiver represents all CDs with no artist assigned, then:
 
 		self modify: [ :cd | cd artist: 'Unknown']
@@ -217,18 +203,14 @@ modify: aBlock
 
 parser
 
-	"23/3/2001
-	
-	parser stores an SSWDBBlockParser which parses enumerating blocks
+	"parser stores an SSWDBBlockParser which parses enumerating blocks
 	to generate corresponding SSWSQLQueries"
 	
 	^parser!
 
 parser: anSSWDBBlockParser
 
-	"23/3/2001
-	
-	parser stores an SSWDBBlockParser which parses enumerating blocks
+	"parser stores an SSWDBBlockParser which parses enumerating blocks
 	to generate corresponding SSWSQLQueries"
 	
 	parser := anSSWDBBlockParser!
@@ -270,9 +252,7 @@ project: projectBlock into: aCollection
 
 qualifyWith: aBlock
 
-	"Private - 27/3/2001
-	
-	Modify the receiver's parser so that it always qualifies any query it creates
+	"Modify the receiver's parser so that it always qualifies any query it creates
 	with the conditions extracted from aBlock"
 	
 	self parser qualifyWith: aBlock
@@ -308,9 +288,7 @@ query: query into: aCollection
 
 readStream
 
-	"28/3/2001
-	
-	Create and return an appropraite ReadStream-like object on the receiver"
+	"Create and return an appropraite ReadStream-like object on the receiver"
 	
 	^SSWDBReadStream on: self!
 
@@ -335,25 +313,19 @@ reject: rejectBlock
 
 reStore
 
-	"23/3/2001
-	
-	reStore stores the SSWReStore in which the receiver's 'elements' reside"
+	"reStore stores the SSWReStore in which the receiver's 'elements' reside"
 	
 	^reStore!
 
 reStore: anSSWReStore
 
-	"23/3/2001
-	
-	reStore stores the SSWReStore in which the receiver's 'elements' reside"
+	"reStore stores the SSWReStore in which the receiver's 'elements' reside"
 	
 	reStore := anSSWReStore!
 
 resultSet
 
-	"28/3/2001
-	
-	Return a DBResultSet (open query results) onto the collection of rows
+	"Return a DBResultSet (open query results) onto the collection of rows
 	represented by the receiver"
 	
 	| query |
@@ -442,9 +414,7 @@ sortBlock: aTwoArgBlock
 
 table
 
-	"28/3/2001
-	
-	Return the table associated with the receiver's instancesClass"
+	"Return the table associated with the receiver's instancesClass"
 	
 	"The Parser knows this"
 	^self parser argumentTable!
@@ -488,9 +458,7 @@ withDependentComponents
 
 withoutInheritance
 
-	"18/4/2001
-	
-	If the receiver's instancesClass has persistent subclasses, then by default
+	"If the receiver's instancesClass has persistent subclasses, then by default
 	instances of those subclasses are included in the receiver 'collection'.
 	
 	Prevent this behaviour by restricting to only elements of the instancesClass"
@@ -572,8 +540,6 @@ withTableComponents: aCollectionOfTableComponents
 
 forClass: aClass in: anSSWReStore
 
-	"23/3/2001"
-	
 	^self new
 		instancesClass: aClass;
 		reStore: anSSWReStore;

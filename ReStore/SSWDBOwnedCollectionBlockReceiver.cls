@@ -6,7 +6,9 @@ SSWDBCollectionBlockReceiver subclass: #SSWDBOwnedCollectionBlockReceiver
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBOwnedCollectionBlockReceiver guid: (GUID fromString: '{01bed422-c50b-4117-ac6d-19cbad360213}')!
-SSWDBOwnedCollectionBlockReceiver comment: ''!
+SSWDBOwnedCollectionBlockReceiver comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBOwnedCollectionBlockReceiver categoriesForClass!Unclassified! !
 !SSWDBOwnedCollectionBlockReceiver methodsFor!
 
@@ -18,7 +20,7 @@ targetField
 
 targetFieldCollectQuery
 
-	^self collectionParser collectQueryFrom: [ :each | each _idOf perform: self targetField accessor name]!
+	^self collectionParser collectQueryFrom: [ :each | (each perform: self targetField accessor name) _id]!
 
 targetTableFromParser
 

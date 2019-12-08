@@ -1,12 +1,14 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWDBTableRecord
-	instanceVariableNames: 'tableName fullTableName nextID cachedIDs'
+	instanceVariableNames: 'tableName fullTableName nextID'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBTableRecord guid: (GUID fromString: '{c9939531-b39a-4ac3-b6d3-55cea290fd54}')!
-SSWDBTableRecord comment: ''!
+SSWDBTableRecord comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBTableRecord categoriesForClass!Unclassified! !
 !SSWDBTableRecord methodsFor!
 
@@ -16,38 +18,6 @@ _proxiedObject
 	Answer the receiver for compatability with a persistent proxy"
 
 	^self!
-
-cachedIDs
-
-	"19/8/2000
-	
-	cachedIDs stores a collection of IDs which are allocated (from the DB) but not used (by rows).
-	Caching IDs in this way reduces querying"
-	
-	cachedIDs == nil ifTrue: [cachedIDs := OrderedCollection new].
-	
-	^cachedIDs!
-
-cachedIDs: aCollection
-
-	"19/8/2000
-	
-	cachedIDs stores a collection of IDs which are allocated (from the DB) but not used (by rows).
-	Caching IDs in this way reduces querying"
-		
-	cachedIDs := aCollection!
-
-cacheUpToID: anInteger
-
-	"23/3/2001
-	
-	anInteger is now the nextID in the database.
-	Thus IDs from the receiver's nextID up to (but not including) anInteger can be cached.
-	
-	Cache these IDs, then update the receiver's nextID"
-	
-	self cachedIDs: (self nextID to: (anInteger -1)) asOrderedCollection.
-	self nextID: anInteger!
 
 fullTableName
 
@@ -68,56 +38,39 @@ fullTableName: aString
 	
 	fullTableName := aString!
 
-nextCachedID
+incrementNextIDBy: anInteger
 
-	"19/8/2000
-	
-	Remove and return the next cachedID, or nil if none"
-	
-	^self cachedIDs isEmpty
-		ifTrue: [nil]
-		ifFalse: [self cachedIDs removeFirst]!
+	self nextID: (self nextID + anInteger)!
 
 nextID
 
-	"19/8/2000
-	
-	nextID stores the next available ID value for the receiver's table, as stored in the database"
+	"nextID stores the next available ID value for the receiver's table, as stored in the database"
 	
 	^nextID!
 
 nextID: anInteger
 
-	"19/8/2000
-	
-	nextID stores the next available ID value for the receiver's table, as stored in the database"
+	"nextID stores the next available ID value for the receiver's table, as stored in the database"
 	
 	nextID := anInteger!
 
 tableName
 
-	"19/8/2000
-	
-	tableName stores the name (String) of the SSWDBTable 
+	"tableName stores the name (String) of the SSWDBTable 
 	for which the receiver maintains the next available IDs"
 	
 	^tableName!
 
 tableName: aString
 
-	"19/8/2000
-	
-	tableName stores the name (String) of the SSWDBTable 
+	"tableName stores the name (String) of the SSWDBTable 
 	for which the receiver maintains the next available IDs"
 	
 	tableName := aString! !
 !SSWDBTableRecord categoriesFor: #_proxiedObject!accessing!public! !
-!SSWDBTableRecord categoriesFor: #cachedIDs!accessing!public! !
-!SSWDBTableRecord categoriesFor: #cachedIDs:!accessing!public! !
-!SSWDBTableRecord categoriesFor: #cacheUpToID:!public!updating! !
 !SSWDBTableRecord categoriesFor: #fullTableName!accessing!public! !
 !SSWDBTableRecord categoriesFor: #fullTableName:!accessing!public! !
-!SSWDBTableRecord categoriesFor: #nextCachedID!public!updating! !
+!SSWDBTableRecord categoriesFor: #incrementNextIDBy:!public!updating! !
 !SSWDBTableRecord categoriesFor: #nextID!accessing!public! !
 !SSWDBTableRecord categoriesFor: #nextID:!accessing!public! !
 !SSWDBTableRecord categoriesFor: #tableName!accessing!public! !
@@ -127,13 +80,9 @@ tableName: aString
 
 preferredObjectProxyClass 
 
-	"1/5/2001"
-
 	^SSWDBCachingObjectProxy!
 
 tableIn: anSSWReStore
-
-	"19/8/2000"
 
 	| table |
 	

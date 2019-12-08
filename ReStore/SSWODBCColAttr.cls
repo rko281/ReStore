@@ -6,24 +6,22 @@ DBColAttr subclass: #SSWODBCColAttr
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWODBCColAttr guid: (GUID fromString: '{40397b21-5946-11d6-87e7-0010a70883e2}')!
-SSWODBCColAttr comment: ''!
+SSWODBCColAttr comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWODBCColAttr categoriesForClass!Unclassified! !
 !SSWODBCColAttr methodsFor!
 
 field
 
-	"25/4/2002 
-
-	field stores the SSWSQLField from a SELECT query 
+	"field stores the SSWSQLField from a SELECT query 
 	that gave rise to this column in the resut set"
 
 	^field!
 
 field: anSSWSQLField
 
-	"25/4/2002 
-
-	field stores the SSWSQLField from a SELECT query 
+	"field stores the SSWSQLField from a SELECT query 
 	that gave rise to this column in the resut set"
 
 	field := anSSWSQLField!
@@ -59,8 +57,6 @@ maxBoundBufferSize: anObject
 
 writeSQLOn: aStream
 
-	"12/5/2001"
-
 	aStream nextPutAll: self name! !
 !SSWODBCColAttr categoriesFor: #field!accessing!public! !
 !SSWODBCColAttr categoriesFor: #field:!accessing!public! !
@@ -81,5 +77,5 @@ forString: aString
 		maxBoundBufferSize: aString byteSize;
 		type: SQL_VARCHAR;
 		yourself! !
-!SSWODBCColAttr class categoriesFor: #forString:!public! !
+!SSWODBCColAttr class categoriesFor: #forString:!instance creation!public! !
 

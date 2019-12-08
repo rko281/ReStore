@@ -6,7 +6,9 @@ SSWMSAccessDialect subclass: #SSWMSAccess2013Dialect
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWMSAccess2013Dialect guid: (GUID fromString: '{94921e1d-0ad5-48be-bb40-33c3ff1e062a}')!
-SSWMSAccess2013Dialect comment: ''!
+SSWMSAccess2013Dialect comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWMSAccess2013Dialect categoriesForClass!Unclassified! !
 !SSWMSAccess2013Dialect methodsFor!
 

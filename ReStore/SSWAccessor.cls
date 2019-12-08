@@ -6,36 +6,28 @@ Object subclass: #SSWAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWAccessor guid: (GUID fromString: '{266e4dc1-398e-11d5-b1df-444553540000}')!
-SSWAccessor comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWAccessor comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWAccessor categoriesForClass!Unclassified! !
 !SSWAccessor methodsFor!
 
 access: aSymbol in: aClass
 
-	"6/8/2000
-	
-	Configure the receiver to access the inst var of aClass which is named aSymbol"
+	"Configure the receiver to access the inst var of aClass which is named aSymbol"
 	
 	self subclassResponsibility!
 
 accesses: aSymbol
 
-	"14/8/2000
-	
-	Return a Boolean indicating whether the receiver access the instance variable
+	"Return a Boolean indicating whether the receiver access the instance variable
 	named aSymbol"
 	
 	^self subclassResponsibility!
 
-isEmbedded
-
-	^false!
-
 name
 
-	"6/8/2000
-	
-	Return the name of the inst var accessed by the receiver.
+	"Return the name of the inst var accessed by the receiver.
 	Default - nil (unknown/undefined).
 	Subclasses which can interpret this concept meaningfully should override"
 	
@@ -43,9 +35,7 @@ name
 
 value: valueObject in: targetObject
 
-	"6/8/2000
-	
-	Set the attribute of targetObject which the receiver accesses to valueObject"
+	"Set the attribute of targetObject which the receiver accesses to valueObject"
 	
 	self subclassResponsibility!
 
@@ -65,14 +55,11 @@ valueIfChanged: valueObject in: targetObject
 
 valueIn: anObject
 
-	"6/8/2000
-	
-	Extract and return the value of anObject which the receiver accesses"
+	"Extract and return the value of anObject which the receiver accesses"
 	
 	^self subclassResponsibility! !
 !SSWAccessor categoriesFor: #access:in:!initializing!public! !
 !SSWAccessor categoriesFor: #accesses:!public!testing! !
-!SSWAccessor categoriesFor: #isEmbedded!public!testing! !
 !SSWAccessor categoriesFor: #name!evaluating!public! !
 !SSWAccessor categoriesFor: #value:in:!public!updating! !
 !SSWAccessor categoriesFor: #valueIfChanged:in:!public!updating! !

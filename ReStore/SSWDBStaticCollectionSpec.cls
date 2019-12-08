@@ -6,23 +6,21 @@ SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBStaticCollectionSpec guid: (GUID fromString: '{266e4dd3-398e-11d5-b1df-444553540000}')!
-SSWDBStaticCollectionSpec comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBStaticCollectionSpec comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBStaticCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBStaticCollectionSpec methodsFor!
 
 createCollectionTable
 
-	"5/10/2001
-
-	Intercept to set the Class of the target field in the collection table"
+	"Intercept to set the Class of the target field in the collection table"
 		
 	super createCollectionTable.
 
 	self targetField targetClass: self targetClass!
 
 createNonProxiedInstanceFromRow: aDBRow
-
-	"Private - 11/9/2001	Refactored from recoverCollectionForProxy to allow overriding (issue#0001)"
 
 	^(self collectionTable createNonProxiedInstanceFromRow: aDBRow)
 		table: self collectionTable;
@@ -258,9 +256,7 @@ refreshWithContentsIfUpdatedQuery
 
 selectQueryIn: anSSWReStore
 
-	"19/8/2000
-	
-	Return a Query for recovering a collection represented by the receiver from anSSWReStore"
+	"Return a Query for recovering a collection represented by the receiver from anSSWReStore"
 	
 	^self queryClass new
 		table: self collectionTable;	
@@ -268,26 +264,20 @@ selectQueryIn: anSSWReStore
 
 setTargetClass: aClass
 
-	"30/9/2001
-	
-	Double-despatch to the argument"
+	"Double-despatch to the argument"
 	
 	aClass beTargetClassOf: self!
 
 targetClass
 
-	"20/8/2000
-	
-	targetClass stores the single Class of the objects stored in the collection modelled by the receiver.
+	"targetClass stores the single Class of the objects stored in the collection modelled by the receiver.
 	This must  be a persistent class"
 	
 	^targetClass!
 
 targetClass: aClass
 
-	"20/8/2000
-	
-	targetClass stores the single Class of the objects stored in the collection modelled by the receiver.
+	"targetClass stores the single Class of the objects stored in the collection modelled by the receiver.
 	This must  be a persistent class"
 	
 	targetClass := aClass!

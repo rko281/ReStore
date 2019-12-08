@@ -1,20 +1,20 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-nil subclass: #SSWDBProxy
+ProtoObject subclass: #SSWDBProxy
 	instanceVariableNames: 'proxiedObject reStore'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBProxy guid: (GUID fromString: '{5a3e3dd8-3990-11d5-b1df-444553540000}')!
-SSWDBProxy comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBProxy comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBProxy categoriesForClass!Unclassified! !
 !SSWDBProxy methodsFor!
 
 __ensureActive
 
-	"1/10/2001
-	
-	Check if the receiver is in its reStore's current transaction. If not, add it to the transaction
+	"Check if the receiver is in its reStore's current transaction. If not, add it to the transaction
 
 	c.f. _ensureActiveIn:, which is a distinct method sent only by objects external to the proxy mechanism.
 	__ensureActive is sent internally within the proxy mechanism, 
@@ -24,15 +24,6 @@ __ensureActive
 
 	(reStore transaction includesProxy: self) ifFalse: [self _referenced]!
 
-_allReferences
-
-	"8/10/2000 
-
-	For references to the receiver, not the proxiedObject"
-
-	<primitive: 153>
-	^nil primitiveFailed!
-
 _changedObjectsIn: aReStore
 
 	^(self _checkHasChangedIn: aReStore)
@@ -41,9 +32,7 @@ _changedObjectsIn: aReStore
 
 _checkHasChanged
 
-	"20/8/2000
-
-	Return whether the receiver's proxiedObject has been changed 
+	"Return whether the receiver's proxiedObject has been changed 
 	from its representation in the database.
 
 	Compared to _hasChanged, the inferrence is that this is a 'quick test',
@@ -57,9 +46,7 @@ _checkHasChangedIn: aReStore
 
 _commitChanges
 
-	"22/10/2000
-	
-	Commit to the reStore changes to the receiver's proxiedObject.
+	"Commit to the reStore changes to the receiver's proxiedObject.
 	Return a Boolean indicating success"
 	
 	self subclassResponsibility!
@@ -84,9 +71,7 @@ _dbProxyIn: aReStore ifNone: aBlock
 
 _doesNotUnderstand: aMessage
 
-	"6/8/2000
-	
-	Forward to the proxiedObject"
+	"Forward to the proxiedObject"
 	
 	| me |
 
@@ -144,17 +129,13 @@ _forceRefreshWithContents
 
 _forgetProxiedObject
 
-	"6/8/2000
-	
-	Dispose of the reference to the receiver's proxiedObject"
+	"Dispose of the reference to the receiver's proxiedObject"
 	
 	proxiedObject := nil!
 
 _hasChanged
 
-	"20/8/2000
-
-	Return whether the receiver's proxiedObject has been changed
+	"Return whether the receiver's proxiedObject has been changed
 	from its representation in the database
 
 	Compared to _checkHasChanged, the inferrence is that if the receiver has 
@@ -165,37 +146,23 @@ _hasChanged
 
 _hasChangedFrom: anObject
 
-	"20/8/2000"
-	
 	^(self == anObject) not!
 
 _isDeleted
 
-	"21/1/2001
-	
-	Return a Boolean indicating whether the receiver is marked as deleted"
+	"Return a Boolean indicating whether the receiver is marked as deleted"
 	
 	^self subclassResponsibility!
 
-_isKindOf: aClass
-
-	"Private - 21/3/2001"
-	
-	<primitive: 57>!
-
 _isPersistent
 
-	"21/1/2001
-	
-	Return a Boolean indicating whether the receiver is persistent
+	"Return a Boolean indicating whether the receiver is persistent
 	(has been written to the database yet)"
 	
 	^self subclassResponsibility!
 
 _isRecovered
 
-	"21/1/2001"
-	
 	^proxiedObject ~~ nil!
 
 _lazyRefresh
@@ -212,154 +179,51 @@ _lazyRefreshIn: aReStore
 
 _newProxiedObject: anObject
 
-	"6/8/2000
-	
-	Set proxiedObject, but the implication is anObject is new, i.e. not yet persistent.
+	"Set proxiedObject, but the implication is anObject is new, i.e. not yet persistent.
 	Defer to _setProxiedlObject: by default; subclasses may override as necessary"
 	
 	self _setProxiedObject: anObject!
 
-_oneWayBecome: anObject
-
-	"8/10/2000 
-
-	Reimplement for proxy object destruction (development only)"
-	
-	<primitive: 154>
-	^nil primitiveFailed
-!
-
 _postCommitChanges
 
-	"24/4/2001
-
-	The receiver's changes have been successfully committed.
+	"The receiver's changes have been successfully committed.
 	Carry out any necessary internal updates"
 
 	^self!
 
 _postSwapReferences
 
-	"23/5/2001
-
-	Carry out any tidying up actions required after a _swapReferences"
+	"Carry out any tidying up actions required after a _swapReferences"
 
 	^self!
 
 _prepareToCommit
 
-	"22/10/2000
-	
-	Prepare to commit changes to the receiver's proxiedObject"
+	"Prepare to commit changes to the receiver's proxiedObject"
 	
 	self subclassResponsibility!
 
 _proxiedObject
 
-	"6/8/2000
-	
-	proxiedObject stores the actual object which the receiver is a proxy for"
+	"proxiedObject stores the actual object which the receiver is a proxy for"
 	
 	^proxiedObject!
 
 _proxiedObject: anObject
 
-	"6/8/2000
-	
-	proxiedObject stores the actual object which the receiver is a proxy for"
+	"proxiedObject stores the actual object which the receiver is a proxy for"
 	
 	proxiedObject := anObject!
 
-_proxyAt: index
-
-	"14/5/2001"
-
-	<primitive: 60>
-	^nil errorAt: index!
-
-_proxyAt: index put: value
-
-	"14/5/2001"
-
-	<primitive: 61>
-	^nil errorAt: index put: value!
-
-_proxyBasicPrintOn: aStream
-
-	"14/5/2001"
-
-	aStream
-		nextPutAll: 'a ';
-		nextPutAll: self _proxyClass name asString!
-
-_proxyBasicPrintString
-
-	"14/5/2001"
-
-	| stream |
-
-	stream := WriteStream on: (String new: 24).
-
-	self _proxyBasicPrintOn: stream.
-
-	^stream contents!
-
-_proxyBasicSize
-
-	"14/5/2001"
-
-	<primitive: 62>
-	^nil primitiveFailed!
-
-_proxyClass
-
-	"31/3/01"
-
-	<primitive: 111>
-	^nil primitiveFailed!
-
-_proxyInstVarAt: index
-
-	"14/5/2001"
-
-	<primitive: 73>
-	^index isInteger
-		ifTrue: [nil errorSubscriptBounds: index]
-		ifFalse: [Error nonIntegerIndex: index]!
-
-_proxyInstVarAt: index put: value
-
-	"14/5/2001"
-	<primitive: 74>
-
-	^index isInteger
-		ifTrue: [
-			(index between: 1 and: self _proxyClass instSize + self _proxyBasicSize)
-				ifTrue: [nil errorCantHold: value]
-				ifFalse: [nil errorSubscriptBounds: index]]
-		ifFalse: [Error nonIntegerIndex: index]
-!
-
-_proxySize
-
-	"14/5/2001"
-
-	<primitive: 62>
-	^nil primitiveFailed!
-
 _recoverProxiedObject
 
-	"6/8/2000
-	
-	Recover the receiver's proxiedObject from the database"
+	"Recover the receiver's proxiedObject from the database"
 	
 	self subclassResponsibility!
 
 _referenced
 
-	"12/5/2001
-	
-	This message is sent by clients of the receiver which access the proxiedObject directly,
+	"This message is sent by clients of the receiver which access the proxiedObject directly,
 	but wish such accesses to be notified to interested parties in the same way as a DNU send.
 
 	Carry out the same notifications as occur during the receiver's implementation of DNU"
@@ -419,25 +283,19 @@ _refreshWithContentsIfUpdated
 
 _reStore
 
-	"6/8/2000
-	
-	reStore stores the SSWReStore which owns the object for which the receiver is a proxy"
+	"reStore stores the SSWReStore which owns the object for which the receiver is a proxy"
 	
 	^reStore!
 
 _reStore: anSSWReStore
 
-	"6/8/2000
-	
-	reStore stores the SSWReStore which owns the object for which the receiver is a proxy"
+	"reStore stores the SSWReStore which owns the object for which the receiver is a proxy"
 	
 	reStore := anSSWReStore!
 
 _rollbackChanges
 
-	"20/10/2000
-	
-	Forget changes to the receiver.
+	"Forget changes to the receiver.
 	By default, this is done by forgetting about the proxiedObject (forcing a re-read)"
 	
 	self _forgetProxiedObject!
@@ -452,18 +310,14 @@ _rollbackIn: aReStore
 
 _setProxiedObject: anObject
 
-	"6/8/2000
-	
-	Set proxiedObject ONLY - no other actions.
+	"Set proxiedObject ONLY - no other actions.
 	Subclasses should NEVER override"
 	
 	proxiedObject := anObject!
 
 _swapReferences
 
-	"23/5/2001
-
-	Swap references to the receiver with references to the proxiedObject, returning the receiver.
+	"Swap references to the receiver with references to the proxiedObject, returning the receiver.
 	Subclasses should not override this method, but instead use _postSwapReferences"
 
 	| me him |
@@ -488,27 +342,9 @@ _unrecoveredProxyString
 
 _unstore
 
-	"21/1/2001
-
-	Mark the receiver in such a way that it will be deleted from the database on commit"
+	"Mark the receiver in such a way that it will be deleted from the database on commit"
 
 	self subclassResponsibility!
-
-~~ comparand
-
-	"Answer whether the <Object>, comparand,  is NOT identical to the receiver.
-	Implementation Note: This is faster than the obvious '^(self == anObject) not'
-	because of Compiler optimisation of #==."
-
-	^(self == comparand) == false!
-
-basicIdentityHash
-
-	"Answer the receiver proxy's basicIdentityHash. No need to bother the proxiedObject,
-	since this will aquire the same identityHash following _swapReferenced"
-
-	<primitive: 75>
-	^self primitiveFailed!
 
 commit
 
@@ -519,9 +355,7 @@ commit
 
 debugPrintString
 
-	"8/10/2000
-	
-	Do not fault the receiver just for a debugger"
+	"Do not fault the receiver just for a debugger"
 
 	^proxiedObject == nil
 		ifTrue: [self _unrecoveredProxyString]
@@ -547,22 +381,6 @@ doesNotUnderstand: aMessage
 
 	^aMessage value: self!
 
-error: signalerText
-	"Raise an <Error> exception reporting the error message contained in the
-	<readableString> argument, signalerText."
-
-	^Error signal: signalerText!
-
-identityHash
-
-	"8/10/2000 
-
-	Answer the receiver proxy's identity. No need to bother the proxiedObject,
-	since this will aquire the same identityHash following _swapReferenced"
-
-	<primitive: 147>
-	^self basicIdentityHash bitShift: 14!
-
 includedIn: aCollection
 
 	"Reciprocal of Collection>>includes: 
@@ -572,9 +390,7 @@ includedIn: aCollection
 
 instVarAt: anInteger
 
-	"21/1/2001
-	
-	This is a standard message which does not modify the proxiedObject.
+	"This is a standard message which does not modify the proxiedObject.
 	Hence forward without notification"	
 	
 	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
@@ -584,24 +400,11 @@ instVarAt: anInteger
 
 isDBProxy
 
-	"14/8/2000"
-	
 	^true!
-
-primitiveFailed
-	"Generate an error to the effect that a primitive has failed, including the failure code
-	specified by the primitive."
-
-	| proc |
-	proc := Processor activeProcess.
-	^self error: 'Primitive ', proc topFrame sender method printString, ' failed (', 
-					proc primitiveFailureCode displayString, ')'!
 
 printOn: aStream
 
-	"12/5/2001
-
-	For efficiency, recognise this as a non-modifying method.
+	"For efficiency, recognise this as a non-modifying method.
 	ASSERT: the proxiedObject is not modified when sent this message"
 
 	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
@@ -610,9 +413,7 @@ printOn: aStream
 
 printString
 
-	"12/5/2001
-
-	For efficiency, recognise this as a non-modifying method.
+	"For efficiency, recognise this as a non-modifying method.
 	ASSERT: the proxiedObject is not modified when sent this message"
 
 	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
@@ -638,11 +439,25 @@ softRollback
 
 	!
 
+store
+
+	"Store the receiver and its related objects.
+	Return success"
+
+	^reStore commit: self withRelatedComponents!
+
+storeIn: aReStore
+
+	"Store the receiver and its related objects.
+	Return success"
+
+	self validateReStore: aReStore.
+
+	^self store!
+
 subclassResponsibility
 
-	"22/10/2000
-	
-	Revector to a well-known object"
+	"Revector to a well-known object"
 	
 	^nil subclassResponsibility!
 
@@ -664,13 +479,10 @@ withRelatedComponents
 
 yourself
 
-	"6/8/2000
-	
-	No need to bother the proxiedObject"
+	"No need to bother the proxiedObject"
 	
 	^self! !
 !SSWDBProxy categoriesFor: #__ensureActive!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_allReferences!non forwarding!public! !
 !SSWDBProxy categoriesFor: #_changedObjectsIn:!accessing!public! !
 !SSWDBProxy categoriesFor: #_checkHasChanged!public!testing! !
 !SSWDBProxy categoriesFor: #_checkHasChangedIn:!public!testing! !
@@ -688,27 +500,16 @@ yourself
 !SSWDBProxy categoriesFor: #_hasChanged!public!testing! !
 !SSWDBProxy categoriesFor: #_hasChangedFrom:!public!testing! !
 !SSWDBProxy categoriesFor: #_isDeleted!public!testing! !
-!SSWDBProxy categoriesFor: #_isKindOf:!private!testing! !
 !SSWDBProxy categoriesFor: #_isPersistent!public!testing! !
 !SSWDBProxy categoriesFor: #_isRecovered!public!testing! !
 !SSWDBProxy categoriesFor: #_lazyRefresh!actions-refresh!public! !
 !SSWDBProxy categoriesFor: #_lazyRefreshIn:!actions-refresh!public! !
 !SSWDBProxy categoriesFor: #_newProxiedObject:!accessing!public! !
-!SSWDBProxy categoriesFor: #_oneWayBecome:!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_postSwapReferences!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_proxiedObject!accessing!public! !
 !SSWDBProxy categoriesFor: #_proxiedObject:!accessing!public! !
-!SSWDBProxy categoriesFor: #_proxyAt:!accessing:direct!public! !
-!SSWDBProxy categoriesFor: #_proxyAt:put:!accessing:direct!public! !
-!SSWDBProxy categoriesFor: #_proxyBasicPrintOn:!accessing:direct!public! !
-!SSWDBProxy categoriesFor: #_proxyBasicPrintString!accessing:direct!public! !
-!SSWDBProxy categoriesFor: #_proxyBasicSize!accessing:direct!private! !
-!SSWDBProxy categoriesFor: #_proxyClass!accessing:direct!public! !
-!SSWDBProxy categoriesFor: #_proxyInstVarAt:!accessing:direct!private! !
-!SSWDBProxy categoriesFor: #_proxyInstVarAt:put:!accessing:direct!private! !
-!SSWDBProxy categoriesFor: #_proxySize!accessing:direct!public! !
 !SSWDBProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_referenced!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_refresh!actions-refresh!public! !
@@ -725,22 +526,19 @@ yourself
 !SSWDBProxy categoriesFor: #_swapReferences!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_unrecoveredProxyString!accessing!public! !
 !SSWDBProxy categoriesFor: #_unstore!actions-internal!public! !
-!SSWDBProxy categoriesFor: #~~!non forwarding!public! !
-!SSWDBProxy categoriesFor: #basicIdentityHash!non forwarding!public! !
 !SSWDBProxy categoriesFor: #commit!actions-api!public! !
 !SSWDBProxy categoriesFor: #debugPrintString!non forwarding!public! !
 !SSWDBProxy categoriesFor: #doesNotUnderstand:!forwarding!public! !
-!SSWDBProxy categoriesFor: #error:!exceptions!public! !
-!SSWDBProxy categoriesFor: #identityHash!non forwarding!public! !
 !SSWDBProxy categoriesFor: #includedIn:!public!testing! !
 !SSWDBProxy categoriesFor: #instVarAt:!forwarding!public! !
 !SSWDBProxy categoriesFor: #isDBProxy!public!testing! !
-!SSWDBProxy categoriesFor: #primitiveFailed!exceptions!public! !
 !SSWDBProxy categoriesFor: #printOn:!forwarding!public! !
 !SSWDBProxy categoriesFor: #printString!forwarding!public! !
 !SSWDBProxy categoriesFor: #refresh!actions-api!public! !
 !SSWDBProxy categoriesFor: #rollback!actions-api!public! !
 !SSWDBProxy categoriesFor: #softRollback!actions-api!public! !
+!SSWDBProxy categoriesFor: #store!actions-api!public! !
+!SSWDBProxy categoriesFor: #storeIn:!actions-api!public! !
 !SSWDBProxy categoriesFor: #subclassResponsibility!non forwarding!public! !
 !SSWDBProxy categoriesFor: #validateReStore:!actions-internal!private! !
 !SSWDBProxy categoriesFor: #withComponents!accessing!public! !

@@ -6,7 +6,9 @@ SSWSQLDialect subclass: #SSWSQLServerDialect
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLServerDialect guid: (GUID fromString: '{520d9399-40a8-4481-bf93-615e8a4eb465}')!
-SSWSQLServerDialect comment: ''!
+SSWSQLServerDialect comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLServerDialect categoriesForClass!Unclassified! !
 !SSWSQLServerDialect methodsFor!
 
@@ -30,36 +32,60 @@ datetime
 
 datetimeWithResolution
 
-	^'DATETIME2(%1)'!
+	^'DATETIME2(<1p>)'!
+
+defaultMaxColumnNameLength
+
+	^128!
+
+defaultMaxTableNameLength
+
+	^128!
 
 dialectSpecificFunctions
 
-	^##(Dictionary new
+	^Dictionary new
 
 		"Numeric functions"
-		at: #rounded put: 'ROUND(%1,0)';
+		at: #rounded put: 'ROUND(%1,0)' asSQLFunctionIntegerResult;
 
 		"String functions"
-		at: #, put: '(%1 + %2)';
-		at: #leftString: put: 'LEFT(%1,%2)';
-		at: #rightString: put: 'RIGHT(%1,%2)';
-		at: #asciiValue put: 'ASCII(%1)';
-		at: #indexOfSubCollection: put: 'CHARINDEX(%2,%1)';
-		at: #midString:from: put: 'SUBSTRING(%1,%3,%2)';
+		at: #, put: '(%1 + %2)' asSQLFunction;
+		at: #leftString: put: 'LEFT(%1,%2)' asSQLFunction;
+		at: #rightString: put: 'RIGHT(%1,%2)' asSQLFunction;
+		at: #asciiValue put: 'ASCII(%1)' asSQLFunctionIntegerResult;
+		at: #indexOfSubCollection: put: 'CHARINDEX(%2,%1)' asSQLFunctionIntegerResult;
+		at: #midString:from: put: 'SUBSTRING(%1,%3,%2)' asSQLFunction;
 		
 		"Date functions"
-		at: #addDays: put: 'DATEADD(''d'',%2,%1)';
-		at: #addMonths: put: 'DATEADD(''m'',%2,%1)';
-		at: #addYears: put: 'DATEADD(''yyyy'',%2,%1)';
-		at: #dayOfMonth put: 'DATEPART(''d'',%1)';
-		at: #monthIndex put: 'DATEPART(''m'',%1)';
-		at: #year put: 'DATEPART(''yyyy'',%1)';
+		at: #addDays: put: 'DATEADD(''d'',%2,%1)' asSQLFunction;
+		at: #addMonths: put: 'DATEADD(''m'',%2,%1)' asSQLFunction;
+		at: #addYears: put: 'DATEADD(''yyyy'',%2,%1)' asSQLFunction;
+		at: #dayOfMonth put: 'DATEPART(''d'',%1)' asSQLFunctionIntegerResult;
+		at: #monthIndex put: 'DATEPART(''m'',%1)' asSQLFunctionIntegerResult;
+		at: #year put: 'DATEPART(''yyyy'',%1)'asSQLFunctionIntegerResult;
 
-		yourself)!
+		"Logical functions"
+		at: #ifNil: put: 'ISNULL(%1,%2)' asSQLFunction;
+		at: #ifNull: put: 'ISNULL(%1,%2)' asSQLFunction;
+
+		yourself!
 
 double
 
 	^'DOUBLE PRECISION'!
+
+identifierQuoteClose
+
+	"Square brackers are the standard for SQLServer"
+
+	^$]!
+
+identifierQuoteOpen
+
+	"Square brackers are the standard for SQLServer"
+
+	^$[!
 
 integer
 
@@ -71,11 +97,11 @@ maxCharacter
 
 renameField: oldField to: newField in: aReStore
 
-	aReStore executeSQL: ('EXEC sp_rename ''%1.%2'', ''%3'', ''COLUMN''' formatWith: newField table name with: oldField name with: newField name)!
+	aReStore executeSQL: ('EXEC sp_rename ''<1s>.<2s>'', <3p>, ''COLUMN''' expandMacrosWith: (self asIdentifier: newField table name) with: (self asIdentifier: oldField name) with: (self asIdentifier: newField name))!
 
 renameTableNamed: oldName to: newName in: anSSWReStore
 
-	anSSWReStore executeSQL: ('EXEC sp_rename ''%1'',''%2''' formatWith: oldName with: newName)!
+	anSSWReStore executeSQL: ('EXEC sp_rename <1p>,<2p>' expandMacrosWith: (self asIdentifier: oldName) with: (self asIdentifier: newName))!
 
 shouldMaskSuccessWithInfo
 
@@ -89,8 +115,12 @@ supportsImplicitTrueConditions
 !SSWSQLServerDialect categoriesFor: #cursorType!constants!public! !
 !SSWSQLServerDialect categoriesFor: #datetime!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
+!SSWSQLServerDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
+!SSWSQLServerDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
 !SSWSQLServerDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWSQLServerDialect categoriesFor: #double!datatypes!public! !
+!SSWSQLServerDialect categoriesFor: #identifierQuoteClose!constants!public! !
+!SSWSQLServerDialect categoriesFor: #identifierQuoteOpen!constants!public! !
 !SSWSQLServerDialect categoriesFor: #integer!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #maxCharacter!constants!public! !
 !SSWSQLServerDialect categoriesFor: #renameField:to:in:!maintenance!public! !

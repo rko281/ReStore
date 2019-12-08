@@ -6,23 +6,21 @@ Object subclass: #SSWSQLTableComponent
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLTableComponent guid: (GUID fromString: '{643ab7c1-5af7-11d6-87e7-0010a70883e2}')!
-SSWSQLTableComponent comment: ''!
+SSWSQLTableComponent comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWSQLTableComponent categoriesForClass!Unclassified! !
 !SSWSQLTableComponent methodsFor!
 
 table
 
-	"6/8/2000
-	
-	table stores the SQLTable to which the receiver belongs"
+	"table stores the SQLTable to which the receiver belongs"
 	
 	^table!
 
 table: anSSWDBTable
 
-	"6/8/2000
-	
-	table stores the SQLTable to which the receiver belongs"
+	"table stores the SQLTable to which the receiver belongs"
 	
 	table := anSSWDBTable! !
 !SSWSQLTableComponent categoriesFor: #table!accessing!public! !
@@ -32,8 +30,6 @@ table: anSSWDBTable
 
 forTable: anSSWDBTable
 
-	"21/1/2001"
-	
 	^self new
 		table: anSSWDBTable;
 		yourself! !

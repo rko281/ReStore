@@ -6,7 +6,9 @@ Object subclass: #SSWDBBlockParser
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBBlockParser guid: (GUID fromString: '{5a3e3dcf-3990-11d5-b1df-444553540000}')!
-SSWDBBlockParser comment: 'Copyright 2000/2001 Solutions Software Limited'!
+SSWDBBlockParser comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBBlockParser categoriesForClass!Unclassified! !
 !SSWDBBlockParser methodsFor!
 
@@ -52,20 +54,42 @@ allFields
 
 	^SSWSQLTableAllFields forTable: self argumentTable!
 
+applyFunction: aString to: aField withArguments: aCollection
+
+	"Private - Apply the given SQL function String to the given db field.
+	Return the new function field"
+
+	^self applyFunction: aString toResultOf: [aField] withArguments: aCollection!
+
+applyFunction: aString toResultOf: aBlock withArguments: aCollection
+
+	"Private - Apply the given SQL function String to the result of aBlock (likely to be a db field).
+	Ordering of extracting the receiver and arguments is important, hence deferred evaluating using aBlock.
+	Return the new function field"
+
+	| arguments |
+
+	arguments := OrderedCollection new: aCollection size.
+	aCollection reverseDo: 
+		[ :arg |
+		(arg isKindOf: SSWDBBlockEvaluator)
+			ifTrue: [arguments addFirst: arg finalField]
+			ifFalse: [arguments addFirst: arg]].
+	
+	^arguments size = aCollection size
+		ifTrue: [aBlock value withFunction: aString arguments: arguments asArray]
+		ifFalse: [self parseError: 'No Final Field found']!
+
 argumentClass
 
-	"21/3/2001
-	
-	argumentClass stores the class of object that is intended to be the single argument
+	"argumentClass stores the class of object that is intended to be the single argument
 	of a block being parsed by the receiver"
 	
 	^argumentClass!
 
 argumentClass: aClass
 
-	"21/3/2001
-	
-	argumentClass stores the class of object that is intended to be the single argument
+	"argumentClass stores the class of object that is intended to be the single argument
 	of a block being parsed by the receiver"
 	
 	argumentClass := aClass!
@@ -108,8 +132,6 @@ collectQueryFrom: aOneArgBlock
 
 copy
 
-	"27/3/2001"
-	
 	^self shallowCopy
 		qualifyingConditions: self qualifyingConditions copy;
 		qualifyingTables: self qualifyingTables copy;
@@ -139,93 +161,25 @@ deleteQueryFrom: aOneArgBlock
 
 fieldEncounters
 
-	"fieldEncounters stores an OrderedCollection of fields encountered during a parse, in the order they were encountered"
+	"fieldEncounters stores an OrderedCollection of Associations of fields -> resulting block receiver (or nil if none) encountered during a parse, in the order they were encountered"
 
 	^fieldEncounters!
 
 fieldEncounters: anOrderedCollection
 
-	"fieldEncounters stores an OrderedCollection of fields encountered during a parse, in the order they were encountered"
+	"fieldEncounters stores an OrderedCollection of fields -> resulting block receiver (or nil if none) encountered during a parse, in the order they were encountered"
 
 	fieldEncounters := anOrderedCollection!
+
+fieldEncountersWith: aField
+
+	^(self fieldEncounters select: [ :each | each key = aField]) size!
 
 groupByFields
 	^groupByFields!
 
 groupByFields: anObject
 	groupByFields := anObject!
-
-handleMustBeBooleanIn: aCondition
-
-	"Private - aCondition(Collection) has been subject to an inlined and: / or: message in a query block, resulting in a mustBeBoolean send.
-	Deduce which from the original sender's bytecodes, returning the appropriate value to ensure the argument block is evaluated (true for and:, false for or:).
-	Also update the receiver to ensure this condition is combined with the eventual result"
-
-	| senderFrame bytecodes ip bytecode length nextBytecode jumpOffset blockEndpoint temp |
-
-	senderFrame := Processor activeProcess topFrame sender sender.
-	bytecodes := senderFrame method byteCodes.
-	ip := senderFrame ip.
-	bytecode := bytecodes at: ip.
-	length := ByteCodeDispatcher lengthOfInstruction: bytecode.
-	nextBytecode := bytecodes at: ip + length.
-
-	(nextBytecode = OpcodePool.ReturnFalse or: [nextBytecode = OpcodePool.ReturnPseudo "ReturnTrue" or: [(bytecodes at: ip + 2) = OpcodePool.ReturnFromBlock "Jump+2 over Push<result>; ReturnFromBlock"]]) 
-	ifTrue: 
-		[blockEndpoint := SmallInteger maximum]
-	ifFalse: 
-		[(bytecode = OpcodePool.LongJumpIfFalse or: [bytecode = OpcodePool.LongJumpIfTrue]) 
-		ifTrue: 
-			[jumpOffset := length + (bytecodes swordAtOffset: ip)]
-		ifFalse: 
-			[(bytecode = OpcodePool.NearJumpIfFalse or: [bytecode = OpcodePool.NearJumpIfTrue]) 
-				ifTrue: [jumpOffset := length + (bytecodes sbyteAtOffset: ip)]
-				ifFalse: [jumpOffset := length + (bytecode - ##(OpcodePool.ShortJumpIfFalse - 1))]].
-		blockEndpoint := ip + jumpOffset].
-
-	self isAccumulatingConditions: true.
-
-	"First possibility - last condition within a sequence of OR tests"
-	(nextBytecode = OpcodePool.PushPseudo "PushTrue" or: [nextBytecode = OpcodePool.ReturnPseudo "ReturnTrue"]) ifTrue:
-		[self currentConditions isEmpty
-		ifTrue: 
-			[self currentConditions add: aCondition; beOR; addLast: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions: self currentConditions last]
-		ifFalse: 
-			[self currentConditions add: aCondition.
-			temp := self newConditionCollection beOR.
-			temp _add: temp "will become: currentCondiitions"; add: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions become: temp.
-			self currentConditions: self currentConditions last].
-		^false].
-
-	"Second possibility - condition within a sequence of OR tests, but not the last"
-	(bytecode = OpcodePool.NearJumpIfTrue or: [bytecode = OpcodePool.LongJumpIfTrue]) ifTrue:
-		[self currentConditions add: aCondition; beOR.
-		^false].
-
-	"and: possibilities"
-	((bytecode between: 118 and: 125 "JumpIfFalse+offsets") or: [bytecode  = OpcodePool.NearJumpIfFalse or: [bytecode = OpcodePool.LongJumpIfFalse]]) ifTrue:
-		["For and:, a PushFalse bytecode would be after the jump"
-		nextBytecode := bytecodes at: blockEndpoint.
-		(nextBytecode = ##(OpcodePool.PushPseudo+1) "PushFalse" or: [nextBytecode = OpcodePool.ReturnFalse]) ifFalse: 
-			["Condition within a sequence of and: tests but not the last"
-			self currentConditions add: aCondition; beAND. 
-			^true].
-		"Last condition in a sequence of and: tests"
-		self currentConditions isEmpty 
-		ifTrue: 
-			[self currentConditions add: aCondition; beAND; blockEndpoint: blockEndpoint; addLast: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions: self currentConditions last]
-		ifFalse: 
-			[self currentConditions add: aCondition.
-			temp := self newConditionCollection beAND.
-			temp _add: temp "will become: currentCondiitions"; add: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions become: temp.
-			self currentConditions: self currentConditions last].
-		^true].
-
-	self parseError: 'unexpected bytecodes encountered during and: / or: block parsing'!
 
 hasAccumulatedConditions
 
@@ -241,9 +195,7 @@ hasOrdering
 
 includedTables
 
-	"21/3/2001
-	
-	Return those tables included in the query generated by the receiver.
+	"Return those tables included in the query generated by the receiver.
 	This is the referencedTables, without duplicated entries"
 	
 	^self referencedTables withoutDuplicates!
@@ -260,6 +212,12 @@ isCollectingAssociations
 
 isCollectingAssociations: anObject
 	isCollectingAssociations := anObject!
+
+lastFieldEncounterFor: aBlockEvaluator
+
+	self fieldEncounters reverseDo: [ :each | each value == aBlockEvaluator ifTrue: [^each key]].
+
+	self error: 'field encounter not found'!
 
 modifyQueryFrom: aOneArgBlock
 
@@ -280,9 +238,7 @@ modifyQueryFrom: aOneArgBlock
 
 newBlockArgument
 
-	"21/3/2001
-	
-	Create and return a new SSWDBBlockArgument to parse a block with"
+	"Create and return a new SSWDBBlockArgument to parse a block with"
 	
 	^SSWDBBlockArgument new 
 		parser: self; 
@@ -318,8 +274,6 @@ newReceiverFor: aField from: aBlockEvaluator
 
 	| table occurrences |
 
-	self fieldEncounters addLast: aField.
-
 	table := self reStore tableForClass: aField targetClass.
 
 	"Check for duplicate appearances (via different links) of the same table. Alias accordingly"
@@ -338,6 +292,8 @@ newReceiverFor: aField from: aBlockEvaluator
 			currentTable: table;
 			path: (aBlockEvaluator path, (Array with: aField accessor));
 			yourself).
+
+	self fieldEncounters addLast: (Association key: aField value: self activeReceiver).
 
 	^self activeReceiver!
 
@@ -387,17 +343,13 @@ orWith: aBlockParser
 
 parse: aOneArgBlock
 
-	"Private - 14/8/2000
-	
-	Parse aOneArgBlock, returning the resulting SSWSQLConditionCollection"
+	"Parse aOneArgBlock, returning the resulting SSWSQLConditionCollection"
 
 	^(self _parse: aOneArgBlock) asSQLConditions!
 
 parseError: aString
 
-	"Private - 21/3/2001
-	
-	Raise a suitable error"
+	"Raise a suitable error"
 	
 	^self parseError: aString with: nil!
 
@@ -487,9 +439,7 @@ pushAccumulatedConditions
 
 qualifyingConditions
 
-	"27/3/01
-	
-	qualifyingConditions stores a static condition collection which is ANDed with 
+	"qualifyingConditions stores a static condition collection which is ANDed with 
 	the conditions of any query generated by the receiver (empty by default).
 	
 	This enables the receiver to be used for queries focusing on a subset of a table, 
@@ -500,9 +450,7 @@ qualifyingConditions
 
 qualifyingConditions: anSSWSQLConditionCollection
 
-	"27/3/01
-	
-	qualifyingConditions stores a static condition collection which is ANDed with 
+	"qualifyingConditions stores a static condition collection which is ANDed with 
 	the conditions of any query generated by the receiver (empty by default).
 	
 	This enables the receiver to be used for queries focusing on a subset of a table, 
@@ -513,25 +461,19 @@ qualifyingConditions: anSSWSQLConditionCollection
 
 qualifyingTables
 
-	"27/3/01
-	
-	qualifyingTables stores the tables encountered when creating qualifyingConditions"
+	"qualifyingTables stores the tables encountered when creating qualifyingConditions"
 	
 	^qualifyingTables!
 
 qualifyingTables: anSSWSQLJoinedTableCollection
 
-	"27/3/01
-	
-	qualifyingTables stores the tables encountered when creating qualifyingConditions"
+	"qualifyingTables stores the tables encountered when creating qualifyingConditions"
 	
 	qualifyingTables := anSSWSQLJoinedTableCollection!
 
 qualifyWith: aOneArgBlock
 
-	"27/3/2001
-	
-	Set the receiver's qualifyingCondition based on aOneArgBlock"
+	"Set the receiver's qualifyingCondition based on aOneArgBlock"
 
 	| parsed |
 
@@ -546,9 +488,7 @@ qualifyWith: aOneArgBlock
 
 referencedTables
 
-	"14/8/2000
-	
-	referencedTables stores the SSWDBTables that are referenced when parsing a block,
+	"referencedTables stores the SSWDBTables that are referenced when parsing a block,
 	in the order in which they were referenced, together with the joining fields 
 	(SSWJoinedTableCollection hold both together"
 	
@@ -556,9 +496,7 @@ referencedTables
 
 referencedTables: anSSWJoinedTableCollection
 
-	"14/8/2000
-	
-	referencedTables stores the SSWDBTables that are referenced when parsing a block,
+	"referencedTables stores the SSWDBTables that are referenced when parsing a block,
 	in the order in which they were referenced, together with the joining fields 
 	(SSWJoinedTableCollection hold both together"
 	
@@ -566,8 +504,6 @@ referencedTables: anSSWJoinedTableCollection
 
 rejectQueryFrom: aOneArgBlock
 
-	"23/3/2001"
-	
 	| conditions |
 	
 	self reset.
@@ -579,6 +515,10 @@ rejectQueryFrom: aOneArgBlock
 		tables: self includedTables;
 		conditions: (conditions sqlAnd: self qualifyingConditions);
 		yourself!
+
+removeFieldEncountersWith: aField
+
+	self fieldEncounters: (self fieldEncounters reject: [ :each | each key == aField])!
 
 reset
 
@@ -592,7 +532,7 @@ reset
 		groupByFields: SSWSQLFieldCollection new;
 		resetConditions;
 		accumulatedConditionsStack: OrderedCollection new;
-		fieldEncounters: self referencedTables joinFields!
+		fieldEncounters: (self referencedTables joinFields collect: [ :each | each -> nil])!
 
 resetConditions
 
@@ -603,24 +543,18 @@ resetConditions
 
 reStore
 
-	"14/8/2000
-	
-	reStore stores the SSWReStore for which the receiver parses blocks"
+	"reStore stores the SSWReStore for which the receiver parses blocks"
 	
 	^reStore!
 
 reStore: anSSWReStore
 
-	"14/8/2000
-	
-	reStore stores the SSWReStore for which the receiver parses blocks"
+	"reStore stores the SSWReStore for which the receiver parses blocks"
 	
 	reStore := anSSWReStore!
 
 selectQueryFrom: aOneArgBlock
 
-	"14/8/2000"
-	
 	| conditions |
 	
 	self reset.
@@ -637,17 +571,12 @@ sortBlock: aTwoArgBlock
 
 	| sortConditions |
 
-	[aTwoArgBlock isDefaultSortBlock
-	ifTrue: 
-		["Default <= implementation"
-		sortConditions := self parseSortBlock: [ :a :b | a <= b] ]
-	ifFalse: 
-		[sortConditions := self parseSortBlock: aTwoArgBlock]] 
-			on:	SSWDBParseError
-			do:	[ :error | 
-				error isFinalFieldError
-					ifTrue: [error resume: nil]
-					ifFalse: [error pass]].
+	sortConditions := 
+		[self parseSortBlock: aTwoArgBlock] on: SSWDBParseError do:
+			[ :error | 
+			error isFinalFieldError
+				ifTrue: [error resume: nil]
+				ifFalse: [error pass]].
 
 	"For SQL ordering we require a flat collection. Also equality conditions are ignored.
 	Thus (e.g.) 
@@ -731,6 +660,8 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 !SSWDBBlockParser categoriesFor: #activeReceiver!accessing!public! !
 !SSWDBBlockParser categoriesFor: #activeReceiver:!accessing!public! !
 !SSWDBBlockParser categoriesFor: #allFields!accessing!public! !
+!SSWDBBlockParser categoriesFor: #applyFunction:to:withArguments:!parsing - internal!private! !
+!SSWDBBlockParser categoriesFor: #applyFunction:toResultOf:withArguments:!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #argumentClass!accessing!public! !
 !SSWDBBlockParser categoriesFor: #argumentClass:!accessing!public! !
 !SSWDBBlockParser categoriesFor: #argumentTable!accessing!public! !
@@ -743,9 +674,9 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 !SSWDBBlockParser categoriesFor: #deleteQueryFrom:!parsing - api!public! !
 !SSWDBBlockParser categoriesFor: #fieldEncounters!accessing!public! !
 !SSWDBBlockParser categoriesFor: #fieldEncounters:!accessing!public! !
+!SSWDBBlockParser categoriesFor: #fieldEncountersWith:!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #groupByFields!accessing!public! !
 !SSWDBBlockParser categoriesFor: #groupByFields:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #handleMustBeBooleanIn:!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #hasAccumulatedConditions!public!testing! !
 !SSWDBBlockParser categoriesFor: #hasGrouping!public!testing! !
 !SSWDBBlockParser categoriesFor: #hasOrdering!public!testing! !
@@ -754,6 +685,7 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 !SSWDBBlockParser categoriesFor: #isAccumulatingConditions:!accessing!public! !
 !SSWDBBlockParser categoriesFor: #isCollectingAssociations!accessing!public! !
 !SSWDBBlockParser categoriesFor: #isCollectingAssociations:!accessing!public! !
+!SSWDBBlockParser categoriesFor: #lastFieldEncounterFor:!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #modifyQueryFrom:!parsing - api!public! !
 !SSWDBBlockParser categoriesFor: #newBlockArgument!evaluating!public! !
 !SSWDBBlockParser categoriesFor: #newCondition!parsing - internal!private! !
@@ -779,6 +711,7 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 !SSWDBBlockParser categoriesFor: #referencedTables!accessing!public! !
 !SSWDBBlockParser categoriesFor: #referencedTables:!accessing!public! !
 !SSWDBBlockParser categoriesFor: #rejectQueryFrom:!parsing - api!public! !
+!SSWDBBlockParser categoriesFor: #removeFieldEncountersWith:!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #reset!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #resetConditions!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #reStore!accessing!public! !
@@ -795,8 +728,6 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 
 new
 
-	"21/3/2001"
-	
 	^super new
 		qualifyingConditions: SSWSQLConditionCollection forAND;
 		qualifyingTables: SSWSQLLeftJoinedTableCollection new;
@@ -808,8 +739,6 @@ new
 
 newForReStore: anSSWReStore argumentClass: aClass
 
-	"21/3/2001"
-	
 	^self new
 		reStore: anSSWReStore;
 		argumentClass: aClass;

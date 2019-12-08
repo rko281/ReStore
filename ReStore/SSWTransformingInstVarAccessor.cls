@@ -6,33 +6,29 @@ SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWTransformingInstVarAccessor guid: (GUID fromString: '{f1bb1ea1-b74b-11d5-b1e0-444553540000}')!
-SSWTransformingInstVarAccessor comment: ''!
+SSWTransformingInstVarAccessor comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWTransformingInstVarAccessor categoriesForClass!Unclassified! !
 !SSWTransformingInstVarAccessor methodsFor!
 
 transformation
 
-	"30/9/2001
-
-	transformation stores a monadic valuable (zero-arg Message or 1-arg block)
+	"transformation stores a monadic valuable (zero-arg Message or 1-arg block)
 	which transforms the actual object held in the inst var accessed by the receiver to another object"
 
 	^transformation!
 
 transformation: aMonadicValuable
 
-	"30/9/2001
-
-	transformation stores a monadic valuable (zero-arg Message or 1-arg block)
+	"transformation stores a monadic valuable (zero-arg Message or 1-arg block)
 	which transforms the actual object held in the inst var accessed by the receiver to another object"
 
 	transformation := aMonadicValuable!
 
 valueIn: anObject
 
-	"30/9/2001
-
-	Override to apply the transformation.
+	"Override to apply the transformation.
 	Also update anObject so it is storing the transformed value"	
 
 	| origValue modValue |
@@ -50,8 +46,6 @@ valueIn: anObject
 !SSWTransformingInstVarAccessor class methodsFor!
 
 newWithTransformation: aMonadicValuable
-
-	"30/9/2001"
 
 	^self new
 		transformation: aMonadicValuable;

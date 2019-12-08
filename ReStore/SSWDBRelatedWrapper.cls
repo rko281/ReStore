@@ -6,7 +6,9 @@ SSWDBWrapper subclass: #SSWDBRelatedWrapper
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBRelatedWrapper guid: (GUID fromString: '{25844f78-1961-429a-abcb-613bf3af8389}')!
-SSWDBRelatedWrapper comment: ''!
+SSWDBRelatedWrapper comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWDBRelatedWrapper categoriesForClass!Unclassified! !
 !SSWDBRelatedWrapper methodsFor!
 

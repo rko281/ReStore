@@ -6,7 +6,9 @@ Dialog subclass: #TransactionalDialog
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 TransactionalDialog guid: (GUID fromString: '{638997a1-59d7-11d5-b1df-0010a70883e2}')!
-TransactionalDialog comment: 'Copyright 2000/2001 Solutions Software Limited'!
+TransactionalDialog comment: 'ReStore
+©2019 John Aspinall
+https://github.com/rko281/ReStore'!
 !TransactionalDialog categoriesForClass!Unclassified! !
 !TransactionalDialog methodsFor!
 
