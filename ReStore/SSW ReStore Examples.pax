@@ -52,7 +52,7 @@ Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | or
 "Tidy up"
 ReStore 
 	destroyAllClasses;
-	disconnect''.
+	disconnect'.
 
 
 package classNames
