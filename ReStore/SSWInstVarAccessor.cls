@@ -35,6 +35,10 @@ accesses: aSymbol
 
 	^self name = aSymbol!
 
+accessesDeeply: aSymbol
+
+	^false!
+
 copyValueIn: sourceObject to: targetObject
 
 	"targetObject is a shallow copy of sourceObject.Perform any additional copying necessary.
@@ -98,6 +102,7 @@ valueIn: targetObject
 !SSWInstVarAccessor categoriesFor: #=!public!testing! !
 !SSWInstVarAccessor categoriesFor: #access:in:!initializing!public! !
 !SSWInstVarAccessor categoriesFor: #accesses:!public!testing! !
+!SSWInstVarAccessor categoriesFor: #accessesDeeply:!public!testing! !
 !SSWInstVarAccessor categoriesFor: #copyValueIn:to:!evaluating!private! !
 !SSWInstVarAccessor categoriesFor: #hash!public!testing! !
 !SSWInstVarAccessor categoriesFor: #name!accessing!public! !

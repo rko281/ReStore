@@ -304,12 +304,12 @@ preProcessNextMessageFor: anObject in: aStackFrame
 	"Collection>>includes: -> self>>includedIn:"
 	(nextMessage = #includes: and: [(anObject isKindOf: SSWDBCollectionBlockReceiver) not]) ifTrue: 
 		[aStackFrame ip: dispatcher ip.
-		^anObject includedIn: (aStackFrame process at: aStackFrame sp)].
+		^aStackFrame process at: aStackFrame sp put: (anObject includedIn: (aStackFrame process at: aStackFrame sp))].
 	
 	"String>>match: -> self>>matches:"
 	nextMessage = #match: ifTrue: 
 		[aStackFrame ip: dispatcher ip.
-		^anObject matches: (aStackFrame process at: aStackFrame sp)].
+		^aStackFrame process at: aStackFrame sp put: (anObject matches: (aStackFrame process at: aStackFrame sp))].
 
 	"No special handling"
 	^anObject!

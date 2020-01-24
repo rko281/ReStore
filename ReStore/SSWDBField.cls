@@ -85,6 +85,10 @@ isFieldCollection
 
 	^false!
 
+isInlined
+
+	^self accessor isInlined!
+
 isRelated
 
 	"isRelated indicates whether the receiver field represents an object which is related to the owning/source object such that it will be commited/rolled-back with that object when withRelatedComponents is used"
@@ -184,6 +188,7 @@ writeSQLOn: aStream
 !SSWDBField categoriesFor: #isAll!public!testing! !
 !SSWDBField categoriesFor: #isDependent!public!testing! !
 !SSWDBField categoriesFor: #isFieldCollection!public!testing! !
+!SSWDBField categoriesFor: #isInlined!public!testing! !
 !SSWDBField categoriesFor: #isRelated!public!testing! !
 !SSWDBField categoriesFor: #name!accessing!public! !
 !SSWDBField categoriesFor: #name:!accessing!public! !

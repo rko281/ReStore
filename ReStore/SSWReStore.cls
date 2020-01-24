@@ -1859,7 +1859,7 @@ initialize
 
 initializeReStoreGlobal
 
-	Smalltalk at: #ReStore put: self globalDefault!
+	self class environment at: #ReStore put: self globalDefault!
 
 new
 

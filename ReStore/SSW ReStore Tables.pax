@@ -16,6 +16,7 @@ package classNames
 	add: #SSWDBFunctionField;
 	add: #SSWDBIDAccessor;
 	add: #SSWDBInheritedTable;
+	add: #SSWDBInlinedClass;
 	add: #SSWDBIntermediateTable;
 	add: #SSWDBNonParameterizedStaticField;
 	add: #SSWDBPrivateAccessor;
@@ -30,18 +31,22 @@ package classNames
 	add: #SSWDBTableComponent;
 	add: #SSWDBUnrelatedWrapper;
 	add: #SSWDBVersionAccessor;
+	add: #SSWFieldInliner;
+	add: #SSWInlinedInstVarAccessor;
 	add: #SSWInstVarAccessor;
 	add: #SSWTransformingInstVarAccessor;
 	yourself.
 
 package methodNames
 	add: #Class -> #defineAs:in:;
+	add: #Class -> #inlined;
 	add: #Object -> #convertValue:;
 	add: #Object -> #dependent;
 	add: #Object -> #related;
 	add: #Object -> #targetClass;
 	add: #Object -> #unrelated;
 	add: #SSWDBClassWithInfo -> #defineAs:in:;
+	add: #SSWDBClassWithInfo -> #shouldInlinePersistency;
 	add: #SSWSQLCondition -> #copyForQueryTable:;
 	add: #SSWSQLConditionCollection -> #copyForQueryTable:;
 	add: #SSWSQLDialect -> #instVarAccessorFor:;
@@ -57,6 +62,7 @@ package methodNames
 	add: 'Object class' -> #reStoreDefinition;
 	add: 'Object class' -> #reStoreTableClass;
 	add: 'Object class' -> #shouldInheritPersistency;
+	add: 'Object class' -> #shouldInlinePersistency;
 	add: 'Object class' -> #shouldSubclassesInheritPersistency;
 	add: 'Object class' -> #subclassesInheritingPersistency;
 	add: 'Object class' -> #tableIn:;
@@ -98,6 +104,11 @@ Object subclass: #SSWDBQueryTable
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+Object subclass: #SSWFieldInliner
+	instanceVariableNames: 'table instanceClass inlinedName inlinedSlot inlinedClass fields'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWAccessor subclass: #SSWDBPrivateAccessor
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -123,8 +134,18 @@ SSWDBPrivateAccessor subclass: #SSWDBVersionAccessor
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWInstVarAccessor subclass: #SSWInlinedInstVarAccessor
+	instanceVariableNames: 'inlinedAccessor inlinedClass'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
 	instanceVariableNames: 'transformation'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBClassWithInfo subclass: #SSWDBInlinedClass
+	instanceVariableNames: 'inlinedClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -218,8 +239,15 @@ defineAs: aSymbol in: anSSWDBTable
 
 	Add the receiver to anSSWDBTable returning the object created"
 
-	^anSSWDBTable define: aSymbol asInstVarHolding: self! !
+	^anSSWDBTable define: aSymbol asInstVarHolding: self!
+
+inlined
+
+	^SSWDBInlinedClass new
+		inlinedClass: self;
+		yourself! !
 !Class categoriesFor: #defineAs:in:!accessing!public! !
+!Class categoriesFor: #inlined!accessing!public! !
 
 !Object methodsFor!
 
@@ -336,6 +364,12 @@ shouldInheritPersistency
 
 	^self superclass ~= nil and: [self superclass shouldSubclassesInheritPersistency]!
 
+shouldInlinePersistency
+
+	"Return whether this class should always be inlined when referenced from another class's reStoreDefinition"
+
+	^false!
+
 shouldSubclassesInheritPersistency
 
 	"Return a Boolean indicating whether the receiver class' persistency 
@@ -379,6 +413,7 @@ tableIn: anSSWReStore
 !Object class categoriesFor: #reStoreDefinition!persistency!public! !
 !Object class categoriesFor: #reStoreTableClass!persistency!public! !
 !Object class categoriesFor: #shouldInheritPersistency!persistency!public! !
+!Object class categoriesFor: #shouldInlinePersistency!persistency!public! !
 !Object class categoriesFor: #shouldSubclassesInheritPersistency!persistency!public! !
 !Object class categoriesFor: #subclassesInheritingPersistency!persistency!public! !
 !Object class categoriesFor: #tableIn:!persistency!public! !
@@ -393,8 +428,13 @@ defineAs: aSymbol in: anSSWDBTable
 	Add the receiver to anSSWDBTable returning the object created
 	(the receiver is polymorphic with classes)"
 
-	^anSSWDBTable define: aSymbol asInstVarHolding: self! !
+	^anSSWDBTable define: aSymbol asInstVarHolding: self!
+
+shouldInlinePersistency
+
+	^false! !
 !SSWDBClassWithInfo categoriesFor: #defineAs:in:!defining!public! !
+!SSWDBClassWithInfo categoriesFor: #shouldInlinePersistency!public!testing! !
 
 !SSWSQLCondition methodsFor!
 

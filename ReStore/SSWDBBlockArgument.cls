@@ -41,9 +41,13 @@ _doesNotUnderstand: aMessage
 				ifNil: [self simulateMessageSend: aMessage]
 				ifNotNil: [ :collection | self newCollectionReceiverFor: collection]]
 		ifFalse: 
-			[(field targetClass isPersistentIn: self reStore)
-				ifTrue: [self newReceiverFor: field]
-				ifFalse: [self finalField: (self queryFieldFor: field)]]]
+			[field isInlined "Need explicit check for inlined fields"
+			ifTrue: 
+				[self newInlinedReceiverFor: selector] 
+			ifFalse: 
+				[(field targetClass isPersistentIn: self reStore)
+					ifTrue: [self newReceiverFor: field]
+					ifFalse: [self finalField: (self queryFieldFor: field)]]]]
 	ifFalse:
 		[arguments size > 1 ifTrue: [self parseError: 'Cannot support more than one comparison argument'].
 		(self hasFinalField not and: [self currentClass isPersistentBaseClass not and: [arguments last == SSWDBDumbArgument current]]) ifTrue: 
@@ -304,6 +308,14 @@ newCollectionReceiverFor: aCollectionSpec
 		parser: self parser;
 		yourself!
 
+newInlinedReceiverFor: aSymbol
+
+	^SSWDBInlinedBlockReceiver new
+		parser: self parser;
+		currentClass: self currentClass;
+		inlinedInstVar: aSymbol;
+		yourself!
+
 newReceiverFor: aField
 
 	"Create and return a new SSWDBBlockReceiver to receive (and parse) messages for the class of object which is referenced by aField"
@@ -453,6 +465,7 @@ writeSQLOn: aStream
 !SSWDBBlockArgument categoriesFor: #matches:!parsing - comparisons!public! !
 !SSWDBBlockArgument categoriesFor: #mustBeBoolean!parsing - implicit true!public! !
 !SSWDBBlockArgument categoriesFor: #newCollectionReceiverFor:!helpers!public! !
+!SSWDBBlockArgument categoriesFor: #newInlinedReceiverFor:!helpers!public! !
 !SSWDBBlockArgument categoriesFor: #newReceiverFor:!helpers!public! !
 !SSWDBBlockArgument categoriesFor: #not!parsing - implicit true!public! !
 !SSWDBBlockArgument categoriesFor: #parseError:!parsing - internal!public! !

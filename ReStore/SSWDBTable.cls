@@ -311,7 +311,28 @@ define: aSymbol asInstVarHolding: aClass
 
 	"Return the field created"
 	
-	^self define: aSymbol asFieldNamed: (self dbNameFor: aSymbol) holding: aClass!
+	^aClass shouldInlinePersistency
+		ifTrue: [self define: aSymbol asInstVarHoldingInlined: aClass]
+		ifFalse: [self define: aSymbol asFieldNamed: (self dbNameFor: aSymbol) holding: aClass]!
+
+define: aSymbol asInstVarHoldingInlined: aClass
+
+	| inliner |
+
+	inliner := SSWFieldInliner new.
+	inliner 
+		table: self;
+		instanceClass: self instanceClass;
+		inlinedName: aSymbol;
+		inlinedSlot: (self instanceClass allInstVarNames indexOf: aSymbol asString);
+		inlinedClass: aClass.
+
+	inliner inlinedSlot < 1 ifTrue: [self error: ('Undefined instance variable ', aSymbol)].
+
+	aClass reStoreDefinition addDefinitionToTable: inliner.
+
+	"To satisfy protocol of returning field created"
+	^inliner fields first!
 
 defineAsID: aSymbol
 
@@ -906,6 +927,7 @@ writeSQLDefinitionOn: aStream
 !SSWDBTable categoriesFor: #define:asCollectionSpec:!defining!private! !
 !SSWDBTable categoriesFor: #define:asFieldNamed:holding:!defining!private! !
 !SSWDBTable categoriesFor: #define:asInstVarHolding:!defining!private! !
+!SSWDBTable categoriesFor: #define:asInstVarHoldingInlined:!defining!private! !
 !SSWDBTable categoriesFor: #defineAsID:!defining!public! !
 !SSWDBTable categoriesFor: #defineAsID:fieldName:!defining!public! !
 !SSWDBTable categoriesFor: #defineDefaultIDField!defining!private! !

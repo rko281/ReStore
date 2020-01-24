@@ -25,6 +25,10 @@ accesses: aSymbol
 	
 	^self subclassResponsibility!
 
+isInlined
+
+	^false!
+
 name
 
 	"Return the name of the inst var accessed by the receiver.
@@ -60,6 +64,7 @@ valueIn: anObject
 	^self subclassResponsibility! !
 !SSWAccessor categoriesFor: #access:in:!initializing!public! !
 !SSWAccessor categoriesFor: #accesses:!public!testing! !
+!SSWAccessor categoriesFor: #isInlined!public!testing! !
 !SSWAccessor categoriesFor: #name!evaluating!public! !
 !SSWAccessor categoriesFor: #value:in:!public!updating! !
 !SSWAccessor categoriesFor: #valueIfChanged:in:!public!updating! !
