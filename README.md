@@ -138,14 +138,12 @@ johnSmith
 	    	(CustomerOrderItem new
 			product: widget;
 			quantity: 4;
-			yourself)
+			yourself);
             yourself);
     store.
 
 "Check it:"
-Customer storedInstances detect: [ :each | each orders isEmpty not].
 Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | order totalPrice = 10]].
-Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | order items anySatisfy: [ :item | item product = widget and: [item quantity = 4]]]].
 ```
 
 # Next Steps
