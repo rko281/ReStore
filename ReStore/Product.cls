@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #Product
-	instanceVariableNames: 'name description'
+	instanceVariableNames: 'name description price'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -28,6 +28,12 @@ name
 name: anObject
 	name := anObject!
 
+price
+	^price!
+
+price: anObject
+	price := anObject!
+
 printOn: aStream
 	"Answer the name of the receiver as a developer would wish to see it ."
 
@@ -40,6 +46,8 @@ printOn: aStream
 !Product categoriesFor: #displayOn:!printing!public! !
 !Product categoriesFor: #name!accessing!private! !
 !Product categoriesFor: #name:!accessing!private! !
+!Product categoriesFor: #price!accessing!private! !
+!Product categoriesFor: #price:!accessing!private! !
 !Product categoriesFor: #printOn:!printing!public! !
 
 !Product class methodsFor!
@@ -49,6 +57,7 @@ reStoreDefinition
 	^super reStoreDefinition
 		define: #name as: (String maxSize: 100);
 		define: #description as: String;
+		define: #price as: (ScaledDecimal withPrecision: 8 scale: 2);
 		yourself.! !
 !Product class categoriesFor: #reStoreDefinition!public! !
 

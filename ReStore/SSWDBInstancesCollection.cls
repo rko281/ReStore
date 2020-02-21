@@ -139,6 +139,30 @@ first: anInteger
 
 	^collection!
 
+include: aSymbol
+
+	"Arrange for the content of the inst var named aSymbol to be bulk fetched when elements of the receiver are read from the database"
+
+	self includeAll: (Array with: aSymbol)!
+
+includeAll: aCollectionOfInstVarNames
+
+	"Arrange for the contents of aCollectionOfInstVarNames (representing components of the receiver) to be bulk fetched when elements of the receiver are read from the database"
+
+	self includeTableComponents: (aCollectionOfInstVarNames collect: [ :instVarName | self table componentAccessing: instVarName])!
+
+includeDependentComponents
+
+	"Arrange for dependent contents to be bulk pre-fetched when elements of the receiver are read from the database"
+
+	self includeTableComponents: self table dependentComponents!
+
+includeRelatedComponents
+
+	"Arrange for related contents to be bulk pre-fetched when elements of the receiver are read from the database"
+
+	self includeTableComponents: self table relatedComponents!
+
 includes: anObject
 
 	| id |
@@ -146,6 +170,14 @@ includes: anObject
 	id := (anObject _dbProxyIfNone: [^false]) _id.
 
 	^(self detect: [ :each | each _id = id] ifNone: [nil]) == anObject!
+
+includeTableComponents: aCollectionOfTableComponents
+
+	"Private - Arrange for the contents of aCollectionOfTableComponents to be bulk fetched when elements of the receiver are read from the database"
+
+	aCollectionOfTableComponents do: 
+		[ :component | 
+		self postReadActions add: [ :elements | component readAllFor: elements]]!
 
 instancesClass
 
@@ -440,21 +472,18 @@ unstoreAll
 
 withComponent: aSymbol
 
-	"Arrange for the content of the inst var named aSymbol to be bulk fetched when elements of the receiver are read from the database"
-
-	self withComponents: (Array with: aSymbol)!
+	#deprecated.
+	self include: aSymbol!
 
 withComponents: aCollectionOfInstVarNames
 
-	"Arrange for the contents of aCollectionOfInstVarNames (representing components of the receiver) to be bulk fetched when elements of the receiver are read from the database"
-
-	self withTableComponents: (aCollectionOfInstVarNames collect: [ :instVarName | self table componentAccessing: instVarName])!
+	#deprecated.
+	self includeAll: aCollectionOfInstVarNames!
 
 withDependentComponents
 
-	"Arrange for dependent contents to be bulk pre-fetched when elements of the receiver are read from the database"
-
-	self withTableComponents: self table dependentComponents!
+	#deprecated.
+	self includeDependentComponents!
 
 withoutInheritance
 
@@ -467,17 +496,8 @@ withoutInheritance
 
 withRelatedComponents
 
-	"Arrange for related contents to be bulk pre-fetched when elements of the receiver are read from the database"
-
-	self withTableComponents: self table relatedComponents!
-
-withTableComponents: aCollectionOfTableComponents
-
-	"Private - Arrange for the contents of aCollectionOfTableComponents to be bulk fetched when elements of the receiver are read from the database"
-
-	aCollectionOfTableComponents do: 
-		[ :component | 
-		self postReadActions add: [ :elements | component readAllFor: elements]]! !
+	#deprecated.
+	self includeRelatedComponents! !
 !SSWDBInstancesCollection categoriesFor: #addAll:!actions!public! !
 !SSWDBInstancesCollection categoriesFor: #allSatisfy:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #anySatisfy:!enumerating!public! !
@@ -496,7 +516,12 @@ withTableComponents: aCollectionOfTableComponents
 !SSWDBInstancesCollection categoriesFor: #fetchObjectsWithQuery:into:!helpers!private! !
 !SSWDBInstancesCollection categoriesFor: #first!evaluating!public! !
 !SSWDBInstancesCollection categoriesFor: #first:!evaluating!public! !
+!SSWDBInstancesCollection categoriesFor: #include:!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #includeAll:!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #includeDependentComponents!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #includeRelatedComponents!initializing!public! !
 !SSWDBInstancesCollection categoriesFor: #includes:!public!testing! !
+!SSWDBInstancesCollection categoriesFor: #includeTableComponents:!initializing!private! !
 !SSWDBInstancesCollection categoriesFor: #instancesClass!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #instancesClass:!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #isEmpty!public!testing! !
@@ -534,7 +559,6 @@ withTableComponents: aCollectionOfTableComponents
 !SSWDBInstancesCollection categoriesFor: #withDependentComponents!initializing!public! !
 !SSWDBInstancesCollection categoriesFor: #withoutInheritance!evaluating!public! !
 !SSWDBInstancesCollection categoriesFor: #withRelatedComponents!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #withTableComponents:!initializing!private! !
 
 !SSWDBInstancesCollection class methodsFor!
 

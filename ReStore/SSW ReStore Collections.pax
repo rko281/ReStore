@@ -35,7 +35,7 @@ package methodNames
 	add: #Collection -> #_changesFrom:;
 	add: #Collection -> #_collectionAdditions;
 	add: #Collection -> #_dbAdd:;
-	add: #Collection -> #_fetchComponents:;
+	add: #Collection -> #_fetchAll:;
 	add: #Collection -> #_keyedChangesFrom:;
 	add: #Collection -> #_keyedCollectionAdditions;
 	add: #Collection -> #_keyRemovalsIn:;
@@ -44,6 +44,8 @@ package methodNames
 	add: #Collection -> #_valuesRemovedBy:;
 	add: #Collection -> #directAdd:;
 	add: #Collection -> #directAdd:suggestedIndex:;
+	add: #Collection -> #fetch:;
+	add: #Collection -> #fetchAll:;
 	add: #Collection -> #fetchComponent:;
 	add: #Collection -> #fetchComponents:;
 	add: #Collection -> #isOrdered;
@@ -285,7 +287,7 @@ _dbAdd: anObject
 
 	^self add: anObject!
 
-_fetchComponents: aCollection
+_fetchAll: aCollection
 
 	"Private - ReStore - for each element of the receiver, use a single query (ideally, or multiple batched queries if the receiver's size is too large for the readAll batch size)
 	to fetch from the database the components in the inst vars named in aCollection"
@@ -408,19 +410,29 @@ directAdd: anObject suggestedIndex: anInteger
 
 	^self directAdd: anObject!
 
-fetchComponent: aSymbol
+fetch: aSymbol
 
 	"ReStore - for each element of the receiver, use a single query (ideally, or multiple batched queries if the receiver's size is too large for the readAll batch size)
 	to fetch from the database the component in the inst var named aSymbol"
 
-	^self fetchComponents: (Array with: aSymbol)!
+	^self fetchAll: (Array with: aSymbol)!
 
-fetchComponents: aCollection
+fetchAll: aCollection
 
 	"ReStore - for each element of the receiver, use a single query (ideally, or multiple batched queries if the receiver's size is too large for the readAll batch size)
 	to fetch from the database the components in the inst vars named in aCollection"
 
-	^(self select: [ :each | each _isRecovered]) _fetchComponents: aCollection!
+	^(self select: [ :each | each _isRecovered]) _fetchAll: aCollection!
+
+fetchComponent: aSymbol
+
+	#deprecated.
+	^self fetch: aSymbol!
+
+fetchComponents: aCollection
+
+	#deprecated.
+	^self fetchAll: aCollection!
 
 isOrdered
 
@@ -501,7 +513,7 @@ staticCollectionSpecClass
 !Collection categoriesFor: #_changesFrom:!private!restore-internal! !
 !Collection categoriesFor: #_collectionAdditions!private!restore-internal! !
 !Collection categoriesFor: #_dbAdd:!private!restore-internal! !
-!Collection categoriesFor: #_fetchComponents:!private!restore-internal! !
+!Collection categoriesFor: #_fetchAll:!private!restore-internal! !
 !Collection categoriesFor: #_keyedChangesFrom:!private!restore-internal! !
 !Collection categoriesFor: #_keyedCollectionAdditions!private!restore-internal! !
 !Collection categoriesFor: #_keyRemovalsIn:!private!restore-internal! !
@@ -510,6 +522,8 @@ staticCollectionSpecClass
 !Collection categoriesFor: #_valuesRemovedBy:!private!restore-internal! !
 !Collection categoriesFor: #directAdd:!adding!private! !
 !Collection categoriesFor: #directAdd:suggestedIndex:!adding!private! !
+!Collection categoriesFor: #fetch:!converting!public! !
+!Collection categoriesFor: #fetchAll:!converting!public! !
 !Collection categoriesFor: #fetchComponent:!converting!public! !
 !Collection categoriesFor: #fetchComponents:!converting!public! !
 !Collection categoriesFor: #isOrdered!public!testing! !

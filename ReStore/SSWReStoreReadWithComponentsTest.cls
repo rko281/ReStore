@@ -41,7 +41,7 @@ _testProxyCollectionTiming
 
 	time2 :=Time millisecondsToRun: [10 timesRepeat: [
 	reStore clearProxyCache.
-	(customers withComponents: #(#orders)) asOrderedCollection collect: [ :e | e -> e orders size]]].
+	(customers include: #orders) asOrderedCollection collect: [ :e | e -> e orders size]]].
 
 	(time1 -> time2) inspect!
 
@@ -55,7 +55,7 @@ _testProxySingleObjectTiming
 
 	time2 :=Time millisecondsToRun: [10 timesRepeat: [
 	reStore clearProxyCache.
-	(customers withComponents: #(#test)) asOrderedCollection collect: [ :e | e -> e test name]]].
+	(customers include: #test) asOrderedCollection collect: [ :e | e -> e test name]]].
 
 	(time1 -> time2) inspect!
 
@@ -126,7 +126,7 @@ testCollection
 
 	"Fetching allCustomers' orders should take sufficient batched readAll queries for the current batch size to cover all customers"
 	self resetQueryCount.
-	allCustomers fetchComponents: #(#orders).
+	allCustomers fetch: #orders.
 	self assert: (self queryCount = ((allCustomers size / reStore readAllBatchSize) ceiling)).
 
 	"Recover all products and reset the count"
@@ -166,7 +166,7 @@ testEmptyCollection
 
 	noCustomers := customers select: [ :each | each firstName = 'Shadrack'].
 
-	self shouldnt: [noCustomers fetchComponent: #orders] raise: Error!
+	self shouldnt: [noCustomers fetch: #orders] raise: Error!
 
 testProxyCollection
 
@@ -174,7 +174,7 @@ testProxyCollection
 
 	"Reading all customers with their orders should only take 1 query for the customers themselves, plus sufficient batched readAll queries for the current batch size to cover all customers"
 	self resetQueryCount.
-	allCustomers := (customers withComponents: #(#orders)) asOrderedCollection.
+	allCustomers := (customers include: #orders) asOrderedCollection.
 	self assert: (self queryCount = (1 + (allCustomers size / reStore readAllBatchSize) ceiling)).
 
 	"Recover all products and reset the count"
@@ -213,12 +213,12 @@ testProxyCollectionMultipleRead
 	| allCustomers |
 
 	"Read and touch the orders"
-	allCustomers := (customers withComponent: #orders) asOrderedCollection.
+	allCustomers := (customers include: #orders) asOrderedCollection.
 	allCustomers do: [ :each | each orders size].
 
 	"Reading again should only take one query for the collection itself"
 	self resetQueryCount.
-	allCustomers := (customers withComponent: #orders) asOrderedCollection.
+	allCustomers := (customers include: #orders) asOrderedCollection.
 	self assert: (self queryCount = 1).
 
 	"Recover all products and reset the count"
@@ -256,7 +256,7 @@ testProxySingleObject
 
 	"Reading all customers with their associated test objects should only take 1 query for the customers themselves, plus sufficient batched readAll queries for the current batch size to cover all customers"
 	self resetQueryCount.
-	allCustomers := (customers withComponents: #(#test)) asOrderedCollection.
+	allCustomers := (customers include: #test) asOrderedCollection.
 	self assert: (self queryCount = (1 + ((allCustomers size - 4 "customers1-4 do not have a test inst var") / reStore readAllBatchSize) ceiling)).
 	self resetQueryCount.
 
@@ -276,12 +276,12 @@ testProxySingleObjectMultipleRead
 
 	| allCustomers |
 
-	allCustomers := (customers withComponent: #test) asOrderedCollection.
+	allCustomers := (customers include: #test) asOrderedCollection.
 	allCustomers do: [ :each | each test _touch].
 
 	"Reading again should only take one query for the collection since all tests are already recovered and touched"
 	self resetQueryCount.
-	allCustomers := (customers withComponent: #test) asOrderedCollection.
+	allCustomers := (customers include: #test) asOrderedCollection.
 	self assert: (self queryCount = 1).
 
 	self assert: (allCustomers size = (self otherCustomersSize + 4)).
@@ -308,13 +308,13 @@ testRefreshCollection
 	"Update directly in database"
 	reStore executeSQLAsTxn: {('update <1s> set quantity = quantity * 10 where id_ = <2p>' expandMacrosWith: (reStore tableForClass: testOrder class) name with: testOrder _id)}.
 
-	"fetchComponents: will miss the update since testOrder already exists in the image and has been viewed/touched"
-	allCustomers fetchComponent: #orders.
+	"fetch: will miss the update since testOrder already exists in the image and has been viewed/touched"
+	allCustomers fetch: #orders.
 	self assert: testOrder quantity = originalQuantity.
 
 	"Following a soft rollback however we should pick it up"
 	reStore softRollback.
-	allCustomers fetchComponent: #orders.
+	allCustomers fetch: #orders.
 	self assert: testOrder quantity = (originalQuantity * 10)!
 
 testRefreshProxyCollection
@@ -345,7 +345,7 @@ testRefreshProxyCollection
 	self assert: testOrder quantity = originalQuantity.
 
 	"asOrderedCollection with the #orders component will now also refresh testOrder"
-	(customers withComponent: #orders) asOrderedCollection.
+	(customers include: #orders) asOrderedCollection.
 	self assert: testCustomer surname = newName.
 	self assert: testOrder quantity = (originalQuantity * 10)!
 
@@ -363,12 +363,12 @@ testRefreshSingleObject
 	reStore executeSQLAsTxn: {('update <1s> set name = <3p> where id_ = <2p>' expandMacrosWith: (reStore tableForClass: test class) name with: test _id with: newName)}.
 
 	"fetchComponents: will miss the update since testOrder already exists in the image and has been viewed/touched"
-	allCustomers fetchComponent: #test.
+	allCustomers fetch: #test.
 	self assert: test name = originalName.
 
 	"Following a soft rollback however we should pick it up"
 	reStore softRollback.
-	allCustomers fetchComponent: #test.
+	allCustomers fetch: #test.
 	self assert: test name = newName! !
 !SSWReStoreReadWithComponentsTest categoriesFor: #_testCollection!public!unit tests! !
 !SSWReStoreReadWithComponentsTest categoriesFor: #_testProxyCollectionTiming!public!unit tests! !

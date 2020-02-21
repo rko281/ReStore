@@ -100,8 +100,8 @@ reStoreDefinition
 		define: #emailAddress as: (String maxSize: 100);
 		define: #dateOfBirth as: Date;
 		define: #address as: Address dependent;
-		define: #orders as: (OrderedCollection of: Order dependent owner: #customer);
-		yourself.! !
+		define: #orders as: (OrderedCollection of: CustomerOrder dependent owner: #customer);
+		yourself! !
 !Customer class categoriesFor: #new!instance creation!public! !
 !Customer class categoriesFor: #reStoreDefinition!persistency!public! !
 
