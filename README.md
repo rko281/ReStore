@@ -31,12 +31,15 @@ Object subclass: #Customer
 
 Object subclass: #Address
 	instanceVariableNames: 'line1 postcode country'
-
-Object subclass: #Order
-	instanceVariableNames: 'date product quantity customer'
+	
+Object subclass: #CustomerOrder
+	instanceVariableNames: 'orderDate customer items totalPrice'
+	
+Object subclass: #CustomerOrderItem
+	instanceVariableNames: 'order product quantity'
     
 Object subclass: #Product
-	instanceVariableNames: 'name description'
+	instanceVariableNames: 'name description price'
 ```
 
 The first step in adding persistency with ReStore is to define the structure of the classes. This is done with the class method reStoreDefinition - for the Customer class this is:
@@ -50,7 +53,7 @@ reStoreDefinition
 		define: #emailAddress as: (String maxSize: 100);
 		define: #dateOfBirth as: Date;
 		define: #address as: Address dependent;
-		define: #orders as: (OrderedCollection of: Order dependent owner: #customer);
+		define: #orders as: (OrderedCollection of: CustomerOrder dependent owner: #customer);
 		yourself.
 ```
 
@@ -65,7 +68,7 @@ With ReStore definitions created for all classes we can now connect to the datab
 ReStore	
 	dsn: 'ReStoreExamples';
 	connect;
-	addClasses: {Customer. Address. Order. Product};
+	addClasses: {Customer. Address. CustomerOrder. CustomerOrderItem. Product};
 	synchronizeAllClasses.
 ```
 
@@ -125,19 +128,24 @@ johnSmith store.
 Customer storedInstances detect: [ :each | each address postcode = 'W1 1AA'].
 
 "Creating an Order - first we need a product"
-widget := Product new name: 'Widget'; store.
+widget := Product new name: 'Widget'; price: 2.5s2; store; yourself.
 
 johnSmith 
     addOrder: 
-        (Order new 
-            date: Date today;
-            product: widget;
-            quantity: 4;
+        (CustomerOrder new 
+            orderDate: Date today;
+            addItem: 
+	    	(CustomerOrderItem new
+			product: widget;
+			quantity: 4;
+			yourself)
             yourself);
     store.
-    
+
 "Check it:"
-Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | (order product = widget) & (order quantity = 4)]].
+Customer storedInstances detect: [ :each | each orders isEmpty not].
+Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | order totalPrice = 10]].
+Customer storedInstances detect: [ :each | each orders anySatisfy: [ :order | order items anySatisfy: [ :item | item product = widget and: [item quantity = 4]]]].
 ```
 
 # Next Steps
