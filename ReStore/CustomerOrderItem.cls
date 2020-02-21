@@ -12,7 +12,7 @@ CustomerOrderItem comment: ''!
 
 displayOn: aStream
 
-	aStream nextPutAll: self product; space; nextPutAll: ' x'; print: self quantity!
+	aStream nextPutAll: self product name; space; nextPutAll: ' x'; print: self quantity!
 
 order
 	^order!
