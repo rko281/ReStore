@@ -1,18 +1,15 @@
+## Note this branch is for Dolphin Smalltalk 7.0 only and may not be updated in future
+## See master branch for current Dolphin Smalltalk 7.1 version
+
 # What is ReStore?
 ReStore is a framework enabling Dolphin Smalltalk objects to be stored in and read from relational databases (SQLite, PostgreSQL etc.). ReStore aims to make relational persistency as simple as possible, creating and maintaining the database structure itself and providing access to stored objects via familiar Smalltalk messages. 
 
 # Getting Started
-* Install [Dolphin Smalltalk 7.1](https://github.com/dolphinsmalltalk/Dolphin)
+* Install [Dolphin Smalltalk 7.0](https://github.com/dolphinsmalltalk/Dolphin/tree/7.0)
 
-## Automated Installation
-* Download and install [GitHub Package Manager](https://github.com/rko281/GitHub)
-* Evaluate:
-  `GitHubPackageManager install: 'rko281/ReStore'`
-* All required packages and prerequisites will be downloaded and installed
-
-## Manual Installation
+## Installation
 * This repository should then be cloned/downloaded to your Dolphin working directory
-* Install package `ReStore\SSW ReStore Examples` - this will load all required prerequisites
+* Install package `ReStore\SSW ReStore Examples` - this will load all required prerequisites - note these include the IDB DateAndTime package from the Contributions section; ensure this is available or already installed
 
 ## Important Note for Previous Users of ReStore
 Previous versions of ReStore transformed class and instance variable names to table and column names using the following strategy
