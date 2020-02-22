@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 SSWReStoreTest subclass: #SSWReStoreUpdateClashTestPersistent
 	instanceVariableNames: 'reStore2 singleA1 singleB1 singleC1 singleA2 singleB2 singleC2'

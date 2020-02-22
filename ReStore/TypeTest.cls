@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #TypeTest
 	instanceVariableNames: 'char varchar medText largeText unsizedText integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'

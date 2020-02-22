@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 DBField subclass: #SSWODBCField
 	instanceVariableNames: 'statement'
@@ -11,6 +11,12 @@ SSWODBCField comment: 'ReStore
 https://github.com/rko281/ReStore'!
 !SSWODBCField categoriesForClass!Unclassified! !
 !SSWODBCField methodsFor!
+
+fromTimeStamp: aTimeStamp
+
+	^(aTimeStamp isKindOf: DateAndTime)
+		ifTrue: [super fromTimeStamp: (TimeStamp date: aTimeStamp asDate time: aTimeStamp asTime)]
+		ifFalse: [super fromTimeStamp: aTimeStamp]!
 
 initializeForColumn: aDBColAttr
 	"Private - Initialize the receiver to represent a value from
@@ -146,6 +152,7 @@ statement: anSSWODBCStatement
 	"statement stores the SSWODBC...Statement to which this field relates"
 
 	statement := anSSWODBCStatement! !
+!SSWODBCField categoriesFor: #fromTimeStamp:!public! !
 !SSWODBCField categoriesFor: #initializeForColumn:!accessing!private! !
 !SSWODBCField categoriesFor: #numberToNumeric:!converting!private! !
 !SSWODBCField categoriesFor: #setAnsiString:!converting!private! !

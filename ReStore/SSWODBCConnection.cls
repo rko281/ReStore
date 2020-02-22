@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 DBConnection subclass: #SSWODBCConnection
 	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions'
@@ -70,7 +70,7 @@ _dbCheckException: anIntegerRetCode from: anODBCObject
 
 	^anIntegerRetCode = SQL_SUCCESS ifFalse: 
 		["Signal an error or warning - decide which"
-		(anIntegerRetCode = SQL_SUCCESS_WITH_INFO or: [anIntegerRetCode = SQL_NO_DATA])
+		(anIntegerRetCode = SQL_SUCCESS_WITH_INFO or: [anIntegerRetCode = 100])
 		ifTrue: 
 			[(self sqlDialect ifNil: ["During login - keep quiet" true] ifNotNil: [ :dialect | dialect shouldMaskSuccessWithInfo]) ifFalse:
 				[DBWarning signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]

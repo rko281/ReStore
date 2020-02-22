@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBProxy subclass: #SSWDBCollectionProxy
 	instanceVariableNames: 'collectionSpec owner'

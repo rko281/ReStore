@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 ReadStream subclass: #SSWDBReadStream
 	instanceVariableNames: 'instancesCollection'
@@ -29,11 +29,21 @@ close
 	
 	collection close!
 
+collection: anSSWDBInstancesCollection
+
+	"28/3/2001
+	
+	Overriden to actually set the receiver's collection to a DBResultSet"
+	
+	self instancesCollection: anSSWDBInstancesCollection.
+	
+	super collection: anSSWDBInstancesCollection resultSet!
+
 collectionFirst
 
 	"Private - Check for error - usually 'record deleted' - requery"
 
-	^[collection first] on: self reStore dbErrorClass do: 
+	^[collection first] on: DBError do: 
 		[ :exc | 
 		self reinitialize.
 
@@ -44,7 +54,7 @@ collectionLast
 
 	"Private - Check for error - usually 'record deleted' - requery"
 
-	^[collection last] on: self reStore dbErrorClass do: 
+	^[collection last] on: DBError do: 
 		[ :exc | 
 		self reinitialize.
 
@@ -55,7 +65,7 @@ collectionNext
 
 	"Private - Check for error - usually 'record deleted' "
 
-	^[collection next] on: self reStore dbErrorClass do: 
+	^[collection next] on: DBError do: 
 		[ :exc |
 		"If a 'deleted' error, skip until we find a valid next. Otherwise try resync"
 		exc isRecordDeletedError
@@ -67,7 +77,7 @@ collectionPrevious
 
 	"Private - Check for error - usually 'record deleted' - requery"
 
-	^[collection previous] on: self reStore dbErrorClass do: 
+	^[collection previous] on: DBError do: 
 		[ :exc | 
 		"Skip until we find a valid previous"
 		exc isRecordDeletedError
@@ -197,10 +207,6 @@ reinitialize
 	collection := self instancesCollection resultSet.
 	self initialize!
 
-reStore
-
-	^self instancesCollection reStore!
-
 resync
 
 	"Reinitialize the receiver by requerying"
@@ -236,6 +242,7 @@ syncTo: aPersistentObject
 !SSWDBReadStream categoriesFor: #atEnd!actions!public! !
 !SSWDBReadStream categoriesFor: #atStart!actions!public! !
 !SSWDBReadStream categoriesFor: #close!actions!public! !
+!SSWDBReadStream categoriesFor: #collection:!initializing!private! !
 !SSWDBReadStream categoriesFor: #collectionFirst!evaluating!private! !
 !SSWDBReadStream categoriesFor: #collectionLast!evaluating!private! !
 !SSWDBReadStream categoriesFor: #collectionNext!evaluating!private! !
@@ -251,7 +258,6 @@ syncTo: aPersistentObject
 !SSWDBReadStream categoriesFor: #position:!evaluating!public! !
 !SSWDBReadStream categoriesFor: #previous!evaluating!public! !
 !SSWDBReadStream categoriesFor: #reinitialize!initializing!public! !
-!SSWDBReadStream categoriesFor: #reStore!accessing!public! !
 !SSWDBReadStream categoriesFor: #resync!initializing!public! !
 !SSWDBReadStream categoriesFor: #setToEnd!actions!public! !
 !SSWDBReadStream categoriesFor: #syncTo:!initializing!public! !

@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'SSW ReStore Deprecated'.
 package paxVersion: 1;
 	basicComment: 'ReStore
@@ -60,15 +60,13 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\Core\Object Arts\Dolphin\Base\Deprecated\Dolphin Base (Deprecated)'
-	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
-	'..\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
-	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
-	'SSW ReStore Main'
-	'SSW ReStore Querying'
-	'SSW ReStore SQL Entities').
+package setPrerequisites: (IdentitySet new
+	add: '..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: '..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base';
+	add: 'SSW ReStore Main';
+	add: 'SSW ReStore Querying';
+	add: 'SSW ReStore SQL Entities';
+	yourself).
 
 package!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 SSWMSAccessDialect subclass: #SSWMSAccess2013Dialect
 	instanceVariableNames: ''

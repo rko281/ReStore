@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #InlinedTestPerson
 	instanceVariableNames: 'firstName surname address1 address2 address3 line1 code1 bankBalance'

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 SSWReStoreQueryTest subclass: #SSWReStoreProductOrdersTest
 	instanceVariableNames: 'widget gadget wobulator customer1 customer2 customer3 customer4'

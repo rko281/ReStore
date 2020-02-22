@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'SSW ReStore Tests'.
 package paxVersion: 1;
 	basicComment: 'ReStore
@@ -108,15 +108,16 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
-	'SSW ReStore for Dolphin'
-	'SSW ReStore Main'
-	'SSW ReStore MVP'
-	'SSW ReStore Querying'
-	'SSW ReStore SQL Entities'
-	'..\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
+package setPrerequisites: (IdentitySet new
+	add: '..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: '..\Core\Contributions\IDB\IDB DateAndTime';
+	add: 'SSW ReStore for Dolphin';
+	add: 'SSW ReStore Main';
+	add: 'SSW ReStore MVP';
+	add: 'SSW ReStore Querying';
+	add: 'SSW ReStore SQL Entities';
+	add: '..\Core\Contributions\Camp Smalltalk\SUnit\SUnit';
+	yourself).
 
 package setManualPrerequisites: #(
 	'SSW ReStore MVP').

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 DBColAttr subclass: #SSWODBCColAttr
 	instanceVariableNames: 'field maxBoundBufferSize'
@@ -39,13 +39,13 @@ lengthC
 		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
 		^self field targetClass dbMaxFieldSize
 			ifNil: [lengthC]
-			ifNotNil: [ :maxFieldSize | lengthC min: (maxFieldSize + (CTypesExtraBytes at: sqlType+TypeOffset))]].
+			ifNotNil: [ :maxFieldSize | lengthC min: (maxFieldSize + (#(0 2 2 2 0 0 0 0 0 0 1 0 1 1 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) at: sqlType+TypeOffset))]].
 
 	sqlType = SQL_WLONGVARCHAR ifTrue: 
 		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
 		^self field targetClass dbMaxFieldSize
 			ifNil: [lengthC]
-			ifNotNil: [ :maxFieldSize | lengthC min: ((maxFieldSize * 2) + (CTypesExtraBytes at: sqlType+TypeOffset))]].
+			ifNotNil: [ :maxFieldSize | lengthC min: ((maxFieldSize * 2) + (#(0 2 2 2 0 0 0 0 0 0 1 0 1 1 1 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) at: sqlType+TypeOffset))]].
 
 	^lengthC!
 

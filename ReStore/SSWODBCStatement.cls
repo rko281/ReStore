@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 DBParameterizedStatement subclass: #SSWODBCStatement
 	instanceVariableNames: 'query'
@@ -11,6 +11,31 @@ SSWODBCStatement comment: 'ReStore
 https://github.com/rko281/ReStore'!
 !SSWODBCStatement categoriesForClass!Unclassified! !
 !SSWODBCStatement methodsFor!
+
+bindParams
+	"Private - Bind parameter columns for a prepared SQL statement so that when we 
+	subsequently fill the buffer fields the statement is ready to exec. Normally only done 
+	just before first exec (from #parameters)."
+
+	| odbc hstmt |
+	odbc := ODBCLibrary default.
+	hstmt := self allocatedHandle.
+	parameters keysAndValuesDo: 
+			[:i :eachField |
+			| buf column |
+			buf := eachField fieldBuf.
+			column := eachField column.
+			self dbCheckException: (odbc
+						sqlBindParameter: hstmt
+						parameterNumber: i
+						inputOutputType: column parameterType
+						valueType: column cType
+						parameterType: column type
+						columnSize: column precision
+						decimalDigits: column scale
+						parameterValuePtr: buf
+						bufferLength: buf byteSize
+						strLenOrIndPtr: eachField lengthBuf)]!
 
 close
 
@@ -187,6 +212,7 @@ writeDebugInfoOn: aStream
 	readStream atEnd] whileFalse.
 
 	aStream nextPutAll: sqlStream contents; nextPut: $;; cr! !
+!SSWODBCStatement categoriesFor: #bindParams!operations!public! !
 !SSWODBCStatement categoriesFor: #close!operations!public! !
 !SSWODBCStatement categoriesFor: #closeAfter:!operations!public! !
 !SSWODBCStatement categoriesFor: #dbCheckException:!exceptions!private! !

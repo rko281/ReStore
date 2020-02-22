@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'ReStore'.
 package paxVersion: 1;
 	basicComment: 'ReStore
@@ -12,8 +12,9 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: #(
-	'SSW ReStore Examples').
+package setPrerequisites: (IdentitySet new
+	add: 'SSW ReStore Examples';
+	yourself).
 
 package setManualPrerequisites: #(
 	'SSW ReStore Examples').

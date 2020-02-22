@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SimplePerson2
 	instanceVariableNames: 'firstName forename surname emailAddress time friend bestFriend notes'

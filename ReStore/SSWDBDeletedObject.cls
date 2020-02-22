@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 DeafObject subclass: #SSWDBDeletedObject
 	instanceVariableNames: 'deletedObjectClass id'

@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'SSW ReStore MVP'.
 package paxVersion: 1;
 	basicComment: 'ReStore
@@ -24,9 +24,10 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
-	'SSW ReStore Main').
+package setPrerequisites: (IdentitySet new
+	add: '..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models';
+	add: 'SSW ReStore Main';
+	yourself).
 
 package setManualPrerequisites: #(
 	'SSW ReStore Main').

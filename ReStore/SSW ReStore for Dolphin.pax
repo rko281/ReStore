@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'SSW ReStore for Dolphin'.
 package paxVersion: 1;
 	basicComment: 'ReStore
@@ -12,6 +12,8 @@ package methodNames
 	add: #CompiledCode -> #sswByteCodeDispatcher;
 	add: #CompiledCode -> #sswReadsInstVar:at:;
 	add: #CompiledCode -> #sswWritesInstVar:at:;
+	add: #DateAndTime -> #asDate;
+	add: #DateAndTime -> #asTime;
 	add: #DateAndTime -> #withResolution:;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
@@ -53,13 +55,15 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'SSW ReStore Main'
-	'SSW ReStore ODBC'
-	'SSW ReStore Querying'
-	'SSW ReStore SQL Entities'
-	'..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell').
+package setPrerequisites: (IdentitySet new
+	add: '..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: '..\Core\Contributions\IDB\IDB DateAndTime';
+	add: 'SSW ReStore Main';
+	add: 'SSW ReStore ODBC';
+	add: 'SSW ReStore Querying';
+	add: 'SSW ReStore SQL Entities';
+	add: '..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell';
+	yourself).
 
 package!
 
@@ -122,18 +126,19 @@ sswWritesInstVar: aString at: anInteger
 
 !DateAndTime methodsFor!
 
+asDate
+
+	^Date newDay: self dayOfMonth monthIndex: self month year: self year!
+
+asTime
+
+	^Time hours: self hour minutes: self minute seconds: self second!
+
 withResolution: anInteger
 
-	"Return a copy of the receiver with the resolution (number of fractional digits) anInteger, i.e. 0 for seconds resolution, 3 for milliseconds etc."
-
-	| multplier |
-
-	multplier := 10 ** anInteger.
-
-	^##(self) new
-		setRataDie: rataDie 
-		seconds: ((seconds * multplier) truncated / multplier)
-		offset: offset! !
+	^self! !
+!DateAndTime categoriesFor: #asDate!accessing!public! !
+!DateAndTime categoriesFor: #asTime!accessing!public! !
 !DateAndTime categoriesFor: #withResolution:!accessing!public! !
 
 !SSWDBBlockArgument methodsFor!

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWDBBlockParser
 	instanceVariableNames: 'reStore argumentClass argumentTable referencedTables qualifyingConditions qualifyingTables orderingSpecs groupByFields activeReceiver accumulatedConditions currentConditions isCollectingAssociations fieldEncounters accumulatedConditionsStack isAccumulatingConditions'

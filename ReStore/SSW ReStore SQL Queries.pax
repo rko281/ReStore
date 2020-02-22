@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'SSW ReStore SQL Queries'.
 package paxVersion: 1;
 	basicComment: 'ReStore
@@ -28,10 +28,11 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'SSW ReStore Base Additions'
-	'SSW ReStore SQL Entities').
+package setPrerequisites: (IdentitySet new
+	add: '..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: 'SSW ReStore Base Additions';
+	add: 'SSW ReStore SQL Entities';
+	yourself).
 
 package!
 

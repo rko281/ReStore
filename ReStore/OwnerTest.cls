@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #OwnerTest
 	instanceVariableNames: 'name number single1 single2 single3 ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'

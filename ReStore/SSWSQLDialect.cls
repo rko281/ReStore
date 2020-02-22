@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWSQLDialect
 	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize'
@@ -168,6 +168,8 @@ dateAndTimeFrom: anObject
 		stream next.
 		time := Time readFrom: stream.
 		^DateAndTime fromDate: date time: time].
+
+	(anObject isKindOf: TimeStamp) ifTrue: [^DateAndTime fromTimeStamp: anObject].
 
 	self error: ('cannot convert <1p> to a DateAndTime' expandMacrosWith: anObject)!
 

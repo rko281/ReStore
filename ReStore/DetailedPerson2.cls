@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 SuperPerson subclass: #DetailedPerson2
 	instanceVariableNames: 'dob dateOfBirth friend bestFriend notes'

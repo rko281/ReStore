@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBBlockEvaluator subclass: #SSWDBCollectionBlockReceiver
 	instanceVariableNames: 'collectionSpec collection currentMode'

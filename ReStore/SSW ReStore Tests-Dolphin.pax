@@ -1,4 +1,4 @@
-﻿| package |
+| package |
 package := Package name: 'SSW ReStore Tests-Dolphin'.
 package paxVersion: 1;
 	basicComment: 'ReStore
@@ -35,8 +35,10 @@ package methodNames
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3b;
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern4;
 	add: #SSWReStoreTableTest -> #test21VerifyLegacyNameTransformationMode;
+	add: #SSWReStoreTest -> #assert:identicalTo:;
 	add: #SSWReStoreTest -> #countQueries;
 	add: #SSWReStoreTest -> #debugStream;
+	add: #SSWReStoreTest -> #deny:identicalTo:;
 	add: #SSWReStoreTest -> #dsn;
 	add: #SSWReStoreTest -> #initConnectionFor:;
 	add: #SSWReStoreTest -> #queryCount;
@@ -56,11 +58,12 @@ package binaryGlobalNames: (Set new
 package globalAliases: (Set new
 	yourself).
 
-package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
-	'SSW ReStore ODBC'
-	'SSW ReStore Tests').
+package setPrerequisites: (IdentitySet new
+	add: '..\Core\Object Arts\Dolphin\Base\Dolphin';
+	add: '..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models';
+	add: 'SSW ReStore ODBC';
+	add: 'SSW ReStore Tests';
+	yourself).
 
 package!
 
@@ -561,6 +564,10 @@ test21VerifyLegacyNameTransformationMode
 
 !SSWReStoreTest methodsFor!
 
+assert: a identicalTo: b
+
+	^self assert: (a == b)!
+
 countQueries
 
 	self resetQueryCount.
@@ -575,6 +582,10 @@ debugStream
 	^Keyboard default isCtrlDown 
 		ifTrue: [Transcript] 
 		ifFalse: [nil]!
+
+deny: a identicalTo: b
+
+	^self deny: (a == b)!
 
 dsn
 
@@ -604,8 +615,10 @@ stopQueryCounting
 		[ :origExec |
 		SSWODBCStatement methodDictionary at: #exec put: origExec.
 		SSWODBCStatement flushMethodCache]! !
+!SSWReStoreTest categoriesFor: #assert:identicalTo:!accessing!public! !
 !SSWReStoreTest categoriesFor: #countQueries!public!running! !
 !SSWReStoreTest categoriesFor: #debugStream!public!unit tests! !
+!SSWReStoreTest categoriesFor: #deny:identicalTo:!accessing!public! !
 !SSWReStoreTest categoriesFor: #dsn!accessing!public! !
 !SSWReStoreTest categoriesFor: #initConnectionFor:!public!running! !
 !SSWReStoreTest categoriesFor: #queryCount!accessing!public! !

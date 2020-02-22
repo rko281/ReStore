@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBCollectionSpec subclass: #SSWDBGeneralCollectionSpec
 	instanceVariableNames: 'sourceField targetField collectionTable'
