@@ -26,6 +26,12 @@ cursorType
 
 	^#keysetDriven!
 
+dateAndTimeFormat
+
+	"The format for DateAndTImes when expressed as Strings"
+
+	^'yyyy-MM-dd HH:mm:ssfff'!
+
 datetime
 
 	^'DATETIME2'!
@@ -109,10 +115,15 @@ shouldMaskSuccessWithInfo
 
 supportsImplicitTrueConditions
 
-	^false! !
+	^false!
+
+unsizedBlob
+
+	^'varbinary(max)'! !
 !SSWSQLServerDialect categoriesFor: #boolean!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #canDescribeParameters!public!testing! !
 !SSWSQLServerDialect categoriesFor: #cursorType!constants!public! !
+!SSWSQLServerDialect categoriesFor: #dateAndTimeFormat!constants!public! !
 !SSWSQLServerDialect categoriesFor: #datetime!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
@@ -127,6 +138,7 @@ supportsImplicitTrueConditions
 !SSWSQLServerDialect categoriesFor: #renameTableNamed:to:in:!maintenance!public! !
 !SSWSQLServerDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
 !SSWSQLServerDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
+!SSWSQLServerDialect categoriesFor: #unsizedBlob!datatypes!public! !
 
 !SSWSQLServerDialect class methodsFor!
 

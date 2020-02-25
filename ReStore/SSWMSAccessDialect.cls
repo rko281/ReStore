@@ -111,6 +111,10 @@ trueObject
 
 	^-1!
 
+unsizedBlob
+
+	^'LONGBINARY'!
+
 updateDelaySeconds
 
 	"Arrived at anecdotally... refresh SUnit tests fail with 4 seconds, pass with 5"
@@ -130,6 +134,7 @@ updateDelaySeconds
 !SSWMSAccessDialect categoriesFor: #shouldMapEmptyStringsToNil!public!testing! !
 !SSWMSAccessDialect categoriesFor: #time!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #trueObject!constants!public! !
+!SSWMSAccessDialect categoriesFor: #unsizedBlob!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #updateDelaySeconds!constants!public! !
 
 !SSWMSAccessDialect class methodsFor!

@@ -42,6 +42,7 @@ describeCols: columnNumbers
 			scale: colAttr scale;
 			field: (self query ifNotNil: [ :q | q fieldNamed: colAttr name]);
 			maxBoundBufferSize: self sqlDialect maxColumnBytes;
+			postCreate;
 			yourself]!
 
 describeParam: anInteger

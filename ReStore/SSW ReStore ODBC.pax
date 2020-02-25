@@ -28,9 +28,12 @@ package methodNames
 	add: #SSWDBField -> #asParameterColumn:for:;
 	add: #SSWDBField -> #columnIn:;
 	add: #SSWDBQueryField -> #asParameterColumn:for:;
+	add: #SSWDBStringWithInfo -> #dbMaxFieldSize;
 	add: #SSWSQLParameterField -> #asParameterColumn:for:;
 	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
 	add: #String -> #asParameterColumn;
+	add: 'ByteArray class' -> #dbMaxFieldSize;
+	add: 'String class' -> #dbMaxFieldSize;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -42,6 +45,7 @@ package globalAliases: (Set new
 package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'SSW ReStore Base Additions'
 	'SSW ReStore Main'
 	'SSW ReStore SQL Entities'
 	'SSW ReStore SQL Queries'
@@ -96,6 +100,15 @@ DBField subclass: #SSWODBCField
 
 
 "Loose Methods"!
+
+!ByteArray class methodsFor!
+
+dbMaxFieldSize
+
+	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
+
+	^nil! !
+!ByteArray class categoriesFor: #dbMaxFieldSize!public!specification! !
 
 !DBError methodsFor!
 
@@ -165,6 +178,13 @@ asParameterColumn: anInteger for: aStatement
 	^self field asParameterColumn: anInteger for: aStatement! !
 !SSWDBQueryField categoriesFor: #asParameterColumn:for:!accessing!public! !
 
+!SSWDBStringWithInfo methodsFor!
+
+dbMaxFieldSize
+
+	^self fieldSize! !
+!SSWDBStringWithInfo categoriesFor: #dbMaxFieldSize!accessing!public! !
+
 !SSWSQLParameterField methodsFor!
 
 asParameterColumn: anInteger for: aStatement
@@ -191,6 +211,15 @@ asParameterColumn
 
 	^SSWODBCColAttr forString: self! !
 !String categoriesFor: #asParameterColumn!converting!public! !
+
+!String class methodsFor!
+
+dbMaxFieldSize
+
+	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
+
+	^nil! !
+!String class categoriesFor: #dbMaxFieldSize!public!specification! !
 
 "End of package definition"!
 

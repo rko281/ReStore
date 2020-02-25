@@ -12,10 +12,6 @@ https://github.com/rko281/ReStore'!
 !SSWDBStringWithInfo categoriesForClass!Unclassified! !
 !SSWDBStringWithInfo methodsFor!
 
-dbMaxFieldSize
-
-	^self fieldSize!
-
 fieldSize
 
 	"fieldSize stores the size of the field in which 'instances' of this 'class' will live.
@@ -33,7 +29,6 @@ fieldSize: anInteger
 infoClass
 
 	^String! !
-!SSWDBStringWithInfo categoriesFor: #dbMaxFieldSize!accessing!public! !
 !SSWDBStringWithInfo categoriesFor: #fieldSize!accessing!public! !
 !SSWDBStringWithInfo categoriesFor: #fieldSize:!accessing!public! !
 !SSWDBStringWithInfo categoriesFor: #infoClass!constants!public! !

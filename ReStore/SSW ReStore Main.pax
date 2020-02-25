@@ -109,6 +109,7 @@ package methodNames
 	add: #UndefinedObject -> #storeIn:;
 	add: #UndefinedObject -> #unstore;
 	add: 'Boolean class' -> #instanceFromDBValue:in:;
+	add: 'ByteArray class' -> #instanceFromDBValue:in:;
 	add: 'Date class' -> #instanceFromDBValue:in:;
 	add: 'DateAndTime class' -> #instanceFromDBValue:in:;
 	add: 'Metaclass class' -> #instanceFromDBValue:in:;
@@ -258,6 +259,15 @@ instanceFromDBValue: aValue in: anSSWReStore
 
 	^aValue == true or: [aValue = anSSWReStore sqlDialect trueObject]! !
 !Boolean class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+
+!ByteArray class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"ASSERT: aValue isNil OR aValue isKindOf: self"
+
+	^aValue! !
+!ByteArray class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
 
 !Class methodsFor!
 

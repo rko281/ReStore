@@ -99,7 +99,11 @@ shouldCheckAutoCommit
 
 shouldMaskSuccessWithInfo
 
-	^true! !
+	^true!
+
+unsizedBlob
+
+	^'bytea'! !
 !SSWPostgreSQLDialect categoriesFor: #alterField:table:in:!maintenance!public! !
 !SSWPostgreSQLDialect categoriesFor: #datetime!datatypes!public! !
 !SSWPostgreSQLDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
@@ -114,6 +118,7 @@ shouldMaskSuccessWithInfo
 !SSWPostgreSQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
 !SSWPostgreSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
 !SSWPostgreSQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
+!SSWPostgreSQLDialect categoriesFor: #unsizedBlob!datatypes!public! !
 
 !SSWPostgreSQLDialect class methodsFor!
 

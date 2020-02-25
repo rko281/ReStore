@@ -22,6 +22,17 @@ alterField: aField table: aTable in: aReStore
 			nextPutAll: ' MODIFY COLUMN '.
 		aField writeSQLDefinitionOn: stream]!
 
+blobTypes
+
+	"Full use of MEDIUMBLOB and LONGBLOB will require increasing the default maxColumnBytes (unrealistically so for LONGBLOB)"
+
+	^OrderedCollection new
+		add: (255 "((2 raisedTo: 8) - 1)" -> 'TINYBLOB');
+		add: (65535 "((2 raisedTo: 16) - 1)" -> 'BLOB');
+		add: (16777215 "((2 raisedTo: 24) - 1)" -> 'MEDIUMBLOB');
+		add: (4294967295 "((2 raisedTo: 32) - 1)" -> 'LONGBLOB');
+		yourself!
+
 boolean
 
 	^'TINYINT'!
@@ -104,6 +115,7 @@ unsizedStringTypes
 		add: (4294967295 "((2 raisedTo: 32) - 1)" -> 'LONGTEXT');
 		yourself! !
 !SSWMySQLDialect categoriesFor: #alterField:table:in:!maintenance!public! !
+!SSWMySQLDialect categoriesFor: #blobTypes!datatypes!public! !
 !SSWMySQLDialect categoriesFor: #boolean!datatypes!public! !
 !SSWMySQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
 !SSWMySQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !

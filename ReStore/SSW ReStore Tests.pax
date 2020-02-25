@@ -196,7 +196,7 @@ Object subclass: #Test
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #TypeTest
-	instanceVariableNames: 'char varchar medText largeText unsizedText integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'
+	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

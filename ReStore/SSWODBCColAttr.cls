@@ -32,10 +32,14 @@ lengthC
 
 	| lengthC |
 
-	lengthC := super lengthC min: self maxBoundBufferSize.
+	"Workaround primarily for PostgreSQL which returns negative value for length of SQL_LONGVARBINARY columns"
+	length negative
+		ifTrue: [lengthC := self maxBoundBufferSize]
+		ifFalse: [lengthC := super lengthC min: self maxBoundBufferSize].
+
 	self field isNil ifTrue: [^lengthC].
 
-	sqlType = SQL_LONGVARCHAR ifTrue: 
+	(sqlType = SQL_LONGVARCHAR or: [sqlType = SQL_LONGVARBINARY]) ifTrue: 
 		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
 		^self field targetClass dbMaxFieldSize
 			ifNil: [lengthC]
@@ -55,6 +59,19 @@ maxBoundBufferSize
 maxBoundBufferSize: anObject
 	maxBoundBufferSize := anObject!
 
+postCreate
+
+	"Workaround primarily for SQLite which reports BLOB columns as SQL_BINARY - this is defined as
+		'Binary data of fixed length n'
+	...which is incorrect and gives a max length of 255.
+
+	Since ReStore doesn't support a SQL_BINARY type we convert this to SQL_LONGVARBINARY and increase the length accordingly"
+	sqlType = SQL_BINARY ifFalse: [^self].
+
+	self 
+		type: SQL_LONGVARBINARY;
+		length: self maxBoundBufferSize!
+
 writeSQLOn: aStream
 
 	aStream nextPutAll: self name! !
@@ -63,6 +80,7 @@ writeSQLOn: aStream
 !SSWODBCColAttr categoriesFor: #lengthC!accessing!private! !
 !SSWODBCColAttr categoriesFor: #maxBoundBufferSize!accessing!private! !
 !SSWODBCColAttr categoriesFor: #maxBoundBufferSize:!accessing!private! !
+!SSWODBCColAttr categoriesFor: #postCreate!accessing!private! !
 !SSWODBCColAttr categoriesFor: #writeSQLOn:!printing!public! !
 
 !SSWODBCColAttr class methodsFor!

@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #TypeTest
-	instanceVariableNames: 'char varchar medText largeText unsizedText integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'
+	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -88,6 +88,12 @@ integer: anObject
 
 	integer := anObject!
 
+largeBlob
+	^largeBlob!
+
+largeBlob: anObject
+	largeBlob := anObject!
+
 largeText
 	"Private - Answer the value of the receiver's ''largeText'' instance variable."
 
@@ -97,6 +103,12 @@ largeText: anObject
 	"Private - Set the value of the receiver's ''largeText'' instance variable to the argument, anObject."
 
 	largeText := anObject!
+
+medBlob
+	^medBlob!
+
+medBlob: anObject
+	medBlob := anObject!
 
 medText
 	"Private - Answer the value of the receiver's ''medText'' instance variable."
@@ -118,6 +130,12 @@ time: anObject
 
 	time := anObject!
 
+tinyBlob
+	^tinyBlob!
+
+tinyBlob: anObject
+	tinyBlob := anObject!
+
 trueBoolean
 	"Private - Answer the value of the receiver's ''trueBoolean'' instance variable."
 
@@ -127,6 +145,12 @@ trueBoolean: anObject
 	"Private - Set the value of the receiver's ''trueBoolean'' instance variable to the argument, anObject."
 
 	trueBoolean := anObject!
+
+unsizedBlob
+	^unsizedBlob!
+
+unsizedBlob: anObject
+	unsizedBlob := anObject!
 
 unsizedText
 	"Private - Answer the value of the receiver's ''unsizedText'' instance variable."
@@ -163,14 +187,22 @@ varchar: anObject
 !TypeTest categoriesFor: #float:!accessing!private! !
 !TypeTest categoriesFor: #integer!accessing!private! !
 !TypeTest categoriesFor: #integer:!accessing!private! !
+!TypeTest categoriesFor: #largeBlob!accessing!private! !
+!TypeTest categoriesFor: #largeBlob:!accessing!private! !
 !TypeTest categoriesFor: #largeText!accessing!private! !
 !TypeTest categoriesFor: #largeText:!accessing!private! !
+!TypeTest categoriesFor: #medBlob!accessing!private! !
+!TypeTest categoriesFor: #medBlob:!accessing!private! !
 !TypeTest categoriesFor: #medText!accessing!private! !
 !TypeTest categoriesFor: #medText:!accessing!private! !
 !TypeTest categoriesFor: #time!accessing!private! !
 !TypeTest categoriesFor: #time:!accessing!private! !
+!TypeTest categoriesFor: #tinyBlob!accessing!private! !
+!TypeTest categoriesFor: #tinyBlob:!accessing!private! !
 !TypeTest categoriesFor: #trueBoolean!accessing!private! !
 !TypeTest categoriesFor: #trueBoolean:!accessing!private! !
+!TypeTest categoriesFor: #unsizedBlob!accessing!private! !
+!TypeTest categoriesFor: #unsizedBlob:!accessing!private! !
 !TypeTest categoriesFor: #unsizedText!accessing!private! !
 !TypeTest categoriesFor: #unsizedText:!accessing!private! !
 !TypeTest categoriesFor: #varchar!accessing!private! !
@@ -186,15 +218,24 @@ reStoreDefinition
 		define: #medText as: (String maxSize: 2000);
 		define: #largeText as: (String maxSize: 5000);
 		define: #unsizedText as: String;
+
+		define: #tinyBlob as: (ByteArray maxSize: 255);
+		define: #medBlob as: (ByteArray maxSize: 2000);
+		define: #largeBlob as: (ByteArray maxSize: 5000);
+		define: #unsizedBlob as: ByteArray;
+
 		define: #integer as: Integer;
 		define: #float as: Float;
 		define: #decimal as: (ScaledDecimal withPrecision: 20 scale: 4);
+
 		define: #date as: Date;
 		define: #time as: Time;
 		define: #datetime as: DateAndTime;
 		define: #datetimeWithMilliseconds as: DateAndTime withMillisecondResolution;
+
 		define: #trueBoolean as: Boolean;
 		define: #falseBoolean as: Boolean;
+
 		yourself! !
 !TypeTest class categoriesFor: #reStoreDefinition!public! !
 

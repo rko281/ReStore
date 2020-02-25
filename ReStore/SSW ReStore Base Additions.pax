@@ -7,6 +7,7 @@ https://github.com/rko281/ReStore'.
 
 
 package classNames
+	add: #SSWDBByteArrayWithInfo;
 	add: #SSWDBClassWithInfo;
 	add: #SSWDBDateAndTimeWithResolution;
 	add: #SSWDBDeletedObject;
@@ -29,13 +30,13 @@ package methodNames
 	add: #True -> #asInteger;
 	add: #UndefinedObject -> #orNilIfEmpty;
 	add: 'Boolean class' -> #isPersistentBaseClass;
+	add: 'ByteArray class' -> #maxSize:;
 	add: 'DateAndTime class' -> #withMillisecondResolution;
 	add: 'Magnitude class' -> #isPersistentBaseClass;
 	add: 'Metaclass class' -> #isPersistentBaseClass;
 	add: 'Object class' -> #isPersistentBaseClass;
 	add: 'ScaledDecimal class' -> #withPrecision:scale:;
 	add: 'ScaledDecimal class' -> #withScale:;
-	add: 'String class' -> #dbMaxFieldSize;
 	add: 'String class' -> #fixedSize:;
 	add: 'String class' -> #isPersistentBaseClass;
 	add: 'String class' -> #maxSize:;
@@ -90,6 +91,11 @@ SSWDBClassWithInfo subclass: #SSWDBStringWithInfo
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWDBStringWithInfo subclass: #SSWDBByteArrayWithInfo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWDBStringWithInfo subclass: #SSWDBFixedStringWithInfo
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -112,6 +118,15 @@ isPersistentBaseClass
 
 	^true! !
 !Boolean class categoriesFor: #isPersistentBaseClass!public!testing! !
+
+!ByteArray class methodsFor!
+
+maxSize: anInteger
+
+	^SSWDBByteArrayWithInfo new
+		fieldSize: anInteger;
+		yourself! !
+!ByteArray class categoriesFor: #maxSize:!public!specification! !
 
 !DateAndTime class methodsFor!
 
@@ -222,12 +237,6 @@ orNilIfEmpty
 
 !String class methodsFor!
 
-dbMaxFieldSize
-
-	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
-
-	^nil!
-
 fixedSize: anInteger
 
 	"For DB support: specifies a fixed-sized String of anInteger characters"
@@ -247,7 +256,6 @@ maxSize: anInteger
 	^SSWDBVariableStringWithInfo new
 		fieldSize: anInteger;
 		yourself! !
-!String class categoriesFor: #dbMaxFieldSize!public!specification! !
 !String class categoriesFor: #fixedSize:!public!specification! !
 !String class categoriesFor: #isPersistentBaseClass!public!testing! !
 !String class categoriesFor: #maxSize:!public!specification! !

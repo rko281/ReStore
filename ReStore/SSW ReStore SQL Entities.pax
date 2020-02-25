@@ -38,6 +38,8 @@ package classNames
 
 package methodNames
 	add: #Boolean -> #then:else:;
+	add: #ByteArray -> #writeSQLOn:;
+	add: #ByteArray -> #writeSQLOn:forField:;
 	add: #Character -> #reStoreValue;
 	add: #Collection -> #writeSQLOn:;
 	add: #Collection -> #writeSQLOn:forField:;
@@ -52,6 +54,7 @@ package methodNames
 	add: #Object -> #sqlStringIn:;
 	add: #Object -> #writeSQLOn:forCondition:;
 	add: #Object -> #writeSQLOn:forField:;
+	add: #SSWDBByteArrayWithInfo -> #writeSQLTypeOn:using:;
 	add: #SSWDBDateAndTimeWithResolution -> #writeSQLTypeOn:using:;
 	add: #SSWDBFixedStringWithInfo -> #writeSQLTypeOn:using:;
 	add: #SSWDBScaledDecimalWithInfo -> #writeSQLTypeOn:using:;
@@ -68,6 +71,7 @@ package methodNames
 	add: #UndefinedObject -> #writeSQLOn:;
 	add: #UndefinedObject -> #writeSQLOn:forCondition:;
 	add: 'Boolean class' -> #writeSQLTypeOn:using:;
+	add: 'ByteArray class' -> #writeSQLTypeOn:using:;
 	add: 'Date class' -> #writeSQLTypeOn:using:;
 	add: 'DateAndTime class' -> #writeSQLTypeOn:using:;
 	add: 'Float class' -> #writeSQLTypeOn:using:;
@@ -95,7 +99,7 @@ package!
 "Class Definitions"!
 
 Object subclass: #SSWSQLDialect
-	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize'
+	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -251,6 +255,27 @@ writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect boolean! !
 !Boolean class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!ByteArray methodsFor!
+
+writeSQLOn: aStream
+
+	"Avoid SQL injection and other issues by always using parameterized values for ByeArrays"
+	self writeSQLOn: aStream forField: (SSWSQLParameterField forValue: self)!
+
+writeSQLOn: aStream forField: aField
+
+	"Opt out of the Collection implementation"
+	^aStream nextPut: self forField: aField! !
+!ByteArray categoriesFor: #writeSQLOn:!printing!public! !
+!ByteArray categoriesFor: #writeSQLOn:forField:!printing!public! !
+
+!ByteArray class methodsFor!
+
+writeSQLTypeOn: aStream using: aSQLDialect
+
+	aStream nextPutAll: aSQLDialect blob! !
+!ByteArray class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
 
 !Character methodsFor!
 
@@ -417,6 +442,13 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	
 	Integer writeSQLTypeOn: aStream using: anSQLDialect! !
 !Object class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+
+!SSWDBByteArrayWithInfo methodsFor!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	aStream nextPutAll: ((anSQLDialect blobTypeForSize: self fieldSize) expandMacrosWith: self fieldSize)! !
+!SSWDBByteArrayWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
 
 !SSWDBDateAndTimeWithResolution methodsFor!
 

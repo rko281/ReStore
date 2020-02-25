@@ -17,7 +17,7 @@ addClassesTo: aReStore
 	aReStore addClass: TypeTest!
 
 createTestInstance
-
+reStore debugTo: Transcript.
 	reStore destroyAllClasses.
 	reStore synchronizeAllClasses.
 
@@ -32,15 +32,24 @@ createTestInstance
 		medText: ((String new: 2000) atAllPut: $M; yourself);
 		largeText: ((String new: 5000) atAllPut: $L; yourself);
 		unsizedText: ((String new: 6000) atAllPut: $U; yourself);
+
+		tinyBlob: (ByteArray withAll: (0 to: 240));
+		medBlob: ((ByteArray new: 2000) atAllPut: 200; yourself);
+		largeBlob: ((ByteArray new: 5000) atAllPut: 220; yourself);
+		unsizedBlob: ((ByteArray new: 6000) atAllPut: 240; yourself);
+
 		integer: 123;
 		float: 123.456;
 		decimal: 12345.67891;
+
 		date: date;
 		time: time;
 		datetime: datetime;
 		datetimeWithMilliseconds: datetime;
+
 		trueBoolean: true;
 		falseBoolean: false;
+
 		storeIn: reStore.
 	reStore commitTransaction.
 
@@ -52,6 +61,42 @@ testANSI
 	"Test a String containing only ANSI characters"
 
 	self testStrings: #[99 97 102 101] asAnsiString "cafe"!
+
+testBytes
+
+	| bytes allBytes tiny med large t id |
+
+	bytes := ByteArray withAll: (0 to: 255).
+	allBytes := bytes.
+	(10000 / bytes size) rounded timesRepeat: [allBytes := allBytes, bytes].
+
+	tiny := allBytes copyFrom: 1 to: 255.
+	med := allBytes copyFrom: 1 to: 2000.
+	large := allBytes copyFrom: 1 to: 5000.
+
+	t := self createTestInstance.
+	t 
+		tinyBlob: tiny;
+		medBlob: med;
+		largeBlob: large;
+		unsizedBlob: allBytes;
+		store.
+	id := t _id.
+
+	reStore simulateReconnect.
+	t := (reStore instancesOf: TypeTest) detect: [ :each | each _id = id].
+
+	self assert: t tinyBlob equals: tiny.
+	self assert: t medBlob equals: med.
+	self assert: t largeBlob equals: large.
+	self assert: t unsizedBlob equals: allBytes.
+
+	"SQLServer can't query on binary columns"
+	reStore sqlDialect class ~~ SSWSQLServerDialect ifTrue: 
+		[self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each tinyBlob = tiny]) identicalTo: t.
+		self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each medBlob = med]) identicalTo: t.
+		self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each largeBlob = large]) identicalTo: t.
+		self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each unsizedBlob = allBytes]) identicalTo: t]!
 
 testDate
 
@@ -206,6 +251,7 @@ testUTF8_mixed
 !SSWReStoreTypeTest categoriesFor: #addClassesTo:!public!running! !
 !SSWReStoreTypeTest categoriesFor: #createTestInstance!public!running! !
 !SSWReStoreTypeTest categoriesFor: #testANSI!public!unit tests! !
+!SSWReStoreTypeTest categoriesFor: #testBytes!public!running! !
 !SSWReStoreTypeTest categoriesFor: #testDate!public!unit tests! !
 !SSWReStoreTypeTest categoriesFor: #testDateQuery!public!unit tests! !
 !SSWReStoreTypeTest categoriesFor: #testDateTime!public! !
