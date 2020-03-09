@@ -74,6 +74,7 @@ package classNames
 	add: #SSWReStoreProductOrdersTest;
 	add: #SSWReStoreQueryByExampleTest;
 	add: #SSWReStoreQueryTest;
+	add: #SSWReStoreReadStreamTest;
 	add: #SSWReStoreReadWithComponentsTest;
 	add: #SSWReStoreRefreshNoVersTest;
 	add: #SSWReStoreRefreshTest;
@@ -422,6 +423,11 @@ SSWReStorePersonTest subclass: #SSWReStoreCommitTests
 	classInstanceVariableNames: ''!
 SSWReStorePersonTest subclass: #SSWReStoreInlinedTest
 	instanceVariableNames: 'persons'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStorePersonTest subclass: #SSWReStoreReadStreamTest
+	instanceVariableNames: 'readStream'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

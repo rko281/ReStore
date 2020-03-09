@@ -18,8 +18,6 @@ setUp
 
 	super setUp.
 
-	reStore destroyAllClasses; synchronizeAllClasses.
-
 	reStore beginTransaction.
 
 	john := SimplePerson new 

@@ -30,9 +30,6 @@ test1Write
 
 	| people time |
 
-	reStore destroyAllClasses.
-	reStore synchronizeAllClasses.
-
 	people := self sampleSet.
 
 	Transcript 
@@ -48,8 +45,6 @@ test2Read
 
 	| people time |
 
-	reStore destroyAllClasses.
-	reStore synchronizeAllClasses.
 	self sampleSet storeAllIn: reStore.
 
 	reStore simulateReconnect.
@@ -69,8 +64,6 @@ test3Update
 
 	| people time |
 
-	reStore destroyAllClasses.
-	reStore synchronizeAllClasses.
 	self sampleSet storeAllIn: reStore.
 
 	reStore simulateReconnect.
@@ -103,8 +96,6 @@ test4RefreshNoChange
 
 	| people time |
 
-	reStore destroyAllClasses.
-	reStore synchronizeAllClasses.
 	self sampleSet storeAllIn: reStore.
 
 	reStore simulateReconnect.
@@ -123,8 +114,6 @@ test5RefreshWithChange
 
 	| people time |
 
-	reStore destroyAllClasses.
-	reStore synchronizeAllClasses.
 	self sampleSet storeAllIn: reStore.
 
 	reStore simulateReconnect.
@@ -157,8 +146,6 @@ test9Delete
 
 	| people time |
 
-	reStore destroyAllClasses.
-	reStore synchronizeAllClasses.
 	self sampleSet storeAllIn: reStore.
 
 	reStore simulateReconnect.
@@ -173,8 +160,8 @@ test9Delete
 
 	self assert: (reStore instancesOf: SimplePerson) isEmpty.
 	self assert: (time < (self sampleSize * 2)) "Fairly arbitrary but keeps an eye on things"! !
-!SSWReStoreSpeedTest categoriesFor: #sampleSet!public! !
-!SSWReStoreSpeedTest categoriesFor: #sampleSize!public!Running! !
+!SSWReStoreSpeedTest categoriesFor: #sampleSet!public!running! !
+!SSWReStoreSpeedTest categoriesFor: #sampleSize!public!running! !
 !SSWReStoreSpeedTest categoriesFor: #test1Write!public!unit tests! !
 !SSWReStoreSpeedTest categoriesFor: #test2Read!public!unit tests! !
 !SSWReStoreSpeedTest categoriesFor: #test3Update!public! !

@@ -17,6 +17,25 @@ bufferClass
 	where memory is allocated and bound using SQLBindCol, or DBUnboundRow for unbound buffers 
 	which are retrieved individually)."
 
-	^SSWODBCBoundBuffer! !
+	^SSWODBCBoundBuffer!
+
+readStream
+
+	^SSWDBForwardOnlyReadStream on: self!
+
+size
+
+	"Return nil if not known"
+
+	| numRows |
+
+	numRows := self numRows.
+
+	"Normally -1 (or sometimes less) indicates unknown. However SQLite (at least) returns zero, so err on the side of caution"
+	^numRows <= 0
+		ifTrue: [nil]
+		ifFalse: [numRows]! !
 !SSWODBCForwardOnlyResultSet categoriesFor: #bufferClass!constants!private! !
+!SSWODBCForwardOnlyResultSet categoriesFor: #readStream!accessing!public! !
+!SSWODBCForwardOnlyResultSet categoriesFor: #size!public! !
 

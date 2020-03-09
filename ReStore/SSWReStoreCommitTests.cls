@@ -19,12 +19,6 @@ addClassesTo: aReStore
 		addClass: OwnerTest;
 		addClass: Test!
 
-setUp
-
-	super setUp.
-
-	reStore destroyAllClasses; synchronizeAllClasses!
-
 test01SelfReference
 
 	| obj |
@@ -95,8 +89,8 @@ test04MultiStoreSameObjectViaRelationships
 	self assert: success.
 
 	reStore simulateReconnect.
-	ownerTests := reStore instancesOf: OwnerTest.
-	tests := reStore instancesOf: Test.
+	ownerTests := (reStore instancesOf: OwnerTest) sortBlock: [ :a :b | a name <= b name].
+	tests := (reStore instancesOf: Test) sortBlock: [ :a :b | a name <= b name].
 	self assert: (ownerTests size = 2).
 	self assert: (tests size = 1).
 	obj1 := ownerTests first.
@@ -106,7 +100,6 @@ test04MultiStoreSameObjectViaRelationships
 	self assert: (tests first == obj2 single2).
 	self assert: (obj2 single2 == obj2 single3)! !
 !SSWReStoreCommitTests categoriesFor: #addClassesTo:!public!Running! !
-!SSWReStoreCommitTests categoriesFor: #setUp!public! !
 !SSWReStoreCommitTests categoriesFor: #test01SelfReference!public! !
 !SSWReStoreCommitTests categoriesFor: #test02MultiCommitSameObject!public! !
 !SSWReStoreCommitTests categoriesFor: #test03MultiStoreSameObject!public! !

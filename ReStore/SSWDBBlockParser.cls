@@ -130,15 +130,6 @@ collectQueryFrom: aOneArgBlock
 		conditions: self qualifyingConditions;
 		yourself!
 
-copy
-
-	^self shallowCopy
-		qualifyingConditions: self qualifyingConditions copy;
-		qualifyingTables: self qualifyingTables copy;
-		orderingSpecs: self orderingSpecs copy;
-		groupByFields: self groupByFields copy;
-		yourself!
-
 currentConditions
 	^currentConditions!
 
@@ -199,6 +190,10 @@ includedTables
 	This is the referencedTables, without duplicated entries"
 	
 	^self referencedTables withoutDuplicates!
+
+invertOrdering
+
+	self orderingSpecs: (self orderingSpecs collect: [ :each | each inverted])!
 
 isAccumulatingConditions
 	^isAccumulatingConditions!
@@ -413,6 +408,14 @@ popAccumulatedConditions
 	self 
 		accumulatedConditions: popped key;
 		currentConditions: popped value!
+
+postCopy
+
+	self
+		qualifyingConditions: self qualifyingConditions copy;
+		qualifyingTables: self qualifyingTables copy;
+		orderingSpecs: self orderingSpecs copy;
+		groupByFields: self groupByFields copy!
 
 projectQueryFrom: aOneArgBlock
 
@@ -668,7 +671,6 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 !SSWDBBlockParser categoriesFor: #argumentTable:!accessing!public! !
 !SSWDBBlockParser categoriesFor: #beUnsorted!parsing - api!public! !
 !SSWDBBlockParser categoriesFor: #collectQueryFrom:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #copy!copying!public! !
 !SSWDBBlockParser categoriesFor: #currentConditions!accessing!public! !
 !SSWDBBlockParser categoriesFor: #currentConditions:!accessing!public! !
 !SSWDBBlockParser categoriesFor: #deleteQueryFrom:!parsing - api!public! !
@@ -681,6 +683,7 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 !SSWDBBlockParser categoriesFor: #hasGrouping!public!testing! !
 !SSWDBBlockParser categoriesFor: #hasOrdering!public!testing! !
 !SSWDBBlockParser categoriesFor: #includedTables!evaluating!public! !
+!SSWDBBlockParser categoriesFor: #invertOrdering!parsing - api!public! !
 !SSWDBBlockParser categoriesFor: #isAccumulatingConditions!accessing!public! !
 !SSWDBBlockParser categoriesFor: #isAccumulatingConditions:!accessing!public! !
 !SSWDBBlockParser categoriesFor: #isCollectingAssociations!accessing!public! !
@@ -701,6 +704,7 @@ unprocessedConditionsCombinedWithReceiver: aCondition
 !SSWDBBlockParser categoriesFor: #parseForModify:!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #parseSortBlock:!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #popAccumulatedConditions!parsing - internal!private! !
+!SSWDBBlockParser categoriesFor: #postCopy!copying!public! !
 !SSWDBBlockParser categoriesFor: #projectQueryFrom:!parsing - api!public! !
 !SSWDBBlockParser categoriesFor: #pushAccumulatedConditions!parsing - internal!private! !
 !SSWDBBlockParser categoriesFor: #qualifyingConditions!accessing!public! !

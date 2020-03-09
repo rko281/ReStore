@@ -21,8 +21,6 @@ setUp
 
 	super setUp.
 
-	reStore destroyAllClasses; synchronizeAllClasses.
-
 	reStore commitAll: 
 		(Array
 			with: (SuperPerson new firstName: 'john')

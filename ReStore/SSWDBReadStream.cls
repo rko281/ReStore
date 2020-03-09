@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-ReadStream subclass: #SSWDBReadStream
-	instanceVariableNames: 'instancesCollection'
+PositionableStream subclass: #SSWDBReadStream
+	instanceVariableNames: 'instancesCollection peeked'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -12,15 +12,14 @@ https://github.com/rko281/ReStore'!
 !SSWDBReadStream categoriesForClass!Unclassified! !
 !SSWDBReadStream methodsFor!
 
-atEnd
+basicNext
 
-	"Overriden to test via readLimit"
-	
-	^self position = readLimit!
+	peeked ifNotNil: [ :wasPeeked | peeked := nil. ^wasPeeked].
 
-atStart
-
-	^self position <= 1!
+	"DBResultSet returns nil for next if atEnd"
+	^self collectionNext
+		ifNil: [self errorEndOfStream]
+		ifNotNil: [ :row | self instancesCollection reStore objectFromRow: row table: self instancesCollection table]!
 
 close
 
@@ -29,33 +28,14 @@ close
 	
 	collection close!
 
-collectionFirst
-
-	"Private - Check for error - usually 'record deleted' - requery"
-
-	^[collection first] on: self reStore dbErrorClass do: 
-		[ :exc | 
-		self reinitialize.
-
-		"Directly access the collection to prevent potential recursive error trapping"
-		exc return: collection first]!
-
-collectionLast
-
-	"Private - Check for error - usually 'record deleted' - requery"
-
-	^[collection last] on: self reStore dbErrorClass do: 
-		[ :exc | 
-		self reinitialize.
-
-		"Directly access the collection to prevent potential recursive error trapping"
-		exc return: collection last]!
-
 collectionNext
 
 	"Private - Check for error - usually 'record deleted' "
 
-	^[collection next] on: self reStore dbErrorClass do: 
+	^[| next |
+	next := collection next.
+	position := position + 1.
+	next] on: self reStore dbErrorClass do: 
 		[ :exc |
 		"If a 'deleted' error, skip until we find a valid next. Otherwise try resync"
 		exc isRecordDeletedError
@@ -63,53 +43,11 @@ collectionNext
 			ifFalse: [self resync].
 		exc return: self collectionNext]!
 
-collectionPrevious
+evaluatePostReadActionsFor: aCollection
 
-	"Private - Check for error - usually 'record deleted' - requery"
+	self instancesCollection postReadActions do: [ :each | each value: aCollection].
 
-	^[collection previous] on: self reStore dbErrorClass do: 
-		[ :exc | 
-		"Skip until we find a valid previous"
-		exc isRecordDeletedError
-		ifTrue: 
-			[position := position - 1.
-			readLimit := readLimit - 1]
-		ifFalse: 
-			[self resync].
-		exc return: self collectionPrevious]!
-
-errorStartOfStream
-
-	self error: 'start of stream reached'!
-
-first
-
-	"Pass on to the receiver's collection (DBResultSet) which handles first"
-	
-	| row |
-	
-	row := self collectionFirst.
-	
-	"DBResultSet returns nil for first if empty"
-	^row isNil
-	ifTrue: 
-		[self errorStartOfStream]
-	ifFalse: 
-		[position := 1.
-		self instancesCollection reStore objectFromRow: row table: self instancesCollection table]!
-
-initialize
-
-	"Overriden to set readLimit from collection (DBResultSet) or instancesCollection,
-	as most efficient"
-
-	position := 0.
-
-	"If the collection knows its numRows, use this else we have to query"	
-	collection numRows = -1
-		ifTrue: [readLimit := instancesCollection size]
-		ifFalse: [readLimit := collection numRows]
-!
+	^aCollection!
 
 instancesCollection
 
@@ -125,77 +63,62 @@ instancesCollection: anSSWDBInstancesCollection
 	
 	instancesCollection := anSSWDBInstancesCollection!
 
-last
-
-	"Pass on to the receiver's collection (DBResultSet) which handles last"
-	
-	| row |
-	
-	row := self collectionLast.
-	
-	"DBResultSet returns nil for next if atEnd"
-	^row isNil
-	ifTrue: 
-		[self errorEndOfStream]
-	ifFalse: 
-		[position := readLimit.
-		self instancesCollection reStore objectFromRow: row table: self instancesCollection table]!
-
 next
 
-	"Pass on to the receiver's collection (DBResultSet) which handles next"
-	
-	| row |
-	
-	position = 0 ifTrue: [^self first].
+	^self basicNext ifNotNil: 
+		[ :next |
+		self evaluatePostReadActionsFor: {next}.
+		next]!
 
-	row := self collectionNext.
-	
-	"DBResultSet returns nil for next if atEnd"
-	^row isNil
-	ifTrue: 
-		[self errorEndOfStream]
-	ifFalse: 
-		[position := position + 1.
-		self instancesCollection reStore objectFromRow: row table: self instancesCollection table]!
+next: anInteger
 
-on: anSSWDBInstancesCollection
+	| results |
+	
+	results := OrderedCollection new: anInteger.
+	[self atEnd or: [results size = anInteger]] whileFalse: [results add: self basicNext].
 
-	"Overriden to actually set the receiver's collection to a DBResultSet"
+	^self evaluatePostReadActionsFor: results!
+
+nextAvailable: anInteger
+
+	| results count |
 	
-	self instancesCollection: anSSWDBInstancesCollection.
-	
-	super on: anSSWDBInstancesCollection resultSet!
+	results := OrderedCollection new: (count := anInteger).
+	[count == 0 or: [self atEnd]] whileFalse: 
+		[results add: self basicNext. 
+		count := count - 1].
+
+	^self evaluatePostReadActionsFor: results!
+
+peek
+
+	^peeked ifNil: [peeked := self atEnd ifFalse: [self next]]!
 
 position: anInteger
 
-	"Overriden to update the collection (DBResultSet)"
-	
-	super position: anInteger.
-	collection at: anInteger!
+	collection position: anInteger.
+	self resetPeeked.
 
-previous
-
-	"Pass on to the receiver's collection (DBResultSet) which handles previous"
-	
-	| row |
-		
-	row := self collectionPrevious.
-
-	"DBResultSet returns nil if at start"
-	^row isNil
-	ifTrue: 
-		[self errorStartOfStream]
-	ifFalse:
-		[position := position - 1.
-		self instancesCollection reStore objectFromRow: row table: self instancesCollection table]!
+	^super position: anInteger!
 
 reinitialize
 
-	"Reinitialize the receiver by requerying"
-	collection close.
-	collection := self instancesCollection resultSet.
-	self initialize!
+	self resetPeeked.
+	self on: self instancesCollection resultSet.
+	self setInstancesCollection: self instancesCollection!
+
+reset
+
+	self instancesCollection isNil ifFalse: [self resetResultsSet].
+	^super reset!
+
+resetPeeked
+
+	peeked := nil!
+
+resetResultsSet
+
+	peeked := self instancesCollection reStore objectFromRow: collection resetAndFetchFirst table: self instancesCollection table!
 
 reStore
 
@@ -203,56 +126,58 @@ reStore
 
 resync
 
-	"Reinitialize the receiver by requerying"
+	"Private - Reinitialize the receiver by requerying"
+
+	| oldPosition |
+
+	oldPosition := self position.
 	collection close.
-	collection := self instancesCollection resultSet.
-	self position: position
-	!
+	self reinitialize.
 
-setToEnd
+	self position: oldPosition!
 
-	"Overriden to set position via accessor"
-	
-	self position: readLimit!
+setInstancesCollection: anSSWDBInstancesCollection
 
-syncTo: aPersistentObject
+	self instancesCollection: anSSWDBInstancesCollection.
 
-	| table idField id next |
+	"If the resultSet couldn't set the readLimit we have to query"
+	readLimit isNil ifTrue: [readLimit := instancesCollection size]!
 
-	table := instancesCollection reStore tableForClass: aPersistentObject class.
-	idField := table idField.
-	id := aPersistentObject _id.
+upTo: anObject
 
-	"Reinitialize the receiver by requerying"
-	collection close.
-	collection := self instancesCollection resultSet.
-	position := 0.
+	| results nextObject |
+		
+	results := OrderedCollection new: ((readLimit - position) // 2).
+	[self atEnd or: [(nextObject := self basicNext) = anObject]] whileFalse: [results add: nextObject].
 
-	[next := collection next.
-	position := position + 1.
-	next isNil or: [(next atField: idField) = id]] whileFalse.
+	^self evaluatePostReadActionsFor: results!
 
-	^next notNil! !
-!SSWDBReadStream categoriesFor: #atEnd!actions!public! !
-!SSWDBReadStream categoriesFor: #atStart!actions!public! !
+upToEnd
+
+	| results |
+		
+	results := OrderedCollection new: (readLimit - position).
+	[self atEnd] whileFalse: [results add: self basicNext].
+
+	^self evaluatePostReadActionsFor: results! !
+!SSWDBReadStream categoriesFor: #basicNext!evaluating!private! !
 !SSWDBReadStream categoriesFor: #close!actions!public! !
-!SSWDBReadStream categoriesFor: #collectionFirst!evaluating!private! !
-!SSWDBReadStream categoriesFor: #collectionLast!evaluating!private! !
 !SSWDBReadStream categoriesFor: #collectionNext!evaluating!private! !
-!SSWDBReadStream categoriesFor: #collectionPrevious!evaluating!private! !
-!SSWDBReadStream categoriesFor: #errorStartOfStream!actions!private! !
-!SSWDBReadStream categoriesFor: #first!evaluating!public! !
-!SSWDBReadStream categoriesFor: #initialize!initializing!private! !
+!SSWDBReadStream categoriesFor: #evaluatePostReadActionsFor:!evaluating!private! !
 !SSWDBReadStream categoriesFor: #instancesCollection!accessing!public! !
 !SSWDBReadStream categoriesFor: #instancesCollection:!accessing!public! !
-!SSWDBReadStream categoriesFor: #last!evaluating!public! !
 !SSWDBReadStream categoriesFor: #next!evaluating!public! !
-!SSWDBReadStream categoriesFor: #on:!accessing!public! !
-!SSWDBReadStream categoriesFor: #position:!evaluating!public! !
-!SSWDBReadStream categoriesFor: #previous!evaluating!public! !
-!SSWDBReadStream categoriesFor: #reinitialize!initializing!public! !
+!SSWDBReadStream categoriesFor: #next:!evaluating!public! !
+!SSWDBReadStream categoriesFor: #nextAvailable:!evaluating!public! !
+!SSWDBReadStream categoriesFor: #peek!evaluating!public! !
+!SSWDBReadStream categoriesFor: #position:!positioning!public! !
+!SSWDBReadStream categoriesFor: #reinitialize!initializing!private! !
+!SSWDBReadStream categoriesFor: #reset!positioning!public! !
+!SSWDBReadStream categoriesFor: #resetPeeked!initializing!private! !
+!SSWDBReadStream categoriesFor: #resetResultsSet!positioning!private! !
 !SSWDBReadStream categoriesFor: #reStore!accessing!public! !
-!SSWDBReadStream categoriesFor: #resync!initializing!public! !
-!SSWDBReadStream categoriesFor: #setToEnd!actions!public! !
-!SSWDBReadStream categoriesFor: #syncTo:!initializing!public! !
+!SSWDBReadStream categoriesFor: #resync!initializing!private! !
+!SSWDBReadStream categoriesFor: #setInstancesCollection:!initializing!private! !
+!SSWDBReadStream categoriesFor: #upTo:!evaluating!public! !
+!SSWDBReadStream categoriesFor: #upToEnd!evaluating!public! !
 

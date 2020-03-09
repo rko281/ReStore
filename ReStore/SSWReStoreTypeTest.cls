@@ -17,9 +17,6 @@ addClassesTo: aReStore
 	aReStore addClass: TypeTest!
 
 createTestInstance
-reStore debugTo: Transcript.
-	reStore destroyAllClasses.
-	reStore synchronizeAllClasses.
 
 	datetime := DateAndTime now withResolution: reStore sqlDialect maxDateTimeResolution.
 	date := datetime asDate.

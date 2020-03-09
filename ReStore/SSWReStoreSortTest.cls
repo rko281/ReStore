@@ -99,6 +99,14 @@ testClassSortImplementationOnPersistentObject
 
 	self assert: ((instances collect: [ :each | each fullName]) asArray = #('David Smythe' 'John Smith' 'Zoe Brown' 'Jim Brown' ))!
 
+testClassSortImplementationReversed
+
+	| instances |
+
+	instances := (reStore instancesOf: SimplePerson) beSorted reverse.
+
+	self assert: (instances collect: [ :each | each fullName]) asArray equals: #('Jim Brown' 'Zoe Brown' 'John Smith' 'David Smythe' ) reverse!
+
 testClassSortImplementationWithBlocks
 
 	| instances |
@@ -182,6 +190,14 @@ testSortImplementationOnPersistentObjectWithBlocks
 
 	self assert: ((instances collect: [ :each | each fullName]) asArray = #('David Smythe' 'John Smith' 'Zoe Brown' 'Jim Brown' ))!
 
+testSortImplementationReversed
+
+	| instances |
+
+	instances := (reStore instancesOf: SimplePerson) sortBlock: [ :a :b | a <= b].
+
+	self assert: (instances reverse asOrderedCollection collect: [ :each | each fullName]) asArray equals: #('Jim Brown' 'Zoe Brown' 'John Smith' 'David Smythe' ) reverse!
+
 testSortImplementationWithBlocks
 
 	| instances |
@@ -245,6 +261,7 @@ testStandardSortWithBlocks
 !SSWReStoreSortTest categoriesFor: #tearDown!public!running! !
 !SSWReStoreSortTest categoriesFor: #testClassSortImplementation!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testClassSortImplementationOnPersistentObject!public!unit tests! !
+!SSWReStoreSortTest categoriesFor: #testClassSortImplementationReversed!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testClassSortImplementationWithBlocks!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testClassSortImplementationWithBlocksOnPersistentObject!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testDeepSort!public!unit tests! !
@@ -252,6 +269,7 @@ testStandardSortWithBlocks
 !SSWReStoreSortTest categoriesFor: #testSortImplementation!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testSortImplementationOnPersistentObject!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testSortImplementationOnPersistentObjectWithBlocks!public!unit tests! !
+!SSWReStoreSortTest categoriesFor: #testSortImplementationReversed!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testSortImplementationWithBlocks!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testStandardSort!public!unit tests! !
 !SSWReStoreSortTest categoriesFor: #testStandardSortOnPersistentObject!public!unit tests! !

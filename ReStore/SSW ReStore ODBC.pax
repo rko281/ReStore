@@ -47,6 +47,7 @@ package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'SSW ReStore Base Additions'
 	'SSW ReStore Main'
+	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities'
 	'SSW ReStore SQL Queries'
 	'SSW ReStore Tables').

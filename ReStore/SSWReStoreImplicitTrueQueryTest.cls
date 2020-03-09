@@ -22,7 +22,7 @@ setUp
 
 	super setUp.
 
-	reStore destroyAllClasses; synchronizeAllClasses; beginTransaction.
+	reStore beginTransaction.
 
 	TypeTest new
 		varchar: '1true';

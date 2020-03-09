@@ -34,6 +34,10 @@ allSatisfy: aBlock
 	
 	^self size = (self satisfying: aBlock) size!
 
+anyOne
+
+	^self first!
+
 anySatisfy: aBlock
 	
 	"Uses one query"
@@ -62,6 +66,19 @@ asSortedCollection: aTwoArgBlock
 		sortBlock: aTwoArgBlock;
 		asSortedCollection!
 
+beOrdered
+
+	"Order the receiver based on the ID field.
+	This will normally tally with insertion order where instances have the default numeric ID"
+
+	self sortBlock: [ :a :b | a _id < b _id]!
+
+beSorted
+
+	"Order the receiver based on the default sort for the instanceClass"
+
+	self sortBlock: SortedCollection defaultSortBlock!
+
 collect: collectBlock
 	
 	^self collect: collectBlock into: (OrderedCollection new: 16)!
@@ -79,13 +96,6 @@ collectInto: aCollection
 	Return aCollection"
 	
 	^self collect: [ :object | object] into: aCollection!
-
-copy
-
-	^self shallowCopy
-		parser: self parser copy;
-		yourself
-		!
 
 createParser
 
@@ -130,14 +140,7 @@ first
 
 first: anInteger
 
-	| stream collection |
-
-	stream := self readStream.
-	collection := OrderedCollection new: anInteger.
-
-	anInteger timesRepeat: [collection add: stream next].
-
-	^collection!
+	^self readStream next: anInteger!
 
 include: aSymbol
 
@@ -201,7 +204,11 @@ isSorted
 
 last
 
-	^self readStream last!
+	^self reverse first!
+
+last: anInteger
+
+	^(self reverse first: anInteger) reverse!
 
 lookup: aBlock
 
@@ -246,6 +253,10 @@ parser: anSSWDBBlockParser
 	to generate corresponding SSWSQLQueries"
 	
 	parser := anSSWDBBlockParser!
+
+postCopy
+
+	self parser: self parser copy!
 
 postReadActions
 
@@ -321,8 +332,10 @@ query: query into: aCollection
 readStream
 
 	"Create and return an appropraite ReadStream-like object on the receiver"
-	
-	^SSWDBReadStream on: self!
+
+	^self resultSet readStream
+		setInstancesCollection: self;
+		yourself!
 
 refreshed
 
@@ -357,7 +370,7 @@ reStore: anSSWReStore
 
 resultSet
 
-	"Return a DBResultSet (open query results) onto the collection of rows
+	"Private - Return a DBResultSet (open query results) onto the collection of rows
 	represented by the receiver"
 	
 	| query |
@@ -366,6 +379,21 @@ resultSet
 	
 	"Always use #keysetDriven to give a flexible, efficient result set"
 	^self reStore executeQuery: query cursorType: #keysetDriven!
+
+reverse
+
+	"Return a copy of the receiver with reversed ordering"
+
+	| reversed |
+
+	reversed := self copy.
+
+	"If no explicit ordering apply ID ordering - this at least gives us something to reverse"
+	reversed isSorted ifFalse: [self beOrdered].
+	
+	reversed parser invertOrdering.
+
+	^reversed!
 
 satisfying: aOneArgBlock
 
@@ -500,15 +528,17 @@ withRelatedComponents
 	self includeRelatedComponents! !
 !SSWDBInstancesCollection categoriesFor: #addAll:!actions!public! !
 !SSWDBInstancesCollection categoriesFor: #allSatisfy:!enumerating!public! !
+!SSWDBInstancesCollection categoriesFor: #anyOne!evaluating!public! !
 !SSWDBInstancesCollection categoriesFor: #anySatisfy:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #asOrderedCollection!converting!public! !
 !SSWDBInstancesCollection categoriesFor: #asSet!converting!public! !
 !SSWDBInstancesCollection categoriesFor: #asSortedCollection!converting!public! !
 !SSWDBInstancesCollection categoriesFor: #asSortedCollection:!converting!public! !
+!SSWDBInstancesCollection categoriesFor: #beOrdered!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #beSorted!initializing!public! !
 !SSWDBInstancesCollection categoriesFor: #collect:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #collect:into:!helpers!private! !
 !SSWDBInstancesCollection categoriesFor: #collectInto:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #copy!copying!public! !
 !SSWDBInstancesCollection categoriesFor: #createParser!initializing!private! !
 !SSWDBInstancesCollection categoriesFor: #detect:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #detect:ifNone:!enumerating!public! !
@@ -527,10 +557,12 @@ withRelatedComponents
 !SSWDBInstancesCollection categoriesFor: #isEmpty!public!testing! !
 !SSWDBInstancesCollection categoriesFor: #isSorted!public!testing! !
 !SSWDBInstancesCollection categoriesFor: #last!evaluating!public! !
+!SSWDBInstancesCollection categoriesFor: #last:!evaluating!public! !
 !SSWDBInstancesCollection categoriesFor: #lookup:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #modify:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #parser!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #parser:!accessing!public! !
+!SSWDBInstancesCollection categoriesFor: #postCopy!copying!public! !
 !SSWDBInstancesCollection categoriesFor: #postReadActions!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #postReadActions:!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #preReadActions!accessing!public! !
@@ -544,7 +576,8 @@ withRelatedComponents
 !SSWDBInstancesCollection categoriesFor: #reject:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #reStore!accessing!public! !
 !SSWDBInstancesCollection categoriesFor: #reStore:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #resultSet!evaluating!public! !
+!SSWDBInstancesCollection categoriesFor: #resultSet!evaluating!private! !
+!SSWDBInstancesCollection categoriesFor: #reverse!evaluating!public! !
 !SSWDBInstancesCollection categoriesFor: #satisfying:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #select:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #select:thenCollect:!enumerating!public! !

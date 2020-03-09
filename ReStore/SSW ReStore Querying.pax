@@ -15,6 +15,7 @@ package classNames
 	add: #SSWDBBlockReceiver;
 	add: #SSWDBCollectionBlockReceiver;
 	add: #SSWDBDumbArgument;
+	add: #SSWDBForwardOnlyReadStream;
 	add: #SSWDBGeneralCollectionBlockReceiver;
 	add: #SSWDBInlinedBlockReceiver;
 	add: #SSWDBInstancesCollection;
@@ -135,8 +136,13 @@ SSWSQLCondition subclass: #SSWDBQueryCondition
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-ReadStream subclass: #SSWDBReadStream
-	instanceVariableNames: 'instancesCollection'
+PositionableStream subclass: #SSWDBReadStream
+	instanceVariableNames: 'instancesCollection peeked'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBReadStream subclass: #SSWDBForwardOnlyReadStream
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

@@ -23,8 +23,6 @@ setUp
 	| obj2 obj7 obj9 |
 
 	super setUp.
-
-	reStore destroyAllClasses; synchronizeAllClasses.
 	
 	obj2 := ReStoreTestWithID name: 'dave' nmbr: 2.
 	obj7 := ReStoreTestWithID name: 'john' nmbr: 7.

@@ -47,6 +47,16 @@ criteria: anOrderedCollection
 	
 	criteria := anOrderedCollection!
 
+invert
+
+	self isAscending: self isAscending not!
+
+inverted
+
+	"Answer a new ordering spec equivalent to the receiver but with reversed ordering"
+
+	^self copy invert!
+
 isAscending
 
 	"isAscending stores a Boolean indicating if ordering by the receiver's criteria
@@ -63,6 +73,8 @@ isAscending: aBoolean
 !SSWDBOrderingSpec categoriesFor: #compare:with:!comparing!public! !
 !SSWDBOrderingSpec categoriesFor: #criteria!accessing!public! !
 !SSWDBOrderingSpec categoriesFor: #criteria:!accessing!public! !
+!SSWDBOrderingSpec categoriesFor: #invert!operations!public! !
+!SSWDBOrderingSpec categoriesFor: #inverted!converting!public! !
 !SSWDBOrderingSpec categoriesFor: #isAscending!accessing!public! !
 !SSWDBOrderingSpec categoriesFor: #isAscending:!accessing!public! !
 
