@@ -57,15 +57,33 @@ _commitChanges
 	^self _isPersistent
 	ifTrue:
 		[self _isDeleted
-			ifTrue: [reStore deleteProxy: self. true]
+			ifTrue: [self _commitUnstore]
 			ifFalse: [self _commitUpdates]]
 	ifFalse:
-		[reStore insertProxy: self.
-		true]!
+		[self _commitStore]!
+
+_commitStore
+
+	"Private - Return a Boolean indicating whether the commit succeeds"
+
+	reStore insertProxy: self.
+
+	"Assumed to always succeed"
+	^true!
+
+_commitUnstore
+
+	"Private - Return a Boolean indicating whether the commit succeeds"
+
+	reStore deleteProxy: self. 
+
+	"Assumed to always succeed"
+	^true
+!
 
 _commitUpdates
 
-	"Return a Boolean indicating whether the commit succeeds"
+	"Private - Return a Boolean indicating whether the commit succeeds"
 
 	| updates |
 
@@ -137,23 +155,30 @@ _postCommitChanges
 	^self _isPersistent
 	ifTrue:
 		[self _isDeleted
-			ifTrue: [self _postCommitDelete]
+			ifTrue: [self _postCommitUnstore]
 			ifFalse: [self _postCommitUpdates]]
 	ifFalse:
-		[self _dbTable idDataField ifNotNil: [ :idDataField | idDataField accessor value: id in: proxiedObject].
-		self _aquireCopyObject.
-		self _intern	"Re-register"]!
+		[self _postCommitStore]!
 
-_postCommitDelete
+_postCommitStore
 
-	"The receiver has been successfully deleted from the database.
+	"Private - The receiver has been inserted into the database.
+	Complete follow-on work"
+
+	self _dbTable idDataField ifNotNil: [ :idDataField | idDataField accessor value: id in: proxiedObject].
+	self _aquireCopyObject.
+	self _intern	"Re-register"!
+
+_postCommitUnstore
+
+	"Private - The receiver has been successfully deleted from the database.
 	Complete follow-on work and notify interest parties"
 
 	reStore uncacheObject: self. 
 
 	proxiedObject onUnstored.
 
-	copyObject := proxiedObject := SSWDBDeletedObject newForClass: class id: id.!
+	copyObject := proxiedObject := SSWDBDeletedObject newForClass: class id: id!
 
 _postCommitUpdates
 
@@ -320,9 +345,10 @@ _rollbackChanges
 
 _rollbackStore
 
-	"The receiver was a newly-persisted object - deregister from the reStore"
+	"Private - The receiver was a newly-persisted object - deregister from the reStore"
 
-	reStore deregisterProxy: self!
+	reStore deregisterProxy: self.
+	self _swapReferences!
 
 _rollbackUnstore
 
@@ -332,7 +358,7 @@ _rollbackUnstore
 
 _rollbackUpdates
 
-	"Forget any updates by instantiating from the copyObject.
+	"Private - Forget any updates by instantiating from the copyObject.
 	Also transfer over any events registered against the current proxiedObject"
 
 	| me him |
@@ -373,7 +399,9 @@ inspect
 !SSWDBCachingObjectProxy categoriesFor: #_aquireCopyObject!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_checkHasChanged!public!testing! !
 !SSWDBCachingObjectProxy categoriesFor: #_commitChanges!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_commitUpdates!actions-internal!public! !
+!SSWDBCachingObjectProxy categoriesFor: #_commitStore!actions-internal!private! !
+!SSWDBCachingObjectProxy categoriesFor: #_commitUnstore!actions-internal!private! !
+!SSWDBCachingObjectProxy categoriesFor: #_commitUpdates!actions-internal!private! !
 !SSWDBCachingObjectProxy categoriesFor: #_copyObject!accessing!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_copyObject:!accessing!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_fieldUpdates!evaluating!public! !
@@ -382,8 +410,9 @@ inspect
 !SSWDBCachingObjectProxy categoriesFor: #_isPersistent!public!testing! !
 !SSWDBCachingObjectProxy categoriesFor: #_matchStateOf:!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_postCommitDelete!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_postCommitUpdates!actions-internal!public! !
+!SSWDBCachingObjectProxy categoriesFor: #_postCommitStore!actions-internal!private! !
+!SSWDBCachingObjectProxy categoriesFor: #_postCommitUnstore!actions-internal!private! !
+!SSWDBCachingObjectProxy categoriesFor: #_postCommitUpdates!actions-internal!private! !
 !SSWDBCachingObjectProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_proxiedObject:!accessing!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !
@@ -393,9 +422,9 @@ inspect
 !SSWDBCachingObjectProxy categoriesFor: #_resolveUpdateConflicts!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_resolveUpdateConflictsWith:!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #_rollbackChanges!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_rollbackStore!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_rollbackUnstore!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_rollbackUpdates!actions-internal!public! !
+!SSWDBCachingObjectProxy categoriesFor: #_rollbackStore!actions-internal!private! !
+!SSWDBCachingObjectProxy categoriesFor: #_rollbackUnstore!actions-internal!private! !
+!SSWDBCachingObjectProxy categoriesFor: #_rollbackUpdates!actions-internal!private! !
 !SSWDBCachingObjectProxy categoriesFor: #_unstore!actions-internal!public! !
 !SSWDBCachingObjectProxy categoriesFor: #inspect!forwarding!public! !
 

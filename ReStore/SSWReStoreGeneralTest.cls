@@ -21,7 +21,7 @@ _test21GeneralDictionaryRefresh
 	"Check refresh of keys - general dict"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	key := t keyedGeneralDictionary keys asArray first.
 	value := t keyedGeneralDictionary at: key.
@@ -37,9 +37,7 @@ _test21GeneralDictionaryRefresh
 	self assert: (key name = keyOrig).
 	self assert: (value name = valueOrig)!
 
-setUp
-
-	super setUp.
+createTestData
 
 	self createStandardTestInstance.
 	reStore simulateReconnect!
@@ -51,7 +49,7 @@ test01Events
 	| t counter |
 
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	counter := OrderedCollection new.
 
 	reStore beginTransaction.
@@ -75,7 +73,7 @@ test02Rollback
 
 	"Test rollback"
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	reStore  beginTransaction.
 	t single1 name: 'single A'.
@@ -114,7 +112,7 @@ test02Rollback
 	reStore rollbackTransaction.
 
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) asOrderedCollection last.
 
 	self assert: (t single1 name = 'single1').
 	self assert: (t single2 name = 'single2').
@@ -173,20 +171,20 @@ test02RollbackManual
 
 	"Test rollbackAll: (manual rollback)"
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	t single1 name: 'single AA'.
 	n := t single2.
 	t single2: nil.
 	t single3: (Test new name: 'single3').
 	t ordered addLast: (Test new name: 'ordered 99').
-	reStore rollbackAll: (Array with: t with: t ordered with: t single1 with: n unstored with: t single3).
+	(Array with: t with: t ordered with: t single1 with: n unstored with: t single3) rollbackAll.
 
 	self assert: (t single1 name = 'single1').
 	self assert: (t single2 notNil and: [t single2 name = 'single2']).
-	self assert: ((reStore instancesOf: Test) anySatisfy: [ :e | e name = 'single2']).
+	self assert: ((Test storedInstancesIn: reStore) anySatisfy: [ :e | e name = 'single2']).
 	self assert: (t single3 == t single2).
-	self deny: ((reStore instancesOf: Test) anySatisfy: [ :e | e name = 'single3']).
+	self deny: ((Test storedInstancesIn: reStore) anySatisfy: [ :e | e name = 'single3']).
 	self assert: (t ordered size = 2).
 	self assert: (t ordered last name = 'ordered2')!
 
@@ -196,7 +194,7 @@ test03Commit
 
 	"Test commit"
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	"Check commit"
 	reStore beginTransaction.
@@ -237,7 +235,7 @@ test03Commit
 	reStore commitTransaction.
 
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) asOrderedCollection last.
 
 	self assert: (t single1 name = 'single A').
 	self assert: (t single2 name = 'single B').
@@ -300,32 +298,31 @@ test03Commit
 
 test03CommitManual
 
-	| t n prevSize |
+	| t prevSize |
 
 	"Test commitAll: (manual commit)"
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	prevSize := t ordered size.
 
-	n := t single1.
 	t single1: nil.
 	t single2 name: 'single BB'.
 	t single3: (Test new name: 'single CC').
 	t ordered addLast: (Test new name: 'ordered 99').
-	reStore commitAll: (Array with: t with: t ordered with: n unstored with: t single2 with: t single3).
+	t store.
 
 	reStore refreshAllObjects.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	self assert: (t single1 = nil).
 	self assert: (t single2 name = 'single BB').
-	self deny: ((reStore instancesOf: Test) anySatisfy: [ :each | each name = 'single A']).
+	self deny: ((Test storedInstancesIn: reStore) anySatisfy: [ :each | each name = 'single A']).
 	self assert: (t single3 name = 'single CC').
 	self assert: (t ordered size = (prevSize + 1)).
 	self assert: (t ordered last name = 'ordered 99').
 
 	t ordered removeLast.
-	reStore commitAll: (Array with: t ordered).
+	t store.
 	reStore refreshAllObjects.
 	self assert: (t ordered size = prevSize)
 !
@@ -334,9 +331,9 @@ test03LinkedQuery
 
 	| owner |
 
-	owner := (reStore instancesOf: OwnerTest) first.
+	owner := (OwnerTest storedInstancesIn: reStore) first.
 
-	self deny: (((reStore instancesOf: OwnedTest) select: [ :each | each owner = owner]) isEmpty)
+	self deny: ((OwnedTest storedInstancesIn: reStore) select: [ :each | each owner = owner]) isEmpty
 
 	!
 
@@ -346,7 +343,7 @@ test04
 
 	"Check Delete on Replace - owned"
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	prevName := t ownedOrdered first name.
 
@@ -355,11 +352,11 @@ test04
 	reStore commitTransaction.
 
 	reStore clearProxyCache.
-	r := (reStore instancesOf: Test satisfying: [ :each | each name = 'owned rep1']) asOrderedCollection.
+	r := (Test storedInstancesIn: reStore) select: [ :each | each name = 'owned rep1'].
 	self assert: (r size = 1).
 	self assert: (r first name = 'owned rep1').
 
-	r := (reStore instancesOf: Test satisfying: [ :each | each name = prevName]) asOrderedCollection.
+	r := (Test storedInstancesIn: reStore) select: [ :each | each name = prevName].
 	self assert: r isEmpty!
 
 test05
@@ -368,7 +365,7 @@ test05
 
 	"Check Delete on Remove - owned"
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	d := t ownedOrdered detect: [ :each | each name = 'owned1'].
@@ -381,7 +378,7 @@ test05
 	self deny: ((reStore proxyCache at: c) includesKey: id).
 
 	reStore clearProxyCache.
-	r := (reStore instancesOf: Test satisfying: [ :each | each name = 'owned1']) asOrderedCollection.
+	r := (Test storedInstancesIn: reStore) select: [ :each | each name = 'owned1'].
 	self assert: r isEmpty!
 
 test06
@@ -392,7 +389,7 @@ test06
 	Starting scenario is ordered1-ordered2"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t ordered at: 1 put: (OwnedTest new name: 'ordered rep1'; yourself).
@@ -400,7 +397,7 @@ test06
 
 	reStore clearProxyCache.
 	self assert: (t ordered first name = 'ordered rep1').
-	r := (reStore instancesOf: Test satisfying: [ :each | 'ordered*' match: each name]) asOrderedCollection.
+	r := (Test storedInstancesIn: reStore) select: [ :each | 'ordered*' match: each name].
 	self assert: (r size = 2).
 	self deny: (r anySatisfy: [ :each | each name = 'ordered1'])!
 
@@ -412,7 +409,7 @@ test07
 	Starting scenario is ordered ordered1-ordered2"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t ordered addLast: t ordered first.
@@ -432,7 +429,7 @@ test08
 	Starting scenario is ordered rep1a-ordered1-ordered4-ordered rep1"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t ordered first name: 'xxxx'.
@@ -441,8 +438,8 @@ test08
 
 	reStore clearProxyCache.
 	self assert: (t ordered first name = 'ordered rep1b').
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'ordered rep1a']) isEmpty).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'xxxx']) isEmpty).
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'ordered rep1a']) isEmpty.
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'xxxx']) isEmpty
 !
 
 test09
@@ -453,7 +450,7 @@ test09
 	Starting scenario is ordered1-ordered2"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t ordered removeFirst.
@@ -461,7 +458,7 @@ test09
 
 	reStore clearProxyCache.
 	self assert: (t ordered size = 1).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'ordered1']) isEmpty)
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'ordered1']) isEmpty
 !
 
 test10
@@ -472,7 +469,7 @@ test10
 	Starting scenario is ordered1-ordered2"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t ordered addFirst: t ordered removeLast.
@@ -492,7 +489,7 @@ test11
 	Starting scenario is list1-list2"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t list at: 1 put: (OwnedTest new name: 'list rep1'; yourself).
@@ -500,7 +497,7 @@ test11
 
 	reStore clearProxyCache.
 	self assert: (t list first name = 'list rep1').
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'list1']) isEmpty)!
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'list1']) isEmpty!
 
 test12
 
@@ -510,7 +507,7 @@ test12
 	Starting scenario is list1-list2"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t list removeLast.
@@ -519,7 +516,7 @@ test12
 	reStore clearProxyCache.
 	self assert: (t list size = 1).
 	self assert: (t list first name = 'list1').
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'list2']) isEmpty)
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'list2']) isEmpty
 !
 
 test13
@@ -529,7 +526,7 @@ test13
 	"Check delete on Remove - aspect dict"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t aspectDictionary removeKey: 'aspdic2'.
@@ -537,7 +534,7 @@ test13
 
 	reStore clearProxyCache.
 	self assert: (t aspectDictionary size = 2).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'aspdic2']) isEmpty)!
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'aspdic2']) isEmpty!
 
 test14
 
@@ -547,7 +544,7 @@ test14
 	Starting scenario is a>1, b>2, c>3"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t keyedBaseDictionary removeKey: 'b'.
@@ -555,7 +552,7 @@ test14
 
 	reStore clearProxyCache.
 	self assert: (t keyedBaseDictionary size = 2).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'keydic2']) isEmpty)
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'keydic2']) isEmpty
 !
 
 test15
@@ -566,7 +563,7 @@ test15
 	Starting scenario is a>1, b>2, c>3"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t keyedBaseDictionary at: 'a' put: (Test new name: 'keydic1b').
@@ -574,7 +571,7 @@ test15
 
 	reStore clearProxyCache.
 	self assert: (t aspectDictionary size = 3).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'keydic1a']) isEmpty)!
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'keydic1a']) isEmpty!
 
 test16
 
@@ -584,7 +581,7 @@ test16
 	Starting scenario is 1>1, 2>2, 3>3"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t keyedGeneralDictionary removeKey: (t keyedGeneralDictionary keys detect: [ :e | e name = 'key1']).
@@ -592,8 +589,8 @@ test16
 
 	reStore clearProxyCache.
 	self assert: (t keyedGeneralDictionary size = 2).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'key1']) isEmpty).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'value1']) isEmpty)
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'key1']) isEmpty.
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'value1']) isEmpty
 !
 
 test17
@@ -604,7 +601,7 @@ test17
 	Starting scenario is 1>1, 2>2, 3>3"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
 	t keyedGeneralDictionary 
@@ -615,7 +612,7 @@ test17
 	reStore clearProxyCache.
 	self assert: (t keyedGeneralDictionary size = 3).
 	self assert: (t keyedGeneralDictionary at: (t keyedGeneralDictionary keys detect: [ :e | e name = 'key2'])) name = 'value2a'.
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'value2']) isEmpty)
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'value2']) isEmpty
 !
 
 test18
@@ -627,7 +624,7 @@ test18
 
 	reStore clearProxyCache.
 
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	key3 := t keyedGeneralDictionary keys detect: [ :e | e name = 'key3'].
 
 	reStore beginTransaction.
@@ -640,8 +637,9 @@ test18
 
 	reStore clearProxyCache.
 	self assert: (t keyedGeneralDictionary size = 3).
-	self assert: ((reStore instancesOf: Test satisfying: [ :each | each name = 'key3']) isEmpty).
-	self deny: ((reStore instancesOf: Test satisfying: [ :each | each name = 'value3']) isEmpty)
+	self assert: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'key3']) isEmpty.
+	self deny: ((Test storedInstancesIn: reStore) satisfying: [ :each | each name = 'value3']) isEmpty
+
 !
 
 test20GeneralDictionaryRollback
@@ -651,7 +649,7 @@ test20GeneralDictionaryRollback
 	"Check refresh of keys - general dict"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	key := t keyedGeneralDictionary keys asArray first.
 	value := t keyedGeneralDictionary at: key.
@@ -662,7 +660,7 @@ test20GeneralDictionaryRollback
 	key name: keyOrig, '_changed'.
 	value name: valueOrig, '_changed'.
 
-	reStore rollback: t keyedGeneralDictionary withRelatedComponents.
+	t keyedGeneralDictionary rollback.
 
 	self assert: (key name = keyOrig).
 	self assert: (value name = valueOrig)!
@@ -672,13 +670,13 @@ test30GeneralCollectionRollback
 	| t value valueOrig |
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	value := t ordered first .
 	valueOrig := value name.
 	value name: valueOrig, '_changed'.
 
-	reStore rollback: t ordered withRelatedComponents.
+	t ordered rollback.
 
 	self assert: (value name = valueOrig)!
 
@@ -687,13 +685,13 @@ test31GeneralCollectionRefresh
 	| t value valueOrig |
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 
 	value := t ordered first .
 	valueOrig := value name.
 	value name: valueOrig, '_changed'.
 
-	reStore refresh: t ordered withRelatedComponents.
+	t refresh.
 
 	self assert: (value name = valueOrig)!
 
@@ -704,18 +702,18 @@ test99
 	"Check cascaded delete"
 
 	reStore clearProxyCache.
-	t := (reStore instancesOf: OwnerTest) asOrderedCollection last.
+	t := (OwnerTest storedInstancesIn: reStore) last.
 	reStore beginTransaction.
 
-	self assert: ((reStore instancesOf: Test) size = (2 "single1, single2" + t set size + t array size + t ordered size + t sorted size + t list size + t aspectDictionary size + t keyedBaseDictionary size + t keyedGeneralDictionary keys size + t keyedGeneralDictionary values size)).
+	self assert: (Test storedInstancesIn: reStore) size equals: (2 "single1, single2" + t set size + t array size + t ordered size + t sorted size + t list size + t aspectDictionary size + t keyedBaseDictionary size + t keyedGeneralDictionary keys size + t keyedGeneralDictionary values size).
 
 	t unstore.
 	reStore commitTransaction.
 
 	reStore clearProxyCache.
-	self assert: ((reStore instancesOf: Test) size = 1). "single1 is non-dependent so isn't deleted"! !
+	self assert: (Test storedInstancesIn: reStore) size equals: 1 "single1 is non-dependent so isn't deleted"! !
 !SSWReStoreGeneralTest categoriesFor: #_test21GeneralDictionaryRefresh!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #setUp!public!running! !
+!SSWReStoreGeneralTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreGeneralTest categoriesFor: #test01Events!public!unit tests! !
 !SSWReStoreGeneralTest categoriesFor: #test02Rollback!public!unit tests! !
 !SSWReStoreGeneralTest categoriesFor: #test02RollbackManual!public!unit tests! !

@@ -19,7 +19,7 @@ _testComponentExistenceOnDependency
 	self assert: (component _dbProxyIn: reStore ifNone: [nil]) notNil.
 
 	reStore simulateReconnect.
-	self assert: ((reStore instancesOf: component class) detect: [ :each | each name = component name] ifNone: [nil]) notNil!
+	self assert: ((component class storedInstancesIn: reStore) detect: [ :each | each name = component name] ifNone: [nil]) notNil!
 
 fetchTestObjects
 
@@ -44,10 +44,10 @@ testDependencyCascadedDelete
 
 	"Check that inst var contents are or are not deleted when the owning object is deleted, as appropriate for the specified relationship (i.e. delete if dependent, otherwise not)"
 
-	reStore commit: testObject unstored.
+	testObject unstore.
 
 	"Verify the delete"
-	self assert: (reStore instancesOf: testObject class) isEmpty.
+	self assert: (testObject class storedInstancesIn: reStore) isEmpty.
 
 	self _testComponentExistenceOnDependency!
 
@@ -56,7 +56,7 @@ testDependencyDeleteOnReplacement
 	"Check that non-dependent inst var contents are or are not deleted when replaced, as appropriate for the specified relationship (i.e. delete if dependent, otherwise not)"
 
 	testObject component: nil.
-	reStore commit: testObject.
+	testObject store.
 
 	self _testComponentExistenceOnDependency! !
 !SSWReStoreGenericObjectTest categoriesFor: #_testComponentExistenceOnDependency!helpers!public! !

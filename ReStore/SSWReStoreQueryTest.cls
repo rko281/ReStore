@@ -49,7 +49,7 @@ test1Simple
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	self assert: (instances size = 4).
 
@@ -73,7 +73,7 @@ test2Wildcards
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson satisfying:  [ :each | 'Sm*' match: each surname].
+	instances := (SimplePerson storedInstancesIn: reStore) satisfying:  [ :each | 'Sm*' match: each surname].
 
 	self assert: (instances isEmpty not).
 	self assert: (instances size = 2).
@@ -83,7 +83,7 @@ test3Order
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson satisfying: [ :each | each surname = 'Brown'].
+	instances := (SimplePerson storedInstancesIn: reStore) satisfying: [ :each | each surname = 'Brown'].
 	instances sortBlock: [ :a :b | a firstName <= b firstName].
 
 	self assert: (instances first firstName = 'Jim').
@@ -98,7 +98,7 @@ test3Sort
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson satisfying: [ :each | each surname = 'Brown'].
+	instances := (SimplePerson storedInstancesIn: reStore) satisfying: [ :each | each surname = 'Brown'].
 	self assert: ((instances asSortedCollection: [ :a :b | a firstName <= b firstName]) first firstName = 'Jim').
 
 	instances sortBlock: [ :a :b | a firstName > b firstName].
@@ -108,7 +108,7 @@ test4Modify
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson satisfying: [ :each | each surname = 'Brown'].
+	instances := (SimplePerson storedInstancesIn: reStore) satisfying: [ :each | each surname = 'Brown'].
 	self assert: (instances anySatisfy: [ :e | e emailAddress = '<unknown>']) not.
 
 	instances modify: [ :e | e emailAddress: '<unknown>'].
@@ -125,7 +125,7 @@ test5InlineFunctionQuery
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 	instances := instances satisfying: [ :each | (each firstName, ' ', each surname) = 'Jim Brown'].
 	self assert: (instances size = 1)!
 
@@ -133,7 +133,7 @@ test6MethodFunctionQuery
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 	instances := instances satisfying: [ :each | each fullName = 'Jim Brown'].
 	self assert: (instances size = 1)!
 
@@ -143,7 +143,7 @@ test6MethodFunctionQueryWithDirectInstVars
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 	self should: [instances := instances satisfying: [ :each | each fullNameDirect = 'Jim Brown']] raise: Error!
 
 test7InlineFunctionQueryComplex
@@ -152,7 +152,7 @@ test7InlineFunctionQueryComplex
 
 	self createProducts.
 
-	instances := reStore instancesOf: SimpleProduct.
+	instances := SimpleProduct storedInstancesIn: reStore.
 
 	instances := instances satisfying: [ :each | (each supplierPrice \\ 5) = 0].
 	self assert: (instances size = 2)!
@@ -163,7 +163,7 @@ test7MethodFunctionQueryComplex
 
 	self createProducts.
 
-	instances := reStore instancesOf: SimpleProduct.
+	instances := SimpleProduct storedInstancesIn: reStore.
 	self assert: ((instances detect: [ :each | each profitMargin > 50]) description = 'wobulator')!
 
 test8CustomQuery
@@ -174,7 +174,7 @@ test8CustomQuery
 
 	reStore sqlDialect sqlFunctions at: #plusPercent: put: '%1 * (1 + (%2 / 100))' asSQLFunction.
 
-	instances := reStore instancesOf: SimpleProduct.
+	instances := SimpleProduct storedInstancesIn: reStore.
 	results := instances collect: [ :each | each supplierPrice plusPercent: 100].
 	self assert: (results asSortedCollection asArray = #(2 10 200))!
 
@@ -184,7 +184,7 @@ test9MultiArgumentFieldQuery
 
 	self createProducts.
 
-	instances := reStore instancesOf: SimpleProduct.
+	instances := SimpleProduct storedInstancesIn: reStore.
 
 	"Nonsensical query, but tests a previously failing case with functions with > 1 argument, whose arguments are other fields (or functions thereof)"
 	results := instances select: [ :each | each retailPrice between: each supplierPrice and: each description size].
@@ -196,7 +196,7 @@ testAMultiArgumentMixedQuery
 
 	self createProducts.
 
-	instances := reStore instancesOf: SimpleProduct.
+	instances := SimpleProduct storedInstancesIn: reStore.
 
 	"Nonsensical query, but tests a previously failing case with functions with > 1 argument, whose arguments are a mix of constants and other fields (or functions thereof)"
 	results := instances select: [ :each | each retailPrice between: each supplierPrice and: 10].
@@ -208,7 +208,7 @@ testBMultiArgumentFunctionCollectFieldQuery
 
 	self createProducts.
 
-	instances := (reStore instancesOf: SimpleProduct) satisfying: [ :each | each description = 'gadget'].
+	instances := (SimpleProduct storedInstancesIn: reStore) satisfying: [ :each | each description = 'gadget'].
 
 	"Nonsensical query, but tests a previously failing case with functions with > 1 argument, whose arguments are other fields (or functions thereof)"
 	results := instances collect: [ :each | each description midString: (each retailPrice - each supplierPrice) asInteger + 1 from: each supplierPrice asInteger].
@@ -220,7 +220,7 @@ testCMultiArgumentFunctionCollectMixedQuery
 
 	self createProducts.
 
-	instances := (reStore instancesOf: SimpleProduct) satisfying: [ :each | each description = 'gadget'].
+	instances := (SimpleProduct storedInstancesIn: reStore) satisfying: [ :each | each description = 'gadget'].
 
 	"Nonsensical query, but tests a previously failing case with functions with > 1 argument, whose arguments are a mix of constants and other fields (or functions thereof)"	
 	results := instances collect: [ :each | each description midString: (each retailPrice - each supplierPrice) asInteger + 1 from: 5].
@@ -230,11 +230,11 @@ testCollectQuery
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	"Test various combinations and orderings"
 	results := ((instances collect: [ :each | each firstName || each surname || each friend firstName || each friend surname]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
@@ -283,7 +283,7 @@ testCollectQueryWithActualObject
 
 	| instances john dave zoe jim testBlock testCount |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	dave := instances detect: [ :each | each firstName = 'David'].
@@ -316,11 +316,11 @@ testCollectQueryWithFunction
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	"Test various combinations and orderings"
 	results := ((instances collect: [ :each | each firstName || each surname || (each friend firstName, ' ', each friend surname)]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
@@ -369,11 +369,11 @@ testCollectQueryWithInlineFunction
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	"Test various combinations and orderings"
 	results := ((instances collect: [ :each | each firstName || each surname || each fullName]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
@@ -422,11 +422,11 @@ testCollectQueryWithMultipleObjects
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	"Test various combinations and orderings"
 	results := ((instances collect: [ :each | each firstName || each friend firstName|| each test name || each surname]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
@@ -447,11 +447,11 @@ testCollectQueryWithMultipleObjectsFunction
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	results := ((instances collect: [ :each | each firstName || each friend firstName|| each test name || (each firstName, ' ', each surname)]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
 	self assert: (results size = 4).
@@ -464,11 +464,11 @@ testCollectQueryWithMultipleObjectsInlineFunction
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	results := ((instances collect: [ :each | each firstName || each friend firstName|| each test name || each fullName]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
 	self assert: (results size = 4).
@@ -481,7 +481,7 @@ testCollectQueryWithRelatedObject
 
 	| instances john dave testBlock testCount |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	dave := instances detect: [ :each | each firstName = 'David'].
@@ -509,11 +509,11 @@ testCollectQueryWithRelatedObjectFunction
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	"Test various combinations and orderings"
 	results := ((instances collect: [ :each | each firstName || each surname || (each friend firstName, ' ', each friend surname)]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
@@ -548,11 +548,11 @@ testCollectQueryWithRelatedObjectInlineFunction
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	"Test various combinations and orderings"
 	results := ((instances collect: [ :each | each firstName || each surname || each friend fullName]) asSortedCollection: [ :a :b | a first <= b first]) asArray.
@@ -587,11 +587,11 @@ testConcatenateQueryWithJoins
 
 	| instances john results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	john test: (Test new name: 'jTest').
-	reStore commit: john.
+	john store.
 
 	"Test various combinations and orderings which previously gave problems"
 	results := instances collect: [ :each | each firstName, each surname, each friend firstName, each friend surname].
@@ -616,7 +616,7 @@ testIncludesInQueryBlockEmptyCriteria
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	{Array. OrderedCollection. Set} do:
 		[ :collectionClass || criteria matches |
@@ -638,7 +638,7 @@ testIncludesInQueryBlockPersistentObject
 
 	| instances john david |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	john := instances detect: [ :each | each firstName = 'John'].
 	david := instances detect: [ :each | each firstName = 'David'].
@@ -657,7 +657,7 @@ testIncludesInQueryBlockSimple
 
 	| instances |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	"Test common collection classes (previously only Array worked"
 	{Array. Set. OrderedCollection} do: 
@@ -673,7 +673,7 @@ testInstancesCollectionIncludes
 
 	| instances zoe |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 	zoe := instances detect: [ :each | each firstName = 'Zoe'].
 
 	self assert: (instances includes: zoe).
@@ -687,7 +687,7 @@ testQueryEvaluationLocationDatabase
 
 	| instances names|
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	names := instances collect: [ :each | each firstName || each surname || each fullNameWithEvaluationLocation].
 
@@ -701,7 +701,7 @@ testQueryEvaluationLocationImage
 
 	| instances names|
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	names := instances asOrderedCollection collect: [ :each | each firstName || each surname || each fullNameWithEvaluationLocation].
 

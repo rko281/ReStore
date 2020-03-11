@@ -73,15 +73,11 @@ addClassesTo: aReStore
 	super addClassesTo: aReStore.
 	aReStore addClass: Test!
 
-otherCustomersSize
-
-	^105!
-
-setUp
+createTestData
 
 	| orders otherCustomers |
 
-	super setUp.
+	super createTestData.
 
 	orders := OrderedCollection new.
 
@@ -99,23 +95,34 @@ setUp
 		customer surname: each displayString; test: (Test new name: ('*<1p>*' expandMacrosWith: each)).
 		(each \\ 10) timesRepeat: [customer orders add: (SimpleProductOrder new product: wobulator; quantity: each; customer: customer; yourself)].
 		customer].
-	"reStore debugTo: Transcript."
-	reStore commitAll: 
-		((OrderedCollection withAll: orders)
-			add: customer1 withRelatedComponents;
-			add: customer2 withRelatedComponents;
-			add: customer3 withRelatedComponents;
-			addAll: (otherCustomers collect: [ :each | each withRelatedComponents]);
-			yourself).
-	"reStore debugTo: nil."
-	reStore refreshAllObjects.
+	
+	((OrderedCollection withAll: orders)
+		add: customer1;
+		add: customer2;
+		add: customer3;
+		addAll: otherCustomers;
+		yourself) storeAllIn: reStore.
 
-	customers := reStore instancesOf: SimplePerson.
+	customers := SimplePerson storedInstancesIn: reStore.
+
+	reStore refreshAllObjects.
 
 	"Ensure we have a mix of proxied and unproxied objects"
 	customer1 surname.
 	customer4 surname.
 
+	self deny: customer1 isDBProxy.
+	self assert: customer2 isDBProxy.
+	self assert: customer3 isDBProxy.
+	self deny: customer4 isDBProxy!
+
+otherCustomersSize
+
+	^105!
+
+setUp
+
+	super setUp.
 	self countQueries!
 
 testCollection
@@ -130,7 +137,7 @@ testCollection
 	self assert: (self queryCount = ((allCustomers size / reStore readAllBatchSize) ceiling)).
 
 	"Recover all products and reset the count"
-	(reStore instancesOf: SimpleProduct) asOrderedCollection.
+	(SimpleProduct storedInstancesIn: reStore) asOrderedCollection.
 	self resetQueryCount.
 
 	self assert: (allCustomers size = (self otherCustomersSize + 4)).
@@ -178,7 +185,7 @@ testProxyCollection
 	self assert: (self queryCount = (1 + (allCustomers size / reStore readAllBatchSize) ceiling)).
 
 	"Recover all products and reset the count"
-	(reStore instancesOf: SimpleProduct) asOrderedCollection.
+	(SimpleProduct storedInstancesIn: reStore) asOrderedCollection.
 	self resetQueryCount.
 
 	self assert: (allCustomers size = (self otherCustomersSize + 4)).
@@ -222,7 +229,7 @@ testProxyCollectionMultipleRead
 	self assert: (self queryCount = 1).
 
 	"Recover all products and reset the count"
-	(reStore instancesOf: SimpleProduct) asOrderedCollection.
+	(SimpleProduct storedInstancesIn: reStore) asOrderedCollection.
 	self resetQueryCount.
 
 	self assert: (allCustomers size = (self otherCustomersSize + 4)).
@@ -310,12 +317,12 @@ testRefreshCollection
 
 	"fetch: will miss the update since testOrder already exists in the image and has been viewed/touched"
 	allCustomers fetch: #orders.
-	self assert: testOrder quantity = originalQuantity.
+	self assert: testOrder quantity equals: originalQuantity.
 
 	"Following a soft rollback however we should pick it up"
 	reStore softRollback.
 	allCustomers fetch: #orders.
-	self assert: testOrder quantity = (originalQuantity * 10)!
+	self assert: testOrder quantity equals: (originalQuantity * 10)!
 
 testRefreshProxyCollection
 
@@ -375,6 +382,7 @@ testRefreshSingleObject
 !SSWReStoreReadWithComponentsTest categoriesFor: #_testProxySingleObjectTiming!public!unit tests! !
 !SSWReStoreReadWithComponentsTest categoriesFor: #_testTiming!public!unit tests! !
 !SSWReStoreReadWithComponentsTest categoriesFor: #addClassesTo:!public!running! !
+!SSWReStoreReadWithComponentsTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreReadWithComponentsTest categoriesFor: #otherCustomersSize!public!running! !
 !SSWReStoreReadWithComponentsTest categoriesFor: #setUp!public!running! !
 !SSWReStoreReadWithComponentsTest categoriesFor: #testCollection!public!unit tests! !

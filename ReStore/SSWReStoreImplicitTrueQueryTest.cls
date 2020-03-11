@@ -18,43 +18,40 @@ addClassesTo: aReStore
 	aReStore
 		addClass: TypeTest!
 
-setUp
+createTestData
 
-	super setUp.
+	reStore evaluateAsTransaction: 
+		[TypeTest new
+			varchar: '1true';
+			integer: 1;
+			char: 'a';
+			trueBoolean: true;
+			storeIn: reStore.
 
-	reStore beginTransaction.
+		TypeTest new
+			varchar: '1false';
+			integer: 1;
+			char: 'a';
+			trueBoolean: false;
+			storeIn: reStore.
 
-	TypeTest new
-		varchar: '1true';
-		integer: 1;
-		char: 'a';
-		trueBoolean: true;
-		storeIn: reStore.
+		TypeTest new
+			varchar: '2true';
+			integer: 2;
+			char: 'b';
+			trueBoolean: true;
+			storeIn: reStore.
 
-	TypeTest new
-		varchar: '1false';
-		integer: 1;
-		char: 'a';
-		trueBoolean: false;
-		storeIn: reStore.
+		TypeTest new
+			varchar: '2false';
+			integer: 2;
+			char: 'b';
+			trueBoolean: false;
+			storeIn: reStore].
 
-	TypeTest new
-		varchar: '2true';
-		integer: 2;
-		char: 'b';
-		trueBoolean: true;
-		storeIn: reStore.
+	reStore simulateReconnect.
 
-	TypeTest new
-		varchar: '2false';
-		integer: 2;
-		char: 'b';
-		trueBoolean: false;
-		storeIn: reStore.
-
-	reStore commitTransaction.
-
-	instances := reStore instancesOf: TypeTest!
+	instances := TypeTest storedInstancesIn: reStore!
 
 testImplicitTrueNotSoleCondition
 
@@ -222,7 +219,7 @@ testNonInlinedOrMid
 	self assert: results size = 3.
 	self assert: (results collect: [ :each | each varchar]) asSortedCollection asArray = #('1true' '2false' '2true')! !
 !SSWReStoreImplicitTrueQueryTest categoriesFor: #addClassesTo:!public! !
-!SSWReStoreImplicitTrueQueryTest categoriesFor: #setUp!public! !
+!SSWReStoreImplicitTrueQueryTest categoriesFor: #createTestData!public! !
 !SSWReStoreImplicitTrueQueryTest categoriesFor: #testImplicitTrueNotSoleCondition!public! !
 !SSWReStoreImplicitTrueQueryTest categoriesFor: #testImplicitTrueSoleCondition!public! !
 !SSWReStoreImplicitTrueQueryTest categoriesFor: #testInlinedAndFirst!public! !

@@ -39,13 +39,13 @@ setUp
 
 tearDown
 
-	super tearDown.
-
-	SSWReStore reset.
-
 	reStore3 isNil ifFalse: 
 		[self releaseReStore: reStore3.
-		reStore3 := nil]!
+		reStore3 := nil].
+
+	super tearDown.
+
+	SSWReStore reset!
 
 testDefaultStoredInstancesWithAffiliations
 

@@ -19,34 +19,34 @@ addClassesTo: aReStore
 
 	(aReStore tableForClass: SimplePerson) define: #orders as: self ordersCollectionDefinition!
 
-ordersCollectionDefinition
-
-	"Owned collection"
-
-	^(OrderedCollection of: SimpleProductOrder related owner: #customer)!
-
-setUp
+createTestData
 
 	| products customers |
 
-	super setUp.
+	super createTestData.
 
 	self createProducts.
 
-	products := (reStore instancesOf: SimpleProduct) asOrderedCollection.
+	products := (SimpleProduct storedInstancesIn: reStore) asOrderedCollection.
 	widget := products detect: [ :each | each description = 'widget'].
 	gadget := products detect: [ :each | each description = 'gadget'].
 	wobulator := products detect: [ :each | each description = 'wobulator'].
 
-	customers := (reStore instancesOf: SimplePerson) asOrderedCollection.
+	customers := (SimplePerson storedInstancesIn: reStore) asOrderedCollection.
 	customers size = 4 ifFalse: [self error: 'test data incorrect'].
 	customer1 := customers first.
 	customer2 := customers second.
 	customer3 := customers third.
-	customer4 := customers last! !
+	customer4 := customers last!
+
+ordersCollectionDefinition
+
+	"Owned collection"
+
+	^(OrderedCollection of: SimpleProductOrder related owner: #customer)! !
 !SSWReStoreProductOrdersTest categoriesFor: #addClassesTo:!public!running! !
+!SSWReStoreProductOrdersTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreProductOrdersTest categoriesFor: #ordersCollectionDefinition!constants!public! !
-!SSWReStoreProductOrdersTest categoriesFor: #setUp!public!running! !
 
 !SSWReStoreProductOrdersTest class methodsFor!
 

@@ -12,9 +12,7 @@ https://github.com/rko281/ReStore'!
 !SSWReStoreRemoteTest categoriesForClass!Unclassified! !
 !SSWReStoreRemoteTest methodsFor!
 
-setUp
-
-	super setUp.
+createTestData
 
 	self createStandardTestInstance.
 	reStore simulateReconnect!
@@ -23,7 +21,7 @@ test1OwnedRemote
 
 	| inst |
 
-	inst := (reStore instancesOf: OwnerTest) first.
+	inst := (OwnerTest storedInstancesIn: reStore) first.
 
 	self assert: (inst ownedOrdered remote size = 2).
 	self assert: (inst ownedOrdered remote asOrderedCollection anySatisfy: [ :each | each name = 'owned1']).
@@ -50,7 +48,7 @@ test2GeneralRemote
 
 	| inst |
 
-	inst := (reStore instancesOf: OwnerTest) first.
+	inst := (OwnerTest storedInstancesIn: reStore) first.
 
 	self assert: (inst ordered remote size = 2).
 	self assert: (inst ordered remote asOrderedCollection first name = 'ordered1').
@@ -70,7 +68,7 @@ test2GeneralRemote
 	reStore commitTransaction.
 	self assert: (inst ordered remote size = 3).
 	self assert: (inst ordered remote asOrderedCollection last name = 'ordered3')! !
-!SSWReStoreRemoteTest categoriesFor: #setUp!public!running! !
+!SSWReStoreRemoteTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreRemoteTest categoriesFor: #test1OwnedRemote!public!unit tests! !
 !SSWReStoreRemoteTest categoriesFor: #test2GeneralRemote!public!unit tests! !
 

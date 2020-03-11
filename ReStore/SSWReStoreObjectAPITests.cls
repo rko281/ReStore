@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-SSWReStoreTest subclass: #SSWReStoreObjectAPITests
-	instanceVariableNames: 'reStore2'
+SSWReStore2Test subclass: #SSWReStoreObjectAPITests
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -63,22 +63,6 @@ createReStore
 	"Private - Use the default instance"
 
 	reStore := ReStore!
-
-setUp
-
-	super setUp.
-
-	reStore2 := SSWReStore new.
-	self initReStore: reStore2.
-
-	reStore2 connect!
-
-tearDown
-
-	super tearDown.
-	reStore2 isNil ifFalse: 
-		[self releaseReStore: reStore2.
-		reStore2 := nil]!
 
 test01Store
 
@@ -613,11 +597,9 @@ test19UnstoreAll
 	self assert: (Test storedInstances satisfying: [ :each | each name = prevSingleName1]) size = (prevSingleCount1 - 1).
 	self assert: (OwnerTest storedInstances satisfying: [ :each | each name = prevName2]) size = (prevCount2 - 1).
 	self assert: (Test storedInstances satisfying: [ :each | each name = prevSingleName2]) size = (prevSingleCount2 - 1)! !
-!SSWReStoreObjectAPITests categoriesFor: #_testCreateObject!private! !
-!SSWReStoreObjectAPITests categoriesFor: #_testCreateObjects!private! !
+!SSWReStoreObjectAPITests categoriesFor: #_testCreateObject!private!running! !
+!SSWReStoreObjectAPITests categoriesFor: #_testCreateObjects!private!running! !
 !SSWReStoreObjectAPITests categoriesFor: #createReStore!private!running! !
-!SSWReStoreObjectAPITests categoriesFor: #setUp!public!running! !
-!SSWReStoreObjectAPITests categoriesFor: #tearDown!public!running! !
 !SSWReStoreObjectAPITests categoriesFor: #test01Store!public!unit tests! !
 !SSWReStoreObjectAPITests categoriesFor: #test02Rollback!public!unit tests! !
 !SSWReStoreObjectAPITests categoriesFor: #test03Refresh!public!unit tests! !

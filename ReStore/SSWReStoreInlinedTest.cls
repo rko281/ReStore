@@ -14,9 +14,8 @@ addClassesTo: aReStore
 
 	reStore addClass: InlinedTestPerson; addClass: SimpleAddress!
 
-setUp
+createTestData 
 
-	super setUp.
 	(Array 
 		with: 
 			(InlinedTestPerson new 
@@ -67,10 +66,9 @@ setUp
 				bankBalance: (NumberWithCurrency new number: 987.65; currency: 'EUR'; yourself);
 				yourself)) storeAllIn: reStore.
 
-
 	reStore simulateReconnect.
 
-	persons := (reStore instancesOf: InlinedTestPerson) sortBlock: [ :p1 :p2 | p1 firstName <= p2 firstName]!
+	persons := (InlinedTestPerson storedInstancesIn: reStore) sortBlock: [ :p1 :p2 | p1 firstName <= p2 firstName]!
 
 test01Verify
 
@@ -688,7 +686,7 @@ test23ModifyDisambiguation
 	self assert: (persons allSatisfy: [ :each | each address2 postcode code1 ~= 'code1_mod']).
 	self assert: (persons allSatisfy: [ :each | each address2 postcode code1 ~= '456 some close']).! !
 !SSWReStoreInlinedTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreInlinedTest categoriesFor: #setUp!public!running! !
+!SSWReStoreInlinedTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreInlinedTest categoriesFor: #test01Verify!public!unit tests! !
 !SSWReStoreInlinedTest categoriesFor: #test02QuerySimple!public!unit tests! !
 !SSWReStoreInlinedTest categoriesFor: #test03QueryFirstLevelInlined!public!unit tests! !

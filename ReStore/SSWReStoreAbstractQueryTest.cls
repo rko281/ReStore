@@ -12,58 +12,51 @@ https://github.com/rko281/ReStore'!
 !SSWReStoreAbstractQueryTest categoriesForClass!Unclassified! !
 !SSWReStoreAbstractQueryTest methodsFor!
 
-setUp
+createTestData
 
-	| john jim david zoe |
+	reStore evaluateAsTransaction:
+		[| john jim david zoe |
+		john := SimplePerson new 
+			surname: 'Smith'; 
+			firstName: 'John'; 
+			emailAddress: 'john@something'; 
+			age: 20;
+			storeIn: reStore.
 
-	super setUp.
+		jim := SimplePerson new 
+			surname: 'Brown'; 
+			firstName: 'Jim'; 
+			emailAddress: 'jim@somewhere'; 
+			age: 30;
+			storeIn: reStore.
 
-	reStore beginTransaction.
+		david := SimplePerson new 
+			surname: 'Smythe'; 
+			firstName: 'David'; 
+			emailAddress: 'david@somewhere'; 
+			age: 40;
+			storeIn: reStore.
 
-	john := SimplePerson new 
-		surname: 'Smith'; 
-		firstName: 'John'; 
-		emailAddress: 'john@something'; 
-		age: 20;
-		storeIn: reStore.
+		zoe := SimplePerson new 
+			surname: 'Brown'; 
+			firstName: 'Zoe';  
+			friend: john;
+			age: 20;
+			yourself;
+			storeIn: reStore.
 
-	jim := SimplePerson new 
-		surname: 'Brown'; 
-		firstName: 'Jim'; 
-		emailAddress: 'jim@somewhere'; 
-		age: 30;
-		storeIn: reStore.
-
-	david := SimplePerson new 
-		surname: 'Smythe'; 
-		firstName: 'David'; 
-		emailAddress: 'david@somewhere'; 
-		age: 40;
-		storeIn: reStore.
-
-	zoe := SimplePerson new 
-		surname: 'Brown'; 
-		firstName: 'Zoe';  
-		friend: john;
-		age: 20;
-		yourself;
-		storeIn: reStore.
-
-	john friend: david.
-
-	reStore commitTransaction
-!
+		john friend: david]!
 
 sortedPersonFullNames
 
 	^#('David Smythe' 'Jim Brown' 'John Smith' 'Zoe Brown')! !
-!SSWReStoreAbstractQueryTest categoriesFor: #setUp!public! !
-!SSWReStoreAbstractQueryTest categoriesFor: #sortedPersonFullNames!public! !
+!SSWReStoreAbstractQueryTest categoriesFor: #createTestData!public!running! !
+!SSWReStoreAbstractQueryTest categoriesFor: #sortedPersonFullNames!constants!public! !
 
 !SSWReStoreAbstractQueryTest class methodsFor!
 
 isAbstract
 
-	^self name == #SSWReStoreAbstractQueryTest! !
+	^self == SSWReStoreAbstractQueryTest! !
 !SSWReStoreAbstractQueryTest class categoriesFor: #isAbstract!public! !
 

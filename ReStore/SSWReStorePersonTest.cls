@@ -26,6 +26,6 @@ addClassesTo: aReStore
 
 isAbstract
 
-	^self name == #SSWReStorePersonTest! !
+	^self == SSWReStorePersonTest! !
 !SSWReStorePersonTest class categoriesFor: #isAbstract!public! !
 

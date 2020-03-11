@@ -100,6 +100,8 @@ createStandardTestInstance
 
 	reStore commitTransaction!
 
+createTestData!
+
 initReStore: aReStore
 
 	self initConnectionFor: aReStore!
@@ -115,10 +117,8 @@ refreshDelay
 
 releaseReStore: aReStore
 
-	aReStore isConnected ifTrue: 
-		[[aReStore destroyAllClasses] on: Error do: [ :exc | aReStore reconnect; destroyAllClasses. exc return].
-		aReStore disconnect].
-	
+	aReStore isConnected ifTrue: [aReStore disconnect].
+
 	aReStore clearTableCache!
 
 setUp
@@ -127,19 +127,23 @@ setUp
 	self initReStore: reStore.
 	reStore connect.
 	self addClassesTo: reStore.
-	reStore synchronizeAllClasses!
+	reStore destroyAllClasses; synchronizeAllClasses.
+	self createTestData!
 
 tearDown
 
 	self resetQueryCount; stopQueryCounting.
 
 	reStore isNil ifFalse: 
-		[self releaseReStore: reStore.
+		[reStore reconnect.
+		reStore destroyAllClasses.
+		self releaseReStore: reStore.
 		reStore := nil]! !
 !SSWReStoreTest categoriesFor: #addClassesTo:!public!running! !
 !SSWReStoreTest categoriesFor: #countQueriesDuring:!public!running! !
 !SSWReStoreTest categoriesFor: #createReStore!private!running! !
 !SSWReStoreTest categoriesFor: #createStandardTestInstance!private!running! !
+!SSWReStoreTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreTest categoriesFor: #initReStore:!public!running! !
 !SSWReStoreTest categoriesFor: #performTest!public! !
 !SSWReStoreTest categoriesFor: #refreshDelay!accessing!public! !

@@ -94,7 +94,7 @@ test5PersistentByRef
 	template
 		time: nil;
 		surname: 'Brown';
-		friend: ((reStore instancesOf: SimplePerson) detect: [ :e | (e firstName = 'John') & (e surname = 'Smith')]).
+		friend: ((SimplePerson storedInstancesIn: reStore) detect: [ :e | (e firstName = 'John') & (e surname = 'Smith')]).
 
 	instances := template similarInstancesIn: reStore.
 	self assert: (instances size = 1).
@@ -103,7 +103,7 @@ test5PersistentByRef
 	self assert: (instances first surname = 'Brown').
 
 	template friend: 
-		((reStore instancesOf: SimplePerson) detect: [ :e | (e firstName = 'Jim') & (e surname = 'Brown')]).
+		((SimplePerson storedInstancesIn: reStore) detect: [ :e | (e firstName = 'Jim') & (e surname = 'Brown')]).
 	instances := template similarInstancesIn: reStore.
 	self assert: (instances size = 0)! !
 !SSWReStoreQueryByExampleTest categoriesFor: #test1Simple!public! !

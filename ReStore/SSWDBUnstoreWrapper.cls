@@ -22,7 +22,12 @@ _commitIn: anSSWReStore
 
 	"Commit the wrapped object by unstoring it"
 
-	self object unstore! !
+	self object unstore!
+
+_reStoreIfNone: aBlock
+
+	^SSWReStore reStoreForObject: self object ifNone: aBlock! !
 !SSWDBUnstoreWrapper categoriesFor: #_checkHasChangedIn:!public!testing! !
 !SSWDBUnstoreWrapper categoriesFor: #_commitIn:!operations!public! !
+!SSWDBUnstoreWrapper categoriesFor: #_reStoreIfNone:!accessing!public! !
 

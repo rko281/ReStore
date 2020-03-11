@@ -25,6 +25,7 @@ package classNames
 	add: #SimplePerson2;
 	add: #SimpleProduct;
 	add: #SimpleProductOrder;
+	add: #SSWReStore2Test;
 	add: #SSWReStoreAbstractQueryTest;
 	add: #SSWReStoreAggregateQueryTest;
 	add: #SSWReStoreBlockAndOrQueryTest;
@@ -241,6 +242,11 @@ TestCase subclass: #SSWReStoreTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'queryCount'!
+SSWReStoreTest subclass: #SSWReStore2Test
+	instanceVariableNames: 'reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreTest subclass: #SSWReStoreDataIDTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -248,11 +254,6 @@ SSWReStoreTest subclass: #SSWReStoreDataIDTest
 	classInstanceVariableNames: ''!
 SSWReStoreTest subclass: #SSWReStoreGeneralTest
 	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWReStoreTest subclass: #SSWReStoreGenericTest
-	instanceVariableNames: 'testObject reStore2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -266,18 +267,8 @@ SSWReStoreTest subclass: #SSWReStoreImplicitTrueQueryTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWReStoreTest subclass: #SSWReStoreObjectAPITests
-	instanceVariableNames: 'reStore2'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 SSWReStoreTest subclass: #SSWReStorePersonTest
 	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWReStoreTest subclass: #SSWReStoreRefreshTest
-	instanceVariableNames: 'reStore2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -287,17 +278,32 @@ SSWReStoreTest subclass: #SSWReStoreRemoteTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreTest subclass: #SSWReStoreTypeTest
-	instanceVariableNames: 'date time datetime'
+	instanceVariableNames: 'date time datetime typeTest'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWReStoreTest subclass: #SSWReStoreUpdateClashTest
-	instanceVariableNames: 'reStore2'
+SSWReStore2Test subclass: #SSWReStoreGenericTest
+	instanceVariableNames: 'testObject'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWReStoreTest subclass: #SSWReStoreUpdateClashTestPersistent
-	instanceVariableNames: 'reStore2 singleA1 singleB1 singleC1 singleA2 singleB2 singleC2'
+SSWReStore2Test subclass: #SSWReStoreObjectAPITests
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStore2Test subclass: #SSWReStoreRefreshTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStore2Test subclass: #SSWReStoreUpdateClashTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStore2Test subclass: #SSWReStoreUpdateClashTestPersistent
+	instanceVariableNames: 'singleA1 singleB1 singleC1 singleA2 singleB2 singleC2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -407,6 +413,16 @@ SSWReStoreNonRelatedObjectTest subclass: #SSWReStoreNonRelatedDependentObjectTes
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreRelatedObjectTest subclass: #SSWReStoreDependentObjectTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRefreshTest subclass: #SSWReStoreRefreshNoVersTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreUpdateClashTest subclass: #SSWReStoreTransactionlessUpdateClashTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -562,16 +578,6 @@ SSWReStoreReadWithComponentsTest subclass: #SSWReStoreOwnedCollectionReadWithCom
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreTableTest subclass: #SSWReStoreFullTableTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWReStoreRefreshTest subclass: #SSWReStoreRefreshNoVersTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWReStoreUpdateClashTest subclass: #SSWReStoreTransactionlessUpdateClashTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

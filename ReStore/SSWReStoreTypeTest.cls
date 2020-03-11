@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWReStoreTest subclass: #SSWReStoreTypeTest
-	instanceVariableNames: 'date time datetime'
+	instanceVariableNames: 'date time datetime typeTest'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -16,7 +16,7 @@ addClassesTo: aReStore
 
 	aReStore addClass: TypeTest!
 
-createTestInstance
+createTestData
 
 	datetime := DateAndTime now withResolution: reStore sqlDialect maxDateTimeResolution.
 	date := datetime asDate.
@@ -51,7 +51,7 @@ createTestInstance
 	reStore commitTransaction.
 
 	reStore simulateReconnect.
-	^(reStore instancesOf: TypeTest) first!
+	typeTest := (TypeTest storedInstancesIn: reStore) first!
 
 testANSI
 
@@ -61,7 +61,7 @@ testANSI
 
 testBytes
 
-	| bytes allBytes tiny med large t id |
+	| bytes allBytes tiny med large id |
 
 	bytes := ByteArray withAll: (0 to: 255).
 	allBytes := bytes.
@@ -71,85 +71,64 @@ testBytes
 	med := allBytes copyFrom: 1 to: 2000.
 	large := allBytes copyFrom: 1 to: 5000.
 
-	t := self createTestInstance.
-	t 
+	typeTest 
 		tinyBlob: tiny;
 		medBlob: med;
 		largeBlob: large;
 		unsizedBlob: allBytes;
 		store.
-	id := t _id.
+	id := typeTest _id.
 
 	reStore simulateReconnect.
-	t := (reStore instancesOf: TypeTest) detect: [ :each | each _id = id].
+	typeTest := (TypeTest storedInstancesIn: reStore) detect: [ :each | each _id = id].
 
-	self assert: t tinyBlob equals: tiny.
-	self assert: t medBlob equals: med.
-	self assert: t largeBlob equals: large.
-	self assert: t unsizedBlob equals: allBytes.
+	self assert: typeTest tinyBlob equals: tiny.
+	self assert: typeTest medBlob equals: med.
+	self assert: typeTest largeBlob equals: large.
+	self assert: typeTest unsizedBlob equals: allBytes.
 
 	"SQLServer can't query on binary columns"
 	reStore sqlDialect class ~~ SSWSQLServerDialect ifTrue: 
-		[self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each tinyBlob = tiny]) identicalTo: t.
-		self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each medBlob = med]) identicalTo: t.
-		self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each largeBlob = large]) identicalTo: t.
-		self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each unsizedBlob = allBytes]) identicalTo: t]!
+		[self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each tinyBlob = tiny]) identicalTo: typeTest.
+		self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each medBlob = med]) identicalTo: typeTest.
+		self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each largeBlob = large]) identicalTo: typeTest.
+		self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each unsizedBlob = allBytes]) identicalTo: typeTest]!
 
 testDate
 
-	| t |
-
-	t := self createTestInstance.
-
-	self assert: (t date = date)!
+	self assert: (typeTest date = date)!
 
 testDateQuery
 
-	| t t2|
-
-	t := self createTestInstance.
+	| t2 |
 
 	reStore simulateReconnect.
-	t2 := (reStore instancesOf: TypeTest) detect: [ :each | each date = t date] ifNone: [nil].
+	t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each date = typeTest date] ifNone: [nil].
 	self assert: t2 notNil.
-	self assert: t2 time = t time!
+	self assert: t2 time = typeTest time!
 
 testDateTime
 
-	| t |
-
-	t := self createTestInstance.
-
-	self assert: (t datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution))!
+	self assert: (typeTest datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution))!
 
 testDateTimeQuery
 
 	| t |
 
-	self createTestInstance.
-
-	t := (reStore instancesOf: TypeTest) detect: [ :each | each datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution)] ifNone: [nil].
+	t := (TypeTest storedInstancesIn: reStore) detect: [ :each | each datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution)] ifNone: [nil].
 	
 	self assert: t notNil!
 
 testDateTimeWithMilliseconds
 
-	| t |
-
 	reStore sqlDialect maxDateTimeResolution < 3 ifTrue: [^self].
 
-	t := self createTestInstance.
-
 	"Take account of rounding differences between image and sql dialect"
-	self assert: ((t datetimeWithMilliseconds - (datetime withResolution: 3)) <= 1 milliseconds)!
+	self assert: ((typeTest datetimeWithMilliseconds - (datetime withResolution: 3)) <= 1 milliseconds)!
 
 testDecimal
 
-	| t |
-
-	t := self createTestInstance.
-
-	self assert: (t decimal = 12345.6789s4)!
+	self assert: (typeTest decimal = 12345.6789s4)!
 
 testExtendedANSI
 
@@ -159,68 +138,57 @@ testExtendedANSI
 
 testGeneral
 
-	| t |
-
-	t := self createTestInstance.
-
-	self assert: (t char trimBlanks = 'CHAR').
-	self assert: (t varchar = 'VARCHAR').
-	self assert: (t medText = ((String new: 2000) atAllPut: $M; yourself)).
-	self assert: (t largeText = ((String new: 5000) atAllPut: $L; yourself)).
-	self assert: (t unsizedText = ((String new: 6000) atAllPut: $U; yourself)).
-	self assert: (t integer = 123).
-	self assert: (t float = 123.456).
-	self assert: (t falseBoolean = false)!
+	self assert: (typeTest char trimBlanks = 'CHAR').
+	self assert: (typeTest varchar = 'VARCHAR').
+	self assert: (typeTest medText = ((String new: 2000) atAllPut: $M; yourself)).
+	self assert: (typeTest largeText = ((String new: 5000) atAllPut: $L; yourself)).
+	self assert: (typeTest unsizedText = ((String new: 6000) atAllPut: $U; yourself)).
+	self assert: (typeTest integer = 123).
+	self assert: (typeTest float = 123.456).
+	self assert: (typeTest falseBoolean = false)!
 
 testStrings: aString
 
-	| t id |
+	| id |
 
-	t := self createTestInstance.
-	t 
+	typeTest 
 		varchar: aString;
 		medText: aString;
 		largeText: aString;
 		unsizedText: aString;
 		store.
-	id := t _id.
+	id := typeTest _id.
 
 	reStore simulateReconnect.
-	t := (reStore instancesOf: TypeTest) detect: [ :each | each _id = id].
+	typeTest := (TypeTest storedInstancesIn: reStore) detect: [ :each | each _id = id].
 
-	self assert: t varchar equals: aString.
-	self assert: t medText equals: aString.
-	self assert: t largeText equals: aString.
-	self assert: t unsizedText equals: aString.
+	self assert: typeTest varchar equals: aString.
+	self assert: typeTest medText equals: aString.
+	self assert: typeTest largeText equals: aString.
+	self assert: typeTest unsizedText equals: aString.
 
-	self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each varchar = aString]) identicalTo: t.
-	self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each medText = aString]) identicalTo: t.
-	self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each largeText = aString]) identicalTo: t.
+	self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each varchar = aString]) identicalTo: typeTest.
+	self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each medText = aString]) identicalTo: typeTest.
+	self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each largeText = aString]) identicalTo: typeTest.
 
 	"SQLServer can't compare on unsized text columns"
 	reStore sqlDialect class ~~ SSWSQLServerDialect ifTrue: 
-		[self assert: ((reStore instancesOf: TypeTest) detect: [ :each | each unsizedText = aString]) identicalTo: t]!
+		[self assert: ((TypeTest storedInstancesIn: reStore) detect: [ :each | each unsizedText = aString]) identicalTo: typeTest]!
 
 testTime
 
-	| t |
-
-	t := self createTestInstance.
-
 	"Use difference of <= 1 second to take account of different roundings in image and db"
-	self assert: (t time asSeconds - time asSeconds) abs <= 1!
+	self assert: (typeTest time asSeconds - time asSeconds) abs <= 1!
 
 testTimeQuery
 
-	| t t2|
-
-	t := self createTestInstance.
+	| t2 |
 
 	reStore simulateReconnect.
 
-	t2 := (reStore instancesOf: TypeTest) detect: [ :each | each time = time] ifNone: [nil].
+	t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each time = time] ifNone: [nil].
 	self assert: t2 notNil.
-	self assert: t2 date = t date!
+	self assert: t2 date = typeTest date!
 
 testUTF8_2
 
@@ -246,7 +214,7 @@ testUTF8_mixed
 
 	self testStrings: (Utf8String fromByteArray: #[195 156 98 195 168 114 115 116 114 195 174 195 177 103 195 169]) "Übèrstrîñgé"! !
 !SSWReStoreTypeTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreTypeTest categoriesFor: #createTestInstance!public!running! !
+!SSWReStoreTypeTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreTypeTest categoriesFor: #testANSI!public!unit tests! !
 !SSWReStoreTypeTest categoriesFor: #testBytes!public!running! !
 !SSWReStoreTypeTest categoriesFor: #testDate!public!unit tests! !

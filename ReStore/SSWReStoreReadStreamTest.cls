@@ -29,6 +29,14 @@ _testRead: anInteger during: aBlock
 
 	self assert: SimplePerson allInstances size <= (before + (anInteger * 2)) "* 2 since a copy is created for each instance read"!
 
+createTestData
+
+	self sampleSet storeAllIn: reStore.
+
+	reStore simulateReconnect.
+
+	readStream := ((SimplePerson storedInstancesIn: reStore) beOrdered; include: #address; yourself) readStream!
+
 sampleSet
 
 	^(1 to: self sampleSize) collect: 
@@ -43,16 +51,6 @@ sampleSet
 sampleSize
 
 	^50!
-
-setUp
-
-	super setUp.
-
-	self sampleSet storeAllIn: reStore.
-
-	reStore simulateReconnect.
-
-	readStream := ((SimplePerson storedInstancesIn: reStore) beOrdered; include: #address; yourself) readStream!
 
 testAtEnd
 
@@ -233,9 +231,9 @@ testUpToInclude
 	self _testIncludeDuring: [readStream upTo: j25]! !
 !SSWReStoreReadStreamTest categoriesFor: #_testIncludeDuring:!private!unit tests! !
 !SSWReStoreReadStreamTest categoriesFor: #_testRead:during:!private!unit tests! !
+!SSWReStoreReadStreamTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreReadStreamTest categoriesFor: #sampleSet!public!running! !
 !SSWReStoreReadStreamTest categoriesFor: #sampleSize!public!running! !
-!SSWReStoreReadStreamTest categoriesFor: #setUp!public!running! !
 !SSWReStoreReadStreamTest categoriesFor: #testAtEnd!public!unit tests! !
 !SSWReStoreReadStreamTest categoriesFor: #testNext!public!unit tests! !
 !SSWReStoreReadStreamTest categoriesFor: #testNextAvailable!public!unit tests! !

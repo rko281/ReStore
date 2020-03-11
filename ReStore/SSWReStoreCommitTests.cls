@@ -29,7 +29,7 @@ test01SelfReference
 
 	reStore simulateReconnect.
 
-	obj := (reStore instancesOf: SimplePerson) first.
+	obj := (SimplePerson storedInstancesIn: reStore) first.
 	self assert: (obj friend == obj)
 
 	!
@@ -43,14 +43,14 @@ test02MultiCommitSameObject
 
 	reStore simulateReconnect.
 
-	obj := (reStore instancesOf: SimplePerson) first.
+	obj := (SimplePerson storedInstancesIn: reStore) first.
 	obj firstName: 'David'.
 
-	self shouldnt: [success := reStore commitAll: ((Array new: 20) atAllPut: obj; yourself)] raise: Error.
+	self shouldnt: [success := ((Array new: 20) atAllPut: obj; yourself) storeAll] raise: Error.
 	self assert: success.
 
 	reStore simulateReconnect.
-	people := reStore instancesOf: SimplePerson.
+	people := SimplePerson storedInstancesIn: reStore.
 	self assert: (people size = 1).
 	obj := people first.
 	self assert: (obj firstName = 'David')!
@@ -60,11 +60,11 @@ test03MultiStoreSameObject
 	| obj success people |
 
 	obj := SimplePerson new firstName: 'Dave'.
-	self shouldnt: [success := reStore commitAll: (Array with: obj with: obj with: obj with: obj)] raise: Error.
+	self shouldnt: [success := ((Array with: obj with: obj with: obj with: obj) storeAllIn: reStore)] raise: Error.
 	self assert: success.
 
 	reStore simulateReconnect.
-	people := reStore instancesOf: SimplePerson.
+	people := SimplePerson storedInstancesIn: reStore.
 	self assert: (people size = 1).
 	obj := people first.
 	self assert: (obj firstName = 'Dave')!
@@ -85,12 +85,12 @@ test04MultiStoreSameObjectViaRelationships
 		single2: tst;
 		single3: tst.
 
-	self shouldnt: [success := reStore commitAll: (Array with: obj1 withRelatedComponents with: obj2 withRelatedComponents with: tst)] raise: Error.
+	self shouldnt: [success := ((Array with: obj1 with: obj2 with: tst) storeAllIn: reStore)] raise: Error.
 	self assert: success.
 
 	reStore simulateReconnect.
-	ownerTests := (reStore instancesOf: OwnerTest) sortBlock: [ :a :b | a name <= b name].
-	tests := (reStore instancesOf: Test) sortBlock: [ :a :b | a name <= b name].
+	ownerTests := (OwnerTest storedInstancesIn: reStore) sortBlock: [ :a :b | a name <= b name].
+	tests := (Test storedInstancesIn: reStore) sortBlock: [ :a :b | a name <= b name].
 	self assert: (ownerTests size = 2).
 	self assert: (tests size = 1).
 	obj1 := ownerTests first.

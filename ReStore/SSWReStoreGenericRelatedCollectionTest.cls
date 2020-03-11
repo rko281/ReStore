@@ -113,8 +113,7 @@ _testRefreshComponentChangeDeeplyFrom: anObject
 	changedName := originalName, '_changed'.
 	reStore evaluateAsTransaction: [component deepTest: (Test new name: originalName; yourself)].
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: Test) detect: [ :each | each name = originalName]) name: changedName].
+	reStore2 evaluateAsTransaction: [((Test storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) name: changedName].
 	self refreshDelay.
 
 	reStore refresh: anObject.
@@ -131,8 +130,7 @@ _testRefreshComponentChangeFrom: anObject
 	originalName := component name.
 	changedName := originalName, '_changed'.
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) detect: [ :each | each name = originalName]) name: changedName].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) name: changedName].
 	self refreshDelay.
 
 	reStore refresh: anObject.
@@ -150,8 +148,7 @@ _testRefreshComponentChangeIfUpdatedDeeplyFrom: anObject
 	changedName := originalName, '_changed'.
 	reStore evaluateAsTransaction: [component deepTest: (Test new name: originalName; yourself)].
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: Test) detect: [ :each | each name = originalName]) name: changedName].
+	reStore2 evaluateAsTransaction: [((Test storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) name: changedName].
 	self refreshDelay.
 
 	reStore refreshIfUpdated: anObject.
@@ -168,8 +165,7 @@ _testRefreshComponentChangeIfUpdatedFrom: anObject
 	originalName := component name.
 	changedName := originalName, '_changed'.
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) detect: [ :each | each name = originalName]) name: changedName].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) name: changedName].
 	self refreshDelay.
 
 	reStore refreshIfUpdated: anObject.
@@ -186,8 +182,7 @@ _testRefreshComponentChangeWithExclusionFrom: anObject
 	originalName := component name.
 	changedName := originalName, '_changed'.
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) detect: [ :each | each name = originalName]) name: changedName].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) name: changedName].
 	self refreshDelay.
 
 	reStore refresh: (anObject withRelatedComponents without: collection).
@@ -451,7 +446,6 @@ testRefreshComponentAddition
 
 	originalSize := collection size.
 
-	self setUpReStore2.
 	added := self templateComponent.
 	reStore2 evaluateAsTransaction: [(reStore2 instancesOf: testObject class) first component add: added].
 	self refreshDelay.
@@ -475,9 +469,8 @@ testRefreshComponentChangeAndRemoval
 	originalSize := collection size.
 	originalName := component name.
 
-	self setUpReStore2.
 	reStore2 evaluateAsTransaction: 
-		[removed := (reStore2 instancesOf: testObject class) first component remove: ((reStore2 instancesOf: component class) detect: [ :each | each name = originalName]).
+		[removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]).
 		changedName := originalName, '_changed'.
 		removed name: changedName].
 
@@ -522,8 +515,7 @@ testRefreshComponentRemoval
 	originalSize := collection size.
 	originalName := component name.
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [removed := (reStore2 instancesOf: testObject class) first component remove: ((reStore2 instancesOf: component class) detect: [ :each | each name = originalName])].
+	reStore2 evaluateAsTransaction: [removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName])].
 	self refreshDelay.
 
 	changedName := component name, '_changed'.
@@ -550,7 +542,6 @@ testRefreshComponentReplace
 
 	originalSize := collection size.
 
-	self setUpReStore2.
 	reStore2 evaluateAsTransaction: [originalAndReplacement := self replaceInCollection: (reStore2 instancesOf: testObject class) first component].
 	self refreshDelay.
 
@@ -576,9 +567,8 @@ testRefreshIfUpdatedComponentChangeAndRemoval
 	originalSize := collection size.
 	originalName := component name.
 
-	self setUpReStore2.
 	reStore2 evaluateAsTransaction: 
-		[removed := (reStore2 instancesOf: testObject class) first component remove: ((reStore2 instancesOf: component class) detect: [ :each | each name = originalName]).
+		[removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]).
 		changedName := originalName, '_changed'.
 		removed name: changedName].
 
@@ -602,12 +592,12 @@ testRefreshRefreshesComponentChange
 	| added originalName |
 
 	added := self addToCollection.
-	reStore commit: added.
+	added storeIn: reStore.
 
 	originalName := added name.
 	added name: originalName, '_changed'.
 
-	reStore refresh: testObject withRelatedComponents.
+	testObject refresh.
 
 	self deny: (collection includes: added).
 	self assert: (added name = originalName)!

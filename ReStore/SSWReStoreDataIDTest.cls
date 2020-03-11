@@ -16,31 +16,29 @@ addClassesTo: aReStore
 
 	aReStore addClass: ReStoreTestWithID!
 
-setUp
-
+createTestData
+	
 	"Write data with assigned id"
 
 	| obj2 obj7 obj9 |
 
-	super setUp.
-	
 	obj2 := ReStoreTestWithID name: 'dave' nmbr: 2.
 	obj7 := ReStoreTestWithID name: 'john' nmbr: 7.
 	obj9 := ReStoreTestWithID name: 'jim' nmbr: 9.
 
 	obj2 other: obj7.
 
-	reStore commitAll: (Array with: obj2 with: obj7 with: obj9).
+	(Array with: obj2 with: obj7 with: obj9) storeAllIn: reStore.
 	
 	reStore simulateReconnect!
 
 test1VerifySetUp
 
-	"Write setUp data is correct"
+	"Verify setUp data is correct"
 
 	| obj2 |
 
-	obj2 := (reStore instancesOf: ReStoreTestWithID) detect: [:each | each name = 'dave'].
+	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
 
 	self assert: obj2 nmbr = 2.
 	self assert: obj2 other nmbr = 7.
@@ -60,7 +58,7 @@ test3Update
 
 	| obj2 |
 
-	obj2 := (reStore instancesOf: ReStoreTestWithID) detect: [:each | each name = 'dave'].
+	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
 
 	self assert: obj2 nmbr = 2.
 	self assert: obj2 other nmbr = 7.
@@ -73,7 +71,7 @@ test3Update
 
 	reStore simulateReconnect.
 	
-	obj2 := (reStore instancesOf: ReStoreTestWithID) detect: [:each | each name = 'dave'].
+	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
 
 	self assert: obj2 nmbr = 2.
 	self assert: obj2 other nmbr = 9.
@@ -83,7 +81,7 @@ test4Query
 
 	| insts matches |
 
-	insts := reStore instancesOf: ReStoreTestWithID.
+	insts := ReStoreTestWithID storedInstancesIn: reStore.
 
 	matches := insts select: [ :e | e nmbr = 2].
 	self assert: (matches size = 1).
@@ -125,7 +123,7 @@ test6VerifyIDInCopy
 
 	| obj2 |
 
-	obj2 := (reStore instancesOf: ReStoreTestWithID) detect: [:each | each name = 'dave'].
+	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
 
 	self assert: (obj2 _dbProxy _copyObject nmbr = 2).
 	self assert: (obj2 other _dbProxy _copyObject nmbr = 7)!
@@ -142,32 +140,32 @@ test7VerifyAssignedID
 	newObj := ReStoreTestWithID new name: 'assign_test_1'.
 	self assert: newObj nmbr isNil.
 
-	self assert: (reStore commit: newObj).
-	self assert: newObj nmbr = 99.
-	self assert: newObj _dbProxy _copyObject nmbr = 99.
+	self assert: (newObj storeIn: reStore).
+	self assert: newObj nmbr equals: 99.
+	self assert: newObj _dbProxy _copyObject nmbr equals: 99.
 
 	newObj := ReStoreTestWithID new name: 'assign_test_2'.
 	self assert: newObj nmbr isNil.
-	self assert: (reStore commit: newObj).
-	self assert: newObj nmbr = 100.
-	self assert: newObj _dbProxy _copyObject nmbr = 100.
+	self assert: (newObj storeIn: reStore).
+	self assert: newObj nmbr equals: 100.
+	self assert: newObj _dbProxy _copyObject nmbr equals: 100.
 
 	reStore simulateReconnect.
 
 	"Verify ID persisted in DB"
-	recoveredObj := (reStore instancesOf: ReStoreTestWithID) detect: [ :e | e name = 'assign_test_1'].
-	self assert: recoveredObj nmbr = 99.
+	recoveredObj := (ReStoreTestWithID storedInstancesIn: reStore) detect: [ :e | e name = 'assign_test_1'].
+	self assert: recoveredObj nmbr equals: 99.
 
-	recoveredObj := (reStore instancesOf: ReStoreTestWithID) detect: [ :e | e name = 'assign_test_2'].
-	self assert: recoveredObj nmbr = 100.
+	recoveredObj := (ReStoreTestWithID storedInstancesIn: reStore) detect: [ :e | e name = 'assign_test_2'].
+	self assert: recoveredObj nmbr equals: 100.
 
 	"Check NEXT_ID table was updated correctly"
 	newObj := ReStoreTestWithID new name: 'assign_test_3'.
 	self assert: newObj nmbr isNil.
-	self assert: (reStore commit: newObj).
-	self assert: newObj nmbr = 101! !
+	self assert: (newObj storeIn: reStore).
+	self assert: newObj nmbr equals: 101! !
 !SSWReStoreDataIDTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreDataIDTest categoriesFor: #setUp!public! !
+!SSWReStoreDataIDTest categoriesFor: #createTestData!public! !
 !SSWReStoreDataIDTest categoriesFor: #test1VerifySetUp!public!unit tests! !
 !SSWReStoreDataIDTest categoriesFor: #test2DuplicateCheck!public!unit tests! !
 !SSWReStoreDataIDTest categoriesFor: #test3Update!public!unit tests! !

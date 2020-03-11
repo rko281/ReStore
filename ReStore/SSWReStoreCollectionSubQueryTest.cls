@@ -12,11 +12,11 @@ https://github.com/rko281/ReStore'!
 !SSWReStoreCollectionSubQueryTest categoriesForClass!Unclassified! !
 !SSWReStoreCollectionSubQueryTest methodsFor!
 
-setUp
+createTestData
 
 	| orders |
 
-	super setUp.
+	super createTestData.
 
 	reStore evaluateAsTransaction: 
 		[SimpleProduct new
@@ -25,7 +25,7 @@ setUp
 			retailPrice: 2000;
 			storeIn: reStore].
 
-	goldPlatedWobulator := (reStore instancesOf: SimpleProduct) detect: [ :each | each retailPrice = 2000].
+	goldPlatedWobulator := (SimpleProduct storedInstancesIn: reStore) detect: [ :each | each retailPrice = 2000].
 
 	orders := OrderedCollection new.
 
@@ -38,16 +38,15 @@ setUp
 	
 	1 to: 10 do: [ :index | orders add: (customer1 orders add: (SimpleProductOrder new product: wobulator; quantity: (index * 100); customer: customer1; yourself))].
 
-	reStore commitAll: 
-		((OrderedCollection withAll: orders)
-			add: customer1 withRelatedComponents;
-			add: customer2 withRelatedComponents;
-			add: customer3 withRelatedComponents;
-			yourself).
+	((OrderedCollection withAll: orders)
+		add: customer1;
+		add: customer2;
+		add: customer3;
+		yourself) storeAllIn: reStore.
 
 	reStore refreshAllObjects.
 
-	customers := reStore instancesOf: SimplePerson!
+	customers := SimplePerson storedInstancesIn: reStore!
 
 testAnySatisfyDeep
 
@@ -260,7 +259,7 @@ testSelectSimpleSizeComparison
 
 	matches := customers select: [ :each | (each orders select: [ :order | order quantity >= 1000]) size >= 10].
 	self assert: (matches isEmpty)! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #setUp!public!running! !
+!SSWReStoreCollectionSubQueryTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreCollectionSubQueryTest categoriesFor: #testAnySatisfyDeep!public!unit tests! !
 !SSWReStoreCollectionSubQueryTest categoriesFor: #testAnySatisfyPersistent!public!unit tests! !
 !SSWReStoreCollectionSubQueryTest categoriesFor: #testAnySatisfySimple!public!unit tests! !

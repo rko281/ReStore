@@ -29,6 +29,7 @@ package methodNames
 	add: #SSWReStore -> #commitObjects:;
 	add: #SSWReStore -> #hasObjectChanged:;
 	add: #SSWReStore -> #haveObjectsChanged:;
+	add: #SSWReStore -> #instancesOf:satisfying:;
 	add: #SSWReStore -> #refreshObject:;
 	add: #SSWReStore -> #refreshObjectIfUpdated:;
 	add: #SSWReStore -> #refreshObjects:;
@@ -254,6 +255,12 @@ haveObjectsChanged: aCollection
 	#deprecated.
 	^self haveAnyChanged: aCollection!
 
+instancesOf: aClass satisfying: qualifierBlock
+
+	"Convenience method"
+	#deprecated.
+	^(self instancesOf: aClass) satisfying: qualifierBlock!
+
 refreshObject: anObject
 	#deprecated.
 	self refresh: anObject!
@@ -289,6 +296,7 @@ selectChangedObjects: aCollection
 !SSWReStore categoriesFor: #commitObjects:!public! !
 !SSWReStore categoriesFor: #hasObjectChanged:!public! !
 !SSWReStore categoriesFor: #haveObjectsChanged:!public! !
+!SSWReStore categoriesFor: #instancesOf:satisfying:!public!querying! !
 !SSWReStore categoriesFor: #refreshObject:!public! !
 !SSWReStore categoriesFor: #refreshObjectIfUpdated:!public! !
 !SSWReStore categoriesFor: #refreshObjects:!public! !

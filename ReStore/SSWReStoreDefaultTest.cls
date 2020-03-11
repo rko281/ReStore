@@ -40,13 +40,13 @@ setUp
 
 tearDown
 
-	super tearDown.
-
-	SSWReStore reset.
-
 	reStore2 isNil ifFalse: 
 		[self releaseReStore: reStore2.
-		reStore2 := nil]! !
+		reStore2 := nil].
+
+	super tearDown.
+
+	SSWReStore reset! !
 !SSWReStoreDefaultTest categoriesFor: #createReStore!private!running! !
 !SSWReStoreDefaultTest categoriesFor: #newAlan!public!Running! !
 !SSWReStoreDefaultTest categoriesFor: #setUp!public!running! !

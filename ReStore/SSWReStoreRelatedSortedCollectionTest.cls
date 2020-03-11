@@ -35,8 +35,7 @@ testCollectionRefreshComponentChange
 	originalName := component name.
 	changedName := originalName, '_changed'.
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) detect: [ :each | each name = originalName]) name: changedName].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) name: changedName].
 	self refreshDelay.
 
 	"The need to sort on the target class means we do a full recover instead of just refreshing the collection itself, i.e. no difference between refresh and refresh with components"
@@ -44,7 +43,7 @@ testCollectionRefreshComponentChange
 	self assert: (component name = changedName).
 
 	changedName2 := originalName, '_changed2'.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) detect: [ :each | each name = changedName]) name: changedName2].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) detect: [ :each | each name = changedName]) name: changedName2].
 	self refreshDelay.
 
 	reStore refresh: collection withRelatedComponents.
@@ -58,8 +57,7 @@ testCollectionRefreshComponentChangeIfUpdated
 	originalName := component name.
 	changedName := originalName, '_changed'.
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) detect: [ :each | each name = originalName]) name: changedName].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) name: changedName].
 	self refreshDelay.
 
 	"The need to sort on the target class means we do a full recover instead of just refreshing the collection itself, i.e. no difference between refresh and refresh with components"
@@ -67,7 +65,7 @@ testCollectionRefreshComponentChangeIfUpdated
 	self assert: (component name = changedName).
 
 	changedName2 := originalName, '_changed2'.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) detect: [ :each | each name = changedName]) name: changedName2].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) detect: [ :each | each name = changedName]) name: changedName2].
 	self refreshDelay.
 
 	reStore refreshIfUpdated: collection withRelatedComponents.

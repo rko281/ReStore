@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
-SSWReStoreTest subclass: #SSWReStoreGenericTest
-	instanceVariableNames: 'testObject reStore2'
+SSWReStore2Test subclass: #SSWReStoreGenericTest
+	instanceVariableNames: 'testObject'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -23,6 +23,12 @@ componentDefinition
 
 	^self subclassResponsibility!
 
+createTestData
+
+	self createTestObject.
+
+	self fetchTestObjects!
+
 createTestObject
 
 	reStore evaluateAsTransaction: [self templateTestObject storeIn: reStore]!
@@ -32,40 +38,16 @@ fetchTestObjects
 	(Delay forMilliseconds: 10) wait.
 	reStore simulateReconnect.
 
-	testObject := (reStore instancesOf: GenericTest) first!
-
-setUp
-
-	super setUp.
-
-	self createTestObject.
-
-	self fetchTestObjects!
-
-setUpReStore2
-
-	reStore2 := SSWReStore new.
-	self initReStore: reStore2.
-	reStore2 connect.
-	self addClassesTo: reStore2!
-
-tearDown
-
-	super tearDown.
-	reStore2 isNil ifFalse: 
-		[reStore2 disconnect. 
-		reStore2 := nil]!
+	testObject := (GenericTest storedInstancesIn: reStore) first!
 
 templateTestObject
 
 	^self subclassResponsibility! !
 !SSWReStoreGenericTest categoriesFor: #addClassesTo:!public!running! !
 !SSWReStoreGenericTest categoriesFor: #componentDefinition!accessing!public! !
+!SSWReStoreGenericTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreGenericTest categoriesFor: #createTestObject!public!running! !
 !SSWReStoreGenericTest categoriesFor: #fetchTestObjects!public!running! !
-!SSWReStoreGenericTest categoriesFor: #setUp!public!running! !
-!SSWReStoreGenericTest categoriesFor: #setUpReStore2!public!running! !
-!SSWReStoreGenericTest categoriesFor: #tearDown!public!running! !
 !SSWReStoreGenericTest categoriesFor: #templateTestObject!accessing!public! !
 
 !SSWReStoreGenericTest class methodsFor!

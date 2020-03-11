@@ -16,7 +16,7 @@ testBlockAnd
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	results :=  instances select: [ :each | each firstName = 'Zoe' and: [each surname = 'Brown']].
 	self assert: results size = 1.
@@ -32,7 +32,7 @@ testBlockAndNonBlockOrBlockAndCombination
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	results :=  instances select: [ :each | (each firstName = 'John' and: [each age = 20]) | (each surname = 'Brown' and: [each age = 30])].
 	self assert: results size = 2.
@@ -84,7 +84,7 @@ testBlockAndNonBlockOrCombination
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	"Test different orders with different results"
 	results :=  instances select: [ :each | (each firstName = 'John' and: [each age = 20]) | (each firstName = 'David')].
@@ -117,7 +117,7 @@ testBlockAndOrAndCombination
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	results :=  instances select: [ :each | (each firstName = 'John' and: [each age = 20]) or: [each firstName = 'David' and: [each age = 40]]].
 	self assert: results size = 2.
@@ -148,7 +148,7 @@ testBlockAndOrCombination
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	"Test different orders with different results"
 	results :=  instances select: [ :each | (each firstName = 'John' and: [each age = 20]) or: [each firstName = 'David']].
@@ -167,7 +167,7 @@ testBlockOr
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	results :=  instances select: [ :each | each firstName = 'Zoe' or: [each firstName = 'John']].
 	self assert: results size = 2.
@@ -181,7 +181,7 @@ testBlockOrAndCombination
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	"Test different bracketing orders with different results"
 	results :=  instances select: [ :each | each firstName = 'David' or: [each firstName = 'John' and: [each age = 20]]].
@@ -201,7 +201,7 @@ testBlockOrAndOrCombination
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	results :=  instances select: [ :each | (each firstName = 'John' or: [each firstName = 'David']) and: [each age = 40 or: [each age = 20]]].
 	self assert: results size = 2.
@@ -220,7 +220,7 @@ testBlockOrNonBlockAndCombination
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	"Test different bracketing orders with different results"
 	results :=  instances select: [ :each | each firstName = 'David' or: [(each firstName = 'John') & (each age = 20)]].
@@ -251,7 +251,7 @@ testMixBlockNonBlockAndOrCombinations
 
 	| instances results |
 
-	instances := reStore instancesOf: SimplePerson.
+	instances := SimplePerson storedInstancesIn: reStore.
 
 	results :=  instances select: [ :each | (each firstName = 'John' and: [each age = 20]) | ((each surname = 'Brown') & (each age = 30))].
 	self assert: results size = 2.

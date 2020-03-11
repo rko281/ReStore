@@ -19,7 +19,7 @@ _testComponentExistenceOnDependency: component
 	self assert: (component _dbProxyIn: reStore ifNone: [nil]) notNil.
 
 	reStore simulateReconnect.
-	self assert: ((reStore instancesOf: component class) detect: [ :each | each name = component name] ifNone: [nil]) notNil!
+	self assert: ((component class storedInstancesIn: reStore) detect: [ :each | each name = component name] ifNone: [nil]) notNil!
 
 addToCollection
 
@@ -66,12 +66,11 @@ testCollectionRefreshComponentAddition
 
 	originalSize := collection size.
 
-	self setUpReStore2.
 	added := self templateComponent.
 	reStore2 evaluateAsTransaction: [(reStore2 instancesOf: testObject class) first component add: added].
 	self refreshDelay.
 
-	reStore refresh: collection.
+	collection refresh.
 	self assert: (collection size = (originalSize + 1)).
 	self assert: ((collection select: [ :each | each name = added name]) size = 1)!
 
@@ -82,11 +81,10 @@ testCollectionRefreshComponentRemoval
 	component := collection anyOne.
 	originalSize := collection size.
 
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [removed := (reStore2 instancesOf: testObject class) first component remove: ((reStore2 instancesOf: component class) detect: [ :each | each name = component name])].
+	reStore2 evaluateAsTransaction: [removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = component name])].
 	self refreshDelay.
 
-	reStore refresh: collection.
+	collection refresh.
 	self assert: (collection size = (originalSize - 1)).
 	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
 	self deny: (collection includes: component)!
@@ -97,14 +95,13 @@ testCollectionRefreshComponentReplace
 
 	originalSize := collection size.
 
-	self setUpReStore2.
 	reStore2 evaluateAsTransaction: [originalAndReplacement := self replaceInCollection: (reStore2 instancesOf: testObject class) first component].
 	self refreshDelay.
 
 	original := originalAndReplacement key.
 	replacement := originalAndReplacement value.
 
-	reStore refresh: collection.
+	collection refresh.
 	self assert: (collection size = originalSize).
 	self assert: (collection select: [ :each | each name = original name]) size = 0.
 	self assert: (collection select: [ :each | each name = replacement name]) size = 1.
@@ -117,10 +114,10 @@ testDependencyCascadedDelete
 	| component |
 
 	component := collection anyOne.
-	reStore commit: testObject unstored.
+	testObject unstore.
 
 	"Verify the delete"
-	self assert: (reStore instancesOf: testObject class) isEmpty.
+	self assert: (testObject class storedInstancesIn: reStore) isEmpty.
 
 	self _testComponentExistenceOnDependency: component!
 
@@ -132,7 +129,7 @@ testDependencyDeleteOnRemoval
 
 	component := collection anyOne.
 	collection remove: component.
-	reStore commit: testObject withComponents.
+	testObject store.
 
 	self _testComponentExistenceOnDependency: component!
 

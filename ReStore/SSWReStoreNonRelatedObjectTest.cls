@@ -207,8 +207,7 @@ testRefreshComponentIfUpdated
 	changedName := originalName, '_changed'.
 	
 	"Update via reStore2 so versioning is respected"
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component class) satisfying: [ :each | each name = originalName]) modify: [ :each | each name: changedName]].
+	reStore2 evaluateAsTransaction: [((component class storedInstancesIn: reStore2) satisfying: [ :each | each name = originalName]) modify: [ :each | each name: changedName]].
 	self refreshDelay.
 
 	"Ensure reStore wasn't affected"
@@ -232,8 +231,7 @@ testRefreshComponentIfUpdatedDeeply
 	reStore evaluateAsTransaction: [component deepTest: (Test new name: originalName; yourself)].	
 
 	"Update via reStore2 so versioning is respected"
-	self setUpReStore2.
-	reStore2 evaluateAsTransaction: [((reStore2 instancesOf: component deepTest class) satisfying: [ :each | each name = originalName]) modify: [ :each | each name: changedName]].
+	reStore2 evaluateAsTransaction: [((component deepTest class storedInstancesIn: reStore2) satisfying: [ :each | each name = originalName]) modify: [ :each | each name: changedName]].
 	self refreshDelay.
 
 	"Ensure reStore wasn't affected"

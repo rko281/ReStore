@@ -20,12 +20,27 @@ addClassesTo: aReStore
 		addClass: OwnerTest;
 		addClass: OwnedTest!
 
+createTestData
+
+	super createTestData.
+
+	reStore evaluateAsTransaction:
+		[((SimplePerson storedInstancesIn: reStore) detect: [ :each | each fullName = 'John Smith']) address: (SimpleAddress new postcode: 'J1 1JJ')].
+
+	OwnerTest new
+		name: 'owner';
+		ownedOrdered: 
+			(OrderedCollection
+				with: (OwnedTest new name: 'owned1')
+				with: (OwnedTest new name: 'owned2'));
+		store!
+
 setUp
 
 	super setUp.
 
 	reStore evaluateAsTransaction:
-		[((reStore instancesOf: SimplePerson) detect: [ :each | each fullName = 'John Smith']) address: (SimpleAddress new postcode: 'J1 1JJ')].
+		[((SimplePerson storedInstancesIn: reStore) detect: [ :each | each fullName = 'John Smith']) address: (SimpleAddress new postcode: 'J1 1JJ')].
 
 	OwnerTest new
 		name: 'owner';
@@ -69,7 +84,7 @@ testCommitFailure
 	self assert: zoe1 store.
 
 	"Double check"
-	reStore2 refresh: zoe2.
+	zoe2 refresh.
 	self assert: zoe2 age = newAge1!
 
 testRefreshExistingObject
@@ -397,6 +412,7 @@ testUnstoreInstancesCollection
 	self assert: (SimplePerson storedInstances select: [ :each | each fullName = 'Zoe Brown']) isEmpty.
 	self assert: (SimplePerson storedInstances select: [ :each | each fullName = 'John Smith']) isEmpty! !
 !SSWReStoreDefaultWriteTest categoriesFor: #addClassesTo:!public!Running! !
+!SSWReStoreDefaultWriteTest categoriesFor: #createTestData!public!Running! !
 !SSWReStoreDefaultWriteTest categoriesFor: #setUp!public!Running! !
 !SSWReStoreDefaultWriteTest categoriesFor: #testCommitFailure!public!unit tests! !
 !SSWReStoreDefaultWriteTest categoriesFor: #testRefreshExistingObject!public!unit tests! !
