@@ -12,11 +12,13 @@ https://github.com/rko281/ReStore'!
 !SSWDBOwnedCollectionProxy categoriesForClass!Unclassified! !
 !SSWDBOwnedCollectionProxy methodsFor!
 
+_acquireCopyCollection
+
+	copyCollection := collectionSpec copyCollection: proxiedObject!
+
 _checkHasChanged
 
-	^self _isDeleted or: [self _isPersistent not or: 
-		[(proxiedObject size ~= copyCollection size) 
-			or: [proxiedObject anySatisfy: [ :each | (copyCollection identityIncludes: each) not]]]]!
+	^self _isDeleted or: [self _isPersistent not or: [collectionSpec hasCollection: proxiedObject anyAdditionsOrRemovalsFrom: copyCollection]]!
 
 _copyCollection
 
@@ -42,7 +44,7 @@ _isPersistent
 
 _postCommitChanges
 
-	copyCollection := proxiedObject copy!
+	self _acquireCopyCollection!
 
 _prepareToCommit
 
@@ -58,10 +60,10 @@ _prepareToCommit
 			[added := #().
 			removed := copyCollection]
 		ifFalse:
-			[added := proxiedObject reject: [ :each | copyCollection identityIncludes: each].
-			removed := copyCollection reject: [ :each | proxiedObject identityIncludes: each]]]
+			[added := collectionSpec elementsIn: proxiedObject notIn: copyCollection.
+			removed := collectionSpec elementsIn: copyCollection notIn: proxiedObject]]
 	ifFalse:
-		[added := proxiedObject.
+		[added := collectionSpec allElementsIn: proxiedObject.
 		removed := #()].
 
 	added := added reject: [ :each | each isNil].
@@ -88,14 +90,14 @@ _proxiedObject: aCollection
 	"Overriden to set the copyCollection"
 	
 	super _proxiedObject: aCollection.
-	copyCollection := aCollection copy!
+	self _acquireCopyCollection!
 
 _rollbackChanges
 
 	"Forget any changes by instantiating from the copyCollection.
 	Also transfer over any events registered against the current proxiedObject"
 
-	| wasDeleted me him |
+	| wasDeleted me him spec |
 
 	"Reinstate the proxiedObject if the receiver was deleted"
 	self _isDeleted 
@@ -108,10 +110,11 @@ _rollbackChanges
 
 	me := proxiedObject.
 	him := self.
+	spec := collectionSpec.
 	self _swapReferences.
 
 	wasDeleted ifFalse:
-		[me _proxiedObject: me _copyCollection copy.
+		[me _proxiedObject: (spec copyCollection: me _copyCollection).
 		him getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]]!
 
 _unstore
@@ -124,6 +127,7 @@ _unstore
 		ifFalse: [reStore removeFromTransaction: self].
 
 	proxiedObject := nil! !
+!SSWDBOwnedCollectionProxy categoriesFor: #_acquireCopyCollection!actions!private! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_checkHasChanged!public!testing! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection!accessing!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection:!accessing!public! !

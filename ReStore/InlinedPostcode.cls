@@ -6,7 +6,9 @@ Object subclass: #InlinedPostcode
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 InlinedPostcode guid: (GUID fromString: '{406377bd-cd94-498f-a6e2-d9faaad4fb09}')!
-InlinedPostcode comment: ''!
+InlinedPostcode comment: 'ReStore
+©2020 John Aspinall
+https://github.com/rko281/ReStore'!
 !InlinedPostcode categoriesForClass!Unclassified! !
 !InlinedPostcode methodsFor!
 

@@ -12,6 +12,10 @@ https://github.com/rko281/ReStore'!
 !SSWDBDeletedObject categoriesForClass!Unclassified! !
 !SSWDBDeletedObject methodsFor!
 
+_id
+
+	^self id!
+
 deletedObjectClass
 
 	"deletedObjectClass stores the Class of object for which the receiver 
@@ -68,6 +72,7 @@ unstore
 	"Do nothing - the receiver is already deleted"
 
 	^self! !
+!SSWDBDeletedObject categoriesFor: #_id!accessing!public! !
 !SSWDBDeletedObject categoriesFor: #deletedObjectClass!accessing!public! !
 !SSWDBDeletedObject categoriesFor: #deletedObjectClass:!accessing!public! !
 !SSWDBDeletedObject categoriesFor: #displayOn:!printing!public! !

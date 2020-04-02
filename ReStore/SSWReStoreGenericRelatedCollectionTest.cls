@@ -446,16 +446,16 @@ testRefreshComponentAddition
 
 	originalSize := collection size.
 
-	added := self templateComponent.
-	reStore2 evaluateAsTransaction: [(reStore2 instancesOf: testObject class) first component add: added].
+	added := self addToCollection: testObject2 component.
+	self assert: testObject2 store.
 	self refreshDelay.
 
 	reStore refresh: testObject.
 	self assert: collection size = originalSize.
 
 	reStore refresh: testObject withRelatedComponents.
-	self assert: (collection size = (originalSize + 1)).
-	self assert: ((collection select: [ :each | each name = added name]) size = 1)!
+	self assert: collection size equals: (originalSize + 1).
+	self assert: (collection select: [ :each | each name = added name]) size equals: 1!
 
 testRefreshComponentChange
 
@@ -470,7 +470,7 @@ testRefreshComponentChangeAndRemoval
 	originalName := component name.
 
 	reStore2 evaluateAsTransaction: 
-		[removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]).
+		[removed := self remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) fromCollection: testObject2 component.
 		changedName := originalName, '_changed'.
 		removed name: changedName].
 
@@ -478,18 +478,18 @@ testRefreshComponentChangeAndRemoval
 
 	"No change without withRelatedComponents"
 	reStore refresh: testObject.
-	self assert: collection size = originalSize.
+	self assert: collection size equals: originalSize.
 	self assert: (collection includes: component).
-	self assert: (component name = originalName).
+	self assert: component name equals: originalName.
 
 	"Now withRelatedComponents"
 	reStore refresh: testObject withRelatedComponents.
-	self assert: (collection size = (originalSize - 1)).
+	self assert: collection size equals: (originalSize - 1).
 	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
 	self deny: (collection includes: component).
 	self componentDefinition isValueDependent 
 		ifTrue: [self assert: component isDBDeleted]
-		ifFalse: [self assert: (component name = changedName)]!
+		ifFalse: [self assert: component name equals: changedName]!
 
 testRefreshComponentChangeDeeply
 
@@ -515,7 +515,7 @@ testRefreshComponentRemoval
 	originalSize := collection size.
 	originalName := component name.
 
-	reStore2 evaluateAsTransaction: [removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName])].
+	reStore2 evaluateAsTransaction: [removed := self remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) fromCollection: testObject2 component].
 	self refreshDelay.
 
 	changedName := component name, '_changed'.
@@ -523,18 +523,18 @@ testRefreshComponentRemoval
 
 	"No change without withRelatedComponents"
 	reStore refresh: testObject.
-	self assert: collection size = originalSize.
+	self assert: collection size equals: originalSize.
 	self assert: (collection includes: component).
-	self assert: (component name = changedName).
+	self assert: component name equals: changedName.
 
 	"Now withRelatedComponents"
 	reStore refresh: testObject withRelatedComponents.
-	self assert: (collection size = (originalSize - 1)).
+	self assert: collection size equals: (originalSize - 1).
 	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
 	self deny: (collection includes: component).
 	self componentDefinition isValueDependent 
 		ifTrue: [self assert: component isDBDeleted]
-		ifFalse: [self assert: (component name = originalName)]!
+		ifFalse: [self assert: component name equals: originalName]!
 
 testRefreshComponentReplace
 
@@ -568,7 +568,7 @@ testRefreshIfUpdatedComponentChangeAndRemoval
 	originalName := component name.
 
 	reStore2 evaluateAsTransaction: 
-		[removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]).
+		[removed := self remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = originalName]) fromCollection: testObject2 component.
 		changedName := originalName, '_changed'.
 		removed name: changedName].
 
@@ -576,16 +576,16 @@ testRefreshIfUpdatedComponentChangeAndRemoval
 	
 	"No change without withRelatedComponents"
 	reStore refreshIfUpdated: testObject.
-	self assert: collection size = originalSize.
+	self assert: collection size equals: originalSize.
 	self assert: (collection includes: component).
-	self assert: (component name = originalName).
+	self assert: component name equals: originalName.
 
 	"Now withRelatedComponents"
 	reStore refreshIfUpdated: testObject withRelatedComponents.
-	self assert: (collection size = (originalSize - 1)).
+	self assert: collection size equals: (originalSize - 1).
 	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
 	self deny: (collection includes: component).
-	self componentDefinition isValueDependent ifFalse: [self assert: (component name = changedName)]!
+	self componentDefinition isValueDependent ifFalse: [self assert: component name equals: changedName]!
 
 testRefreshRefreshesComponentChange
 

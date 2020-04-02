@@ -38,7 +38,7 @@ _proxiedObject
 
 addTargetTo: aCollection
 
-	aCollection directAdd: self target!
+	aCollection _dbAdd: self target!
 
 addTo: aCollectionOfEntries
 

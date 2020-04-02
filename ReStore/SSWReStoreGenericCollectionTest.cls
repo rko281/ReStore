@@ -14,16 +14,20 @@ https://github.com/rko281/ReStore'!
 
 _testComponentExistenceOnDependency: component
 
-	"No dependency at this level so should still exist"
+	"Private - No dependency at this level so should still exist"
 
 	self assert: (component _dbProxyIn: reStore ifNone: [nil]) notNil.
 
 	reStore simulateReconnect.
-	self assert: ((component class storedInstancesIn: reStore) detect: [ :each | each name = component name] ifNone: [nil]) notNil!
+	self assert: ((component class storedInstancesIn: reStore) anySatisfy: [ :each | each name = component name])!
 
 addToCollection
 
-	^collection add: self templateComponent!
+	^self addToCollection: collection!
+
+addToCollection: aCollection
+
+	^aCollection add: self templateComponent!
 
 fetchTestObjects
 
@@ -31,9 +35,17 @@ fetchTestObjects
 
 	collection := testObject component!
 
+remove: anObject fromCollection: aCollection
+
+	^aCollection remove: anObject!
+
 removeFromCollection
 
-	^collection remove: collection anyOne!
+	^self removeFromCollection: collection!
+
+removeFromCollection: aCollection
+
+	^self remove: aCollection anyOne fromCollection: aCollection!
 
 replaceInCollection
 
@@ -47,13 +59,6 @@ templateCollection
 
 	^self subclassResponsibility!
 
-templateComponent
-
-	"Ensure unique name"
-	(Delay forMicroseconds: 10) wait.
-
-	^GenericOwnedTest new name: (self class name, Time microsecondClockValue printString)!
-
 templateTestObject
 
 	^GenericTest new
@@ -66,13 +71,13 @@ testCollectionRefreshComponentAddition
 
 	originalSize := collection size.
 
-	added := self templateComponent.
-	reStore2 evaluateAsTransaction: [(reStore2 instancesOf: testObject class) first component add: added].
+	added := self addToCollection: testObject2 component.
+	self assert: testObject2 store.
 	self refreshDelay.
 
 	collection refresh.
-	self assert: (collection size = (originalSize + 1)).
-	self assert: ((collection select: [ :each | each name = added name]) size = 1)!
+	self assert: collection size equals: (originalSize + 1).
+	self assert: (collection select: [ :each | each name = added name]) size equals: 1!
 
 testCollectionRefreshComponentRemoval
 
@@ -81,11 +86,12 @@ testCollectionRefreshComponentRemoval
 	component := collection anyOne.
 	originalSize := collection size.
 
-	reStore2 evaluateAsTransaction: [removed := (reStore2 instancesOf: testObject class) first component remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = component name])].
+	removed := self remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = component name]) fromCollection: testObject2 component.
+	self assert: testObject2 store.
 	self refreshDelay.
 
 	collection refresh.
-	self assert: (collection size = (originalSize - 1)).
+	self assert: collection size equals: (originalSize - 1).
 	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
 	self deny: (collection includes: component)!
 
@@ -95,16 +101,17 @@ testCollectionRefreshComponentReplace
 
 	originalSize := collection size.
 
-	reStore2 evaluateAsTransaction: [originalAndReplacement := self replaceInCollection: (reStore2 instancesOf: testObject class) first component].
+	originalAndReplacement := self replaceInCollection: testObject2 component.
+	self assert: testObject2 store.
 	self refreshDelay.
 
 	original := originalAndReplacement key.
 	replacement := originalAndReplacement value.
 
 	collection refresh.
-	self assert: (collection size = originalSize).
-	self assert: (collection select: [ :each | each name = original name]) size = 0.
-	self assert: (collection select: [ :each | each name = replacement name]) size = 1.
+	self assert: collection size equals: originalSize.
+	self assert: (collection select: [ :each | each name = original name]) size equals: 0.
+	self assert: (collection select: [ :each | each name = replacement name]) size equals: 1
 !
 
 testDependencyCascadedDelete
@@ -128,7 +135,8 @@ testDependencyDeleteOnRemoval
 	| component |
 
 	component := collection anyOne.
-	collection remove: component.
+	self remove: component fromCollection: collection.
+
 	testObject store.
 
 	self _testComponentExistenceOnDependency: component!
@@ -139,17 +147,19 @@ testDependencyDeleteOnReplacement
 
 	| originalAndReplacement |
 
-	reStore evaluateAsTransaction: [originalAndReplacement := self replaceInCollection: (reStore instancesOf: testObject class) first component].
+	reStore evaluateAsTransaction: [originalAndReplacement := self replaceInCollection].
 
-	self _testComponentExistenceOnDependency: originalAndReplacement key! !
-!SSWReStoreGenericCollectionTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!public! !
+	self componentDefinition isValueDependent ifTrue: [self _testComponentExistenceOnDependency: originalAndReplacement key]! !
+!SSWReStoreGenericCollectionTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!private! !
 !SSWReStoreGenericCollectionTest categoriesFor: #addToCollection!helpers!public! !
+!SSWReStoreGenericCollectionTest categoriesFor: #addToCollection:!helpers!private! !
 !SSWReStoreGenericCollectionTest categoriesFor: #fetchTestObjects!public! !
+!SSWReStoreGenericCollectionTest categoriesFor: #remove:fromCollection:!helpers!private! !
 !SSWReStoreGenericCollectionTest categoriesFor: #removeFromCollection!helpers!public! !
+!SSWReStoreGenericCollectionTest categoriesFor: #removeFromCollection:!helpers!private! !
 !SSWReStoreGenericCollectionTest categoriesFor: #replaceInCollection!helpers!public! !
 !SSWReStoreGenericCollectionTest categoriesFor: #replaceInCollection:!public! !
 !SSWReStoreGenericCollectionTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #templateComponent!accessing!public! !
 !SSWReStoreGenericCollectionTest categoriesFor: #templateTestObject!accessing!public! !
 !SSWReStoreGenericCollectionTest categoriesFor: #testCollectionRefreshComponentAddition!public!unit tests! !
 !SSWReStoreGenericCollectionTest categoriesFor: #testCollectionRefreshComponentRemoval!public!unit tests! !

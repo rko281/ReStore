@@ -27,13 +27,6 @@ fetchTestObjects
 
 	component := testObject component!
 
-templateComponent
-
-	"Ensure unique name"
-	(Delay forMilliseconds: 1) wait.
-
-	^GenericOwnedTest new name: (self class name, Time millisecondClockValue printString)!
-
 templateTestObject
 
 	^GenericTest new
@@ -61,7 +54,6 @@ testDependencyDeleteOnReplacement
 	self _testComponentExistenceOnDependency! !
 !SSWReStoreGenericObjectTest categoriesFor: #_testComponentExistenceOnDependency!helpers!public! !
 !SSWReStoreGenericObjectTest categoriesFor: #fetchTestObjects!public! !
-!SSWReStoreGenericObjectTest categoriesFor: #templateComponent!accessing!public! !
 !SSWReStoreGenericObjectTest categoriesFor: #templateTestObject!accessing!public! !
 !SSWReStoreGenericObjectTest categoriesFor: #testDependencyCascadedDelete!public!unit tests! !
 !SSWReStoreGenericObjectTest categoriesFor: #testDependencyDeleteOnReplacement!public!unit tests! !

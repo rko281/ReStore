@@ -6,7 +6,9 @@ SSWReStoreTest subclass: #SSWReStore2Test
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStore2Test guid: (GUID fromString: '{441283e9-87fb-4b2e-bd6c-a5588f64f937}')!
-SSWReStore2Test comment: ''!
+SSWReStore2Test comment: 'ReStore
+©2020 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWReStore2Test categoriesForClass!Unclassified! !
 !SSWReStore2Test methodsFor!
 

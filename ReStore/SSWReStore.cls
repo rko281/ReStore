@@ -750,7 +750,7 @@ fetchObjectsOfClass: aClass withQuery: anSSWSQLQuery into: aCollection
 		
 	table := self tableForClass: aClass.
 
-	self rowsFromQuery: anSSWSQLQuery do: [ :row | aCollection directAdd: (self objectFromRow: row table: table)]!
+	self rowsFromQuery: anSSWSQLQuery do: [ :row | aCollection _dbAdd: (self objectFromRow: row table: table)]!
 
 fetchObjectsOfClass: aClass withStatement: aDBPreparedStatement into: aCollection
 
@@ -763,7 +763,7 @@ fetchObjectsOfClass: aClass withStatement: aDBPreparedStatement into: aCollectio
 		rowsFromStatement: aDBPreparedStatement 
 		do: 
 			[ :row |
-			aCollection directAdd: (self objectFromRow: row table: table) suggestedIndex: index.
+			aCollection _dbAdd: (self objectFromRow: row table: table) suggestedIndex: index.
 			index := index + 1]!
 
 finalize

@@ -21,31 +21,58 @@ createNonProxiedInstanceFromRow: aDBRow
 		yourself!
 
 entryClass
-
 	"Return the class of collection entry appropriate for the receiver"
-	
-	^SSWDBDictionaryEntry!
+
+	^SSWDBCacheDictionaryEntry!
 
 keyAccessor
 
-	"keyAccessor stores an SSWInstVarAccessor that accesses the attribute of an object
-	that is the key at which that object should be stored in the dictionary"
+	"keyAccessor stores an a 1-arg block that is evaluated with a targetObject to determine the key at which that object should be stored in the dictionary"
 
 	^keyAccessor!
 
 keyAccessor: anSSWInstVarAccessor
 
-	"keyAccessor stores an SSWInstVarAccessor that accesses the attribute of an object
-	that is the key at which that object should be stored in the dictionary"
+	"keyAccessor stores an a 1-arg block that is evaluated with a targetObject to determine the key at which that object should be stored in the dictionary"
 
 	keyAccessor := anSSWInstVarAccessor!
 
-keyedOn: aSymbol
+keyedOn: aSymbolOrBlock
 
-	self keyAccessor: (SSWInstVarAccessor toAccess: aSymbol in: self targetClass)! !
+	"If aSymbolOrBlock is aSymbol it should be an inst var name"
+
+	aSymbolOrBlock isSymbol 
+		ifTrue: [self keyAccessor: (SSWInstVarAccessor toAccess: aSymbolOrBlock in: self targetClass)]
+		ifFalse: [self keyAccessor: aSymbolOrBlock]!
+
+readAllFor: aCollection
+
+	"Using a single query (ideally, multiple batched queries if aCollection is too large), read all unrecovered collections specified by the receiver for members of aCollection"
+
+	| untouched ids collections dictionaries |
+
+	untouched := aCollection select: [ :each | (self accessor valueIn: each) isDBProxy].
+	untouched isEmpty ifTrue: [^self].
+
+	ids := untouched collect: [ :each | each _idIn: self reStore].
+	collections := Dictionary new: untouched size.
+	(self readAllEntriesFor: ids) do: [ :each | (collections at: each sourceID ifAbsentPut: [OrderedCollection new]) add: each].
+	dictionaries := Dictionary new: collections size.
+	collections keysAndValuesDo: 
+		[ :id :entries || dict |
+		dict := self newCollection.
+		entries do: [ :each | dict at: each key put: each target].
+		dictionaries at: id put: dict].
+
+	(aCollection reject: [ :each | (self accessor valueIn: each) _isRecovered]) do: 
+		[ :proxy |
+		(self accessor valueIn: proxy) 
+			_proxiedObject: (dictionaries at: proxy _id ifAbsent: [self newCollection]);
+			_collectionEntries: (collections at: proxy _id ifAbsent: [OrderedCollection new])]! !
 !SSWDBStaticCacheDictionarySpec categoriesFor: #createNonProxiedInstanceFromRow:!actions!public! !
 !SSWDBStaticCacheDictionarySpec categoriesFor: #entryClass!constants!public! !
 !SSWDBStaticCacheDictionarySpec categoriesFor: #keyAccessor!accessing!public! !
 !SSWDBStaticCacheDictionarySpec categoriesFor: #keyAccessor:!accessing!public! !
 !SSWDBStaticCacheDictionarySpec categoriesFor: #keyedOn:!accessing!public! !
+!SSWDBStaticCacheDictionarySpec categoriesFor: #readAllFor:!actions!public! !
 

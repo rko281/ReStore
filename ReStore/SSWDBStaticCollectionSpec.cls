@@ -46,20 +46,13 @@ dbInstancesFor: aCollectionProxy
 
 	^instances!
 
-readAllFor: aCollection
+readAllEntriesFor: ids
 
-	"Using a single query (ideally, multiple batched queries if aCollection is too large), read all unrecovered collections specified by the receiver for members of aCollection"
+	| stream targetTable allEntries |
 
-	| untouched ids stream targetTable allEntries collections|
-
-	untouched := aCollection select: [ :each | (self accessor valueIn: each) isDBProxy].
-	untouched isEmpty ifTrue: [^self].
-
-	ids := untouched collect: [ :each | each _idIn: self reStore].
 	stream := ReadStream on: ids.
-
 	targetTable := self targetTable.
-	allEntries := OrderedCollection new: untouched size.
+	allEntries := OrderedCollection new: ids size.
 
 	[stream atEnd] whileFalse: 
 		[self readAllStatement readValuesFrom: stream.
@@ -72,8 +65,21 @@ readAllFor: aCollection
 					ifTrue: [entry target _refreshFromRow: row table: targetTable]
 					ifFalse: [targetTable recoverInstanceFromRow: row into: entry target]]]].
 
+	^allEntries!
+
+readAllFor: aCollection
+
+	"Using a single query (ideally, multiple batched queries if aCollection is too large), read all unrecovered collections specified by the receiver for members of aCollection"
+
+	| untouched ids collections |
+
+	untouched := aCollection select: [ :each | (self accessor valueIn: each) isDBProxy].
+	untouched isEmpty ifTrue: [^self].
+
+	ids := untouched collect: [ :each | each _idIn: self reStore].
 	collections := Dictionary new: untouched size.
-	allEntries do: [ :each | (collections at: each sourceID ifAbsentPut: [self newCollection]) _dbAdd: each].
+
+	(self readAllEntriesFor: ids) do: [ :each | (collections at: each sourceID ifAbsentPut: [self newCollection]) _dbAdd: each].
 
 	(aCollection reject: [ :each | (self accessor valueIn: each) _isRecovered]) do: 
 		[ :proxy || entries |
@@ -288,6 +294,7 @@ targetTable
 !SSWDBStaticCollectionSpec categoriesFor: #createCollectionTable!initializing!public! !
 !SSWDBStaticCollectionSpec categoriesFor: #createNonProxiedInstanceFromRow:!actions-internal!private! !
 !SSWDBStaticCollectionSpec categoriesFor: #dbInstancesFor:!accessing!public! !
+!SSWDBStaticCollectionSpec categoriesFor: #readAllEntriesFor:!actions!private! !
 !SSWDBStaticCollectionSpec categoriesFor: #readAllFor:!actions!public! !
 !SSWDBStaticCollectionSpec categoriesFor: #readAllQuery!accessing-queries!public! !
 !SSWDBStaticCollectionSpec categoriesFor: #readQuery!accessing-queries!public! !

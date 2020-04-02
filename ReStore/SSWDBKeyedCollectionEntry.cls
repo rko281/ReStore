@@ -14,7 +14,7 @@ https://github.com/rko281/ReStore'!
 
 addTargetTo: aCollection
 
-	aCollection directAdd: self target suggestedIndex: self index!
+	aCollection _dbAdd: self target suggestedIndex: self index!
 
 index
 

@@ -579,8 +579,8 @@ debugStream
 dsn
 
 	"Return a specific DSN to use for tests, or nil to use the default (memory-based SQLite)"
-
-	^nil!
+^nil.
+	^'ReStoreTestMySQL'!
 
 initConnectionFor: aReStore
 

@@ -6,7 +6,9 @@ Object subclass: #InlinedAddress
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 InlinedAddress guid: (GUID fromString: '{57254d6f-1d25-4248-a58d-7c61103617db}')!
-InlinedAddress comment: ''!
+InlinedAddress comment: 'ReStore
+©2020 John Aspinall
+https://github.com/rko281/ReStore'!
 !InlinedAddress categoriesForClass!Unclassified! !
 !InlinedAddress methodsFor!
 

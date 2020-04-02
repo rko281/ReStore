@@ -498,21 +498,6 @@ unstoreAll
 
 	^self unstore: [ :each | true]!
 
-withComponent: aSymbol
-
-	#deprecated.
-	self include: aSymbol!
-
-withComponents: aCollectionOfInstVarNames
-
-	#deprecated.
-	self includeAll: aCollectionOfInstVarNames!
-
-withDependentComponents
-
-	#deprecated.
-	self includeDependentComponents!
-
 withoutInheritance
 
 	"If the receiver's instancesClass has persistent subclasses, then by default
@@ -520,12 +505,7 @@ withoutInheritance
 	
 	Prevent this behaviour by restricting to only elements of the instancesClass"
 	
-	^self satisfying: [ :each | each class = self instancesClass]!
-
-withRelatedComponents
-
-	#deprecated.
-	self includeRelatedComponents! !
+	^self satisfying: [ :each | each class = self instancesClass]! !
 !SSWDBInstancesCollection categoriesFor: #addAll:!actions!public! !
 !SSWDBInstancesCollection categoriesFor: #allSatisfy:!enumerating!public! !
 !SSWDBInstancesCollection categoriesFor: #anyOne!evaluating!public! !
@@ -587,11 +567,7 @@ withRelatedComponents
 !SSWDBInstancesCollection categoriesFor: #table!evaluating!public! !
 !SSWDBInstancesCollection categoriesFor: #unstore:!actions!public! !
 !SSWDBInstancesCollection categoriesFor: #unstoreAll!actions!public! !
-!SSWDBInstancesCollection categoriesFor: #withComponent:!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #withComponents:!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #withDependentComponents!initializing!public! !
 !SSWDBInstancesCollection categoriesFor: #withoutInheritance!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #withRelatedComponents!initializing!public! !
 
 !SSWDBInstancesCollection class methodsFor!
 

@@ -12,19 +12,39 @@ https://github.com/rko281/ReStore'!
 !GenericTest categoriesForClass!Unclassified! !
 !GenericTest methodsFor!
 
+= a
+
+	^self name = a name!
+
+addToMultiKeyDictionary: aTest
+
+	^(self component at: aTest key ifAbsentPut: [OrderedCollection new]) add: aTest!
+
+addToSingleKeyDictionary: aTest
+
+	^self component at: aTest key put: aTest!
+
 component
 	^component!
 
 component: anObject
 	component := anObject!
 
+hash
+
+	^self name hash!
+
 name
 	^name!
 
 name: anObject
 	name := anObject! !
+!GenericTest categoriesFor: #=!comparing!public! !
+!GenericTest categoriesFor: #addToMultiKeyDictionary:!adding!public! !
+!GenericTest categoriesFor: #addToSingleKeyDictionary:!adding!public! !
 !GenericTest categoriesFor: #component!accessing!private! !
 !GenericTest categoriesFor: #component:!accessing!private! !
+!GenericTest categoriesFor: #hash!comparing!public! !
 !GenericTest categoriesFor: #name!accessing!private! !
 !GenericTest categoriesFor: #name:!accessing!private! !
 

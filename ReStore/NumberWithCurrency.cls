@@ -6,7 +6,9 @@ Object subclass: #NumberWithCurrency
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 NumberWithCurrency guid: (GUID fromString: '{a3d4b711-20cd-4f26-82fc-83cfe657be40}')!
-NumberWithCurrency comment: ''!
+NumberWithCurrency comment: 'ReStore
+©2020 John Aspinall
+https://github.com/rko281/ReStore'!
 !NumberWithCurrency categoriesForClass!Kernel-Objects! !
 !NumberWithCurrency methodsFor!
 

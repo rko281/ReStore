@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWReStore2Test subclass: #SSWReStoreGenericTest
-	instanceVariableNames: 'testObject'
+	instanceVariableNames: 'testObject testObject2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -40,6 +40,19 @@ fetchTestObjects
 
 	testObject := (GenericTest storedInstancesIn: reStore) first!
 
+setUp
+
+	super setUp.
+
+	testObject2 := (GenericTest storedInstancesIn: reStore2) first!
+
+templateComponent
+
+	"Ensure unique name"
+	(Delay forMicroseconds: 10) wait.
+
+	^GenericOwnedTest new name: (self class name, Time microsecondClockValue printString)!
+
 templateTestObject
 
 	^self subclassResponsibility! !
@@ -48,6 +61,8 @@ templateTestObject
 !SSWReStoreGenericTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreGenericTest categoriesFor: #createTestObject!public!running! !
 !SSWReStoreGenericTest categoriesFor: #fetchTestObjects!public!running! !
+!SSWReStoreGenericTest categoriesFor: #setUp!public!running! !
+!SSWReStoreGenericTest categoriesFor: #templateComponent!accessing!public! !
 !SSWReStoreGenericTest categoriesFor: #templateTestObject!accessing!public! !
 
 !SSWReStoreGenericTest class methodsFor!

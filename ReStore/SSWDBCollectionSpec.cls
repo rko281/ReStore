@@ -222,6 +222,12 @@ relatedComponentsOf: anObject do: aBlock
 
 	self componentsOf: anObject do: aBlock!
 
+targetClass
+
+	"The homogeous (super)class of elements of the receiver"
+
+	^self subclassResponsibility!
+
 templateCollection
 
 	"collection stores an empty collection that is used as the template 
@@ -266,6 +272,7 @@ templateCollection: aCollection
 !SSWDBCollectionSpec categoriesFor: #refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
 !SSWDBCollectionSpec categoriesFor: #refreshWithContentsIfUpdatedStatement!accessing!public! !
 !SSWDBCollectionSpec categoriesFor: #relatedComponentsOf:do:!evaluating!public! !
+!SSWDBCollectionSpec categoriesFor: #targetClass!accessing!public! !
 !SSWDBCollectionSpec categoriesFor: #templateCollection!accessing!public! !
 !SSWDBCollectionSpec categoriesFor: #templateCollection:!accessing!public! !
 

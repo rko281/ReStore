@@ -7,6 +7,8 @@ https://github.com/rko281/ReStore'.
 
 
 package classNames
+	add: #SSWDBCacheDictionaryEntry;
+	add: #SSWDBCacheDictionaryWrapper;
 	add: #SSWDBCollectionAddition;
 	add: #SSWDBCollectionChange;
 	add: #SSWDBCollectionEntry;
@@ -15,39 +17,41 @@ package classNames
 	add: #SSWDBCollectionRemoval;
 	add: #SSWDBCollectionSpec;
 	add: #SSWDBCollectionUpdate;
-	add: #SSWDBDictionaryEntry;
 	add: #SSWDBGeneralCollectionSpec;
 	add: #SSWDBKeyedCollectionEntry;
 	add: #SSWDBKeyedStaticCollectionSpec;
+	add: #SSWDBMultiValueCacheDictionaryEntry;
+	add: #SSWDBMultiValueCacheDictionaryWrapper;
 	add: #SSWDBOrderedStaticCollectionSpec;
+	add: #SSWDBOwnedCacheDictionarySpec;
 	add: #SSWDBOwnedCollectionSpec;
+	add: #SSWDBOwnedMultiValueCacheDictionarySpec;
 	add: #SSWDBSortedStaticCollectionSpec;
 	add: #SSWDBStaticCacheDictionarySpec;
 	add: #SSWDBStaticCollectionSpec;
 	add: #SSWDBStaticDictionarySpec;
+	add: #SSWDBStaticMultiValueCacheDictionarySpec;
 	yourself.
 
 package methodNames
 	add: #ArrayedCollection -> #_changesFrom:;
-	add: #ArrayedCollection -> #directAdd:suggestedIndex:;
+	add: #ArrayedCollection -> #_dbAdd:suggestedIndex:;
 	add: #Class -> #beKeyClassOf:;
 	add: #Class -> #beTargetClassOf:;
 	add: #Collection -> #_changesFrom:;
 	add: #Collection -> #_collectionAdditions;
 	add: #Collection -> #_dbAdd:;
+	add: #Collection -> #_dbAdd:suggestedIndex:;
 	add: #Collection -> #_fetchAll:;
 	add: #Collection -> #_keyedChangesFrom:;
 	add: #Collection -> #_keyedCollectionAdditions;
 	add: #Collection -> #_keyRemovalsIn:;
 	add: #Collection -> #_nonKeyedCollectionAdditions;
+	add: #Collection -> #_proxifyIn:;
 	add: #Collection -> #_valueRemovalsIn:;
 	add: #Collection -> #_valuesRemovedBy:;
-	add: #Collection -> #directAdd:;
-	add: #Collection -> #directAdd:suggestedIndex:;
 	add: #Collection -> #fetch:;
 	add: #Collection -> #fetchAll:;
-	add: #Collection -> #fetchComponent:;
-	add: #Collection -> #fetchComponents:;
 	add: #Collection -> #isOrdered;
 	add: #Collection -> #isSortedCollection;
 	add: #Collection -> #isValidForPersistence;
@@ -60,12 +64,17 @@ package methodNames
 	add: #Collection -> #staticCollectionSpecClass;
 	add: #Dictionary -> #_changesFrom:;
 	add: #Dictionary -> #_collectionAdditions;
+	add: #Dictionary -> #_dbAdd:suggestedIndex:;
+	add: #Dictionary -> #_isMultiValue;
 	add: #Dictionary -> #_keyRemovalsIn:;
+	add: #Dictionary -> #_multiValueChangesFrom:;
+	add: #Dictionary -> #_multiValueKeyedCollectionAdditions;
 	add: #Dictionary -> #_valuesRemovedBy:;
-	add: #Dictionary -> #directAdd:suggestedIndex:;
-	add: #Dictionary -> #directAt:put:;
+	add: #Dictionary -> #of:;
 	add: #Dictionary -> #of:keyClass:;
 	add: #Dictionary -> #of:keyedOn:;
+	add: #Dictionary -> #of:owner:;
+	add: #Dictionary -> #of:owner:keyedOn:;
 	add: #Dictionary -> #staticCollectionSpecClass;
 	add: #OrderedCollection -> #_changesFrom:;
 	add: #SequenceableCollection -> #_collectionAdditions;
@@ -77,7 +86,6 @@ package methodNames
 	add: #SortedCollection -> #_changesFrom:;
 	add: #SortedCollection -> #_collectionAdditions;
 	add: #SortedCollection -> #_dbAdd:;
-	add: #SortedCollection -> #directAdd:;
 	add: #SortedCollection -> #isSortedCollection;
 	add: #SortedCollection -> #orderingSpecsFor:in:;
 	add: #SortedCollection -> #staticCollectionSpecClass;
@@ -89,8 +97,6 @@ package methodNames
 	add: #SSWDBUnrelatedWrapper -> #beTargetClassOf:;
 	add: 'Collection class' -> #of:;
 	add: 'Collection class' -> #of:owner:;
-	add: 'Dictionary class' -> #of:keyClass:;
-	add: 'Dictionary class' -> #of:keyedOn:;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -110,6 +116,11 @@ package!
 
 "Class Definitions"!
 
+Object subclass: #SSWDBCacheDictionaryWrapper
+	instanceVariableNames: 'dictionary keyAccessor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 Object subclass: #SSWDBCollectionChange
 	instanceVariableNames: 'affectedEntry'
 	classVariableNames: ''
@@ -122,6 +133,11 @@ Object subclass: #SSWDBCollectionEntry
 	classInstanceVariableNames: ''!
 Object subclass: #SSWDBCollectionObjectRemoval
 	instanceVariableNames: 'removedObject'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCacheDictionaryWrapper subclass: #SSWDBMultiValueCacheDictionaryWrapper
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -145,13 +161,18 @@ SSWDBCollectionChange subclass: #SSWDBCollectionUpdate
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWDBCollectionEntry subclass: #SSWDBDictionaryEntry
+SSWDBCollectionEntry subclass: #SSWDBCacheDictionaryEntry
 	instanceVariableNames: 'keyAccessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBCollectionEntry subclass: #SSWDBKeyedCollectionEntry
 	instanceVariableNames: 'index'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCacheDictionaryEntry subclass: #SSWDBMultiValueCacheDictionaryEntry
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -200,6 +221,21 @@ SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWDBStaticCacheDictionarySpec subclass: #SSWDBStaticMultiValueCacheDictionarySpec
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBOwnedCollectionSpec subclass: #SSWDBOwnedCacheDictionarySpec
+	instanceVariableNames: 'keyAccessor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBOwnedCacheDictionarySpec subclass: #SSWDBOwnedMultiValueCacheDictionarySpec
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 
 "Global Aliases"!
 
@@ -232,7 +268,7 @@ _changesFrom: aCollectionOfEntries
 
 	^changes!
 
-directAdd: anObject suggestedIndex: anInteger
+_dbAdd: anObject suggestedIndex: anInteger
 
 	"Translate to at:put:"
 
@@ -240,7 +276,7 @@ directAdd: anObject suggestedIndex: anInteger
 
 ! !
 !ArrayedCollection categoriesFor: #_changesFrom:!comparing!private! !
-!ArrayedCollection categoriesFor: #directAdd:suggestedIndex:!adding!private! !
+!ArrayedCollection categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
 
 !Class methodsFor!
 
@@ -286,6 +322,13 @@ _dbAdd: anObject
 	Normally the same as add: but see SortedCollection implementation"
 
 	^self add: anObject!
+
+_dbAdd: anObject suggestedIndex: anInteger
+
+	"Add anObject to the receiver, possibly at the index anInteger.
+	The suggestedIndex is only required by keyed collections so defer to just _dbAdd:"
+
+	^self _dbAdd: anObject!
 
 _fetchAll: aCollection
 
@@ -371,6 +414,11 @@ _nonKeyedCollectionAdditions
 
 	^additions!
 
+_proxifyIn: aCollectionProxy
+
+	aCollectionProxy _proxiedObject: self.
+	^self!
+
 _valueRemovalsIn: aCollectionOfChanges
 
 	"Return a collection of SSWDBCollectionObjectRemovals representing those values (objects)
@@ -394,22 +442,6 @@ _valuesRemovedBy: aCollectionOfChanges
 
 	^affectedObjects asIdentitySet reject: [ :object | self identityIncludes: object]!
 
-directAdd: anObject
-
-	"Add anObject to the receiver.
-	Sent by ReStore when populating a collection; assume elements are added in correct order
-	and so bypass any internal ordering (e.g. see SortedCollection>>directAdd:)"
-
-	^self add: anObject!
-
-directAdd: anObject suggestedIndex: anInteger
-
-	"Add anObject to the receiver, possibly at the index anInteger.
-	The suggestedIndex is only required by keyed collections, 
-	so defer to just directAdd:"
-
-	^self directAdd: anObject!
-
 fetch: aSymbol
 
 	"ReStore - for each element of the receiver, use a single query (ideally, or multiple batched queries if the receiver's size is too large for the readAll batch size)
@@ -423,16 +455,6 @@ fetchAll: aCollection
 	to fetch from the database the components in the inst vars named in aCollection"
 
 	^(self select: [ :each | each _isRecovered]) _fetchAll: aCollection!
-
-fetchComponent: aSymbol
-
-	#deprecated.
-	^self fetch: aSymbol!
-
-fetchComponents: aCollection
-
-	#deprecated.
-	^self fetchAll: aCollection!
 
 isOrdered
 
@@ -513,19 +535,17 @@ staticCollectionSpecClass
 !Collection categoriesFor: #_changesFrom:!private!restore-internal! !
 !Collection categoriesFor: #_collectionAdditions!private!restore-internal! !
 !Collection categoriesFor: #_dbAdd:!private!restore-internal! !
+!Collection categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
 !Collection categoriesFor: #_fetchAll:!private!restore-internal! !
 !Collection categoriesFor: #_keyedChangesFrom:!private!restore-internal! !
 !Collection categoriesFor: #_keyedCollectionAdditions!private!restore-internal! !
 !Collection categoriesFor: #_keyRemovalsIn:!private!restore-internal! !
 !Collection categoriesFor: #_nonKeyedCollectionAdditions!private!restore-internal! !
+!Collection categoriesFor: #_proxifyIn:!private!restore-internal! !
 !Collection categoriesFor: #_valueRemovalsIn:!private!restore-internal! !
 !Collection categoriesFor: #_valuesRemovedBy:!private!restore-internal! !
-!Collection categoriesFor: #directAdd:!adding!private! !
-!Collection categoriesFor: #directAdd:suggestedIndex:!adding!private! !
 !Collection categoriesFor: #fetch:!converting!public! !
 !Collection categoriesFor: #fetchAll:!converting!public! !
-!Collection categoriesFor: #fetchComponent:!converting!public! !
-!Collection categoriesFor: #fetchComponents:!converting!public! !
 !Collection categoriesFor: #isOrdered!public!testing! !
 !Collection categoriesFor: #isSortedCollection!public!testing! !
 !Collection categoriesFor: #isValidForPersistence!comparing!private! !
@@ -564,19 +584,37 @@ _changesFrom: aCollectionOfEntries
 	ifTrue:
 		[self _collectionAdditions]
 	ifFalse:
-		[(aCollectionOfEntries first isKindOf: SSWDBDictionaryEntry)
-			ifTrue: [super _changesFrom: aCollectionOfEntries]
-			ifFalse: [self _keyedChangesFrom: aCollectionOfEntries]]!
+		[(aCollectionOfEntries first isKindOf: SSWDBCacheDictionaryEntry)
+		ifTrue: 
+			[self _isMultiValue
+				ifTrue: [self _multiValueChangesFrom: aCollectionOfEntries]
+				ifFalse: [super _changesFrom: aCollectionOfEntries]]
+		ifFalse: 
+			[self _keyedChangesFrom: aCollectionOfEntries]]!
 
 _collectionAdditions
 
-	"Override to include key information"
+	"Override to 
+	 - check for multi-value dictionary
+	 - include key information"
 
-	^self _keyedCollectionAdditions!
+	^self _isMultiValue
+		ifTrue: [self _multiValueKeyedCollectionAdditions]
+		ifFalse: [self _keyedCollectionAdditions]!
+
+_dbAdd: targetObject suggestedIndex: keyObject
+
+	"Make the receiver polymorphic with an indexed collection. keyObject = index"
+
+	^self at: keyObject put: targetObject!
+
+_isMultiValue
+
+	^self isEmpty not and: [self anyOne isKindOf: Collection]!
 
 _keyRemovalsIn: aCollectionOfChanges
 
-	^(aCollectionOfChanges isEmpty or: [aCollectionOfChanges first affectedEntry isKindOf: SSWDBDictionaryEntry])
+	^(aCollectionOfChanges isEmpty or: [aCollectionOfChanges first affectedEntry isKindOf: SSWDBCacheDictionaryEntry])
 	ifTrue:
 		[#()]
 	ifFalse:
@@ -584,26 +622,61 @@ _keyRemovalsIn: aCollectionOfChanges
 			select: [ :change | change canRemoveKey and: [(self includesKey: change affectedEntry index) not]]
 			thenCollect: [ :change | SSWDBCollectionObjectRemoval newWithObject: change affectedEntry index]]!
 
+_multiValueChangesFrom: aCollectionOfEntries
+
+	"Return the changes made to the receiver compared to aCollectionOf(Dictionary)Entries.
+	The receiver is a multi-value dictionary"
+
+	| allValues changes |
+
+	allValues := self inject: (IdentitySet new: self size * 4) into: [ :all :values | all addAll: values; yourself].
+	changes := OrderedCollection new.
+
+	aCollectionOfEntries do: 
+		[ :entry |
+		((self at: entry key ifAbsent: [#()]) includes: entry target) 
+			ifTrue: [allValues remove: entry target]
+			ifFalse: [changes add: (SSWDBCollectionRemoval newWithEntry: entry)]].
+
+	allValues do: [ :each | changes add: (SSWDBCollectionAddition added: each)].
+
+	^changes!
+
+_multiValueKeyedCollectionAdditions
+
+	| additions |
+
+	additions := OrderedCollection new.
+
+	self keysAndValuesDo: [ :key :values | values do: [ :each | additions add: (SSWDBCollectionAddition added: each at: key)]].
+
+	^additions!
+
 _valuesRemovedBy: aCollectionOfChanges
 
 	"The receiver is not a set (i.e. allows duplicates) and so cannot take advantage of superclass optimisation"
 
 	^self _superValuesRemovedBy: aCollectionOfChanges!
 
-directAdd: targetObject suggestedIndex: keyObject
+of: anAssociation
 
-	"Make the receiver polymorphic with an indexed collection (key=index)"
+	"ReStore specification method - specify a Dictionary which stores instances of the class which is the value of anAssociation.
+	The key of Association should be either:
+	 - the class of the keys of the Dictionary, e.g.  Dictionary of: DateAndTime -> CustomerOrder
+	OR
+	 - an instance variable name (Symbol) of the value class; the contents of this instance variable is used as the key for each element, e.g. Dictionary of: #surname -> Person
+	OR
+	 - a 1-arg Block which is evaluated with each elements to derive the key, e.g. Dictionary of: [ :obj | obj name asLowercase] -> Person
+	Create and return an appropriate SSWDBCollectionSpec"
 
-	^self directAt: keyObject put: targetObject
+	^(anAssociation key isSymbol or: [anAssociation key isKindOf: BlockClosure])
+		ifTrue: [self of: anAssociation value keyedOn: anAssociation key]
+		ifFalse: [self of: anAssociation value keyClass: anAssociation key]
 !
-
-directAt: aKey put: anObject
-
-	^self at: aKey put: anObject!
 
 of: targetClass keyClass: keyClass
 
-	"ReStore specification method - specify a Dictionary which stores instances of targetClass.
+	"Private - ReStore specification method - specify a Dictionary which stores instances of targetClass.
 	The Dictionary's keys will be of the class keyClass, which should be a valid persistent class.
 	Create and return an appropriate SSWDBCollectionSpec"
 
@@ -611,13 +684,52 @@ of: targetClass keyClass: keyClass
 		setKeyClass: keyClass;
 		yourself!
 
-of: targetClass keyedOn: aSymbol
+of: targetClass keyedOn: aSymbolOrBlock
 
-	"ReStore specification method - specify a Dictionary which stores instances of targetClass.
-	Instances are stored in the receiver at: the value of their instance variable named aSymbol.
+	"Private - ReStore specification method - specify a Dictionary which stores instances of targetClass.
+	The target class may alternatively be a collection specification (e.g. OrderedCollection of: Person) for a multi-value dictionary.
+	Instances are stored in the receiver at: the value detemined by evaluating aSymbolOrBlock with them (usually but not always the value of an instance variable).
 	Create and return an appropriate SSWDBCollectionSpec"
 
-	^(self of: targetClass specClass: SSWDBStaticCacheDictionarySpec)
+	| spec |
+
+	(targetClass isKindOf: SSWDBCollectionSpec)
+	ifTrue: 
+		[spec := self of: targetClass targetClass specClass: SSWDBStaticMultiValueCacheDictionarySpec.
+		targetClass isValueDependent ifTrue: [spec beValueDependent]]
+	ifFalse: 
+		[spec := self of: targetClass specClass: SSWDBStaticCacheDictionarySpec].
+
+	^spec
+		keyedOn: aSymbolOrBlock;
+		yourself!
+
+of: anAssociation owner: aSymbol
+
+	"Private - ReStore specification method - specify a Dictionary which stores instances of the class which is the value of anAssociation.
+	The key of Association should be an instance variable name (Symbol) of the value class; the contents of this instance variable is used as the key for each element, e.g. Dictionary of: #surname -> Person
+	Create and return an appropriate SSWDBCollectionSpec"
+
+	^self of: anAssociation value owner: aSymbol keyedOn: anAssociation key!
+
+of: targetClass owner: ownerSymbol keyedOn: aSymbol
+
+	"Private - ReStore specification method - specify a Dictionary which stores instances of targetClass.
+	The target class may alternatively be a collection specification (e.g. OrderedCollection of: Person) for a multi-value dictionary.
+	Instances are stored in the receiver at: the value detemined by evaluating aSymbolOrBlock with them (usually but not always the value of an instance variable).
+	Create and return an appropriate SSWDBCollectionSpec"
+
+	| spec |
+
+	(targetClass isKindOf: SSWDBCollectionSpec)
+	ifTrue: 
+		[spec := self of: targetClass targetClass specClass: SSWDBOwnedMultiValueCacheDictionarySpec.
+		targetClass isValueDependent ifTrue: [spec beValueDependent]]
+	ifFalse: 
+		[spec := self of: targetClass specClass: SSWDBOwnedCacheDictionarySpec].
+
+	^spec
+		owner: ownerSymbol;
 		keyedOn: aSymbol;
 		yourself!
 
@@ -629,31 +741,20 @@ staticCollectionSpecClass
 	^self shouldNotImplement
 
 ! !
-!Dictionary categoriesFor: #_changesFrom:!comparing!public! !
-!Dictionary categoriesFor: #_collectionAdditions!comparing!public! !
+!Dictionary categoriesFor: #_changesFrom:!comparing!private! !
+!Dictionary categoriesFor: #_collectionAdditions!comparing!private! !
+!Dictionary categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
+!Dictionary categoriesFor: #_isMultiValue!private!testing! !
 !Dictionary categoriesFor: #_keyRemovalsIn:!comparing!private! !
+!Dictionary categoriesFor: #_multiValueChangesFrom:!comparing!private! !
+!Dictionary categoriesFor: #_multiValueKeyedCollectionAdditions!comparing!private! !
 !Dictionary categoriesFor: #_valuesRemovedBy:!comparing!private! !
-!Dictionary categoriesFor: #directAdd:suggestedIndex:!comparing!public! !
-!Dictionary categoriesFor: #directAt:put:!adding!private! !
-!Dictionary categoriesFor: #of:keyClass:!public!specification! !
-!Dictionary categoriesFor: #of:keyedOn:!public!specification! !
+!Dictionary categoriesFor: #of:!public!specification! !
+!Dictionary categoriesFor: #of:keyClass:!private!specification! !
+!Dictionary categoriesFor: #of:keyedOn:!private!specification! !
+!Dictionary categoriesFor: #of:owner:!private!specification! !
+!Dictionary categoriesFor: #of:owner:keyedOn:!private!specification! !
 !Dictionary categoriesFor: #staticCollectionSpecClass!constants!private! !
-
-!Dictionary class methodsFor!
-
-of: targetClass keyClass: keyClass
-
-	"ReStore specification method - create and return an appropriate SSWDBCollectionSpec"
-
-	^self new of: targetClass keyClass: keyClass!
-
-of: targetClass keyedOn: aSymbol
-
-	"ReStore specification method - create and return an appropriate SSWDBCollectionSpec"
-
-	^self new of: targetClass keyedOn: aSymbol! !
-!Dictionary class categoriesFor: #of:keyClass:!public!specification! !
-!Dictionary class categoriesFor: #of:keyedOn:!public!specification! !
 
 !OrderedCollection methodsFor!
 
@@ -692,7 +793,7 @@ staticCollectionSpecClass
 _changesFrom: aSetOfEntries
 
 	"Return the changes made to the receiver compared to aSetOf(Collection)Entries.
-	For a Set, consider additions and removals and removal only"
+	For a Set, consider additions and removals only"
 
 	| changes oldSet |
 
@@ -769,13 +870,6 @@ _dbAdd: anObject
 
 	^super addLast: anObject!
 
-directAdd: anObject
-
-	"For speed, ReStore will instruct the database to recover objects already sorted.
-	directAdd: allows these sorted objects to be added to the receiver without further sorting"
-
-	^super addLast: anObject!
-
 isSortedCollection
 
 	^true
@@ -807,7 +901,6 @@ staticCollectionSpecClass
 !SortedCollection categoriesFor: #_changesFrom:!comparing!private! !
 !SortedCollection categoriesFor: #_collectionAdditions!comparing!private! !
 !SortedCollection categoriesFor: #_dbAdd:!comparing!private! !
-!SortedCollection categoriesFor: #directAdd:!adding!public! !
 !SortedCollection categoriesFor: #isSortedCollection!public!testing! !
 !SortedCollection categoriesFor: #orderingSpecsFor:in:!accessing!private! !
 !SortedCollection categoriesFor: #staticCollectionSpecClass!constants!private! !

@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Test subclass: #GenericOwnedTest
-	instanceVariableNames: 'owner deepTest'
+	instanceVariableNames: 'owner key deepTest'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -18,6 +18,12 @@ deepTest
 deepTest: anObject
 	deepTest := anObject!
 
+key
+	^key!
+
+key: anObject
+	key := anObject!
+
 owner
 	"Private - Answer the value of the receiver's ''owner'' instance variable."
 
@@ -29,6 +35,8 @@ owner: anObject
 	owner := anObject! !
 !GenericOwnedTest categoriesFor: #deepTest!accessing!private! !
 !GenericOwnedTest categoriesFor: #deepTest:!accessing!private! !
+!GenericOwnedTest categoriesFor: #key!accessing!private! !
+!GenericOwnedTest categoriesFor: #key:!accessing!private! !
 !GenericOwnedTest categoriesFor: #owner!accessing!private! !
 !GenericOwnedTest categoriesFor: #owner:!accessing!private! !
 
@@ -38,12 +46,8 @@ reStoreDefinition
 
 	^super reStoreDefinition
 		define: #owner as: GenericTest;
+		define: #key as: (String maxSize: 128);
 		define: #deepTest as: Test dependent;
-		yourself!
-
-shouldInheritPersistency
-
-	^true! !
+		yourself! !
 !GenericOwnedTest class categoriesFor: #reStoreDefinition!public! !
-!GenericOwnedTest class categoriesFor: #shouldInheritPersistency!public! !
 

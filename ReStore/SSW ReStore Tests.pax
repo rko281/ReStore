@@ -29,7 +29,9 @@ package classNames
 	add: #SSWReStoreAbstractQueryTest;
 	add: #SSWReStoreAggregateQueryTest;
 	add: #SSWReStoreBlockAndOrQueryTest;
+	add: #SSWReStoreBlockCacheDictionaryTest;
 	add: #SSWReStoreBlockIfNilQueryTest;
+	add: #SSWReStoreCacheDictionaryTest;
 	add: #SSWReStoreCollectionSubQueryTest;
 	add: #SSWReStoreCollectQueryTest;
 	add: #SSWReStoreCommitTests;
@@ -37,8 +39,12 @@ package classNames
 	add: #SSWReStoreDefaultReadTest;
 	add: #SSWReStoreDefaultTest;
 	add: #SSWReStoreDefaultWriteTest;
+	add: #SSWReStoreDependentCacheDictionaryTest;
+	add: #SSWReStoreDependentDictionaryTest;
+	add: #SSWReStoreDependentKeyDictionaryTest;
 	add: #SSWReStoreDependentObjectTest;
 	add: #SSWReStoreDependentOrderedCollectionTest;
+	add: #SSWReStoreDependentOwnedCacheDictionaryTest;
 	add: #SSWReStoreDependentOwnedOrderedCollectionTest;
 	add: #SSWReStoreDependentOwnedSortedCollectionTest;
 	add: #SSWReStoreDependentSortedCollectionTest;
@@ -58,18 +64,27 @@ package classNames
 	add: #SSWReStoreInlinedTest;
 	add: #SSWReStoreIsNilQueryTest;
 	add: #SSWReStoreJoinQueryTest;
+	add: #SSWReStoreMultiValueBlockCacheDictionaryTest;
+	add: #SSWReStoreMultiValueCacheDictionaryTest;
+	add: #SSWReStoreNonRelatedCacheDictionaryTest;
 	add: #SSWReStoreNonRelatedDependentObjectTest;
 	add: #SSWReStoreNonRelatedDependentOrderedCollectionTest;
 	add: #SSWReStoreNonRelatedDependentOwnedOrderedCollectionTest;
 	add: #SSWReStoreNonRelatedDependentSortedCollectionTest;
+	add: #SSWReStoreNonRelatedDictionaryTest;
 	add: #SSWReStoreNonRelatedObjectTest;
 	add: #SSWReStoreNonRelatedOrderedCollectionTest;
+	add: #SSWReStoreNonRelatedOwnedCacheDictionaryTest;
 	add: #SSWReStoreNonRelatedOwnedOrderedCollectionTest;
 	add: #SSWReStoreNonRelatedSortedCollectionTest;
 	add: #SSWReStoreNotNilQueryTest;
 	add: #SSWReStoreObjectAPITests;
+	add: #SSWReStoreOwnedBlockCacheDictionaryTest;
+	add: #SSWReStoreOwnedCacheDictionaryTest;
 	add: #SSWReStoreOwnedCollectionReadWithComponentsTest;
 	add: #SSWReStoreOwnedCollectionSubQueryTest;
+	add: #SSWReStoreOwnedMultiValueBlockCacheDictionaryTest;
+	add: #SSWReStoreOwnedMultiValueCacheDictionaryTest;
 	add: #SSWReStorePersonTest;
 	add: #SSWReStoreProcessAffiliationTest;
 	add: #SSWReStoreProductOrdersTest;
@@ -79,8 +94,12 @@ package classNames
 	add: #SSWReStoreReadWithComponentsTest;
 	add: #SSWReStoreRefreshNoVersTest;
 	add: #SSWReStoreRefreshTest;
+	add: #SSWReStoreRelatedCacheDictionaryTest;
+	add: #SSWReStoreRelatedDictionaryTest;
+	add: #SSWReStoreRelatedKeyDictionaryTest;
 	add: #SSWReStoreRelatedObjectTest;
 	add: #SSWReStoreRelatedOrderedCollectionTest;
+	add: #SSWReStoreRelatedOwnedCacheDictionaryTest;
 	add: #SSWReStoreRelatedOwnedOrderedCollectionTest;
 	add: #SSWReStoreRelatedOwnedSortedCollectionTest;
 	add: #SSWReStoreRelatedSortedCollectionTest;
@@ -228,7 +247,7 @@ MidPerson subclass: #SubPerson
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Test subclass: #GenericOwnedTest
-	instanceVariableNames: 'owner deepTest'
+	instanceVariableNames: 'owner key deepTest'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -283,7 +302,7 @@ SSWReStoreTest subclass: #SSWReStoreTypeTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStore2Test subclass: #SSWReStoreGenericTest
-	instanceVariableNames: 'testObject'
+	instanceVariableNames: 'testObject testObject2'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -307,6 +326,11 @@ SSWReStore2Test subclass: #SSWReStoreUpdateClashTestPersistent
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreGenericTest subclass: #SSWReStoreCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreGenericTest subclass: #SSWReStoreGenericCollectionTest
 	instanceVariableNames: 'collection'
 	classVariableNames: ''
@@ -317,12 +341,37 @@ SSWReStoreGenericTest subclass: #SSWReStoreGenericObjectTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreGenericTest subclass: #SSWReStoreMultiValueCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreCacheDictionaryTest subclass: #SSWReStoreBlockCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreCacheDictionaryTest subclass: #SSWReStoreOwnedCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreOwnedCacheDictionaryTest subclass: #SSWReStoreOwnedBlockCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreGenericCollectionTest subclass: #SSWReStoreGenericNonRelatedCollectionTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreGenericCollectionTest subclass: #SSWReStoreGenericRelatedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericNonRelatedCollectionTest subclass: #SSWReStoreNonRelatedDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -342,6 +391,16 @@ SSWReStoreGenericNonRelatedCollectionTest subclass: #SSWReStoreNonRelatedSortedC
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreNonRelatedDictionaryTest subclass: #SSWReStoreNonRelatedCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreNonRelatedCacheDictionaryTest subclass: #SSWReStoreNonRelatedOwnedCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreNonRelatedOrderedCollectionTest subclass: #SSWReStoreNonRelatedDependentOrderedCollectionTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -357,6 +416,11 @@ SSWReStoreNonRelatedSortedCollectionTest subclass: #SSWReStoreNonRelatedDependen
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedOrderedCollectionTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -368,6 +432,41 @@ SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedOwnedOrderedC
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedSortedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedDictionaryTest subclass: #SSWReStoreDependentDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedDictionaryTest subclass: #SSWReStoreRelatedCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedDictionaryTest subclass: #SSWReStoreRelatedKeyDictionaryTest
+	instanceVariableNames: 'inverseDictionary'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedCacheDictionaryTest subclass: #SSWReStoreDependentCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedCacheDictionaryTest subclass: #SSWReStoreRelatedOwnedCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedOwnedCacheDictionaryTest subclass: #SSWReStoreDependentOwnedCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreRelatedKeyDictionaryTest subclass: #SSWReStoreDependentKeyDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -413,6 +512,21 @@ SSWReStoreNonRelatedObjectTest subclass: #SSWReStoreNonRelatedDependentObjectTes
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreRelatedObjectTest subclass: #SSWReStoreDependentObjectTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreMultiValueCacheDictionaryTest subclass: #SSWReStoreMultiValueBlockCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreMultiValueCacheDictionaryTest subclass: #SSWReStoreOwnedMultiValueCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreOwnedMultiValueCacheDictionaryTest subclass: #SSWReStoreOwnedMultiValueBlockCacheDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

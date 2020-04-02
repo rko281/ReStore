@@ -11,6 +11,9 @@ package classNames
 	yourself.
 
 package methodNames
+	add: #Collection -> #fetchComponent:;
+	add: #Collection -> #fetchComponents:;
+	add: #DateAndTime -> #withoutMilliseconds;
 	add: #False -> #qAnd:;
 	add: #False -> #qOr:;
 	add: #Object -> #stored;
@@ -24,6 +27,10 @@ package methodNames
 	add: #SSWDBBlockArgument -> #qAnd:;
 	add: #SSWDBBlockArgument -> #qOr:;
 	add: #SSWDBInstancesCollection -> #collectAsSet:;
+	add: #SSWDBInstancesCollection -> #withComponent:;
+	add: #SSWDBInstancesCollection -> #withComponents:;
+	add: #SSWDBInstancesCollection -> #withDependentComponents;
+	add: #SSWDBInstancesCollection -> #withRelatedComponents;
 	add: #SSWMySQLDialect -> #timestamp;
 	add: #SSWReStore -> #commitObject:;
 	add: #SSWReStore -> #commitObjects:;
@@ -51,6 +58,8 @@ package methodNames
 	add: #TimeStamp -> #writeSQLOn:;
 	add: #True -> #qAnd:;
 	add: #True -> #qOr:;
+	add: 'Dictionary class' -> #of:keyClass:;
+	add: 'Dictionary class' -> #of:keyedOn:;
 	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
 	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
 	yourself.
@@ -85,6 +94,45 @@ Dialog subclass: #TransactionalDialog
 
 
 "Loose Methods"!
+
+!Collection methodsFor!
+
+fetchComponent: aSymbol
+
+	#deprecated.
+	^self fetch: aSymbol!
+
+fetchComponents: aCollection
+
+	#deprecated.
+	^self fetchAll: aCollection! !
+!Collection categoriesFor: #fetchComponent:!converting!public! !
+!Collection categoriesFor: #fetchComponents:!converting!public! !
+
+!DateAndTime methodsFor!
+
+withoutMilliseconds
+
+	"ODBC Timestamps may or may not include milliseconds (or may have a ms resolution > 1), hence it can be useful/necessary to drop milliseconds for comparison purposes"
+
+	^self - (Duration nanoseconds: self nanosecond)! !
+!DateAndTime categoriesFor: #withoutMilliseconds!accessing!public! !
+
+!Dictionary class methodsFor!
+
+of: targetClass keyClass: keyClass
+
+	"ReStore specification method - create and return an appropriate SSWDBCollectionSpec"
+
+	^self new of: targetClass keyClass: keyClass!
+
+of: targetClass keyedOn: aSymbol
+
+	"ReStore specification method - create and return an appropriate SSWDBCollectionSpec"
+
+	^self new of: targetClass keyedOn: aSymbol! !
+!Dictionary class categoriesFor: #of:keyClass:!public! !
+!Dictionary class categoriesFor: #of:keyedOn:!public! !
 
 !False methodsFor!
 
@@ -227,8 +275,32 @@ collectAsSet: collectBlock
 	...where a high level of duplication is expected"
 	
 	#deprecated. "Use project:"
-	^self project: collectBlock into: (Set new: 16)! !
+	^self project: collectBlock into: (Set new: 16)!
+
+withComponent: aSymbol
+
+	#deprecated.
+	self include: aSymbol!
+
+withComponents: aCollectionOfInstVarNames
+
+	#deprecated.
+	self includeAll: aCollectionOfInstVarNames!
+
+withDependentComponents
+
+	#deprecated.
+	self includeDependentComponents!
+
+withRelatedComponents
+
+	#deprecated.
+	self includeRelatedComponents! !
 !SSWDBInstancesCollection categoriesFor: #collectAsSet:!enumerating!public! !
+!SSWDBInstancesCollection categoriesFor: #withComponent:!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #withComponents:!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #withDependentComponents!initializing!public! !
+!SSWDBInstancesCollection categoriesFor: #withRelatedComponents!initializing!public! !
 
 !SSWMySQLDialect methodsFor!
 

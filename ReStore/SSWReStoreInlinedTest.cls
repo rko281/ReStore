@@ -6,7 +6,9 @@ SSWReStorePersonTest subclass: #SSWReStoreInlinedTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreInlinedTest guid: (GUID fromString: '{35012ab8-b57b-46a4-9313-1d52af53b8b8}')!
-SSWReStoreInlinedTest comment: ''!
+SSWReStoreInlinedTest comment: 'ReStore
+©2020 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWReStoreInlinedTest categoriesForClass!Unclassified! !
 !SSWReStoreInlinedTest methodsFor!
 

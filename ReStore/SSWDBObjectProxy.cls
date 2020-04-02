@@ -116,13 +116,6 @@ _idIn: aReStore
 		ifTrue: [id]
 		ifFalse: [nil error: 'incorrect ReStore parameter']!
 
-_instVarAt: anInteger
-
-	"Sent from internal code to access the proxiedObject directly.
-	ASSERT: the receiver is a recovered proxy"
-	
-	^proxiedObject instVarAt: anInteger!
-
 _instVarAt: anInteger put: anObject
 
 	"Sent from internal code to access the proxiedObject directly.
@@ -197,6 +190,13 @@ _unstore
 
 	proxiedObject := nil!
 
+= anotherObject
+
+	"No need to fetch the object if #= == #=="
+	^(proxiedObject isNil and: [(class lookupMethod: #=) == (Object>>#=)])
+		ifTrue: [self == anotherObject]
+		ifFalse: [self doesNotUnderstand: (Message selector: #= arguments: (Array with: anotherObject))]!
+
 basicClass
 
 	^class!
@@ -227,6 +227,14 @@ debugPrintString
 	^self _isDeleted 
 		ifTrue: ['<Deleted persistent object>']
 		ifFalse: [super debugPrintString]!
+
+hash
+
+	"No need to fetch the object if hash == identityHash"
+
+	^(proxiedObject isNil and: [(class lookupMethod: #hash) == (Object>>#hash)])
+		ifTrue: [self identityHash]
+		ifFalse: [self doesNotUnderstand: (Message selector: #hash)]!
 
 isInteger
 
@@ -331,7 +339,6 @@ writeSQLOn: aStream forField: aField
 !SSWDBObjectProxy categoriesFor: #_id!accessing!public! !
 !SSWDBObjectProxy categoriesFor: #_id:!accessing!public! !
 !SSWDBObjectProxy categoriesFor: #_idIn:!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #_instVarAt:!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #_instVarAt:put:!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #_intern!actions-internal!public! !
 !SSWDBObjectProxy categoriesFor: #_isNew!public!testing! !
@@ -342,10 +349,12 @@ writeSQLOn: aStream forField: aField
 !SSWDBObjectProxy categoriesFor: #_refreshFromRow:table:!actions-internal!public! !
 !SSWDBObjectProxy categoriesFor: #_unrecoveredProxyString!accessing!public! !
 !SSWDBObjectProxy categoriesFor: #_unstore!actions-internal!public! !
+!SSWDBObjectProxy categoriesFor: #=!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #basicClass!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #class!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #currentVersion!accessing:derived!public! !
 !SSWDBObjectProxy categoriesFor: #debugPrintString!forwarding!public! !
+!SSWDBObjectProxy categoriesFor: #hash!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isInteger!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isKindOf:!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isValidForPersistence!forwarding!public! !

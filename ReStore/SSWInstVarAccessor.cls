@@ -88,6 +88,12 @@ slot: anInteger
 	
 	slot := anInteger!
 
+value: targetObject
+
+	"Polymorphic with Blocks and Messages"
+
+	^self valueIn: targetObject!
+
 value: valueObject in: targetObject
 
 	"Set the instance variable of targetObject represented by the receiver to valueObject"
@@ -98,7 +104,7 @@ valueIn: targetObject
 
 	"Return the value of the instance variable of targetObject represented by the receiver"
 
-	^targetObject _instVarAt: self slot! !
+	^targetObject instVarAt: self slot! !
 !SSWInstVarAccessor categoriesFor: #=!public!testing! !
 !SSWInstVarAccessor categoriesFor: #access:in:!initializing!public! !
 !SSWInstVarAccessor categoriesFor: #accesses:!public!testing! !
@@ -111,6 +117,7 @@ valueIn: targetObject
 !SSWInstVarAccessor categoriesFor: #ownerClass:!accessing!public! !
 !SSWInstVarAccessor categoriesFor: #slot!accessing!public! !
 !SSWInstVarAccessor categoriesFor: #slot:!accessing!public! !
+!SSWInstVarAccessor categoriesFor: #value:!evaluating!public! !
 !SSWInstVarAccessor categoriesFor: #value:in:!public!updating! !
 !SSWInstVarAccessor categoriesFor: #valueIn:!evaluating!public! !
 

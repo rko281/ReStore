@@ -59,12 +59,6 @@ _doesNotUnderstand: aMessage
 			field notNil ifTrue: [^(self forModify perform: selector allButLast asSymbol) value: arguments first]].
 		self sqlConditionFor: aMessage]!
 
-_instVarAt: anIndex
-
-	"Allow InstVarAccessors to interrogate the receiver"
-
-	^self perform: (self currentClass allInstVarNames at: anIndex) asSymbol!
-
 | aValue
 
 	"Only sent in case of an implicit '= true' expression (or an error)"
@@ -433,7 +427,6 @@ writeSQLOn: aStream
 	^(condition ifNil: [self finalField]) writeSQLOn: aStream! !
 !SSWDBBlockArgument categoriesFor: #&!parsing - implicit true!public! !
 !SSWDBBlockArgument categoriesFor: #_doesNotUnderstand:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #_instVarAt:!parsing - internal!public! !
 !SSWDBBlockArgument categoriesFor: #|!parsing - implicit true!public! !
 !SSWDBBlockArgument categoriesFor: #->!parsing - functions!public! !
 !SSWDBBlockArgument categoriesFor: #applyFunction:withArguments:!parsing - internal!public! !

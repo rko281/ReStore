@@ -275,6 +275,12 @@ defaultSQLFunctions
 
 	^allDefaults!
 
+defaultTimeResolution
+
+	"0 = seconds, 3 = milliseconds etc."
+
+	^self defaultDateTimeResolution!
+
 defaultUnsizedBlobSize
 
 	"default value for unsizedBlobSize - see that method's comment"
@@ -430,6 +436,12 @@ maxTableNameLength
 maxTableNameLength: anObject
 	maxTableNameLength := anObject!
 
+maxTimeResolution
+
+	"0 = seconds, 3 = milliseconds etc."
+
+	^self maxDateTimeResolution!
+
 maxVarchar
 
 	^self maxCharacter!
@@ -576,6 +588,12 @@ timeStringFor: aTime
 
 	^aTime printStringFormat: self timeFormat!
 
+timeWithResolution
+
+	"Parameter is resolution (0=seconds, 3=milliseconds etc.)"
+
+	^'TIME(<1p>)'!
+
 transformClassName: aSymbol
 
 	"Transform the given class name into a DB-style String appropriate/conventional for this dialect"
@@ -704,6 +722,7 @@ varchar
 !SSWSQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultSQLFunctions!constants!public! !
+!SSWSQLDialect categoriesFor: #defaultTimeResolution!public! !
 !SSWSQLDialect categoriesFor: #defaultUnsizedBlobSize!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultUnsizedStringSize!constants!public! !
 !SSWSQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
@@ -729,6 +748,7 @@ varchar
 !SSWSQLDialect categoriesFor: #maxDateTimeResolution!constants!public! !
 !SSWSQLDialect categoriesFor: #maxTableNameLength!accessing!public! !
 !SSWSQLDialect categoriesFor: #maxTableNameLength:!accessing!public! !
+!SSWSQLDialect categoriesFor: #maxTimeResolution!public! !
 !SSWSQLDialect categoriesFor: #maxVarchar!constants!public! !
 !SSWSQLDialect categoriesFor: #postLoginScript!constants!public! !
 !SSWSQLDialect categoriesFor: #printParameterPlaceholder:on:!helpers!public! !
@@ -749,6 +769,7 @@ varchar
 !SSWSQLDialect categoriesFor: #timeFormat!constants!public! !
 !SSWSQLDialect categoriesFor: #timeFrom:!conversions!public! !
 !SSWSQLDialect categoriesFor: #timeStringFor:!conversions!public! !
+!SSWSQLDialect categoriesFor: #timeWithResolution!public! !
 !SSWSQLDialect categoriesFor: #transformClassName:!helpers!public! !
 !SSWSQLDialect categoriesFor: #transformInstVarName:!helpers!public! !
 !SSWSQLDialect categoriesFor: #trueObject!constants!public! !

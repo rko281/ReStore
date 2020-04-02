@@ -46,7 +46,6 @@ package methodNames
 	add: #Collection -> #writeSQLOn:with:;
 	add: #Date -> #asSQLStringIn:;
 	add: #DateAndTime -> #asSQLStringIn:;
-	add: #DateAndTime -> #withoutMilliseconds;
 	add: #False -> #asSQLStringIn:;
 	add: #Object -> #ifNull:;
 	add: #Object -> #ifNull:ifNotNull:;
@@ -329,15 +328,8 @@ writeSQLTypeOn: aStream using: anSQLDialect
 
 asSQLStringIn: aSQLDialect
 
-	^aSQLDialect dateAndTimeStringFor: self!
-
-withoutMilliseconds
-
-	"ODBC Timestamps may or may not include milliseconds (or may have a ms resolution > 1), hence it can be useful/necessary to drop milliseconds for comparison purposes"
-
-	^self - (Duration nanoseconds: self nanosecond)! !
+	^aSQLDialect dateAndTimeStringFor: self! !
 !DateAndTime categoriesFor: #asSQLStringIn:!converting!public! !
-!DateAndTime categoriesFor: #withoutMilliseconds!accessing!public! !
 
 !DateAndTime class methodsFor!
 

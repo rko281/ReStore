@@ -30,11 +30,6 @@ reStoreDefinition
 
 	^super reStoreDefinition
 		define: #owner as: OwnerTest;
-		yourself!
-
-shouldInheritPersistency
-
-	^true! !
+		yourself! !
 !OwnedTest class categoriesFor: #reStoreDefinition!public! !
-!OwnedTest class categoriesFor: #shouldInheritPersistency!public! !
 

@@ -6,7 +6,9 @@ SSWReStorePersonTest subclass: #SSWReStoreReadStreamTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreReadStreamTest guid: (GUID fromString: '{87f53dec-12b5-4b17-b6b6-885a162996ae}')!
-SSWReStoreReadStreamTest comment: ''!
+SSWReStoreReadStreamTest comment: 'ReStore
+©2020 John Aspinall
+https://github.com/rko281/ReStore'!
 !SSWReStoreReadStreamTest categoriesForClass!Unclassified! !
 !SSWReStoreReadStreamTest methodsFor!
 

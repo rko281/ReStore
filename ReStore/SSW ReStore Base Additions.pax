@@ -21,7 +21,6 @@ package classNames
 
 package methodNames
 	add: #False -> #asInteger;
-	add: #Object -> #_instVarAt:;
 	add: #Object -> #_instVarAt:put:;
 	add: #Object -> #chainPerform:;
 	add: #Object -> #includedIn:;
@@ -164,12 +163,6 @@ isPersistentBaseClass
 
 !Object methodsFor!
 
-_instVarAt: anInteger
-
-	"Make the receiver polymorphic with proxies"
-	
-	^self instVarAt: anInteger!
-
 _instVarAt: anInteger put: anObject
 
 	"Make the receiver polymorphic with proxies"
@@ -189,7 +182,6 @@ includedIn: aCollection
 	"Reciprocal of Collection>>includes: "
 
 	^aCollection includes: self! !
-!Object categoriesFor: #_instVarAt:!accessing!private! !
 !Object categoriesFor: #_instVarAt:put:!accessing!private! !
 !Object categoriesFor: #chainPerform:!actions!public! !
 !Object categoriesFor: #includedIn:!public!testing! !

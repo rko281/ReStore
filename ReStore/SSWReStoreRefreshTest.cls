@@ -539,6 +539,51 @@ test40QueryingShouldRefresh
 				collect: [ :each | each number]) asSortedCollection asArray = #(11 12 13 14 15 16 17 18 19 20)).
 !
 
+testGeneralCollectionRefreshQueryCount
+
+	"test one query is needed to refresh a general collection, even with a change"
+
+	| inst1 inst2 queryCount |
+
+	inst1 := (OwnerTest storedInstancesIn: reStore) asOrderedCollection first.
+	inst2 := (OwnerTest storedInstancesIn: reStore2) asOrderedCollection first.
+
+	"ensure inst1 is touched"
+	self deny: inst1 ordered first name equals: 'testB1'.
+
+	"update - change"
+	inst2 ordered first name: 'testB1'.
+	self assert: inst2 store.
+
+	self refreshDelay.
+
+	queryCount := self countQueriesDuring: [inst1 ordered refresh]. 
+
+	self assert:  queryCount equals: 1.
+	self assert: inst1 ordered first name equals: 'testB1'!
+
+testOwnedCollectionRefreshQueryCount
+
+	"test one query is needed to refresh a owned collection, even with a change"
+
+	| inst1 inst2 queryCount |
+
+	inst1 := (OwnerTest storedInstancesIn: reStore) asOrderedCollection first.
+	inst2 := (OwnerTest storedInstancesIn: reStore2) asOrderedCollection first.
+
+	"ensure inst1 is touched"
+	self deny: inst1 ownedOrdered first name equals: 'testB1'.
+
+	"update - change"
+	inst2 ownedOrdered first name: 'testB1'.
+	self assert: inst2 store.
+
+	self refreshDelay.
+	queryCount := self countQueriesDuring: [inst1 ownedOrdered refresh]. 
+
+	self assert: queryCount equals: 1.
+	self assert: inst1 ownedOrdered first name equals: 'testB1'!
+
 usesVersioning
 
 	^true! !
@@ -559,5 +604,7 @@ usesVersioning
 !SSWReStoreRefreshTest categoriesFor: #test34!public!unit tests! !
 !SSWReStoreRefreshTest categoriesFor: #test35!public!unit tests! !
 !SSWReStoreRefreshTest categoriesFor: #test40QueryingShouldRefresh!public!unit tests! !
+!SSWReStoreRefreshTest categoriesFor: #testGeneralCollectionRefreshQueryCount!public!unit tests! !
+!SSWReStoreRefreshTest categoriesFor: #testOwnedCollectionRefreshQueryCount!public!unit tests! !
 !SSWReStoreRefreshTest categoriesFor: #usesVersioning!public!running! !
 

@@ -14,7 +14,7 @@ https://github.com/rko281/ReStore'!
 
 _testComponentExistenceOnDependency: component
 
-	"collection is dependent at this level, so replaced/removed/cascade-deleted component should no longer exist"
+	"Private - collection is dependent at this level, so replaced/removed/cascade-deleted component should no longer exist"
 
 	self assert: (component _dbProxyIn: reStore ifNone: [nil]) isNil.
 
@@ -24,6 +24,6 @@ _testComponentExistenceOnDependency: component
 componentDefinition
 
 	^OrderedCollection of: GenericOwnedTest dependent unrelated! !
-!SSWReStoreNonRelatedDependentOrderedCollectionTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!public! !
+!SSWReStoreNonRelatedDependentOrderedCollectionTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!private! !
 !SSWReStoreNonRelatedDependentOrderedCollectionTest categoriesFor: #componentDefinition!accessing!public! !
 

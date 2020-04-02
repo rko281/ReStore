@@ -6,7 +6,9 @@ Object subclass: #InlinedTestPerson
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 InlinedTestPerson guid: (GUID fromString: '{a864ebd8-06ec-4b13-8138-21e57afd3093}')!
-InlinedTestPerson comment: ''!
+InlinedTestPerson comment: 'ReStore
+©2020 John Aspinall
+https://github.com/rko281/ReStore'!
 !InlinedTestPerson categoriesForClass!Unclassified! !
 !InlinedTestPerson methodsFor!
 

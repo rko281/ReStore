@@ -12,6 +12,14 @@ https://github.com/rko281/ReStore'!
 !SSWDBOwnedCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBOwnedCollectionSpec methodsFor!
 
+allElementsIn: aCollection
+
+	^aCollection!
+
+copyCollection: aCollection
+
+	^aCollection copy!
+
 dbInstancesFor: aCollectionProxy
 
 	"Return a DBInstancesCollection representing the instances owned by aCollectionProxy
@@ -28,6 +36,14 @@ dbInstancesFor: aCollectionProxy
 
 	^instances
 		!
+
+elementsIn: aCollection notIn: anotherCollection
+
+	^aCollection reject: [ :each | anotherCollection identityIncludes: each]!
+
+hasCollection: updatedCollection anyAdditionsOrRemovalsFrom: originalCollection
+
+	^updatedCollection size ~= originalCollection size or: [updatedCollection anySatisfy: [ :each | (originalCollection identityIncludes: each) not]]!
 
 orderingSpecs
 
@@ -111,7 +127,7 @@ readAllFor: aCollection
 
 	(aCollection reject: [ :each | (self accessor valueIn: each) _isRecovered]) do: 
 		[ :proxy | 
-		(self accessor valueIn: proxy) _proxiedObject: (collections at: proxy _id ifAbsent: [self newCollection])]!
+		(collections at: proxy _id ifAbsent: [self newCollection]) _proxifyIn: (self accessor valueIn: proxy)]!
 
 readAllQuery
 
@@ -139,9 +155,7 @@ recoverCollectionForProxy: aCollectionProxy
 	statement values: (Array with: aCollectionProxy _ownerID).
 	self reStore fetchObjectsOfClass: self targetClass withStatement: statement into: collection.
 	
-	aCollectionProxy _proxiedObject: collection.
-
-	^collection!
+	^collection _proxifyIn: aCollectionProxy!
 
 refreshCollectionForProxy: aCollectionProxy
 
@@ -151,7 +165,7 @@ refreshCollectionForProxy: aCollectionProxy
 	| reStore statement collection idField |
 
 	reStore := self reStore.
-	self ownerField == nil ifTrue: [self setOwnerFieldFrom: reStore].
+	self ownerField isNil ifTrue: [self setOwnerFieldFrom: reStore].
 	idField := (reStore tableForClass: self targetClass) idField.
 
 	collection := self newCollection.
@@ -161,7 +175,7 @@ refreshCollectionForProxy: aCollectionProxy
 		[ :row |
 		collection _dbAdd: (reStore deferredObjectOfClass: self targetClass withID: (row atField: idField))].
 	
-	aCollectionProxy _proxiedObject: collection.
+	collection _proxifyIn: aCollectionProxy.
 
 	"Since we haven't refreshed any contents return an empty collection"
 	^#()!
@@ -186,9 +200,7 @@ refreshCollectionWithContentsIfUpdatedForProxy: aCollectionProxy
 	statement values: (Array with: aCollectionProxy _ownerID).
 	reStore rowsFromStatement: statement do: [ :row | collection _dbAdd: (reStore deferredObjectOfClass: self targetClass withID: (row atField: idField) version: (row atField: versionField))].
 
-	aCollectionProxy _proxiedObject: collection.
-
-	^collection!
+	^collection _proxifyIn: aCollectionProxy!
 
 refreshQuery
 
@@ -272,7 +284,11 @@ targetClass: aClass
 targetTable 
 
 	^self reStore tableForClass: self targetClass! !
+!SSWDBOwnedCollectionSpec categoriesFor: #allElementsIn:!accessing!private! !
+!SSWDBOwnedCollectionSpec categoriesFor: #copyCollection:!actions!private! !
 !SSWDBOwnedCollectionSpec categoriesFor: #dbInstancesFor:!accessing!public! !
+!SSWDBOwnedCollectionSpec categoriesFor: #elementsIn:notIn:!accessing!private! !
+!SSWDBOwnedCollectionSpec categoriesFor: #hasCollection:anyAdditionsOrRemovalsFrom:!private!testing! !
 !SSWDBOwnedCollectionSpec categoriesFor: #orderingSpecs!accessing!public! !
 !SSWDBOwnedCollectionSpec categoriesFor: #orderingSpecs:!accessing!public! !
 !SSWDBOwnedCollectionSpec categoriesFor: #owner:!accessing!public! !
