@@ -22,10 +22,6 @@ canDescribeParameters
 
 	^false!
 
-cursorType
-
-	^#keysetDriven!
-
 dateAndTimeFormat
 
 	"The format for DateAndTImes when expressed as Strings"
@@ -122,7 +118,6 @@ unsizedBlob
 	^'varbinary(max)'! !
 !SSWSQLServerDialect categoriesFor: #boolean!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #canDescribeParameters!public!testing! !
-!SSWSQLServerDialect categoriesFor: #cursorType!constants!public! !
 !SSWSQLServerDialect categoriesFor: #dateAndTimeFormat!constants!public! !
 !SSWSQLServerDialect categoriesFor: #datetime!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #datetimeWithResolution!datatypes!public! !

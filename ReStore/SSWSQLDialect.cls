@@ -164,13 +164,6 @@ connection
 connection: anObject
 	connection := anObject!
 
-cursorType
-
-	"Return the Symbol-ic name of the ODBC cursor type that will be used when creating statements. 
-	See DBAbstractStatement>>cursorType for further details"
-
-	^#forwardOnly!
-
 date
 
 	^'DATE'!
@@ -606,6 +599,10 @@ transformInstVarName: aSymbol
 
 	^self instVarNameTransformation value: aSymbol!
 
+translateMessage: aSymbol toFunction: aSQLFunction
+
+	self sqlFunctions at: aSymbol put: aSQLFunction!
+
 trueObject
 
 	"The object which represents the true Boolean in this dialect"
@@ -704,7 +701,6 @@ varchar
 !SSWSQLDialect categoriesFor: #commonFunctions!constants!public! !
 !SSWSQLDialect categoriesFor: #connection!accessing!private! !
 !SSWSQLDialect categoriesFor: #connection:!accessing!private! !
-!SSWSQLDialect categoriesFor: #cursorType!constants!public! !
 !SSWSQLDialect categoriesFor: #date!datatypes!public! !
 !SSWSQLDialect categoriesFor: #dateAndTimeFormat!constants!public! !
 !SSWSQLDialect categoriesFor: #dateAndTimeFrom:!conversions!public! !
@@ -772,6 +768,7 @@ varchar
 !SSWSQLDialect categoriesFor: #timeWithResolution!public! !
 !SSWSQLDialect categoriesFor: #transformClassName:!helpers!public! !
 !SSWSQLDialect categoriesFor: #transformInstVarName:!helpers!public! !
+!SSWSQLDialect categoriesFor: #translateMessage:toFunction:!initializing!public! !
 !SSWSQLDialect categoriesFor: #trueObject!constants!public! !
 !SSWSQLDialect categoriesFor: #unsizedBlob!datatypes!public! !
 !SSWSQLDialect categoriesFor: #unsizedBlobSize!accessing!public! !

@@ -204,13 +204,14 @@ evaluateAsTxn: aBlock
 			ifTrue: [self commitTxn. true]
 			ifFalse: [self rollbackTxn. false]] on: Error do: [ :exc | self rollbackTxn. exc pass]!
 
-executeQuery: anSQLQuery cursorType: aSymbol
+executeQuery: anSQLQuery cursoredFetch: aBoolean
 
 	"Entry point for ad-hoc querying"
 
 	anSQLQuery preExecIn: self.
 
-	^(self newStatement: aSymbol) 
+	^self newStatement
+		cursoredFetch: aBoolean;
 		execQuery: anSQLQuery;
 		yourself!
 
@@ -379,7 +380,7 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #defaultMaxColumnBytes!constants!public! !
 !SSWODBCConnection categoriesFor: #disconnect!operations!private! !
 !SSWODBCConnection categoriesFor: #evaluateAsTxn:!public!transactions! !
-!SSWODBCConnection categoriesFor: #executeQuery:cursorType:!executing!public! !
+!SSWODBCConnection categoriesFor: #executeQuery:cursoredFetch:!executing!public! !
 !SSWODBCConnection categoriesFor: #forgetTable:!helpers!private! !
 !SSWODBCConnection categoriesFor: #freeStmtHandle:!helpers!private! !
 !SSWODBCConnection categoriesFor: #getLongInfoString:!helpers!private! !

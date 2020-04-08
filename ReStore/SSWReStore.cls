@@ -691,21 +691,21 @@ evaluateInTxn: aBlock
 
 executeQuery: anSSWSQLQuery
 
-	"Execute the given query with the default cursorType.
+	"Execute the given query.
 	If it is a read query, return the DBResultSet (client code should close this when done)
 	If it is a write query, return the number of rows affected"
 
-	^self executeQuery: anSSWSQLQuery cursorType: self sqlDialect cursorType!
+	^self executeQuery: anSSWSQLQuery cursoredFetch: false!
 
-executeQuery: anSSWSQLQuery cursorType: aSymbol
+executeQuery: anSSWSQLQuery cursoredFetch: aBoolean
 
-	"Execute the given query with the given cursorType.
-	If it is a read query, return the DBResultSet (client code should close this when done)
+	"Execute the given query.
+	If it is a read query, return the DBResultSet (client code should close this when done); aBoolean controls whether the result set is cursored (incremental read)
 	If it is a write query, return the number of rows affected"
 
 	| statement |
 
-	statement := self connection executeQuery: anSSWSQLQuery cursorType: aSymbol.
+	statement := self connection executeQuery: anSSWSQLQuery cursoredFetch: aBoolean.
 
 	^anSSWSQLQuery isReadQuery
 		ifTrue: [statement results]
@@ -1565,6 +1565,14 @@ transactionMutex: aMutex
 
 	transactionMutex := aMutex!
 
+translateMessage: aSymbol toFunction: aSQLFunction
+
+	"Add aSymbol>>aSQLFunction as an additional message>>function translation"
+
+	self isConnected ifFalse: [self error: 'connect before adding functions'].
+
+	self sqlDialect translateMessage: aSymbol toFunction: aSQLFunction!
+
 uncacheObject: aPersistentObjectProxy
 
 	"Remove the given persistent object proxy to the receiver's cache"
@@ -1695,7 +1703,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #evaluateInTransaction:!public!transaction api! !
 !SSWReStore categoriesFor: #evaluateInTxn:!connection!private! !
 !SSWReStore categoriesFor: #executeQuery:!connection!public! !
-!SSWReStore categoriesFor: #executeQuery:cursorType:!connection!public! !
+!SSWReStore categoriesFor: #executeQuery:cursoredFetch:!connection!public! !
 !SSWReStore categoriesFor: #executeSQL:!connection!public! !
 !SSWReStore categoriesFor: #executeSQLAsTxn:!connection!public! !
 !SSWReStore categoriesFor: #executeSQLFrom:!connection!public! !
@@ -1790,6 +1798,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #transactionCritical:ifLocked:!private!transaction management! !
 !SSWReStore categoriesFor: #transactionMutex!accessing!public! !
 !SSWReStore categoriesFor: #transactionMutex:!accessing!public! !
+!SSWReStore categoriesFor: #translateMessage:toFunction:!initialize/release!public! !
 !SSWReStore categoriesFor: #uncacheObject:!cache management!public! !
 !SSWReStore categoriesFor: #unstoreNextIDsForTables:!class maintenance!private! !
 !SSWReStore categoriesFor: #useTransactionsWithoutVersioning!initialize/release!public! !

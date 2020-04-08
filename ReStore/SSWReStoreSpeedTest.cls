@@ -164,8 +164,8 @@ test9Delete
 !SSWReStoreSpeedTest categoriesFor: #sampleSize!public!running! !
 !SSWReStoreSpeedTest categoriesFor: #test1Write!public!unit tests! !
 !SSWReStoreSpeedTest categoriesFor: #test2Read!public!unit tests! !
-!SSWReStoreSpeedTest categoriesFor: #test3Update!public! !
-!SSWReStoreSpeedTest categoriesFor: #test4RefreshNoChange!public! !
-!SSWReStoreSpeedTest categoriesFor: #test5RefreshWithChange!public! !
-!SSWReStoreSpeedTest categoriesFor: #test9Delete!public! !
+!SSWReStoreSpeedTest categoriesFor: #test3Update!public!unit tests! !
+!SSWReStoreSpeedTest categoriesFor: #test4RefreshNoChange!public!unit tests! !
+!SSWReStoreSpeedTest categoriesFor: #test5RefreshWithChange!public!unit tests! !
+!SSWReStoreSpeedTest categoriesFor: #test9Delete!public!unit tests! !
 

@@ -21,6 +21,10 @@ closeAfter: aBlock
 
 	^[aBlock value: self] ensure: [self close]!
 
+cursoredFetch: aBoolean
+
+	"Always enabled"!
+
 dbCheckException: anIntegerRetCode
 
 	"Overriden to revector to parent connection, which may mask certain 'errors' "
@@ -190,6 +194,7 @@ writeDebugInfoOn: aStream
 	aStream nextPutAll: sqlStream contents; nextPut: $;; cr! !
 !SSWODBCStatement categoriesFor: #close!operations!public! !
 !SSWODBCStatement categoriesFor: #closeAfter:!operations!public! !
+!SSWODBCStatement categoriesFor: #cursoredFetch:!initializing!public! !
 !SSWODBCStatement categoriesFor: #dbCheckException:!exceptions!private! !
 !SSWODBCStatement categoriesFor: #describeCols:!accessing!public! !
 !SSWODBCStatement categoriesFor: #describeParam:!accessing!public! !

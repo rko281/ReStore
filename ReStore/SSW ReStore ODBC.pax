@@ -29,7 +29,9 @@ package methodNames
 	add: #SSWDBField -> #columnIn:;
 	add: #SSWDBQueryField -> #asParameterColumn:for:;
 	add: #SSWDBStringWithInfo -> #dbMaxFieldSize;
+	add: #SSWSQLDialect -> #cursorType;
 	add: #SSWSQLParameterField -> #asParameterColumn:for:;
+	add: #SSWSQLServerDialect -> #cursorType;
 	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
 	add: #String -> #asParameterColumn;
 	add: 'ByteArray class' -> #dbMaxFieldSize;
@@ -186,12 +188,31 @@ dbMaxFieldSize
 	^self fieldSize! !
 !SSWDBStringWithInfo categoriesFor: #dbMaxFieldSize!accessing!public! !
 
+!SSWSQLDialect methodsFor!
+
+cursorType
+
+	"Return the Symbol-ic name of the ODBC cursor type that will be used when creating statements. 
+	See DBAbstractStatement>>cursorType for further details"
+
+	^#forwardOnly! !
+!SSWSQLDialect categoriesFor: #cursorType!constants!public! !
+
 !SSWSQLParameterField methodsFor!
 
 asParameterColumn: anInteger for: aStatement
 
 	^(aStatement describeParam: anInteger) ifNil: [self value asParameterColumn]! !
 !SSWSQLParameterField categoriesFor: #asParameterColumn:for:!converting!public! !
+
+!SSWSQLServerDialect methodsFor!
+
+cursorType
+
+	"Default #forwardOnly gives 'Connection is busy with results for another hstmt' error"
+
+	^#keysetDriven! !
+!SSWSQLServerDialect categoriesFor: #cursorType!constants!public! !
 
 !SSWSQLWriteStream methodsFor!
 
