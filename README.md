@@ -59,7 +59,7 @@ reStoreDefinition
 
 A couple of things worth highlighting here:
  - `define: #address as: Address dependent` - adding `dependent` to a definition means that object is dependent on the originating object for its existence. In this case the customer's address object is dependent on the owning customer - this means any changes to the address will be saved along with the customer, and the address will be deleted if the customer is deleted. 
- - `define: #orders as: (OrderedCollection of: Order dependent owner: #customer)` - this is an example of an owned collection definition. An owned collection is one where the elements of the collection contain a reference to the owner of the collection. In this case instances of Order refer to their owning customer via their customer instance variable. 
+ - `define: #orders as: (OrderedCollection of: CustomerOrder dependent owner: #customer)` - this is an example of an owned collection definition. An owned collection is one where the elements of the collection contain a reference to the owner of the collection. In this case instances of Order refer to their owning customer via their customer instance variable. 
 
 # Creating the Database
 With ReStore definitions created for all classes we can now connect to the database and create the database structure:
@@ -155,4 +155,4 @@ This is just a sample of what ReStore can do with an empahsis on simplicity. ReS
  - query-by-example (template queries)
  - customisable Smalltalk-to-SQL conversion
  
- Full documentation can be found [here](https://drive.google.com/file/d/1NllXPOF09wTX7J6qeTKs3Vp_uTy3tIIL/view?usp=sharing). Please also see the included SUnits for more examples. 
+ Full documentation can be found [here](https://drive.google.com/file/d/1nDzLyokK8ZUAJuCh4J_H8MT_f3ZogMxy/view?usp=sharing). Please also see the included SUnits for more examples. 
