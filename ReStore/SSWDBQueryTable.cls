@@ -40,6 +40,10 @@ hash
 
 	^self name hash + self repetitionIndex!
 
+hasNamespace
+
+	^self table hasNamespace!
+
 hasStaticConditions
 
 	"Forward to the real table"
@@ -139,7 +143,7 @@ writeSQLOn: aStream
 
 	"Alias the actual table name if necessary"
 		
-	aStream nextPutAll: self table name.
+	self table writeSQLNameOn: aStream.
 
 	self repetitionIndex > 0 ifTrue:
 		[aStream nextPutAll: ' AS '.
@@ -150,6 +154,7 @@ writeSQLOn: aStream
 !SSWDBQueryTable categoriesFor: #collectionAccessing:!evaluating!public! !
 !SSWDBQueryTable categoriesFor: #fieldAccessing:!evaluating!public! !
 !SSWDBQueryTable categoriesFor: #hash!comparing!public! !
+!SSWDBQueryTable categoriesFor: #hasNamespace!public!testing! !
 !SSWDBQueryTable categoriesFor: #hasStaticConditions!evaluating!public! !
 !SSWDBQueryTable categoriesFor: #idField!evaluating!public! !
 !SSWDBQueryTable categoriesFor: #instanceClass!accessing!public! !

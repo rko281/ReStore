@@ -16,12 +16,6 @@ boolean
 
 	^'BIT'!
 
-canDescribeParameters
-
-	"Appears to be supported by the native ODBC driver, but flaky (doesn't work with > 1 param?), so let's act as if it doesn't work"
-
-	^false!
-
 dateAndTimeFormat
 
 	"The format for DateAndTImes when expressed as Strings"
@@ -43,6 +37,10 @@ defaultMaxColumnNameLength
 defaultMaxTableNameLength
 
 	^128!
+
+defaultStandardNamespace
+
+	^'dbo'!
 
 dialectSpecificFunctions
 
@@ -99,15 +97,11 @@ maxCharacter
 
 renameField: oldField to: newField in: aReStore
 
-	aReStore executeSQL: ('EXEC sp_rename ''<1s>.<2s>'', <3p>, ''COLUMN''' expandMacrosWith: (self asIdentifier: newField table name) with: (self asIdentifier: oldField name) with: (self asIdentifier: newField name))!
+	aReStore executeSQL: ('EXEC sp_rename ''<1s>.<2s>'', <3p>, ''COLUMN''' expandMacrosWith: newField table qualifiedName with: oldField name with: newField name)!
 
-renameTableNamed: oldName to: newName in: anSSWReStore
+renameTable: oldTable to: newTable in: anSSWReStore
 
-	anSSWReStore executeSQL: ('EXEC sp_rename <1p>,<2p>' expandMacrosWith: (self asIdentifier: oldName) with: (self asIdentifier: newName))!
-
-shouldMaskSuccessWithInfo
-
-	^true!
+	anSSWReStore executeSQL: ('EXEC sp_rename <1p>,<2p>' expandMacrosWith: oldTable qualifiedName with: newTable name)!
 
 supportsImplicitTrueConditions
 
@@ -117,12 +111,12 @@ unsizedBlob
 
 	^'varbinary(max)'! !
 !SSWSQLServerDialect categoriesFor: #boolean!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #canDescribeParameters!public!testing! !
 !SSWSQLServerDialect categoriesFor: #dateAndTimeFormat!constants!public! !
 !SSWSQLServerDialect categoriesFor: #datetime!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
 !SSWSQLServerDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
+!SSWSQLServerDialect categoriesFor: #defaultStandardNamespace!constants!public! !
 !SSWSQLServerDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWSQLServerDialect categoriesFor: #double!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #identifierQuoteClose!constants!public! !
@@ -130,8 +124,7 @@ unsizedBlob
 !SSWSQLServerDialect categoriesFor: #integer!datatypes!public! !
 !SSWSQLServerDialect categoriesFor: #maxCharacter!constants!public! !
 !SSWSQLServerDialect categoriesFor: #renameField:to:in:!maintenance!public! !
-!SSWSQLServerDialect categoriesFor: #renameTableNamed:to:in:!maintenance!public! !
-!SSWSQLServerDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
+!SSWSQLServerDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
 !SSWSQLServerDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
 !SSWSQLServerDialect categoriesFor: #unsizedBlob!datatypes!public! !
 

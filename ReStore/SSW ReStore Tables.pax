@@ -90,7 +90,7 @@ Object subclass: #SSWAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SSWDBClassDefinition
-	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar'
+	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -175,7 +175,7 @@ SSWDBRelatedWrapper subclass: #SSWDBDependentWrapper
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLTable subclass: #SSWDBTable
-	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize'
+	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -305,7 +305,7 @@ hasPersistentSuperclass
 
 	self shouldInheritPersistency ifFalse: [^false].
 
-	self allSuperclasses do:
+	self allSuperclassesDo:
 		[ :sup |
 		sup = Object ifTrue: [^false].
 		sup shouldSubclassesInheritPersistency ifFalse: [^false].

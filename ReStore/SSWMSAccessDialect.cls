@@ -16,10 +16,6 @@ boolean
 
 	^'YESNO'!
 
-canDescribeParameters
-
-	^false!
-
 date
 
 	"No explicit date type"
@@ -88,11 +84,11 @@ maxDateTimeResolution
 
 	^0!
 
-renameTableNamed: oldName to: newName in: anSSWReStore
+renameTable: oldTable to: newTable in: anSSWReStore
 
 	anSSWReStore 
-		executeSQLFrom: [ :stream | stream nextPutAll: 'SELECT * INTO '; nextPutIdentifier: newName; nextPutAll: ' FROM '; nextPutIdentifier: oldName];
-		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; nextPutIdentifier: oldName]!
+		executeSQLFrom: [ :stream | stream nextPutAll: 'SELECT * INTO '; writeSQLFor: newTable; nextPutAll: ' FROM '; writeSQLFor: oldTable];
+		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; writeSQLFor: oldTable]!
 
 shouldMapEmptyStringsToNil
 
@@ -121,7 +117,6 @@ updateDelaySeconds
 
 	^5! !
 !SSWMSAccessDialect categoriesFor: #boolean!datatypes!public! !
-!SSWMSAccessDialect categoriesFor: #canDescribeParameters!public!testing! !
 !SSWMSAccessDialect categoriesFor: #date!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
@@ -130,7 +125,7 @@ updateDelaySeconds
 !SSWMSAccessDialect categoriesFor: #longText!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #maxAllocatedStatements!constants!public! !
 !SSWMSAccessDialect categoriesFor: #maxDateTimeResolution!constants!public! !
-!SSWMSAccessDialect categoriesFor: #renameTableNamed:to:in:!maintenance!public! !
+!SSWMSAccessDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
 !SSWMSAccessDialect categoriesFor: #shouldMapEmptyStringsToNil!public!testing! !
 !SSWMSAccessDialect categoriesFor: #time!datatypes!public! !
 !SSWMSAccessDialect categoriesFor: #trueObject!constants!public! !

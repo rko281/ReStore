@@ -29,8 +29,30 @@ package methodNames
 	add: #SSWDBField -> #columnIn:;
 	add: #SSWDBQueryField -> #asParameterColumn:for:;
 	add: #SSWDBStringWithInfo -> #dbMaxFieldSize;
+	add: #SSWMSAccessDialect -> #canDescribeParameters;
+	add: #SSWMSAccessDialect -> #shouldMaskSuccessWithInfo;
+	add: #SSWMySQLDialect -> #catalogNameForTable:;
+	add: #SSWMySQLDialect -> #schemaNameForTable:;
+	add: #SSWMySQLDialect -> #tableNamesInNamespace:for:;
+	add: #SSWPostgreSQLDialect -> #shouldCheckAutoCommit;
+	add: #SSWSQLDialect -> #canDescribeParameters;
+	add: #SSWSQLDialect -> #catalogNameForTable:;
+	add: #SSWSQLDialect -> #createNamespaceSQLFor:;
 	add: #SSWSQLDialect -> #cursorType;
+	add: #SSWSQLDialect -> #dropNamespaceSQLFor:;
+	add: #SSWSQLDialect -> #schemaNameForTable:;
+	add: #SSWSQLDialect -> #shouldCheckAutoCommit;
+	add: #SSWSQLDialect -> #shouldMaskSuccessWithInfo;
+	add: #SSWSQLDialect -> #shouldRollbackOnQuery;
+	add: #SSWSQLDialect -> #shouldUseColumnsStatement;
+	add: #SSWSQLDialect -> #tableNamesInNamespace:for:;
+	add: #SSWSQLiteDialect -> #createNamespaceSQLFor:;
+	add: #SSWSQLiteDialect -> #dropNamespaceSQLFor:;
+	add: #SSWSQLiteDialect -> #shouldRollbackOnQuery;
+	add: #SSWSQLiteDialect -> #shouldUseColumnsStatement;
+	add: #SSWSQLiteDialect -> #tableNamesInNamespace:for:;
 	add: #SSWSQLParameterField -> #asParameterColumn:for:;
+	add: #SSWSQLServerDialect -> #canDescribeParameters;
 	add: #SSWSQLServerDialect -> #cursorType;
 	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
 	add: #String -> #asParameterColumn;
@@ -188,15 +210,160 @@ dbMaxFieldSize
 	^self fieldSize! !
 !SSWDBStringWithInfo categoriesFor: #dbMaxFieldSize!accessing!public! !
 
+!SSWMSAccessDialect methodsFor!
+
+canDescribeParameters
+
+	^false!
+
+shouldMaskSuccessWithInfo
+
+	^false! !
+!SSWMSAccessDialect categoriesFor: #canDescribeParameters!public!testing! !
+!SSWMSAccessDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
+
+!SSWMySQLDialect methodsFor!
+
+catalogNameForTable: aDBTable
+
+	^aDBTable namespace!
+
+schemaNameForTable: aDBTable
+
+	^nil!
+
+tableNamesInNamespace: aString for: aDBConnection
+
+	^aDBConnection tables: aString owners: nil tables: nil types: '''TABLE'''! !
+!SSWMySQLDialect categoriesFor: #catalogNameForTable:!helpers!public! !
+!SSWMySQLDialect categoriesFor: #schemaNameForTable:!helpers!public! !
+!SSWMySQLDialect categoriesFor: #tableNamesInNamespace:for:!helpers!public! !
+
+!SSWPostgreSQLDialect methodsFor!
+
+shouldCheckAutoCommit
+
+	^true! !
+!SSWPostgreSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
+
 !SSWSQLDialect methodsFor!
+
+canDescribeParameters
+
+	"Does this dialect support the SQLDescribeParam function?"
+
+	^true!
+
+catalogNameForTable: aDBTable
+
+	^nil!
+
+createNamespaceSQLFor: aString
+
+	^'CREATE SCHEMA ', (self asIdentifier: aString)!
 
 cursorType
 
 	"Return the Symbol-ic name of the ODBC cursor type that will be used when creating statements. 
 	See DBAbstractStatement>>cursorType for further details"
 
-	^#forwardOnly! !
+	^#forwardOnly!
+
+dropNamespaceSQLFor: aString
+
+	^'DROP SCHEMA ', (self asIdentifier: aString)!
+
+schemaNameForTable: aDBTable
+
+	^aDBTable namespace!
+
+shouldCheckAutoCommit
+
+	"Return whether the DBConnection should check the status of autoCommit prior to attempting a change"
+
+	^false!
+
+shouldMaskSuccessWithInfo
+
+	"Some databases/drivers send many SQLSuccessWithInfo results.
+	shouldMaskSuccessWithInfo determines whether these go unreported (true, standard behavior for most dbs) or are reported via a DBWarning exception (false)"
+
+	^true!
+
+shouldRollbackOnQuery
+
+	"Should the ODBC connection rollbackTxn following a query outside a Txn?"
+
+	^false!
+
+shouldUseColumnsStatement
+
+	"Return whether this dialect should use DBColumnsStatement to interrogate the details of a table's columns (true, default) or a SELECT * query (false).
+	
+	Here primarily to satisfy a shortcoming in SQLite ODBC driver where DBColumnsStatement returns the character length for wide string columns, rather than the buffer length.
+	Column details returned from a SELECT * query report the buffer length correctly"
+
+	^true!
+
+tableNamesInNamespace: aStringOrNil for: aDBConnection
+
+	^aDBConnection tables: nil owners: (aStringOrNil ifNil: [self standardNamespace]) tables: nil types: '''TABLE'''! !
+!SSWSQLDialect categoriesFor: #canDescribeParameters!public!testing! !
+!SSWSQLDialect categoriesFor: #catalogNameForTable:!helpers!public! !
+!SSWSQLDialect categoriesFor: #createNamespaceSQLFor:!maintenance!private! !
 !SSWSQLDialect categoriesFor: #cursorType!constants!public! !
+!SSWSQLDialect categoriesFor: #dropNamespaceSQLFor:!maintenance!private! !
+!SSWSQLDialect categoriesFor: #schemaNameForTable:!helpers!public! !
+!SSWSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
+!SSWSQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
+!SSWSQLDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
+!SSWSQLDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
+!SSWSQLDialect categoriesFor: #tableNamesInNamespace:for:!helpers!public! !
+
+!SSWSQLiteDialect methodsFor!
+
+createNamespaceSQLFor: aString
+
+	"Since there is no filename given, map this to creating a temporary attached database"
+
+	^'ATTACH DATABASE '''' AS ', (self asIdentifier: aString)!
+
+dropNamespaceSQLFor: aString
+
+	^'DETACH DATABASE ', (self asIdentifier: aString)!
+
+shouldRollbackOnQuery
+
+	"Seems to be required to avoid locking issues"
+
+	^true!
+
+shouldUseColumnsStatement
+
+	"Under the SQLite ODBC driver DBColumnsStatement returns the character length for wide string columns, rather than the buffer length.
+	Column details returned from a SELECT * query report the buffer length correctly"
+
+	^false!
+
+tableNamesInNamespace: aString for: aDBConnection
+
+	| stream table query results |
+
+	table := SSWDBTable new namespace: aString; name: 'sqlite_master'; yourself.
+	stream := self sqlWriteStream.
+	stream 
+		nextPutAll: 'SELECT name FROM ';
+		writeSQLFor: table;
+		nextPutAll: ' WHERE type = ''table'''.
+
+	results := aDBConnection query: stream contents.
+
+	^results collect: [ :each | each atIndex: 1]! !
+!SSWSQLiteDialect categoriesFor: #createNamespaceSQLFor:!maintenance!private! !
+!SSWSQLiteDialect categoriesFor: #dropNamespaceSQLFor:!maintenance!private! !
+!SSWSQLiteDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
+!SSWSQLiteDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
+!SSWSQLiteDialect categoriesFor: #tableNamesInNamespace:for:!helpers!public! !
 
 !SSWSQLParameterField methodsFor!
 
@@ -207,11 +374,18 @@ asParameterColumn: anInteger for: aStatement
 
 !SSWSQLServerDialect methodsFor!
 
+canDescribeParameters
+
+	"Appears to be supported by the native ODBC driver, but flaky (doesn't work with > 1 param?), so let's act as if it doesn't work"
+
+	^false!
+
 cursorType
 
 	"Default #forwardOnly gives 'Connection is busy with results for another hstmt' error"
 
 	^#keysetDriven! !
+!SSWSQLServerDialect categoriesFor: #canDescribeParameters!public!testing! !
 !SSWSQLServerDialect categoriesFor: #cursorType!constants!public! !
 
 !SSWSQLWriteStream methodsFor!

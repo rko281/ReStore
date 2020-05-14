@@ -28,17 +28,18 @@ alterField: aField table: aTable in: aReStore
 	aTable allFields do: [ :each | fieldNamesStream nextPutIdentifier: each name] separatedBy: [fieldNamesStream nextPut: $,].
 
 	tempTable := aTable copy.
+	tempTable namespace: nil.
 	tempTable name: (tempTable name, '_tmp_').
 	tempTableDefinition := tempTable sqlDefinition.
 	tempTableDefinition := 'CREATE TEMPORARY TABLE', (tempTableDefinition allButFirst: 'CREATE TABLE' size).
 
 	aReStore 
 		executeSQL: tempTableDefinition;
-		executeSQL: ('INSERT INTO <1s> SELECT <2s> FROM <3s>' expandMacrosWith: (self asIdentifier: tempTable name) with: fieldNamesStream contents with: (self asIdentifier: aTable name));
-		executeSQL: ('DROP TABLE ', aTable name);
+		executeSQL: ('INSERT INTO <1s> SELECT <2s> FROM <3s>' expandMacrosWith: (tempTable sqlStringIn: self) with: fieldNamesStream contents with: (aTable sqlStringIn: self));
+		executeSQL: ('DROP TABLE ', (aTable sqlStringIn: self));
 		executeSQL: aTable sqlDefinition;
-		executeSQL: ('INSERT INTO <1s> SELECT <2s> FROM <3s>' expandMacrosWith: (self asIdentifier: aTable name) with: fieldNamesStream contents with: (self asIdentifier: tempTable name));
-		executeSQL: ('DROP TABLE ', (self asIdentifier: tempTable name))!
+		executeSQL: ('INSERT INTO <1s> SELECT <2s> FROM <3s>' expandMacrosWith: (aTable sqlStringIn: self) with: fieldNamesStream contents with: (tempTable sqlStringIn: self));
+		executeSQL: ('DROP TABLE ', (tempTable sqlStringIn: self))!
 
 decimal
 
@@ -89,26 +90,15 @@ dropColumnNamed: colString fromTable: anSSWDBTable in: anSSWReStore
 
 	anSSWReStore 
 		executeSQL: tempTable sqlDefinition;
-		executeSQLFrom: [ :stream | stream nextPutAll: 'INSERT INTO '; nextPutIdentifier: tempTable name; nextPutAll: ' SELECT '. otherFields writeSQLOn: stream. stream nextPutAll: ' FROM '; nextPutIdentifier: anSSWDBTable name];
-		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; nextPutIdentifier: anSSWDBTable name];
-		executeSQLFrom: [ :stream | stream nextPutAll: 'ALTER TABLE '; nextPutIdentifier: tempTable name; nextPutAll: ' RENAME TO '; nextPutIdentifier: anSSWDBTable name]!
+		executeSQLFrom: [ :stream | stream nextPutAll: 'INSERT INTO '; writeSQLFor: tempTable ; nextPutAll: ' SELECT '. otherFields writeSQLOn: stream. stream nextPutAll: ' FROM '; writeSQLFor: anSSWDBTable];
+		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; writeSQLFor: anSSWDBTable];
+		executeSQLFrom: [ :stream | stream nextPutAll: 'ALTER TABLE '; writeSQLFor: tempTable; nextPutAll: ' RENAME TO '; nextPutIdentifier: anSSWDBTable name]!
 
-shouldMaskSuccessWithInfo
+shouldExpandNamespacedAllFields
 
-	^true!
+	"SQLite gives error with namespace.table_name.* in SELECT query"
 
-shouldRollbackOnQuery
-
-	"Seems to be required to avoid locking issues"
-
-	^true!
-
-shouldUseColumnsStatement
-
-	"Under the SQLite ODBC driver DBColumnsStatement returns the character length for wide string columns, rather than the buffer length.
-	Column details returned from a SELECT * query report the buffer length correctly"
-
-	^false! !
+	^true! !
 !SSWSQLiteDialect categoriesFor: #alterField:table:in:!maintenance!public! !
 !SSWSQLiteDialect categoriesFor: #decimal!datatypes!public! !
 !SSWSQLiteDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
@@ -116,9 +106,7 @@ shouldUseColumnsStatement
 !SSWSQLiteDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
 !SSWSQLiteDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWSQLiteDialect categoriesFor: #dropColumnNamed:fromTable:in:!maintenance!public! !
-!SSWSQLiteDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
-!SSWSQLiteDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
-!SSWSQLiteDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
+!SSWSQLiteDialect categoriesFor: #shouldExpandNamespacedAllFields!public!testing! !
 
 !SSWSQLiteDialect class methodsFor!
 

@@ -150,8 +150,7 @@ beginTransaction
 
 	| newTransaction |
 
-	"An explicit beginTransaction is implicitly also a rollback for a dumb transaction"
-	(self hasTransaction and: [self transaction isDumb]) ifTrue: [self rollbackTransaction].
+	self softRollback.
 
 	newTransaction := self transactionClass new.
 	newTransaction beginWithin: self transaction.
@@ -458,36 +457,37 @@ dbErrorClass
 
 	^self connection dbErrorClass!
 
+dbIncludesTable: aDBTable
+
+	^(self dbTableNamesFor: aDBTable namespace) includes: aDBTable name asUppercase!
+
 dbIncludesTableForClass: aClass
 
 	^(self tableForClass: aClass ifAbsent: [nil])
 		ifNil: [false]
-		ifNotNil: [ :table | self dbIncludesTableNamed: table name]!
-
-dbIncludesTableNamed: aString
-
-	^self dbTableNames includes: aString asUppercase!
+		ifNotNil: [ :table | self dbIncludesTable: table]!
 
 dbTableNames
 
-	"dbTableNames stores the Collection of table name Strings returned from 'self connection tables'.
+	"dbTableNames stores a Dictionary mapping database namespaces (schemas/databases, empty String for the default) to collections of table names (Strings) in that namespace'.
 	This is cached for use by client methods as it can be an expensive operation.
 
 	Lazy initialized; methods which may change the DB's table definitions should reset this to nil"
 	
-	dbTableNames == nil ifTrue: 
-		[self dbTableNames: (self connection tables collect: [ :each | each asUppercase])].
-
-	^dbTableNames!
+	^dbTableNames ifNil: [dbTableNames := Dictionary new]!
 
 dbTableNames: aCollectionOrNil
 
-	"dbTableNames stores the Collection of table name Strings returned from 'self connection tables'.
+	"dbTableNames stores a Dictionary mapping database namespaces (schemas/databases, empty String for the default) to collections of table names (Strings) in that namespace'.
 	This is cached for use by client methods as it can be an expensive operation.
 
 	Lazy initialized; methods which may change the DB's table definitions should reset this to nil"
 	
 	dbTableNames := aCollectionOrNil!
+
+dbTableNamesFor: aNamespaceOrNil
+
+	^self dbTableNames at: (aNamespaceOrNil ifNil: ['']) ifAbsentPut: [(self connection tablesInNamespace: aNamespaceOrNil) collect: [ :each | each asUppercase]]!
 
 debugTo: aStreamOrNil
 
@@ -562,7 +562,7 @@ destroyAllTables
 	this method will remove ABSOLUTELY ALL TABLES from the database"
 
 	[self evaluateAsTxn:
-		[self dbTableNames do: [ :tableName | self executeSQL: ('DROP TABLE ', tableName)].
+		[self dbTableNames do: [ :tableNames | tableNames do: [ :tableName | [self executeSQL: ('DROP TABLE ', tableName)] on: self connection dbErrorClass do: [ :exc | exc return]]].
 		true]] 
 			ensure: [self clearDBTableNames]!
 
@@ -1291,7 +1291,7 @@ renameTable: oldTable to: newTable
 
 	| instances |
 
-	self sqlDialect renameTableNamed: oldTable name to: newTable name in: self.
+	self sqlDialect renameTable: oldTable to: newTable in: self.
 
 	"Also update the TableRecord in the DB"
 	instances := (self instancesOf: SSWDBTableRecord) satisfying: [ :each | each tableName = oldTable name].
@@ -1678,10 +1678,11 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #createProxyForRow:fromTable:withID:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #createTableRecordFor:!class maintenance!private! !
 !SSWReStore categoriesFor: #dbErrorClass!connection!public! !
+!SSWReStore categoriesFor: #dbIncludesTable:!public!testing! !
 !SSWReStore categoriesFor: #dbIncludesTableForClass:!class maintenance!public! !
-!SSWReStore categoriesFor: #dbIncludesTableNamed:!public!testing! !
 !SSWReStore categoriesFor: #dbTableNames!accessing!public! !
 !SSWReStore categoriesFor: #dbTableNames:!accessing!public! !
+!SSWReStore categoriesFor: #dbTableNamesFor:!class maintenance!public! !
 !SSWReStore categoriesFor: #debugTo:!connection!public! !
 !SSWReStore categoriesFor: #defaultReadAllBatchSize!constants!private! !
 !SSWReStore categoriesFor: #deferredObjectOfClass:withID:!proxy manipulation!public! !

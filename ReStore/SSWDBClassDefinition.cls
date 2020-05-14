@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWDBClassDefinition
-	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar'
+	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -17,7 +17,8 @@ addDefinitionToTable: aDBTable
 	self instVarDefinitions do: [ :assoc | aDBTable define: assoc key as: assoc value].
 
 	self tableName isNil ifFalse: [aDBTable name: self tableName].
-	self idInstVar isNil ifFalse: [aDBTable defineAsID: self idInstVar]!
+	self idInstVar isNil ifFalse: [aDBTable defineAsID: self idInstVar].
+	self namespace isNil ifFalse: [aDBTable namespace: self namespace]!
 
 asTableIn: aReStore
 
@@ -79,6 +80,19 @@ name: aString
 
 	self tableName: aString!
 
+namespace
+	^namespace!
+
+namespace: anObject
+
+	"OPTIONAL:
+
+	Define the namespace in which instances of definedClass will be stored.
+	Normally this is nil, meaning the default namespace for the connection.
+	Set to the name of another namespace on the same connection to store there instead (effectively the table's name becomes namespace.tableName)"
+
+	namespace := anObject!
+
 tableName
 	^tableName!
 
@@ -102,6 +116,8 @@ tableName: aString
 !SSWDBClassDefinition categoriesFor: #instVarDefinitions:!accessing!private! !
 !SSWDBClassDefinition categoriesFor: #isEmpty!public!testing! !
 !SSWDBClassDefinition categoriesFor: #name:!accessing!defining!public! !
+!SSWDBClassDefinition categoriesFor: #namespace!accessing!private! !
+!SSWDBClassDefinition categoriesFor: #namespace:!accessing!public! !
 !SSWDBClassDefinition categoriesFor: #tableName!accessing!private! !
 !SSWDBClassDefinition categoriesFor: #tableName:!accessing!defining!public! !
 

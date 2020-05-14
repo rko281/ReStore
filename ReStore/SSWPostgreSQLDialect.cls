@@ -18,7 +18,7 @@ alterField: aField table: aTable in: aReStore
 		[ :stream | 
 		stream 
 			nextPutAll: 'ALTER TABLE ';
-			nextPutIdentifier: aTable name;
+			writeSQLFor: aTable;
 			nextPutAll: ' ALTER COLUMN ';
 			nextPutIdentifier: aField name;
 			nextPutAll: ' TYPE '.
@@ -43,6 +43,10 @@ defaultMaxColumnNameLength
 defaultMaxTableNameLength
 
 	^63!
+
+defaultStandardNamespace
+
+	^'public'!
 
 dialectSpecificFunctions
 
@@ -87,19 +91,11 @@ renameField: oldField to: newField in: aReStore
 		[ :stream | 
 		stream 
 			nextPutAll: 'ALTER TABLE ';
-			nextPutIdentifier: newField table name;
+			writeSQLFor: newField table;
 			nextPutAll: ' RENAME ';
 			nextPutIdentifier: oldField name;
 			nextPutAll: ' TO ';
 			nextPutIdentifier: newField name]!
-
-shouldCheckAutoCommit
-
-	^true!
-
-shouldMaskSuccessWithInfo
-
-	^true!
 
 unsizedBlob
 
@@ -110,14 +106,13 @@ unsizedBlob
 !SSWPostgreSQLDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
+!SSWPostgreSQLDialect categoriesFor: #defaultStandardNamespace!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #double!datatypes!public! !
 !SSWPostgreSQLDialect categoriesFor: #identifierQuoteClose!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #identifierQuoteOpen!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #maxCharacter!constants!public! !
 !SSWPostgreSQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
-!SSWPostgreSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
-!SSWPostgreSQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
 !SSWPostgreSQLDialect categoriesFor: #unsizedBlob!datatypes!public! !
 
 !SSWPostgreSQLDialect class methodsFor!

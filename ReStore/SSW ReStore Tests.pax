@@ -108,6 +108,7 @@ package classNames
 	add: #SSWReStoreSpeedTest;
 	add: #SSWReStoreSQLInjectionTest;
 	add: #SSWReStoreTableTest;
+	add: #SSWReStoreTableWithNamespaceTest;
 	add: #SSWReStoreTest;
 	add: #SSWReStoreTransactionlessUpdateClashTest;
 	add: #SSWReStoreTypeTest;
@@ -692,6 +693,11 @@ SSWReStoreReadWithComponentsTest subclass: #SSWReStoreOwnedCollectionReadWithCom
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreTableTest subclass: #SSWReStoreFullTableTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTableTest subclass: #SSWReStoreTableWithNamespaceTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

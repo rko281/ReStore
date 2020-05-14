@@ -22,8 +22,8 @@ _columnsInTable: aDBTable
 
 	stmt := DBColumnsStatement parent: self.
 	stmt
-		catalogName: nil;
-		schemaName: nil;
+		catalogName: (self sqlDialect catalogNameForTable: aDBTable);
+		schemaName: (self sqlDialect schemaNameForTable: aDBTable);
 		tableName: aDBTable name;
 		columnName: nil.
 	i := 0.
@@ -55,7 +55,7 @@ _columnsInTableViaQuery: aDBTable
 
 	query := 
 		SSWSQLSelectQuery new 
-			table: (SSWSQLTable new name: aDBTable name); 
+			table: (SSWDBTable new name: aDBTable name; namespace: aDBTable namespace; yourself); 
 			conditions: #(); 
 			yourself.
 
@@ -95,6 +95,14 @@ allocStmtHandle: aDBStatement
 
 	^hStmt!
 
+autoCommitDuring: aBlock
+
+	| oldValue |
+
+	oldValue := self willAutoCommit.
+	self willAutoCommit: true.
+	[aBlock value] ensure: [self willAutoCommit: oldValue]!
+
 basicConnect
 
 	self dsn isNil 
@@ -127,6 +135,12 @@ columnsInTable: aDBTable
 		fieldMap := IdentityDictionary new.
 		aDBTable allFieldsDo: [ :field | (columns detect: [ :col | col name = field name] ifNone: [nil]) ifNotNil: [ :column | fieldMap at: field put: column]].
 		fieldMap]!
+
+createNamespace: aString
+
+	"Private - Create the given namespace (schema/database) - implementation depends on dialect"
+
+	self autoCommitDuring: [self exec: (self sqlDialect createNamespaceSQLFor: aString)]!
 
 dbCheckException: anIntegerRetCode
 
@@ -191,6 +205,12 @@ disconnect
 			super disconnect]].
 
 	self reset!
+
+dropNamespace: aString
+
+	"Private - Drop the given namespace (schema/database) - implementation depends on dialect"
+
+	self autoCommitDuring: [self exec: (self sqlDialect dropNamespaceSQLFor: aString)]!
 
 evaluateAsTxn: aBlock
 
@@ -349,6 +369,17 @@ sqlDialect: anSSWSQLDialect
 
 	sqlDialect := anSSWSQLDialect!
 
+tables
+
+	^self tablesInNamespace: nil!
+
+tablesInNamespace: aStringOrNil
+
+	"Answer a collection of all user tables in the namespace named aStringOrNil (nil = default namespace).
+	Varies by dialect"
+
+	^self sqlDialect tableNamesInNamespace: aStringOrNil for: self!
+
 upToParameterPlaceholderOn: aStream
 
 	^aStream upTo: $?!
@@ -365,12 +396,14 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #allocatedStatementCount!accessing!private! !
 !SSWODBCConnection categoriesFor: #allocatedStatementCount:!accessing!private! !
 !SSWODBCConnection categoriesFor: #allocStmtHandle:!helpers!private! !
+!SSWODBCConnection categoriesFor: #autoCommitDuring:!helpers!private! !
 !SSWODBCConnection categoriesFor: #basicConnect!operations!private! !
 !SSWODBCConnection categoriesFor: #canDescribeParameters!public!testing! !
 !SSWODBCConnection categoriesFor: #columnDescriptions!accessing!private! !
 !SSWODBCConnection categoriesFor: #columnDescriptions:!accessing!private! !
 !SSWODBCConnection categoriesFor: #columnsForFields:!enquiries!public! !
 !SSWODBCConnection categoriesFor: #columnsInTable:!enquiries!public! !
+!SSWODBCConnection categoriesFor: #createNamespace:!operations!private! !
 !SSWODBCConnection categoriesFor: #dbCheckException:!exceptions!public! !
 !SSWODBCConnection categoriesFor: #dbCheckException:from:!exceptions!public! !
 !SSWODBCConnection categoriesFor: #dbErrorClass!accessing!public! !
@@ -379,6 +412,7 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #defaultCursorType!operations!public! !
 !SSWODBCConnection categoriesFor: #defaultMaxColumnBytes!constants!public! !
 !SSWODBCConnection categoriesFor: #disconnect!operations!private! !
+!SSWODBCConnection categoriesFor: #dropNamespace:!operations!private! !
 !SSWODBCConnection categoriesFor: #evaluateAsTxn:!public!transactions! !
 !SSWODBCConnection categoriesFor: #executeQuery:cursoredFetch:!executing!public! !
 !SSWODBCConnection categoriesFor: #forgetTable:!helpers!private! !
@@ -400,6 +434,8 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #shouldFreeStatementsOnClose!public!testing! !
 !SSWODBCConnection categoriesFor: #sqlDialect!accessing!public! !
 !SSWODBCConnection categoriesFor: #sqlDialect:!accessing!public! !
+!SSWODBCConnection categoriesFor: #tables!enquiries!public! !
+!SSWODBCConnection categoriesFor: #tablesInNamespace:!enquiries!public! !
 !SSWODBCConnection categoriesFor: #upToParameterPlaceholderOn:!helpers!private! !
 !SSWODBCConnection categoriesFor: #willAutoCommit:!accessing!public! !
 

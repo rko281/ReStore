@@ -76,10 +76,6 @@ requiresAliasing
 	"Function fields need aliasing for effective lookup, e.g. COUNT(ID) AS Field1"
 	^true!
 
-reStore
-
-	^self table reStore!
-
 targetClass
 
 	^self function targetClassForFunctionField: self!
@@ -118,7 +114,6 @@ writeSQLOn: aStream
 !SSWDBFunctionField categoriesFor: #hasAggregateFunction!public!testing! !
 !SSWDBFunctionField categoriesFor: #isEmpty!public!testing! !
 !SSWDBFunctionField categoriesFor: #requiresAliasing!public!testing! !
-!SSWDBFunctionField categoriesFor: #reStore!accessing!public! !
 !SSWDBFunctionField categoriesFor: #targetClass!helpers!public! !
 !SSWDBFunctionField categoriesFor: #writeAliasedSQLOn:!output!public! !
 !SSWDBFunctionField categoriesFor: #writeSQLOn:!output!public! !

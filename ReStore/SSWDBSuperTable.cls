@@ -22,7 +22,8 @@ forCreation
 	tableForCreation := self class forClass: self instanceClass.
 	tableForCreation 
 		name: self name;
-		fullName: self fullName.
+		fullName: self fullName;
+		namespace: self namespace.
 	tableForCreation initializeIn: self reStore.
 	self instanceClass addClassDefinitionTo: tableForCreation.
 	

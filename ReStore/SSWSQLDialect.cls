@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWSQLDialect
-	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize'
+	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -23,7 +23,7 @@ addFields: aCollection to: aTable in: anSSWReStore
 		[stream := self sqlWriteStream.
 		stream 
 			nextPutAll: 'ALTER TABLE ';
-			nextPutIdentifier: aTable name.
+			writeSQLFor: aTable.
 		aCollection 
 			do: 
 				[ :field | 
@@ -37,7 +37,7 @@ addFields: aCollection to: aTable in: anSSWReStore
 			innerStream := self sqlWriteStream.
 			innerStream 
 				nextPutAll: 'ALTER TABLE ';
-				nextPutIdentifier: aTable name;
+				writeSQLFor: aTable;
 				nextPutAll: ' ADD '.
 			field writeSQLDefinitionOn: innerStream.
 			anSSWReStore executeSQL: innerStream contents]]!
@@ -48,7 +48,7 @@ alterField: aField table: aTable in: aReStore
 		[ :stream | 
 		stream 
 			nextPutAll: 'ALTER TABLE ';
-			nextPutIdentifier: aTable name;
+			writeSQLFor: aTable;
 			nextPutAll: ' ALTER COLUMN '.
 		aField writeSQLDefinitionOn: stream]!
 
@@ -86,12 +86,6 @@ blobTypes
 boolean
 
 	^'BOOLEAN'!
-
-canDescribeParameters
-
-	"Does this dialect support the SQLDescribeParam function?"
-
-	^true!
 
 char
 
@@ -268,6 +262,10 @@ defaultSQLFunctions
 
 	^allDefaults!
 
+defaultStandardNamespace
+
+	^nil!
+
 defaultTimeResolution
 
 	"0 = seconds, 3 = milliseconds etc."
@@ -305,7 +303,7 @@ dropColumnNamed: colString fromTable: anSSWDBTable in: anSSWReStore
 		[ :stream | 
 		stream 
 			nextPutAll: 'ALTER TABLE ';
-			nextPutIdentifier: anSSWDBTable name;
+			writeSQLFor: anSSWDBTable;
 			nextPutAll: ' DROP COLUMN ';
 			nextPutIdentifier: colString]!
 
@@ -350,7 +348,8 @@ initializeFor: aDBConnection
 		unsizedStringSize: self defaultUnsizedStringSize;
 		unsizedBlobSize: self defaultUnsizedBlobSize;
 		maxColumnNameLength: (aDBConnection maxColumnNameLength ifNil: [self defaultMaxColumnNameLength]);
-		maxTableNameLength: (aDBConnection maxTableNameLength ifNil: [self defaultMaxTableNameLength])!
+		maxTableNameLength: (aDBConnection maxTableNameLength ifNil: [self defaultMaxTableNameLength]);
+		standardNamespace: self defaultStandardNamespace!
 
 instVarNameTransformation
 
@@ -469,19 +468,20 @@ renameField: oldField to: newField in: aReStore
 	"Drop the old column"
 	self dropColumnNamed: oldField name fromTable: definitionTable in: aReStore!
 
-renameTableNamed: oldName to: newName in: anSSWReStore
+renameTable: oldTable to: newTable in: anSSWReStore
 
 	anSSWReStore executeSQLFrom: 
 		[ :stream | 
 		stream 
 			nextPutAll: 'ALTER TABLE ';
-			nextPutIdentifier: oldName;
+			writeSQLFor: oldTable;
 			nextPutAll: ' RENAME TO ';
-			nextPutIdentifier: newName]!
+			nextPutIdentifier: newTable name]!
 
-shouldCheckAutoCommit
+shouldExpandNamespacedAllFields
 
-	"Return whether the DBConnection should check the status of autoCommit prior to attempting a change"
+	"Return true if the all fields * pseudo-field should be expanded into a list of fields where the table has a namspace, i.e. namespace.table.field1, namespace.table.field2 etc. instead of namespace.table.*
+	Needed to accomodate SQLite which gives an error with namespace.table.* in SELECT query"
 
 	^false!
 
@@ -491,28 +491,6 @@ shouldMapEmptyStringsToNil
 	This can be useful for databases in which default String fields to 'Do not allow zero size (usually this attribute cannot be set via ODBC/SQL)"
 
 	^false!
-
-shouldMaskSuccessWithInfo
-
-	"Some databases/drivers send many SQLSuccessWithInfo results.
-	shouldMaskSuccessWithInfo determines whether these go unreported (true) or are reported via a DBWarning exception (false, standard behaviour)"
-
-	^false!
-
-shouldRollbackOnQuery
-
-	"Should the ODBC connection rollbackTxn following a query outside a Txn?"
-
-	^false!
-
-shouldUseColumnsStatement
-
-	"Return whether this dialect should use DBColumnsStatement to interrogate the details of a table's columns (true, default) or a SELECT * query (false).
-	
-	Here primarily to satisfy a shortcoming in SQLite ODBC driver where DBColumnsStatement returns the character length for wide string columns, rather than the buffer length.
-	Column details returned from a SELECT * query report the buffer length correctly"
-
-	^true!
 
 sqlFunctionFor: aMessageSelector
 
@@ -543,6 +521,20 @@ sqlFunctions: aDictionary
 sqlWriteStream
 
 	^SSWSQLWriteStream newIn: self!
+
+standardNamespace
+
+	"standardNamespace stores the namespace (schema/database) in which unqualified (without a namespace. prefix) table names exist.
+	This is initialized to a default for this dialect - see defaultStandardNamespace - and may be nil where this is irrelevant/unnecessary"
+
+	^standardNamespace!
+
+standardNamespace: aString
+
+	"standardNamespace stores the namespace (schema/database) in which unqualified (without a namespace. prefix) table names exist.
+	This is initialized to a default for this dialect - see defaultStandardNamespace - and may be nil where this is irrelevant/unnecessary"
+
+	standardNamespace := aString!
 
 supportsImplicitTrueConditions
 
@@ -694,7 +686,6 @@ varchar
 !SSWSQLDialect categoriesFor: #blobTypeForSize:!datatypes!public! !
 !SSWSQLDialect categoriesFor: #blobTypes!datatypes!public! !
 !SSWSQLDialect categoriesFor: #boolean!datatypes!public! !
-!SSWSQLDialect categoriesFor: #canDescribeParameters!public!testing! !
 !SSWSQLDialect categoriesFor: #char!datatypes!public! !
 !SSWSQLDialect categoriesFor: #classNameTransformation!accessing!public! !
 !SSWSQLDialect categoriesFor: #classNameTransformation:!accessing!public! !
@@ -718,6 +709,7 @@ varchar
 !SSWSQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultSQLFunctions!constants!public! !
+!SSWSQLDialect categoriesFor: #defaultStandardNamespace!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultTimeResolution!public! !
 !SSWSQLDialect categoriesFor: #defaultUnsizedBlobSize!constants!public! !
 !SSWSQLDialect categoriesFor: #defaultUnsizedStringSize!constants!public! !
@@ -749,16 +741,15 @@ varchar
 !SSWSQLDialect categoriesFor: #postLoginScript!constants!public! !
 !SSWSQLDialect categoriesFor: #printParameterPlaceholder:on:!helpers!public! !
 !SSWSQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #renameTableNamed:to:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
+!SSWSQLDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
+!SSWSQLDialect categoriesFor: #shouldExpandNamespacedAllFields!public!testing! !
 !SSWSQLDialect categoriesFor: #shouldMapEmptyStringsToNil!public!testing! !
-!SSWSQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
-!SSWSQLDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
-!SSWSQLDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
 !SSWSQLDialect categoriesFor: #sqlFunctionFor:!accessing!public! !
 !SSWSQLDialect categoriesFor: #sqlFunctions!accessing!public! !
 !SSWSQLDialect categoriesFor: #sqlFunctions:!accessing!public! !
 !SSWSQLDialect categoriesFor: #sqlWriteStream!helpers!public! !
+!SSWSQLDialect categoriesFor: #standardNamespace!accessing!public! !
+!SSWSQLDialect categoriesFor: #standardNamespace:!accessing!public! !
 !SSWSQLDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
 !SSWSQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
 !SSWSQLDialect categoriesFor: #time!datatypes!public! !

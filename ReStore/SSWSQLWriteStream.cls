@@ -123,7 +123,11 @@ tableAliases: anIdentityDictionary
 	"tableAliases stores an IdentityDictionary mapping SSWSQLTables to an aliased name
 	assigned to that field by the receiver"
 
-	tableAliases := anIdentityDictionary! !
+	tableAliases := anIdentityDictionary!
+
+writeSQLFor: anObject
+
+	anObject writeSQLOn: self! !
 !SSWSQLWriteStream categoriesFor: #dialect!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #dialect:!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #fieldAliases!accessing!public! !
@@ -145,6 +149,7 @@ tableAliases: anIdentityDictionary
 !SSWSQLWriteStream categoriesFor: #placeholderCount:!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #tableAliases!accessing!public! !
 !SSWSQLWriteStream categoriesFor: #tableAliases:!accessing!public! !
+!SSWSQLWriteStream categoriesFor: #writeSQLFor:!printing!public! !
 
 !SSWSQLWriteStream class methodsFor!
 
