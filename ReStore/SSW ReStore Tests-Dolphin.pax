@@ -59,6 +59,7 @@ package globalAliases: (Set new
 package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
+	'SSW ReStore Main'
 	'SSW ReStore ODBC'
 	'SSW ReStore Tests').
 
@@ -545,7 +546,7 @@ test21VerifyLegacyNameTransformationMode
 	self assert: (table fieldAccessing: #select) name = 'select'.
 
 	"Now switch to legacy"
-	reStore sqlDialect useLegacyNameTransformations.
+	reStore useLegacyNameTransformations.
 	reStore addClass: Where.
 	table := reStore tableForClass: Where.
 
@@ -553,10 +554,14 @@ test21VerifyLegacyNameTransformationMode
 	ifTrue: 
 		["ReStore has always used lowercase with Postgres"
 		self assert: table name equals: 'where_table'.
-		self assert: (table fieldAccessing: #select) name equals: 'select_field']
+		self assert: (table fieldAccessing: #select) name equals: 'select_field'.
+		"Also check a system class - previously was not reset to new strategy"
+		self assert: (reStore tableForClass: SSWDBTableRecord) name = 'next_id']
 	ifFalse: 
 		[self assert: table name equals: 'WHERE_TABLE'.
-		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD']! !
+		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD'.
+		"Also check a system class - previously was not reset to new strategy"
+		self assert: (reStore tableForClass: SSWDBTableRecord) name = 'NEXT_ID']! !
 !SSWReStoreTableTest categoriesFor: #test21VerifyLegacyNameTransformationMode!public!unit tests! !
 
 !SSWReStoreTest methodsFor!

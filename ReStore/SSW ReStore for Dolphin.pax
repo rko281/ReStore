@@ -34,6 +34,7 @@ package methodNames
 	add: #SSWReStore -> #openODBC;
 	add: #SSWReStore -> #pwd:;
 	add: #SSWReStore -> #uid:;
+	add: #SSWReStore -> #useLegacyNameTransformations;
 	add: #SSWSQLDialect -> #dialectReservedWords;
 	add: #SSWSQLDialect -> #isReservedWord:;
 	add: #SSWSQLDialect -> #legacyNameTransformationFor:with:;
@@ -526,7 +527,22 @@ uid: aString
 	"Forward to the connection itself"
 	
 	self connection isNil ifTrue: [self createConnection].
-	self connection uid: aString! !
+	self connection uid: aString!
+
+useLegacyNameTransformations
+
+	"Previously ReStore translated inst var and class names to database names as follows:
+	1) transform to uppercase snake case, e.g. dateOfBirth to DATE_OF_BIRTH
+	2) append _FIELD (inst var) or _TABLE (class name) if the name is reserved, e.g. Order -> ORDER -> ORDER_TABLE
+
+	ReStore now uses lowercase snake case, with all identifiers quoted to avoid reserved word clashes..
+
+	Send this method after connecting to continue to use the previous transformations"
+
+	self sqlDialect useLegacyNameTransformations.
+
+	"Must reset system classes after login to use current dialect's name transformation strategy"
+	self persistentSystemClasses do: [ :each | self addClass: each]! !
 !SSWReStore categoriesFor: #binaryStoreOn:!binary filing!public! !
 !SSWReStore categoriesFor: #connectString:!connection!public! !
 !SSWReStore categoriesFor: #createConnection!initialize/release!public! !
@@ -534,6 +550,7 @@ uid: aString
 !SSWReStore categoriesFor: #openODBC!connection!public! !
 !SSWReStore categoriesFor: #pwd:!connection!public! !
 !SSWReStore categoriesFor: #uid:!connection!public! !
+!SSWReStore categoriesFor: #useLegacyNameTransformations!initialize/release!public! !
 
 !SSWSQLDialect methodsFor!
 
@@ -566,13 +583,13 @@ legacyNameTransformationFor: aSymbol with: aString
 
 useLegacyNameTransformations
 
-	"Previously ReStore translated inst var and class names to database names as follows:
+	"Private - Previously ReStore translated inst var and class names to database names as follows:
 	1) transform to uppercase snake case, e.g. dateOfBirth to DATE_OF_BIRTH
 	2) append _FIELD (inst var) or _TABLE (class name) if the name is reserved, e.g. Order -> ORDER -> ORDER_TABLE
 
 	ReStore now uses lowercase snake case, with all identifiers quoted to avoid reserved word clashes..
 
-	Send this method to continue to use the previous transformations"
+	Send this method to your ReStore instance after connecting to continue to use the previous transformations"
 
 	self 
 		instVarNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_FIELD'];
@@ -580,7 +597,7 @@ useLegacyNameTransformations
 !SSWSQLDialect categoriesFor: #dialectReservedWords!constants!public! !
 !SSWSQLDialect categoriesFor: #isReservedWord:!public!testing! !
 !SSWSQLDialect categoriesFor: #legacyNameTransformationFor:with:!helpers!private! !
-!SSWSQLDialect categoriesFor: #useLegacyNameTransformations!initializing!public! !
+!SSWSQLDialect categoriesFor: #useLegacyNameTransformations!initializing!private! !
 
 !StackFrame methodsFor!
 
