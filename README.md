@@ -19,7 +19,7 @@ Previous versions of ReStore transformed class and instance variable names to ta
 * CamelCase to UPPER_CASE
 * Transformed names matching SQL Reserved words appended with _TABLE or _FIELD to avoid clash
 
-ReStore now users lowercase for transformed names and wraps any reserved words in quotes to avoid the need to append postfixes. If you synchronizeClasses with an existing ReStore database you may experience data loss where new name transformations do not match previous ones. You can revert to the previous strategy by sending `useLegacyNameTransformations` to the sqlDialect object after login. You should of course also always backup important data prior to synchronizing classes. You may also find the SSW ReStore Deprecated package useful.
+ReStore now users lowercase for transformed names and wraps any reserved words in quotes to avoid the need to append postfixes. If you synchronizeClasses with an existing ReStore database you may experience data loss where new name transformations do not match previous ones. You can revert to the previous strategy by sending `useLegacyNameTransformations` to the ReStore instance after login. You should of course also always backup important data prior to synchronizing classes. You may also find the SSW ReStore Deprecated package useful.
 
 
 # A Simple Example
