@@ -707,7 +707,28 @@ testQueryEvaluationLocationImage
 
 	names do: 
 		[ :array |
-		self assert: array last equals: ('<1s> <2s> (IMAGE)' expandMacrosWith: array first with: array second)].! !
+		self assert: array last equals: ('<1s> <2s> (IMAGE)' expandMacrosWith: array first with: array second)].!
+
+testReverse
+
+	| forward reverse |
+
+	forward := SimplePerson storedInstancesIn: reStore.
+	reverse := forward reverse.
+
+	"Ensure reverse hasn't modified the original collection (previous error)"
+	self assert: forward isSorted not.
+
+	"Without any explicit ordering on forward we can't guarantee the ordering of reverse will be different, so just check membership"
+	self assert: (forward asSet = reverse asSet).
+
+	forward beOrdered.
+	reverse := forward reverse.
+	self assert: (forward asOrderedCollection asArray reverse = reverse asOrderedCollection asArray).
+
+	forward sortBlock: SortedCollection.
+	reverse := forward reverse.
+	self assert: (forward asOrderedCollection asArray reverse = reverse asOrderedCollection asArray)! !
 !SSWReStoreQueryTest categoriesFor: #addClassesTo:!public!Running! !
 !SSWReStoreQueryTest categoriesFor: #convertToDictionary:index:!helpers!private! !
 !SSWReStoreQueryTest categoriesFor: #createProducts!public!Running! !
@@ -743,4 +764,5 @@ testQueryEvaluationLocationImage
 !SSWReStoreQueryTest categoriesFor: #testInstancesCollectionIncludes!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testQueryEvaluationLocationDatabase!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testQueryEvaluationLocationImage!public!unit tests! !
+!SSWReStoreQueryTest categoriesFor: #testReverse!public!unit tests! !
 
