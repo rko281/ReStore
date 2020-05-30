@@ -345,7 +345,7 @@ peekFinalField
 	c.f. finalField"
 
 	^self hasFinalField
-		ifTrue: [self finalFields first]
+		ifTrue: [self finalFields last]
 		ifFalse: [nil]!
 
 printOn: aStream

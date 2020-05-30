@@ -312,6 +312,32 @@ testCollectQueryWithActualObject
 	"Ensure we actually did some testing"
 	self assert: (testCount = 5)!
 
+testCollectQueryWithBooleanFunction
+
+	"Test a condition which previously caused an error - non-first component in collect query having a Boolean function gave error due to incorrect implementation of peekFinalField"
+
+	| instances results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+	(instances detect: [ :each | each firstName = 'Jim']) isDeceased: true; store.
+
+	self shouldnt: [results := instances collect: [ :each | each firstName || each isDeceased not]] raise: Error.
+	results := (results asSortedCollection: [ :a :b | (a at: 1) <= (b at: 1)]) asArray.
+	self assert: (results size = 4).
+	self assert: ((results at: 1) = #('David' true)).
+	self assert: ((results at: 2) = #('Jim' false)).
+	self assert: ((results at: 3) = #('John' true)).
+	self assert: ((results at: 4) = #('Zoe' true)).
+
+	self shouldnt: [results := instances collect: [ :each | each firstName || each surname || each isDeceased not]] raise: Error.
+	results := (results asSortedCollection: [ :a :b | (a at: 1) <= (b at: 1)]) asArray.
+	self assert: (results size = 4).
+	self assert: ((results at: 1) = #('David' 'Smythe' true)).
+	self assert: ((results at: 2) = #('Jim' 'Brown' false)).
+	self assert: ((results at: 3) = #('John' 'Smith' true)).
+	self assert: ((results at: 4) = #('Zoe' 'Brown' true)).
+!
+
 testCollectQueryWithFunction
 
 	| instances john results |
@@ -749,6 +775,7 @@ testReverse
 !SSWReStoreQueryTest categoriesFor: #testCMultiArgumentFunctionCollectMixedQuery!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testCollectQuery!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testCollectQueryWithActualObject!public!unit tests! !
+!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithBooleanFunction!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testCollectQueryWithFunction!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testCollectQueryWithInlineFunction!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testCollectQueryWithMultipleObjects!public!unit tests! !

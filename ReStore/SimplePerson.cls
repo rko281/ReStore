@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SimplePerson
-	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address'
+	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -137,6 +137,12 @@ isDavidAndTestIsNil
 isDavidOrTestIsNil
 
 	^self firstName = 'David' or: [self test isNil]!
+
+isDeceased
+	^isDeceased!
+
+isDeceased: anObject
+	isDeceased := anObject!
 
 isJohnAndTestIsNil
 
@@ -275,6 +281,8 @@ time: anObject
 !SimplePerson categoriesFor: #isBrown20!public!testing! !
 !SimplePerson categoriesFor: #isDavidAndTestIsNil!public!testing! !
 !SimplePerson categoriesFor: #isDavidOrTestIsNil!public!testing! !
+!SimplePerson categoriesFor: #isDeceased!accessing!private! !
+!SimplePerson categoriesFor: #isDeceased:!accessing!private! !
 !SimplePerson categoriesFor: #isJohnAndTestIsNil!public!testing! !
 !SimplePerson categoriesFor: #orders!accessing!public! !
 !SimplePerson categoriesFor: #orders:!accessing!public! !
@@ -304,6 +312,7 @@ new
 	^super new
 		time: DateAndTime now;
 		orders: OrderedCollection new;
+		isDeceased: false;
 		yourself!
 
 reStoreDefinition
@@ -317,6 +326,7 @@ reStoreDefinition
 		define: #age as: Integer;
 		define: #test as: Test;
 		define: #address as: SimpleAddress dependent;
+		define: #isDeceased as: Boolean;
 		yourself! !
 !SimplePerson class categoriesFor: #new!public! !
 !SimplePerson class categoriesFor: #reStoreDefinition!public! !

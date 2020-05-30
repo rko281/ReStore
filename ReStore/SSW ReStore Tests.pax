@@ -188,7 +188,7 @@ Object subclass: #SimpleAddress
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SimplePerson
-	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address'
+	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
