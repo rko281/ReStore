@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 DBColAttr subclass: #SSWODBCColAttr
-	instanceVariableNames: 'field maxBoundBufferSize'
+	instanceVariableNames: 'field maxBoundBufferSize isFunctionParameter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -11,6 +11,51 @@ SSWODBCColAttr comment: 'ReStore
 https://github.com/rko281/ReStore'!
 !SSWODBCColAttr categoriesForClass!Unclassified! !
 !SSWODBCColAttr methodsFor!
+
+configureToHold: anObject
+
+	(anObject isKindOf: String) ifTrue: [^self configureToHoldString: anObject].
+	anObject class = ByteArray ifTrue: [^self configureToHoldByteArray: anObject].
+
+	"Set length to a value long enough to handle any remaining type"
+	length := 256.
+
+	(anObject isKindOf: Number) ifTrue: [^self configureToHoldNumber: anObject].
+	(anObject == true or: [anObject == false]) ifTrue: [^sqlType := SQL_BIT].
+	anObject class = Date ifTrue: [^sqlType := SQL_TYPE_DATE].
+	anObject class = Time ifTrue: [^sqlType := SQL_TYPE_TIME].
+	(anObject class = DateAndTime or: [anObject class name = #TimeStamp "avoid dependency on deprecated package"]) ifTrue: [^sqlType := SQL_TYPE_TIMESTAMP].
+	anObject class = GUID ifTrue: [^sqlType := SQL_GUID].
+
+	self error: 'unsupported class'!
+
+configureToHoldByteArray: aByteArray
+
+	sqlType := SQL_LONGVARBINARY.
+	length := aByteArray size!
+
+configureToHoldNumber: aNumber
+
+	aNumber isInteger ifTrue:
+		[^aNumber byteSize = 4
+			ifTrue: [sqlType := SQL_SMALLINT]
+			ifFalse: [sqlType := SQL_BIGINT]].
+
+	(aNumber isFloat or: [aNumber isFraction]) ifTrue: [^sqlType := SQL_DOUBLE].
+
+	aNumber class = ScaledDecimal ifTrue: 
+		[precision := 64.
+		scale := aNumber scale.
+		^sqlType := SQL_DECIMAL].
+
+	self error: 'unsupported numeric class'!
+
+configureToHoldString: aString
+
+	sqlType := SQL_WLONGVARCHAR.
+	length := aString size * 2
+
+	!
 
 field
 
@@ -26,6 +71,17 @@ field: anSSWSQLField
 
 	field := anSSWSQLField!
 
+initialize
+
+	super initialize.
+	self isFunctionParameter: false!
+
+isFunctionParameter
+	^isFunctionParameter!
+
+isFunctionParameter: anObject
+	isFunctionParameter := anObject!
+
 lengthC
 
 	"Override to utilise metadata from the field if available"
@@ -37,7 +93,7 @@ lengthC
 		ifTrue: [lengthC := self maxBoundBufferSize]
 		ifFalse: [lengthC := super lengthC min: self maxBoundBufferSize].
 
-	self field isNil ifTrue: [^lengthC].
+	(self field isNil or: [self isFunctionParameter]) ifTrue: [^lengthC].
 
 	(sqlType = SQL_LONGVARCHAR or: [sqlType = SQL_LONGVARBINARY]) ifTrue: 
 		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
@@ -75,8 +131,15 @@ postCreate
 writeSQLOn: aStream
 
 	aStream nextPutAll: self name! !
+!SSWODBCColAttr categoriesFor: #configureToHold:!accessing!initializing!public! !
+!SSWODBCColAttr categoriesFor: #configureToHoldByteArray:!accessing!initializing!private! !
+!SSWODBCColAttr categoriesFor: #configureToHoldNumber:!accessing!initializing!private! !
+!SSWODBCColAttr categoriesFor: #configureToHoldString:!accessing!initializing!private! !
 !SSWODBCColAttr categoriesFor: #field!accessing!public! !
 !SSWODBCColAttr categoriesFor: #field:!accessing!public! !
+!SSWODBCColAttr categoriesFor: #initialize!initializing!public! !
+!SSWODBCColAttr categoriesFor: #isFunctionParameter!accessing!public!testing! !
+!SSWODBCColAttr categoriesFor: #isFunctionParameter:!accessing!private! !
 !SSWODBCColAttr categoriesFor: #lengthC!accessing!private! !
 !SSWODBCColAttr categoriesFor: #maxBoundBufferSize!accessing!private! !
 !SSWODBCColAttr categoriesFor: #maxBoundBufferSize:!accessing!private! !

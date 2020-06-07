@@ -148,6 +148,28 @@ readValuesFrom: aStream
 		[values at: index put: aStream next.
 		index := index + 1]!
 
+rebindParameterAt: anInteger
+
+	| field buf column |
+
+	field := self parameters at: anInteger.
+	buf := field fieldBuf.
+	column := field column.
+	self dbCheckException: 
+		(ODBCLibrary default
+			sqlBindParameter: self allocatedHandle
+			parameterNumber: anInteger
+			inputOutputType: column parameterType
+			valueType: column cType
+			parameterType: column type
+			columnSize: column precision
+			decimalDigits: column scale
+			parameterValuePtr: buf
+			bufferLength: buf byteSize
+			strLenOrIndPtr: field lengthBuf).
+
+	field needsRebinding: false!
+
 results
 	"Answer a <DBResultSet> that manages the results for the receiver.
 	The result set will cause the receiver to be lazily executed when
@@ -163,6 +185,14 @@ rowsAffected
 	Assume this represents the end of interaction by this statement so also close the receiver"
 
 	^self closeAfter: [ :stmt | stmt numRows]!
+
+setValues
+	"Private - Copy object values to the bound fields for the parameters of the prepared SQL
+	statement. On first receipt this will cause the parameter fields to be created and bound 	(via #parameters)."
+
+	1 to: self parameters size do: [:i |
+		(parameters at: i) value: (values at: i); needsRebinding ifTrue: [self rebindParameterAt: i]]
+!
 
 sqlDialect
 
@@ -205,8 +235,10 @@ writeDebugInfoOn: aStream
 !SSWODBCStatement categoriesFor: #query!accessing!public! !
 !SSWODBCStatement categoriesFor: #query:!accessing!public! !
 !SSWODBCStatement categoriesFor: #readValuesFrom:!operations!public! !
+!SSWODBCStatement categoriesFor: #rebindParameterAt:!operations!private! !
 !SSWODBCStatement categoriesFor: #results!accessing!public! !
 !SSWODBCStatement categoriesFor: #rowsAffected!accessing!public! !
+!SSWODBCStatement categoriesFor: #setValues!operations!private! !
 !SSWODBCStatement categoriesFor: #sqlDialect!accessing!public! !
 !SSWODBCStatement categoriesFor: #values:!public! !
 !SSWODBCStatement categoriesFor: #writeDebugInfoOn:!operations!public! !

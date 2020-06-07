@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 DBField subclass: #SSWODBCField
-	instanceVariableNames: 'statement'
+	instanceVariableNames: 'statement needsRebinding'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!
@@ -20,7 +20,14 @@ initializeForColumn: aDBColAttr
 	lengthBuf := SDWORD fromInteger: SQL_NULL_DATA.
 	column := aDBColAttr.
 	buffer := ByteArray new: aDBColAttr lengthC.
+	needsRebinding := false.
 	^self!
+
+needsRebinding
+	^needsRebinding!
+
+needsRebinding: anObject
+	needsRebinding := anObject!
 
 numberToNumeric: aNumberOrBoolean
 
@@ -43,7 +50,7 @@ setAnsiString: aStringOrObject
 
 	aStringOrObject isString
 	ifTrue: 
-		[aStringOrObject  size > (buffer size - 1) "for null terminator"
+		[(column isFunctionParameter not and: [aStringOrObject  size > (buffer size - 1) "for null terminator"])
 		ifTrue: 
 			[Notification signal: 'ReStore: oversized String truncated'. 
 			super setAnsiString: (aStringOrObject  copyFrom: 1 to: (buffer size - 1))]
@@ -110,7 +117,7 @@ setUtf16String: aStringOrObject
 
 	aStringOrObject isString
 	ifTrue: 
-		[aStringOrObject byteSize > (buffer size - 1) "for null terminator"
+		[(column isFunctionParameter not and: [aStringOrObject byteSize > (buffer size - 1) "for null terminator"])
 		ifTrue: 
 			[Notification signal: 'ReStore: oversized String truncated'. 
 			super setUtf16String: (aStringOrObject copyFrom: 1 to: ((buffer size - 2) // 2))]
@@ -145,8 +152,27 @@ statement: anSSWODBCStatement
 
 	"statement stores the SSWODBC...Statement to which this field relates"
 
-	statement := anSSWODBCStatement! !
+	statement := anSSWODBCStatement!
+
+value: anObject
+
+	"Special handling for function parameters: 
+	Depending on the database type and function, the database may report an incorrect parameter type for a parameter field based on a function.
+	e.g. YEAR(DATE_FIELD) may report DATE rather than INT type, or CONCAT(FIELD1, FIELD2) may have an insufficient buffer size for the parameter.
+	Where this happens and causes an error, reconfigure the column based on the supplier parameter value, retry and mark the receiver for rebinding by its statement"
+
+	[super value: anObject] on: Error do: 
+		[ :exc |
+		self column isFunctionParameter ifFalse: [exc pass].
+		"Transcript cr; show: ('reconfigured <1s> size <2p>' expandMacrosWith: (ODBCTypes keyAtValue: column type) with: column length)."
+		column configureToHold: anObject.
+		self needsRebinding: true.
+		column lengthC > buffer size ifTrue: [buffer := ByteArray newFixed: (##(2 raisedTo: 16) min: column lengthC)].
+		"Transcript show: (' to <1s> size <2p>' expandMacrosWith: (ODBCTypes keyAtValue: column type) with: column length)."
+		exc return: (super value: anObject)]! !
 !SSWODBCField categoriesFor: #initializeForColumn:!accessing!private! !
+!SSWODBCField categoriesFor: #needsRebinding!accessing!public! !
+!SSWODBCField categoriesFor: #needsRebinding:!accessing!private! !
 !SSWODBCField categoriesFor: #numberToNumeric:!converting!private! !
 !SSWODBCField categoriesFor: #setAnsiString:!converting!private! !
 !SSWODBCField categoriesFor: #setByte:!converting!private! !
@@ -158,6 +184,7 @@ statement: anSSWODBCStatement
 !SSWODBCField categoriesFor: #sqlDialect!accessing!public! !
 !SSWODBCField categoriesFor: #statement!accessing!public! !
 !SSWODBCField categoriesFor: #statement:!accessing!public! !
+!SSWODBCField categoriesFor: #value:!accessing!public! !
 
 !SSWODBCField class methodsFor!
 

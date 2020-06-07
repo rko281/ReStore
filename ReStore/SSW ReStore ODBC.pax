@@ -27,6 +27,7 @@ package methodNames
 	add: #ODBCLibrary -> #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:;
 	add: #SSWDBField -> #asParameterColumn:for:;
 	add: #SSWDBField -> #columnIn:;
+	add: #SSWDBFunctionField -> #asParameterColumn:for:;
 	add: #SSWDBQueryField -> #asParameterColumn:for:;
 	add: #SSWDBStringWithInfo -> #dbMaxFieldSize;
 	add: #SSWMSAccessDialect -> #canDescribeParameters;
@@ -69,6 +70,7 @@ package globalAliases: (Set new
 package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'SSW ReStore Base Additions'
 	'SSW ReStore Main'
 	'SSW ReStore Querying'
@@ -106,7 +108,7 @@ DBParameterizedStatement subclass: #SSWODBCStatement
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 DBColAttr subclass: #SSWODBCColAttr
-	instanceVariableNames: 'field maxBoundBufferSize'
+	instanceVariableNames: 'field maxBoundBufferSize isFunctionParameter'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -116,7 +118,7 @@ DBConnection subclass: #SSWODBCConnection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 DBField subclass: #SSWODBCField
-	instanceVariableNames: 'statement'
+	instanceVariableNames: 'statement needsRebinding'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!
@@ -195,6 +197,15 @@ columnIn: anODBCConnection
 	^(anODBCConnection columnsInTable: self table) at: self! !
 !SSWDBField categoriesFor: #asParameterColumn:for:!accessing!public! !
 !SSWDBField categoriesFor: #columnIn:!accessing!public! !
+
+!SSWDBFunctionField methodsFor!
+
+asParameterColumn: anInteger for: aStatement
+
+	^(super asParameterColumn: anInteger for: aStatement)
+		isFunctionParameter: true;
+		yourself! !
+!SSWDBFunctionField categoriesFor: #asParameterColumn:for:!public! !
 
 !SSWDBQueryField methodsFor!
 
