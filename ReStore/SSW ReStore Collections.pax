@@ -610,7 +610,7 @@ _dbAdd: targetObject suggestedIndex: keyObject
 
 _isMultiValue
 
-	^self isEmpty not and: [self anyOne isKindOf: Collection]!
+	^self isEmpty not and: [(self anyOne isKindOf: Collection) and: [self anyOne isString not]]!
 
 _keyRemovalsIn: aCollectionOfChanges
 

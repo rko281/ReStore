@@ -107,6 +107,7 @@ package classNames
 	add: #SSWReStoreSortTest;
 	add: #SSWReStoreSpeedTest;
 	add: #SSWReStoreSQLInjectionTest;
+	add: #SSWReStoreStringDictionaryTest;
 	add: #SSWReStoreTableTest;
 	add: #SSWReStoreTableWithNamespaceTest;
 	add: #SSWReStoreTest;
@@ -343,6 +344,11 @@ SSWReStoreGenericTest subclass: #SSWReStoreGenericObjectTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreGenericTest subclass: #SSWReStoreMultiValueCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreGenericTest subclass: #SSWReStoreStringDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
