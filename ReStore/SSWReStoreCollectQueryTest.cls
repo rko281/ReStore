@@ -195,6 +195,25 @@ testMathFunctionCollectQuery
 	self assert: (results third = #('John' 25)).
 	self assert: (results last = #('Zoe' 25)).!
 
+testMethodNotNilWithJoinCollectQuery
+
+	"Test previously-failing case where a method invoked from the collect block contains notNil in an inlined block"
+
+	| instances john results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+	john := instances detect: [ :each | each firstName = 'John'].
+	john test: (Test new name: 'jTest').
+	john store.
+
+	results := instances collect: [ :each | each firstName || each hasTestOrFriendHasTestBlock].
+	self assert: results size equals: 4.
+	self assert: (results asSortedCollection: [ :r1 :r2 | r1 first <= r2 first]) asArray = #(#('David' false) #('Jim' false) #('John' true) #('Zoe' true)).
+
+	results := (instances satisfying: [ :each | each hasTestOrFriendHasTestBlock]) collect: [ :each | each firstName || each hasTestOrFriendHasTestBlock].
+	self assert: results size equals: 2.
+	self assert: (results asSortedCollection: [ :r1 :r2 | r1 first <= r2 first]) asArray = #(#('John' true) #('Zoe' true))!
+
 testMultipleConditionalFirstCollectQuery
 
 	| instances results |
@@ -416,6 +435,7 @@ testThisObjectFieldOnlyCollectQuery
 !SSWReStoreCollectQueryTest categoriesFor: #testJoinedFieldFirstCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testJoinedFieldOnlyCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testMathFunctionCollectQuery!public!unit tests! !
+!SSWReStoreCollectQueryTest categoriesFor: #testMethodNotNilWithJoinCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testMultipleConditionalFirstCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testMultipleConditionalLastCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testMultipleConditionalOnSameFieldCollectQuery!public!unit tests! !

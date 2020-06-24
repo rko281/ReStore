@@ -87,7 +87,7 @@ Object subclass: #RequiredUndefinedObject
 	poolDictionaries: ''
 	classInstanceVariableNames: 'soleInstance'!
 Object subclass: #SSWDBBlockParser
-	instanceVariableNames: 'reStore argumentClass argumentTable referencedTables qualifyingConditions qualifyingTables orderingSpecs groupByFields activeReceiver accumulatedConditions currentConditions isCollectingAssociations fieldEncounters accumulatedConditionsStack isAccumulatingConditions'
+	instanceVariableNames: 'reStore argumentClass argumentTable referencedTables qualifyingConditions qualifyingTables orderingSpecs groupByFields activeReceiver isCollectingAssociations fieldEncounters'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

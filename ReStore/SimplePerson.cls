@@ -126,6 +126,10 @@ hasTest
 
 	^self test notNil!
 
+hasTestOrFriendHasTestBlock
+
+	^self test notNil or: [self friend test notNil]!
+
 isBrown20
 
 	^self surname = 'Brown' and: [self age = 20]!
@@ -278,6 +282,7 @@ time: anObject
 !SimplePerson categoriesFor: #hasNoFriend!public!testing! !
 !SimplePerson categoriesFor: #hasNoTest!public!testing! !
 !SimplePerson categoriesFor: #hasTest!public!testing! !
+!SimplePerson categoriesFor: #hasTestOrFriendHasTestBlock!public!testing! !
 !SimplePerson categoriesFor: #isBrown20!public!testing! !
 !SimplePerson categoriesFor: #isDavidAndTestIsNil!public!testing! !
 !SimplePerson categoriesFor: #isDavidOrTestIsNil!public!testing! !

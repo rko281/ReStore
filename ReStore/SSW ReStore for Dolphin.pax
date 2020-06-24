@@ -6,6 +6,10 @@ package paxVersion: 1;
 https://github.com/rko281/ReStore'.
 
 
+package classNames
+	add: #SSWDBDolphinBlockParser;
+	yourself.
+
 package methodNames
 	add: #BlockFrame -> #_method:;
 	add: #CompiledCode -> #readsOrWritesAnyInstVar;
@@ -20,7 +24,6 @@ package methodNames
 	add: #SSWDBBlockArgument -> #preProcessNextMessageFor:in:;
 	add: #SSWDBBlockArgument -> #simulateMessageSend:;
 	add: #SSWDBBlockArgument -> #stackFrameDetect:;
-	add: #SSWDBBlockParser -> #handleMustBeBooleanIn:;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #_proxyInstVarAt:;
@@ -43,6 +46,7 @@ package methodNames
 	add: #StackFrame -> #_method:;
 	add: #StackFrame -> #sswByteCodeDispatcher;
 	add: #Time -> #withResolution:;
+	add: 'SSWDBBlockParser class' -> #platformClass;
 	yourself.
 
 package globalNames
@@ -69,6 +73,11 @@ package!
 
 "Class Definitions"!
 
+SSWDBBlockParser subclass: #SSWDBDolphinBlockParser
+	instanceVariableNames: 'isAccumulatingConditions accumulatedConditionsStack accumulatedConditions currentConditions'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 
 "Global Aliases"!
 
@@ -358,80 +367,12 @@ stackFrameDetect: aBlock
 !SSWDBBlockArgument categoriesFor: #simulateMessageSend:!helpers!public! !
 !SSWDBBlockArgument categoriesFor: #stackFrameDetect:!public! !
 
-!SSWDBBlockParser methodsFor!
+!SSWDBBlockParser class methodsFor!
 
-handleMustBeBooleanIn: aCondition
+platformClass
 
-	"Private - aCondition(Collection) has been subject to an inlined and: / or: message in a query block, resulting in a mustBeBoolean send.
-	Deduce which from the original sender's bytecodes, returning the appropriate value to ensure the argument block is evaluated (true for and:, false for or:).
-	Also update the receiver to ensure this condition is combined with the eventual result"
-
-	| senderFrame bytecodes ip bytecode length nextBytecode jumpOffset blockEndpoint temp |
-
-	senderFrame := Processor activeProcess topFrame sender sender.
-	bytecodes := senderFrame method byteCodes.
-	ip := senderFrame ip.
-	bytecode := bytecodes at: ip.
-	length := ByteCodeDispatcher lengthOfInstruction: bytecode.
-	nextBytecode := bytecodes at: ip + length.
-
-	(nextBytecode = OpcodePool.ReturnFalse or: [nextBytecode = OpcodePool.ReturnPseudo "ReturnTrue" or: [(bytecodes at: ip + 2) = OpcodePool.ReturnFromBlock "Jump+2 over Push<result>; ReturnFromBlock"]]) 
-	ifTrue: 
-		[blockEndpoint := SmallInteger maximum]
-	ifFalse: 
-		[(bytecode = OpcodePool.LongJumpIfFalse or: [bytecode = OpcodePool.LongJumpIfTrue]) 
-		ifTrue: 
-			[jumpOffset := length + (bytecodes swordAtOffset: ip)]
-		ifFalse: 
-			[(bytecode = OpcodePool.NearJumpIfFalse or: [bytecode = OpcodePool.NearJumpIfTrue]) 
-				ifTrue: [jumpOffset := length + (bytecodes sbyteAtOffset: ip)]
-				ifFalse: [jumpOffset := length + (bytecode - ##(OpcodePool.ShortJumpIfFalse - 1))]].
-		blockEndpoint := ip + jumpOffset].
-
-	self isAccumulatingConditions: true.
-
-	"First possibility - last condition within a sequence of OR tests"
-	(nextBytecode = OpcodePool.PushPseudo "PushTrue" or: [nextBytecode = OpcodePool.ReturnPseudo "ReturnTrue"]) ifTrue:
-		[self currentConditions isEmpty
-		ifTrue: 
-			[self currentConditions add: aCondition; beOR; addLast: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions: self currentConditions last]
-		ifFalse: 
-			[self currentConditions add: aCondition.
-			temp := self newConditionCollection beOR.
-			temp _add: temp "will become: currentCondiitions"; add: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions become: temp.
-			self currentConditions: self currentConditions last].
-		^false].
-
-	"Second possibility - condition within a sequence of OR tests, but not the last"
-	(bytecode = OpcodePool.NearJumpIfTrue or: [bytecode = OpcodePool.LongJumpIfTrue]) ifTrue:
-		[self currentConditions add: aCondition; beOR.
-		^false].
-
-	"and: possibilities"
-	((bytecode between: 118 and: 125 "JumpIfFalse+offsets") or: [bytecode  = OpcodePool.NearJumpIfFalse or: [bytecode = OpcodePool.LongJumpIfFalse]]) ifTrue:
-		["For and:, a PushFalse bytecode would be after the jump"
-		nextBytecode := bytecodes at: blockEndpoint.
-		(nextBytecode = ##(OpcodePool.PushPseudo+1) "PushFalse" or: [nextBytecode = OpcodePool.ReturnFalse]) ifFalse: 
-			["Condition within a sequence of and: tests but not the last"
-			self currentConditions add: aCondition; beAND. 
-			^true].
-		"Last condition in a sequence of and: tests"
-		self currentConditions isEmpty 
-		ifTrue: 
-			[self currentConditions add: aCondition; beAND; blockEndpoint: blockEndpoint; addLast: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions: self currentConditions last]
-		ifFalse: 
-			[self currentConditions add: aCondition.
-			temp := self newConditionCollection beAND.
-			temp _add: temp "will become: currentCondiitions"; add: (self newConditionCollection blockEndpoint: blockEndpoint; yourself).
-			self currentConditions become: temp.
-			self currentConditions: self currentConditions last].
-		^true].
-
-	self parseError: 'unexpected bytecodes encountered during and: / or: block parsing'! !
-!SSWDBBlockParser categoriesFor: #handleMustBeBooleanIn:!parsing - internal!private! !
+	^SSWDBDolphinBlockParser! !
+!SSWDBBlockParser class categoriesFor: #platformClass!constants!public! !
 
 !SSWDBProxy methodsFor!
 
