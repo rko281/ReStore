@@ -21,7 +21,19 @@ includes: anObject
 
 	"Can be done with just the intermediate table"
 
-	^self localAnySatisfy: [ :each | each target = anObject _id]!
+	^self localAnySatisfy: [ :each | each target = anObject]!
+
+includesAssociation: anAssociation
+
+	"For dictionaires - turn into an equivalent anySatisfy:"
+
+	^self localAnySatisfy: [ :each | (each index = anAssociation key) & (each target = anAssociation value)]!
+
+includesKey: anObject
+
+	"For dictionaires - turn into an equivalent anySatisfy:"
+
+	^self localAnySatisfy: [ :each | each index = anObject]!
 
 intermediateCollection
 
@@ -94,6 +106,8 @@ targetTableFromParser
 		self parser referencedTables add: targetTable joinedWith: (SSWSQLCondition field: (collectionTable fieldAccessing: #target) equalTo: targetTable idField)]! !
 !SSWDBGeneralCollectionBlockReceiver categoriesFor: #collectionParser!accessing!public! !
 !SSWDBGeneralCollectionBlockReceiver categoriesFor: #includes:!parsing-collection messages!public! !
+!SSWDBGeneralCollectionBlockReceiver categoriesFor: #includesAssociation:!parsing-collection messages!public! !
+!SSWDBGeneralCollectionBlockReceiver categoriesFor: #includesKey:!parsing-collection messages!public! !
 !SSWDBGeneralCollectionBlockReceiver categoriesFor: #intermediateCollection!accessing!public! !
 !SSWDBGeneralCollectionBlockReceiver categoriesFor: #localAnySatisfy:!helpers!private! !
 !SSWDBGeneralCollectionBlockReceiver categoriesFor: #qualifyCollectionParserWith:!helpers!private! !

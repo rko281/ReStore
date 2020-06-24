@@ -14,6 +14,6 @@ https://github.com/rko281/ReStore'!
 
 componentDefinition
 
-	^Dictionary of: [ :each | String with: each name first asLowercase] -> GenericOwnedTest dependent! !
+	^Dictionary of: [ :each | each name first asLowercase asString] -> GenericOwnedTest dependent! !
 !SSWReStoreBlockCacheDictionaryTest categoriesFor: #componentDefinition!public! !
 

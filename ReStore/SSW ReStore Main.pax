@@ -493,9 +493,9 @@ _hasChangedFrom: anObject
 
 _id
 
-	"Return the receiver's unique ID - assume the receiver is a valid persistent object"
-	
-	^self _dbProxy _id!
+	"Return the receiver's unique ID or nil if not persistent"
+
+	^(self _dbProxyIfNone: [nil]) ifNotNil: [ :proxy | proxy _id]!
 
 _idIn: aReStore
 

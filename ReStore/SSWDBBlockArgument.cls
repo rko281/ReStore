@@ -20,6 +20,18 @@ https://github.com/rko281/ReStore'!
 		ifNil: [self]
 		ifNotNil: [ :result | result & aValue]!
 
+_cacheDictionaryKey_
+
+	"Special selector to locate the key for general cache dictionaries.
+	This needs to locate the current collection spec and evaluate its keyAccessor with the target object"
+
+	| frame |
+
+	frame := self stackFrameDetect: [ :each | each method ifNil: [false] ifNotNil: [ :method | method selector = #localAnySatisfy:]].
+	frame isNil ifTrue: [self parseError: 'could not locate dictionary spec'].
+
+	^frame receiver collectionSpec keyAccessor value: (self doesNotUnderstand: (Message selector: #target))!
+
 _doesNotUnderstand: aMessage
 
 	| selector arguments field |
@@ -426,6 +438,7 @@ writeSQLOn: aStream
 	
 	^(condition ifNil: [self finalField]) writeSQLOn: aStream! !
 !SSWDBBlockArgument categoriesFor: #&!parsing - implicit true!public! !
+!SSWDBBlockArgument categoriesFor: #_cacheDictionaryKey_!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #_doesNotUnderstand:!parsing - internal!public! !
 !SSWDBBlockArgument categoriesFor: #|!parsing - implicit true!public! !
 !SSWDBBlockArgument categoriesFor: #->!parsing - functions!public! !

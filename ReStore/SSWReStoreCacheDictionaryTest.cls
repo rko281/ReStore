@@ -28,6 +28,51 @@ templateTestObject
 	^template
 	!
 
+testIncludes
+
+	| instances people alan dave |
+
+	instances := GenericTest storedInstancesIn: reStore.
+	people := GenericOwnedTest storedInstancesIn: reStore.
+	alan := people detect: [ :each | each name = 'Alan'].
+	dave := self testNamed: 'Dave'.
+
+	self assert: (instances anySatisfy: [ :each | each component includes: alan]).
+	self deny: (instances anySatisfy: [ :each | each component includes: dave]).
+
+	testObject addToSingleKeyDictionary: dave.
+	testObject store.
+
+	self assert: (instances anySatisfy: [ :each | each component includes: dave])
+!
+
+testIncludesAssociation
+
+	| instances people alan dave |
+
+	instances := GenericTest storedInstancesIn: reStore.
+	people := GenericOwnedTest storedInstancesIn: reStore.
+	alan := people detect: [ :each | each name = 'Alan'].
+	dave := self testNamed: 'Dave'.
+
+	self assert: (instances anySatisfy: [ :each | each component includesAssociation: ('a' -> alan)]).
+	self deny: (instances anySatisfy: [ :each | each component includesAssociation: ('b' -> alan)]).
+	self deny: (instances anySatisfy: [ :each | each component includesAssociation: ('d' -> dave)]).
+
+	testObject addToSingleKeyDictionary: dave.
+	testObject store.
+
+	self assert: (instances anySatisfy: [ :each | each component includesAssociation: ('d' -> dave)])
+!
+
+testIncludesKey
+
+	| instances |
+
+	instances := GenericTest storedInstancesIn: reStore.
+	self assert: (instances anySatisfy: [ :each | each component includesKey: 'a']).
+	self deny: (instances anySatisfy: [ :each | each component includesKey: 'z'])!
+
 testNamed: aString
 
 	^GenericOwnedTest new 
@@ -222,6 +267,9 @@ testStoreReplacementAtExistingKey
 	self assert: ((GenericOwnedTest storedInstancesIn: reStore) select: [ :each | each name = barry name]) isEmpty! !
 !SSWReStoreCacheDictionaryTest categoriesFor: #componentDefinition!public! !
 !SSWReStoreCacheDictionaryTest categoriesFor: #templateTestObject!accessing!public! !
+!SSWReStoreCacheDictionaryTest categoriesFor: #testIncludes!public!unit tests! !
+!SSWReStoreCacheDictionaryTest categoriesFor: #testIncludesAssociation!public!unit tests! !
+!SSWReStoreCacheDictionaryTest categoriesFor: #testIncludesKey!public!unit tests! !
 !SSWReStoreCacheDictionaryTest categoriesFor: #testNamed:!accessing!private! !
 !SSWReStoreCacheDictionaryTest categoriesFor: #testReadAllFetch!public!unit tests! !
 !SSWReStoreCacheDictionaryTest categoriesFor: #testReadAllInclude!public!unit tests! !

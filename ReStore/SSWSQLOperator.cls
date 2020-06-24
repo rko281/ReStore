@@ -131,10 +131,9 @@ sqlString: aString
 
 sqlStringFor: aTargetValue
 
-	"aTargetValue is necessary as some SQL operators change form 
-	depending on the target value (e.g. IS NULL)"
+	"aTargetValue is necessary as some SQL operators change form depending on the target value (e.g. IS NULL)"
 	
-	^(aTargetValue = nil and: [self isSetValue not])
+	^(aTargetValue isSQLNull and: [self isSetValue not])
 	ifTrue:
 		[self sqlString = '=' 
 		ifTrue: 

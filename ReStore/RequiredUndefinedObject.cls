@@ -25,6 +25,10 @@ isRequiredForSimilarity
 	"This is the purpose of the receiver"
 	^true!
 
+isSQLNull
+
+	^true!
+
 orNilIfEmpty
 
 	^self!
@@ -47,6 +51,7 @@ writeSQLOn: aStream forCondition: aSQLCondition
 !RequiredUndefinedObject categoriesFor: #=!comparing!public! !
 !RequiredUndefinedObject categoriesFor: #hash!comparing!public! !
 !RequiredUndefinedObject categoriesFor: #isRequiredForSimilarity!public!testing! !
+!RequiredUndefinedObject categoriesFor: #isSQLNull!public!testing! !
 !RequiredUndefinedObject categoriesFor: #orNilIfEmpty!accessing!public! !
 !RequiredUndefinedObject categoriesFor: #printOn:!printing!public! !
 !RequiredUndefinedObject categoriesFor: #qualify:in:via:!accessing!public! !

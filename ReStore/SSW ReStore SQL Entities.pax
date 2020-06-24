@@ -49,6 +49,7 @@ package methodNames
 	add: #False -> #asSQLStringIn:;
 	add: #Object -> #ifNull:;
 	add: #Object -> #ifNull:ifNotNull:;
+	add: #Object -> #isSQLNull;
 	add: #Object -> #sqlCanBeParameterized;
 	add: #Object -> #sqlStringIn:;
 	add: #Object -> #writeSQLOn:forCondition:;
@@ -67,6 +68,7 @@ package methodNames
 	add: #String -> #writeSQLOn:forField:;
 	add: #Time -> #asSQLStringIn:;
 	add: #True -> #asSQLStringIn:;
+	add: #UndefinedObject -> #isSQLNull;
 	add: #UndefinedObject -> #writeSQLOn:;
 	add: #UndefinedObject -> #writeSQLOn:forCondition:;
 	add: 'Boolean class' -> #writeSQLTypeOn:using:;
@@ -397,6 +399,10 @@ ifNull: aValue ifNotNull: otherValue
 
 	^self ifNil: [aValue] ifNotNil: [otherValue]!
 
+isSQLNull
+
+	^false!
+
 sqlCanBeParameterized
 
 	"Can the SQL representation of the receiver be parameterized?"
@@ -421,6 +427,7 @@ writeSQLOn: aStream forField: aField
 	^aStream nextPut: self forField: aField! !
 !Object categoriesFor: #ifNull:!control flow!public! !
 !Object categoriesFor: #ifNull:ifNotNull:!control flow!public! !
+!Object categoriesFor: #isSQLNull!public!testing! !
 !Object categoriesFor: #sqlCanBeParameterized!public!testing! !
 !Object categoriesFor: #sqlStringIn:!displaying!public! !
 !Object categoriesFor: #writeSQLOn:forCondition:!printing!public! !
@@ -562,6 +569,10 @@ asSQLStringIn: aSQLDialect
 
 !UndefinedObject methodsFor!
 
+isSQLNull
+
+	^true!
+
 writeSQLOn: aStream
 
 	aStream nextPutAll: 'NULL'!
@@ -570,6 +581,7 @@ writeSQLOn: aStream forCondition: aSQLCondition
 
 	"Do not parameterize - NULL not allowed as parameterized condition value in some DBs"
 	self writeSQLOn: aStream! !
+!UndefinedObject categoriesFor: #isSQLNull!public!testing! !
 !UndefinedObject categoriesFor: #writeSQLOn:!printing!public! !
 !UndefinedObject categoriesFor: #writeSQLOn:forCondition:!printing!public! !
 

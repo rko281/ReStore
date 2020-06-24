@@ -132,6 +132,18 @@ includes: anObject
 
 	^self anySatisfy: [ :each | each _id = anObject]!
 
+includesAssociation: anAssociation
+
+	"For dictionaires - turn into an equivalent anySatisfy:"
+
+	^self anySatisfy: [ :each | ((self collectionSpec keyAccessor value: each) = anAssociation key) & (each _id = anAssociation value)]!
+
+includesKey: anObject
+
+	"For dictionaires - turn into an equivalent anySatisfy:"
+
+	^self anySatisfy: [ :each | (self collectionSpec keyAccessor value: each) = anObject]!
+
 isEmpty
 
 	"Return an appropriate subquery condition"
@@ -233,6 +245,8 @@ validateSizeMode
 !SSWDBCollectionBlockReceiver categoriesFor: #first!parsing-collection messages!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #hasFinalField!public!testing! !
 !SSWDBCollectionBlockReceiver categoriesFor: #includes:!parsing-collection messages!public! !
+!SSWDBCollectionBlockReceiver categoriesFor: #includesAssociation:!parsing-collection messages!public! !
+!SSWDBCollectionBlockReceiver categoriesFor: #includesKey:!parsing-collection messages!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #isEmpty!parsing-collection messages!public! !
 !SSWDBCollectionBlockReceiver categoriesFor: #isKindOf:!public!testing! !
 !SSWDBCollectionBlockReceiver categoriesFor: #last!parsing-collection messages!public! !

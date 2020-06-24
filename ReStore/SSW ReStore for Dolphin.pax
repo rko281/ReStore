@@ -19,6 +19,7 @@ package methodNames
 	add: #SSWDBBlockArgument -> #postProcessIfNilFor:in:at:;
 	add: #SSWDBBlockArgument -> #preProcessNextMessageFor:in:;
 	add: #SSWDBBlockArgument -> #simulateMessageSend:;
+	add: #SSWDBBlockArgument -> #stackFrameDetect:;
 	add: #SSWDBBlockParser -> #handleMustBeBooleanIn:;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
@@ -337,13 +338,25 @@ simulateMessageSend: aMessage
 	method methodClass: self basicClass.
 
 	"Try it!!"
-	^method value: self withArguments: aMessage arguments! !
+	^method value: self withArguments: aMessage arguments!
+
+stackFrameDetect: aBlock
+
+	| frame |
+
+	"Skip this frame and its sender"
+	frame := Processor activeProcess topFrame sender sender. 
+
+	[(aBlock value: frame) or: [(frame := frame sender) isNil]] whileFalse.
+
+	^frame! !
 !SSWDBBlockArgument categoriesFor: #isJumpOnNilBytecode:!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #postProcessDNU:!parsing - internal!public! !
 !SSWDBBlockArgument categoriesFor: #postProcessDNU:from:!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #postProcessIfNilFor:in:at:!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #preProcessNextMessageFor:in:!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #simulateMessageSend:!helpers!public! !
+!SSWDBBlockArgument categoriesFor: #stackFrameDetect:!public! !
 
 !SSWDBBlockParser methodsFor!
 
