@@ -28,7 +28,19 @@ _sqlOr: aCondition
 
 	"Primarily for multi-field collect: and project: - concatenate with anObject, which may be aBlockEvaluator or another Condition"
 
-	^anObject forConcatenation concatenateWith: self!
+	^anObject forConcatenation concatenatedWith: self!
+
+addLast: anObject
+
+	"Received if the receiver is masquerading as a ConctenatedCollection"
+
+	| collection |
+
+	(collection := SSWDBQueryFieldCollection new)
+		parser: self parser;
+		add: collection; "<- will be self after become"
+		add: (SSWSQLParameterField forValue: anObject);
+		become: self!
 
 asSQLConditions
 
@@ -59,7 +71,7 @@ concatenateCondition: aCondition
 		add: argument;
 		yourself!
 
-concatenateWith: anObject
+concatenatedWith: anObject
 
 	"Private - Double-despatch entry point"
 
@@ -118,10 +130,11 @@ withFunction: aString arguments: aCollection
 !SSWDBQueryCondition categoriesFor: #_sqlAnd:!evaluating!private! !
 !SSWDBQueryCondition categoriesFor: #_sqlOr:!evaluating!private! !
 !SSWDBQueryCondition categoriesFor: #||!evaluating!public! !
+!SSWDBQueryCondition categoriesFor: #addLast:!evaluating!public! !
 !SSWDBQueryCondition categoriesFor: #asSQLConditions!converting!public! !
 !SSWDBQueryCondition categoriesFor: #asSQLFields!converting!public! !
 !SSWDBQueryCondition categoriesFor: #concatenateCondition:!evaluating!public! !
-!SSWDBQueryCondition categoriesFor: #concatenateWith:!evaluating!private! !
+!SSWDBQueryCondition categoriesFor: #concatenatedWith:!evaluating!private! !
 !SSWDBQueryCondition categoriesFor: #doesNotUnderstand:!parsing - internal!public! !
 !SSWDBQueryCondition categoriesFor: #forConcatenation!converting!public! !
 !SSWDBQueryCondition categoriesFor: #newCollection!accessing!public! !

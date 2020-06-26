@@ -14,7 +14,7 @@ https://github.com/rko281/ReStore'!
 
 || anObject
 
-	^anObject forConcatenation concatenateWith: self!
+	^anObject forConcatenation concatenatedWith: self!
 
 asSQLFields
 

@@ -35,6 +35,7 @@ package methodNames
 	add: #DeafObject -> #_id;
 	add: #Object -> #||;
 	add: #Object -> #concatenatedWith:;
+	add: #Object -> #forConcatenation;
 	add: #Object -> #imageDo:databaseDo:;
 	add: #Object -> #isRequiredForSimilarity;
 	add: #Object -> #isSimilarTo:;
@@ -45,6 +46,7 @@ package methodNames
 	add: #SSWDBFunctionField -> #forConcatenation;
 	add: #SSWDBGeneralCollectionSpec -> #dbBlockCollectionReceiver;
 	add: #SSWDBOwnedCollectionSpec -> #dbBlockCollectionReceiver;
+	add: #SSWDBQueryField -> #asSQLFields;
 	add: #SSWSQLCondition -> #convertValue:;
 	add: #SSWSQLCondition -> #fieldNamed:;
 	add: #SSWSQLCondition -> #finalField;
@@ -58,6 +60,8 @@ package methodNames
 	add: #SSWSQLConditionCollection -> #hasFinalField;
 	add: #SSWSQLConditionCollection -> #requiresAliasing;
 	add: #SSWSQLConditionCollection -> #writeAliasedSQLOn:;
+	add: #SSWSQLParameterField -> #asSQLFields;
+	add: #SSWSQLParameterField -> #hasAggregateFunction;
 	add: #String -> #asWildcard;
 	add: #UndefinedObject -> #isRequiredForSimilarity;
 	add: #UndefinedObject -> #required;
@@ -225,6 +229,10 @@ concatenatedWith: aConcatenatedCollection
 		addLast: self; 
 		yourself!
 
+forConcatenation
+
+	^self!
+
 imageDo: imageBlock databaseDo: databaseBlock
 
 	"Allow different code to be 'evaluated' depending on whether execution is in-image or 'in' the database (in the latter case code is not actually executed but converted to SQL)"
@@ -267,6 +275,7 @@ similarityComparator
 	^#=! !
 !Object categoriesFor: #||!converting!public! !
 !Object categoriesFor: #concatenatedWith:!double dispatch!private! !
+!Object categoriesFor: #forConcatenation!public!restore-querying! !
 !Object categoriesFor: #imageDo:databaseDo:!public!restore-querying! !
 !Object categoriesFor: #isRequiredForSimilarity!private!testing! !
 !Object categoriesFor: #isSimilarTo:!public!testing! !
@@ -319,6 +328,13 @@ dbBlockCollectionReceiver
 		collectionSpec: self;
 		yourself! !
 !SSWDBOwnedCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+
+!SSWDBQueryField methodsFor!
+
+asSQLFields
+
+	^self! !
+!SSWDBQueryField categoriesFor: #asSQLFields!converting!public! !
 
 !SSWSQLCondition methodsFor!
 
@@ -416,6 +432,18 @@ writeAliasedSQLOn: aStream
 !SSWSQLConditionCollection categoriesFor: #hasFinalField!public!testing! !
 !SSWSQLConditionCollection categoriesFor: #requiresAliasing!public!testing! !
 !SSWSQLConditionCollection categoriesFor: #writeAliasedSQLOn:!output!public! !
+
+!SSWSQLParameterField methodsFor!
+
+asSQLFields
+
+	^self!
+
+hasAggregateFunction
+
+	^false! !
+!SSWSQLParameterField categoriesFor: #asSQLFields!converting!public! !
+!SSWSQLParameterField categoriesFor: #hasAggregateFunction!public!testing! !
 
 !String methodsFor!
 

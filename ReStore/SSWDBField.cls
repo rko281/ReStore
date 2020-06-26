@@ -131,11 +131,11 @@ sqlCanBeParameterized
 
 	^false!
 
-withFunction: aString
+withFunction: aSQLFunction
 
-	"Return an SSWDBFunctionField base on the receiver with the given function String"
+	"Return an SSWDBFunctionField base on the receiver with the given function"
 	
-	^self withFunction: aString arguments: #()!
+	^self withFunction: aSQLFunction arguments: #()!
 
 withFunction: aString arguments: aCollection
 

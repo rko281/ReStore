@@ -12,6 +12,36 @@ https://github.com/rko281/ReStore'!
 !SSWReStoreCollectQueryTest categoriesForClass!Unclassified! !
 !SSWReStoreCollectQueryTest methodsFor!
 
+testCollectQueryWithConstantFirst
+
+	| instances results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	results := instances collect: [ :each | 'hello' || each firstName].
+	self assert: results size equals: 4.
+	self assert: (results asSortedCollection: [ :r1 :r2 | r1 last <= r2 last]) asArray = #(#('hello' 'David') #('hello' 'Jim') #('hello' 'John') #('hello' 'Zoe')).!
+
+testCollectQueryWithConstantLast
+
+	| instances results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	results := instances collect: [ :each | each firstName || 'goodbye'].
+	self assert: results size equals: 4.
+	self assert: (results asSortedCollection: [ :r1 :r2 | r1 first <= r2 first]) asArray = #(#('David' 'goodbye') #('Jim' 'goodbye') #('John' 'goodbye') #('Zoe' 'goodbye')).!
+
+testCollectQueryWithConstantMid
+
+	| instances results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	results := instances collect: [ :each | each firstName || '-' || each surname].
+	self assert: results size equals: 4.
+	self assert: (results asSortedCollection: [ :r1 :r2 | r1 first <= r2 first]) asArray = #(#('David' '-' 'Smythe') #('Jim' '-' 'Brown') #('John' '-' 'Smith') #('Zoe' '-' 'Brown')).!
+
 testComplexMathFunctionCollectQuery
 
 	| instances results |
@@ -424,6 +454,9 @@ testThisObjectFieldOnlyCollectQuery
 
 	self assert: (results size = 4).
 	self assert: (((results asSortedCollection: [ :a :b | a fullName < b fullName]) collect: [ :each | each fullName]) asArray = self sortedPersonFullNames)! !
+!SSWReStoreCollectQueryTest categoriesFor: #testCollectQueryWithConstantFirst!public!unit tests! !
+!SSWReStoreCollectQueryTest categoriesFor: #testCollectQueryWithConstantLast!public!unit tests! !
+!SSWReStoreCollectQueryTest categoriesFor: #testCollectQueryWithConstantMid!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testComplexMathFunctionCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testFunctionCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testIsNilFirstCollectQuery!public!unit tests! !

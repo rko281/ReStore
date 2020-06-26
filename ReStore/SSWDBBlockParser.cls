@@ -50,9 +50,9 @@ applyFunction: aString to: aField withArguments: aCollection
 
 	^self applyFunction: aString toResultOf: [aField] withArguments: aCollection!
 
-applyFunction: aString toResultOf: aBlock withArguments: aCollection
+applyFunction: aSQLFunction toResultOf: aBlock withArguments: aCollection
 
-	"Private - Apply the given SQL function String to the result of aBlock (likely to be a db field).
+	"Private - Apply the given SQL function to the result of aBlock (likely to be a db field).
 	Ordering of extracting the receiver and arguments is important, hence deferred evaluating using aBlock.
 	Return the new function field"
 
@@ -66,7 +66,7 @@ applyFunction: aString toResultOf: aBlock withArguments: aCollection
 			ifFalse: [arguments addFirst: arg]].
 	
 	^arguments size = aCollection size
-		ifTrue: [aBlock value withFunction: aString arguments: arguments asArray]
+		ifTrue: [aBlock value withFunction: aSQLFunction arguments: arguments asArray]
 		ifFalse: [self parseError: 'No Final Field found']!
 
 argumentClass

@@ -20,10 +20,6 @@ accessorPath
 
 	^self field path!
 
-asSQLFields
-
-	^self!
-
 canBeParameterized
 
 	"Defer to the field"
@@ -98,11 +94,11 @@ targetClass
 	
 	^self field targetClass!
 
-withFunction: aString
+withFunction: aSQLFunction
 
-	"Return an SSWDBFunctionField base on the receiver with the given function String"
+	"Return an SSWDBFunctionField base on the receiver with the given function"
 	
-	^self withFunction: aString arguments: #()!
+	^self withFunction: aSQLFunction arguments: #()!
 
 withFunction: aString arguments: aCollection
 
@@ -121,7 +117,6 @@ writeSQLForUpdateOn: aStream
 	^self field writeSQLForUpdateOn: aStream! !
 !SSWDBQueryField categoriesFor: #accessor!evaluating!public! !
 !SSWDBQueryField categoriesFor: #accessorPath!accessing!public! !
-!SSWDBQueryField categoriesFor: #asSQLFields!converting!public! !
 !SSWDBQueryField categoriesFor: #canBeParameterized!public!testing! !
 !SSWDBQueryField categoriesFor: #convertValue:!evaluating!public! !
 !SSWDBQueryField categoriesFor: #field!accessing!public! !

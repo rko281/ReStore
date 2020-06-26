@@ -16,7 +16,7 @@ https://github.com/rko281/ReStore'!
 
 	"Concatenate with another block evaluator or condition (primarily for multi-field collect: and project:)"
 
-	^(self parser unprocessedConditionsCombinedForConcatenation: aBlockEvaluatorOrCondition) concatenateWith: self forConcatenation!
+	^(self parser unprocessedConditionsCombinedForConcatenation: aBlockEvaluatorOrCondition) concatenatedWith: self forConcatenation!
 
 chainPerform: aCollection
 
@@ -25,6 +25,16 @@ chainPerform: aCollection
 
 	^aCollection inject: self into: [ :receiver :symbol | receiver perform: symbol]
 !
+
+concatenatedWith: aCollection
+
+	| queryCollection |
+
+	(aCollection isKindOf: ConcatenatedCollection) 
+		ifTrue: [queryCollection := (SSWDBQueryFieldCollection withAll: (aCollection collect: [ :each | SSWSQLParameterField forValue: each])) parser: self parser; yourself]
+		ifFalse: [queryCollection := aCollection].
+
+	^queryCollection concatenateCondition: self forConcatenation!
 
 currentTable
 
@@ -112,6 +122,7 @@ subclassResponsibility
 	^nil subclassResponsibility! !
 !SSWDBBlockEvaluator categoriesFor: #||!parsing - functions!public! !
 !SSWDBBlockEvaluator categoriesFor: #chainPerform:!message sending!public! !
+!SSWDBBlockEvaluator categoriesFor: #concatenatedWith:!parsing - functions!public! !
 !SSWDBBlockEvaluator categoriesFor: #currentTable!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #finalField!public!testing! !
 !SSWDBBlockEvaluator categoriesFor: #forConcatenation!converting!public! !

@@ -16,14 +16,32 @@ canBeParameterized
 
 	^true!
 
+requiresAliasing
+
+	^true!
+
 value
 	^value!
 
 value: anObject
-	value := anObject! !
+	value := anObject!
+
+writeAliasedSQLOn: aStream
+
+	"For situations where duplicate field names are anticipated
+	- write the SQL of the receiver on aStream, but use aliased names to force uniqueness"
+	
+	aStream nextPutAliasedField: self!
+
+writeSQLOn: aStream
+
+	^self value writeSQLOn: aStream forField: self! !
 !SSWSQLParameterField categoriesFor: #canBeParameterized!public!testing! !
+!SSWSQLParameterField categoriesFor: #requiresAliasing!public!testing! !
 !SSWSQLParameterField categoriesFor: #value!accessing!private! !
 !SSWSQLParameterField categoriesFor: #value:!accessing!private! !
+!SSWSQLParameterField categoriesFor: #writeAliasedSQLOn:!printing!public! !
+!SSWSQLParameterField categoriesFor: #writeSQLOn:!printing!public! !
 
 !SSWSQLParameterField class methodsFor!
 

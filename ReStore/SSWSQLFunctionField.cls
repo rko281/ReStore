@@ -58,7 +58,7 @@ writeSQLOn: aStream
 
 	| funcStream |
 	
-	funcStream := ReadStream on: self function.
+	funcStream := ReadStream on: self function parameterizedString.
 
 	[funcStream atEnd] whileFalse:
 		["Handle doubled-up %%"

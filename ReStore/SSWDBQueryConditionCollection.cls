@@ -29,7 +29,7 @@ _sqlOr: aCondition
 	"Primarily for multi-field collect: and project: - concatenate with anObject, which may be aBlockEvaluator or another Condition(Collection).
 	Polymorphic with SSWDBBlockEvaluator; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
 
-	^anObject forConcatenation concatenateWith: self!
+	^anObject forConcatenation concatenatedWith: self!
 
 asSQLConditions
 
@@ -72,7 +72,7 @@ concatenateCondition: aCondition
 		add: argument;
 		yourself!
 
-concatenateWith: anObject
+concatenatedWith: anObject
 
 	"Private - Double-despatch entry point"
 
@@ -133,7 +133,7 @@ sqlOr: aCondition
 !SSWDBQueryConditionCollection categoriesFor: #blockEndpoint!accessing!private! !
 !SSWDBQueryConditionCollection categoriesFor: #blockEndpoint:!accessing!private! !
 !SSWDBQueryConditionCollection categoriesFor: #concatenateCondition:!evaluating!public! !
-!SSWDBQueryConditionCollection categoriesFor: #concatenateWith:!evaluating!private! !
+!SSWDBQueryConditionCollection categoriesFor: #concatenatedWith:!evaluating!private! !
 !SSWDBQueryConditionCollection categoriesFor: #copyEmpty:!copying!public! !
 !SSWDBQueryConditionCollection categoriesFor: #copyLikeOfSize:!copying!public! !
 !SSWDBQueryConditionCollection categoriesFor: #forConcatenation!converting!public! !
