@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #OwnerTest
-	instanceVariableNames: 'name number single1 single2 single3 ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'
+	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -161,6 +161,12 @@ orderedBools: anObject
 
 	orderedBools := anObject!
 
+owned
+	^owned!
+
+owned: anObject
+	owned := anObject!
+
 ownedArray
 	"Private - Answer the value of the receiver's ''ownedArray'' instance variable."
 
@@ -285,7 +291,11 @@ sortedNumbers
 sortedNumbers: anObject
 	"Private - Set the value of the receiver's ''sortedNumbers'' instance variable to the argument, anObject."
 
-	sortedNumbers := anObject! !
+	sortedNumbers := anObject!
+
+testOnRollback
+
+	self owned name! !
 !OwnerTest categoriesFor: #<=!accessing!private! !
 !OwnerTest categoriesFor: #array!accessing!private! !
 !OwnerTest categoriesFor: #array:!accessing!private! !
@@ -319,6 +329,8 @@ sortedNumbers: anObject
 !OwnerTest categoriesFor: #ordered:!accessing!private! !
 !OwnerTest categoriesFor: #orderedBools!accessing!private! !
 !OwnerTest categoriesFor: #orderedBools:!accessing!private! !
+!OwnerTest categoriesFor: #owned!accessing!private! !
+!OwnerTest categoriesFor: #owned:!accessing!private! !
 !OwnerTest categoriesFor: #ownedArray!accessing!private! !
 !OwnerTest categoriesFor: #ownedArray:!accessing!private! !
 !OwnerTest categoriesFor: #ownedList!accessing!private! !
@@ -345,6 +357,7 @@ sortedNumbers: anObject
 !OwnerTest categoriesFor: #sorted:!accessing!private! !
 !OwnerTest categoriesFor: #sortedNumbers!accessing!private! !
 !OwnerTest categoriesFor: #sortedNumbers:!accessing!private! !
+!OwnerTest categoriesFor: #testOnRollback!public! !
 
 !OwnerTest class methodsFor!
 
@@ -355,7 +368,8 @@ reStoreDefinition
 		define: #number as: Integer;
 		define: #single1 as: Test;
 		define: #single2 as: Test dependent;
-		define: #single3 as: Test dependent;	
+		define: #single3 as: Test dependent;
+		define: #owned as: OwnedTest dependent;		
 		define: #ownedSet as: 
 			(Set of: OwnedTest dependent owner: #owner);
 		define: #ownedArray as:

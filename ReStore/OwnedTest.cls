@@ -20,9 +20,14 @@ owner
 owner: anObject
 	"Private - Set the value of the receiver's ''owner'' instance variable to the argument, anObject."
 
-	owner := anObject! !
+	owner := anObject!
+
+testOnRollback
+
+	self owner name! !
 !OwnedTest categoriesFor: #owner!accessing!private! !
 !OwnedTest categoriesFor: #owner:!accessing!private! !
+!OwnedTest categoriesFor: #testOnRollback!public! !
 
 !OwnedTest class methodsFor!
 

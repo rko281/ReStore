@@ -584,6 +584,33 @@ testOwnedCollectionRefreshQueryCount
 	self assert: queryCount equals: 1.
 	self assert: inst1 ownedOrdered first name equals: 'testB1'!
 
+testRefreshWithOnRollback
+
+	"Test previously-failing case where refreshing an object with an onRollback implementation which references an also-refreshed linked persistent object caused incorrect proxy swapping"
+
+	"Add an appropriate implementation of onRollback to both classes involved in the test since ordering of objects in transaction varies"
+	OwnedTest methodDictionary at: #onRollback put: (OwnedTest>>#testOnRollback).
+	OwnerTest methodDictionary at: #onRollback put: (OwnerTest>>#testOnRollback).
+
+	[| owner owned |
+
+	owner := (OwnerTest storedInstancesIn: reStore) asOrderedCollection first.
+	owner owned: (OwnedTest new name: 'owned'; owner: owner; yourself); store.
+
+	self assert: owner isDBProxy.	
+	owned := owner owned.
+	self assert: owned isDBProxy.
+	owned name.
+
+	owner refresh.
+
+	self assert: owner isDBProxy.	
+	self assert: owned isDBProxy.
+
+	] ensure: 
+		[OwnedTest methodDictionary removeKey: #onRollback.
+		OwnerTest methodDictionary removeKey: #onRollback]!
+
 usesVersioning
 
 	^true! !
@@ -606,5 +633,6 @@ usesVersioning
 !SSWReStoreRefreshTest categoriesFor: #test40QueryingShouldRefresh!public!unit tests! !
 !SSWReStoreRefreshTest categoriesFor: #testGeneralCollectionRefreshQueryCount!public!unit tests! !
 !SSWReStoreRefreshTest categoriesFor: #testOwnedCollectionRefreshQueryCount!public!unit tests! !
+!SSWReStoreRefreshTest categoriesFor: #testRefreshWithOnRollback!public!unit tests! !
 !SSWReStoreRefreshTest categoriesFor: #usesVersioning!public!running! !
 

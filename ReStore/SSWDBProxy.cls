@@ -402,6 +402,13 @@ isDBProxy
 
 	^true!
 
+onRollback
+
+	"Sent immediately after rollback. Normally sent direct to the rolled-back object, not via the proxy. 
+	If a proxy receives this message it has been flipped by a previous onRollback, so forward without notification"
+
+	^proxiedObject onRollback!
+
 printOn: aStream
 
 	"For efficiency, recognise this as a non-modifying method.
@@ -532,6 +539,7 @@ yourself
 !SSWDBProxy categoriesFor: #includedIn:!public!testing! !
 !SSWDBProxy categoriesFor: #instVarAt:!forwarding!public! !
 !SSWDBProxy categoriesFor: #isDBProxy!public!testing! !
+!SSWDBProxy categoriesFor: #onRollback!actions-internal!public! !
 !SSWDBProxy categoriesFor: #printOn:!forwarding!public! !
 !SSWDBProxy categoriesFor: #printString!forwarding!public! !
 !SSWDBProxy categoriesFor: #refresh!actions-api!public! !
