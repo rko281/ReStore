@@ -56,7 +56,8 @@ fieldNamed: aString
 
 hasAggregateFunction
 
-	^false!
+	"Defer to the field"
+	^self field hasAggregateFunction!
 
 isFieldCollection
 

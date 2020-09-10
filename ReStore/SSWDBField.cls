@@ -55,6 +55,10 @@ fieldNamed: aString
 		ifTrue: [self]
 		ifFalse: [nil]!
 
+hasAggregateFunction
+
+	^false!
+
 hash
 
 	^self table hash bitXor: self name hash!
@@ -183,6 +187,7 @@ writeSQLOn: aStream
 !SSWDBField categoriesFor: #beUnrelated!defining!public! !
 !SSWDBField categoriesFor: #canBeParameterized!public!testing! !
 !SSWDBField categoriesFor: #fieldNamed:!accessing!public! !
+!SSWDBField categoriesFor: #hasAggregateFunction!public!testing! !
 !SSWDBField categoriesFor: #hash!comparing!public! !
 !SSWDBField categoriesFor: #initialize!initialize/release!public! !
 !SSWDBField categoriesFor: #isAll!public!testing! !

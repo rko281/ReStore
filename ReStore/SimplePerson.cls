@@ -152,6 +152,10 @@ isJohnAndTestIsNil
 
 	^self firstName = 'John' and: [self test isNil]!
 
+orderCount
+
+	^self orders size!
+
 orders
 	^orders!
 
@@ -289,6 +293,7 @@ time: anObject
 !SimplePerson categoriesFor: #isDeceased!accessing!private! !
 !SimplePerson categoriesFor: #isDeceased:!accessing!private! !
 !SimplePerson categoriesFor: #isJohnAndTestIsNil!public!testing! !
+!SimplePerson categoriesFor: #orderCount!accessing!public! !
 !SimplePerson categoriesFor: #orders!accessing!public! !
 !SimplePerson categoriesFor: #orders:!accessing!public! !
 !SimplePerson categoriesFor: #standardCompare:!comparing!private! !
