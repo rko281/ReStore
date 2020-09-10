@@ -215,7 +215,7 @@ unprocessedConditionsCombinedWith: aCondition depth: anInteger
 	"This line is obviously very sensitive to the overall implementation of the parser"
 	frame := Processor activeProcess topFrame sender. 
 	anInteger timesRepeat: [frame := frame sender].
-	frame ip < self currentConditions blockEndpoint ifTrue: [^aCondition].
+	(self currentConditions blockEndpoint ifNil: [false] ifNotNil: [ :blockEndpoint | frame ip < blockEndpoint]) ifTrue: [^aCondition].
 
 	"Accumulated conditions arise from detection of inlined logical operators (and:, or:) during the parse. Add the parseResult (final condition) to these"
 	self accumulatedConditions == self currentConditions 

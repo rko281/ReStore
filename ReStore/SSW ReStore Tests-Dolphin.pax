@@ -11,6 +11,7 @@ package classNames
 	yourself.
 
 package methodNames
+	add: #SimplePerson -> #friendSurnameOrNil;
 	add: #SSWODBCStatement -> #testExec;
 	add: #SSWReStoreBlockAndOrQueryTest -> #note;
 	add: #SSWReStoreFullTableTest -> #test21VerifyLegacyNameTransformationMode;
@@ -34,6 +35,7 @@ package methodNames
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3a;
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3b;
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern4;
+	add: #SSWReStoreQueryTest -> #testQueryWithIfTrueMethodFollowedByOr;
 	add: #SSWReStoreTableTest -> #test21VerifyLegacyNameTransformationMode;
 	add: #SSWReStoreTest -> #countQueries;
 	add: #SSWReStoreTest -> #debugStream;
@@ -77,6 +79,15 @@ Object subclass: #Where
 
 
 "Loose Methods"!
+
+!SimplePerson methodsFor!
+
+friendSurnameOrNil
+
+	^self hasFriend
+		ifTrue: [self friend surname]
+		ifFalse: [nil]! !
+!SimplePerson categoriesFor: #friendSurnameOrNil!public! !
 
 !SSWODBCStatement methodsFor!
 
@@ -531,6 +542,22 @@ testNotNilJumpBytecodePattern4
 !SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern3a!public!unit tests! !
 !SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern3b!public!unit tests! !
 !SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern4!public!unit tests! !
+
+!SSWReStoreQueryTest methodsFor!
+
+testQueryWithIfTrueMethodFollowedByOr
+
+	"Test for a previously-failing combination with the Dolphin block parser"
+
+	| instances smiths |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	smiths := instances satisfying: [ :each | (each friendSurnameOrNil = 'Smith') | (each surname = 'Smith')].
+
+	self assert: smiths size = 2.
+	self assert: ((smiths collect: [ :each | each firstName]) asSortedCollection asArray) equals: #('John' 'Zoe')! !
+!SSWReStoreQueryTest categoriesFor: #testQueryWithIfTrueMethodFollowedByOr!public!unit tests! !
 
 !SSWReStoreTableTest methodsFor!
 
