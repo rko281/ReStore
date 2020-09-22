@@ -24,6 +24,9 @@ package methodNames
 	add: #SSWDBBlockArgument -> #preProcessNextMessageFor:in:;
 	add: #SSWDBBlockArgument -> #simulateMessageSend:;
 	add: #SSWDBBlockArgument -> #stackFrameDetect:;
+	add: #SSWDBBlockEvaluator -> #perform:;
+	add: #SSWDBBlockEvaluator -> #perform:with:;
+	add: #SSWDBBlockEvaluator -> #perform:withArguments:;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #_proxyInstVarAt:;
@@ -366,6 +369,57 @@ stackFrameDetect: aBlock
 !SSWDBBlockArgument categoriesFor: #preProcessNextMessageFor:in:!parsing - internal!private! !
 !SSWDBBlockArgument categoriesFor: #simulateMessageSend:!helpers!public! !
 !SSWDBBlockArgument categoriesFor: #stackFrameDetect:!public! !
+
+!SSWDBBlockEvaluator methodsFor!
+
+perform: selector
+	"Send the receiver the unary message indicated by the <selector> argument, answering the result. 
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not zero."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {}!
+
+perform: selector with: argument1
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument selector is the <selector> of the message. The second <Object> argument,  argument1, is the argument of the message to be sent. 
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not one."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {argument1}!
+
+perform: selector withArguments: arguments
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument, selector, is the <selector> of the message. The arguments of the message 
+	are the elements of the <Array>, arguments. 
+
+	Primitive failure reasons:
+		InvalidParameter1	- selector is not a Symbol
+		InvalidParameter2	- arguments is not an Array
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not the size of the arguments."
+
+	<primitive: 84>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: arguments! !
+!SSWDBBlockEvaluator categoriesFor: #perform:!message sending!public! !
+!SSWDBBlockEvaluator categoriesFor: #perform:with:!message sending!public! !
+!SSWDBBlockEvaluator categoriesFor: #perform:withArguments:!message sending!public! !
 
 !SSWDBBlockParser class methodsFor!
 

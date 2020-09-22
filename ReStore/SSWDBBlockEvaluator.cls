@@ -88,27 +88,6 @@ path
 
 	^#()!
 
-perform: selector
-	"Send the receiver the unary message indicated by the <selector> argument,
-	answering the result. 
-
-	Primitive failure reasons:
-		0 -	The number of arguments expected with the selector is not zero."
-
-	<primitive: 83>
-	^Error perform: selector failedFor: self withArgs: Array new!
-
-perform: selector with: argument1
-	"Send the receiver the keyword message indicated by the arguments, answering the result. 
-	The first argument selector is the <selector> of the message. The second <Object> argument, 
-	argument1, is the argument of the message to be sent. 
-
-	Primitive failure reasons:
-		0 -	The number of arguments expected with the selector is not one."
-
-	<primitive: 83>
-	^Error perform: selector failedFor: self withArgs: (Array with: argument1)!
-
 reStore
 
 	"reStore stores the SSWReStore for which the receiver parses blocks"
@@ -133,8 +112,6 @@ subclassResponsibility
 !SSWDBBlockEvaluator categoriesFor: #parser!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #parser:!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #path!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #perform:!message sending!public! !
-!SSWDBBlockEvaluator categoriesFor: #perform:with:!message sending!public! !
 !SSWDBBlockEvaluator categoriesFor: #reStore!accessing!public! !
 !SSWDBBlockEvaluator categoriesFor: #subclassResponsibility!helpers!private! !
 
