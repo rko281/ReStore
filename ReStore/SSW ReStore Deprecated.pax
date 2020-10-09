@@ -31,7 +31,6 @@ package methodNames
 	add: #SSWDBInstancesCollection -> #withComponents:;
 	add: #SSWDBInstancesCollection -> #withDependentComponents;
 	add: #SSWDBInstancesCollection -> #withRelatedComponents;
-	add: #SSWMySQLDialect -> #timestamp;
 	add: #SSWReStore -> #commitObject:;
 	add: #SSWReStore -> #commitObjects:;
 	add: #SSWReStore -> #hasObjectChanged:;
@@ -49,19 +48,12 @@ package methodNames
 	add: #SSWSQLCondition -> #qOr:;
 	add: #SSWSQLConditionCollection -> #qAnd:;
 	add: #SSWSQLConditionCollection -> #qOr:;
-	add: #SSWSQLDialect -> #timestamp;
-	add: #SSWSQLDialect -> #writeSQLForTimeStamp:on:;
-	add: #SSWSQLServerDialect -> #timestamp;
-	add: #SSWSQLWriteStream -> #nextPutTimeStamp:;
 	add: #Time -> #withoutMilliseconds;
 	add: #TimeStamp -> #withoutMilliseconds;
-	add: #TimeStamp -> #writeSQLOn:;
 	add: #True -> #qAnd:;
 	add: #True -> #qOr:;
 	add: 'Dictionary class' -> #of:keyClass:;
 	add: 'Dictionary class' -> #of:keyedOn:;
-	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
-	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -72,7 +64,6 @@ package globalAliases: (Set new
 
 package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\Core\Object Arts\Dolphin\Base\Deprecated\Dolphin Base (Deprecated)'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Message Box'
 	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
@@ -302,13 +293,6 @@ withRelatedComponents
 !SSWDBInstancesCollection categoriesFor: #withDependentComponents!initializing!public! !
 !SSWDBInstancesCollection categoriesFor: #withRelatedComponents!initializing!public! !
 
-!SSWMySQLDialect methodsFor!
-
-timestamp
-
-	^'DATETIME'! !
-!SSWMySQLDialect categoriesFor: #timestamp!datatypes!public! !
-
 !SSWReStore methodsFor!
 
 commitObject: anObject
@@ -410,43 +394,6 @@ qOr: aQueryBlockSection
 !SSWSQLConditionCollection categoriesFor: #qAnd:!evaluating!public! !
 !SSWSQLConditionCollection categoriesFor: #qOr:!evaluating!public! !
 
-!SSWSQLDialect methodsFor!
-
-timestamp
-
-	^self datetime!
-
-writeSQLForTimeStamp: aTimeStamp on: aStream
-
-	"For multi-datasource compatability, use standard ODBC date escape sequence {ts 'yyyy-MM-dd hh:mm:ss'}.
-	Subclasses may override to do their own thing"
-
-	aStream 
-		nextPutAll: '{ts';
-		nextPut: $'.
-	aTimeStamp date printOn: aStream format: 'yyyy-MM-dd'.
-	aStream space.
-	aTimeStamp time printOn: aStream format: 'HH:mm:ss'.
-	aStream
-		nextPut: $';
-		nextPut: $}! !
-!SSWSQLDialect categoriesFor: #timestamp!datatypes!public! !
-!SSWSQLDialect categoriesFor: #writeSQLForTimeStamp:on:!public!writing sql! !
-
-!SSWSQLServerDialect methodsFor!
-
-timestamp
-
-	^'DATETIME'! !
-!SSWSQLServerDialect categoriesFor: #timestamp!datatypes!public! !
-
-!SSWSQLWriteStream methodsFor!
-
-nextPutTimeStamp: aTimeStamp
-
-	self dialect writeSQLForTimeStamp: aTimeStamp on: self! !
-!SSWSQLWriteStream categoriesFor: #nextPutTimeStamp:!printing!public! !
-
 !Time methodsFor!
 
 withoutMilliseconds
@@ -462,29 +409,8 @@ withoutMilliseconds
 
 	"ODBC Timestamps may or may not include milliseconds (or may have a ms resolution > 1), hence it is useful/necessary to drop milliseconds for comparison purposes"
 
-	^TimeStamp fromSeconds: self asSeconds!
-
-writeSQLOn: aStream
-
-	"Defer to the Stream to account for dialect differences"
-	aStream nextPutTimeStamp: self! !
+	^TimeStamp fromSeconds: self asSeconds! !
 !TimeStamp categoriesFor: #withoutMilliseconds!accessing!public! !
-!TimeStamp categoriesFor: #writeSQLOn:!converting!printing!public! !
-
-!TimeStamp class methodsFor!
-
-instanceFromDBValue: aValue in: anSSWReStore
-
-	"aValue may be a TimeStamp, a Date or a Time depending on database supported types"
-	^aValue ifNotNil: [aValue asTimeStamp]!
-
-writeSQLTypeOn: aStream using: anSQLDialect
-
-	"9/3/01"
-	
-	aStream nextPutAll: anSQLDialect timestamp! !
-!TimeStamp class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
-!TimeStamp class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
 
 !True methodsFor!
 

@@ -7,6 +7,7 @@ https://github.com/rko281/ReStore'.
 
 
 package classNames
+	add: #DolphinTypeTest;
 	add: #Where;
 	yourself.
 
@@ -44,6 +45,7 @@ package methodNames
 	add: #SSWReStoreTest -> #queryCount;
 	add: #SSWReStoreTest -> #resetQueryCount;
 	add: #SSWReStoreTest -> #stopQueryCounting;
+	add: #SSWReStoreTypeTest -> #testTimeStamp;
 	add: 'SSWReStoreTest class' -> #incrementQueryCount;
 	add: 'SSWReStoreTest class' -> #isDolphin;
 	add: 'SSWReStoreTest class' -> #listModelClass;
@@ -60,6 +62,7 @@ package globalAliases: (Set new
 
 package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
 	'SSW ReStore Main'
 	'SSW ReStore ODBC'
@@ -71,6 +74,11 @@ package!
 
 Object subclass: #Where
 	instanceVariableNames: 'select'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TypeTest subclass: #DolphinTypeTest
+	instanceVariableNames: 'timeStamp'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -677,6 +685,23 @@ resetQueryCount
 !SSWReStoreTest class categoriesFor: #listModelOn:!public! !
 !SSWReStoreTest class categoriesFor: #queryCount!public! !
 !SSWReStoreTest class categoriesFor: #resetQueryCount!public! !
+
+!SSWReStoreTypeTest methodsFor!
+
+testTimeStamp
+
+	reStore addClass: DolphinTypeTest; synchronizeClass: DolphinTypeTest.
+
+	[| now t |
+	now := TimeStamp current.
+	DolphinTypeTest new timeStamp: now; storeIn: reStore.
+
+	reStore simulateReconnect.
+
+	t := (DolphinTypeTest storedInstancesIn: reStore) detect: [ :each | each timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil].
+	self assert: t notNil.
+	self assert: t timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ensure: [reStore destroyClass: DolphinTypeTest]! !
+!SSWReStoreTypeTest categoriesFor: #testTimeStamp!public!unit tests! !
 
 "End of package definition"!
 

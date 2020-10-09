@@ -33,6 +33,7 @@ package methodNames
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
+	add: #SSWMySQLDialect -> #timestamp;
 	add: #SSWPostgreSQLDialect -> #legacyNameTransformationFor:with:;
 	add: #SSWReStore -> #binaryStoreOn:;
 	add: #SSWReStore -> #connectString:;
@@ -45,11 +46,19 @@ package methodNames
 	add: #SSWSQLDialect -> #dialectReservedWords;
 	add: #SSWSQLDialect -> #isReservedWord:;
 	add: #SSWSQLDialect -> #legacyNameTransformationFor:with:;
+	add: #SSWSQLDialect -> #timestamp;
 	add: #SSWSQLDialect -> #useLegacyNameTransformations;
+	add: #SSWSQLDialect -> #writeSQLForTimeStamp:on:;
+	add: #SSWSQLServerDialect -> #timestamp;
+	add: #SSWSQLWriteStream -> #nextPutTimeStamp:;
 	add: #StackFrame -> #_method:;
 	add: #StackFrame -> #sswByteCodeDispatcher;
 	add: #Time -> #withResolution:;
+	add: #TimeStamp -> #withResolution:;
+	add: #TimeStamp -> #writeSQLOn:;
 	add: 'SSWDBBlockParser class' -> #platformClass;
+	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
+	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
 	yourself.
 
 package globalNames
@@ -478,6 +487,13 @@ dialectReservedWords
 	^#('ALPHANUMERIC' 'AUTOINCREMENT' 'BINARY' 'BYTE' 'COUNTER' 'CURRENCY' 'DATABASE' 'DATABASENAME' 'DATETIME' 'DISALLOW' 'DISTINCTROW' 'DOUBLEFLOAT' 'FLOAT4' 'FLOAT8' 'GENERAL' 'IEEEDOUBLE' 'IEEESINGLE' 'IGNORE' 'INT' 'INTEGER1' 'INTEGER2' 'INTEGER4' 'LEVEL' 'LOGICAL' 'LOGICAL1' 'LONG' 'LONGBINARY' 'LONGCHAR' 'LONGTEXT' 'MEMO' 'MONEY' 'NOTE' 'NUMBER' 'OLEOBJECT' 'OPTION' 'OWNERACCESS' 'PARAMETERS' 'PERCENT' 'PIVOT' 'SHORT' 'SINGLE' 'SINGLEFLOAT' 'SMALLINT' 'STDEV' 'STDEVP' 'STRING' 'TABLEID' 'TEXT' 'TOP' 'TRANSFORM' 'UNSIGNEDBYTE' 'VALUES' 'VAR' 'VARBINARY' 'VARP' 'YESNO')! !
 !SSWMSAccessDialect categoriesFor: #dialectReservedWords!constants!public! !
 
+!SSWMySQLDialect methodsFor!
+
+timestamp
+
+	^'DATETIME'! !
+!SSWMySQLDialect categoriesFor: #timestamp!datatypes!public! !
+
 !SSWPostgreSQLDialect methodsFor!
 
 legacyNameTransformationFor: aSymbol with: aString
@@ -589,6 +605,10 @@ legacyNameTransformationFor: aSymbol with: aString
 		ifTrue: [transformedName, aString]
 		ifFalse: [transformedName]!
 
+timestamp
+
+	^self datetime!
+
 useLegacyNameTransformations
 
 	"Private - Previously ReStore translated inst var and class names to database names as follows:
@@ -601,11 +621,42 @@ useLegacyNameTransformations
 
 	self 
 		instVarNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_FIELD'];
-		classNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_TABLE']! !
+		classNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_TABLE']!
+
+writeSQLForTimeStamp: aTimeStamp on: aStream
+
+	"For multi-datasource compatability, use standard ODBC date escape sequence {ts 'yyyy-MM-dd hh:mm:ss'}.
+	Subclasses may override to do their own thing"
+
+	aStream 
+		nextPutAll: '{ts';
+		nextPut: $'.
+	aTimeStamp date printOn: aStream format: 'yyyy-MM-dd'.
+	aStream space.
+	aTimeStamp time printOn: aStream format: 'HH:mm:ss'.
+	aStream
+		nextPut: $';
+		nextPut: $}! !
 !SSWSQLDialect categoriesFor: #dialectReservedWords!constants!public! !
 !SSWSQLDialect categoriesFor: #isReservedWord:!public!testing! !
 !SSWSQLDialect categoriesFor: #legacyNameTransformationFor:with:!helpers!private! !
+!SSWSQLDialect categoriesFor: #timestamp!datatypes!public! !
 !SSWSQLDialect categoriesFor: #useLegacyNameTransformations!initializing!private! !
+!SSWSQLDialect categoriesFor: #writeSQLForTimeStamp:on:!public!writing sql! !
+
+!SSWSQLServerDialect methodsFor!
+
+timestamp
+
+	^'DATETIME'! !
+!SSWSQLServerDialect categoriesFor: #timestamp!datatypes!public! !
+
+!SSWSQLWriteStream methodsFor!
+
+nextPutTimeStamp: aTimeStamp
+
+	self dialect writeSQLForTimeStamp: aTimeStamp on: self! !
+!SSWSQLWriteStream categoriesFor: #nextPutTimeStamp:!printing!public! !
 
 !StackFrame methodsFor!
 
@@ -636,6 +687,34 @@ withResolution: anInteger
 
 	^Time fromSeconds: ((seconds * multiplier) rounded / multiplier)! !
 !Time categoriesFor: #withResolution:!public! !
+
+!TimeStamp methodsFor!
+
+withResolution: anInteger
+
+	^TimeStamp date: self date time: (self time withResolution: anInteger)!
+
+writeSQLOn: aStream
+
+	"Defer to the Stream to account for dialect differences"
+	aStream nextPutTimeStamp: self! !
+!TimeStamp categoriesFor: #withResolution:!accessing!public! !
+!TimeStamp categoriesFor: #writeSQLOn:!converting!printing!public! !
+
+!TimeStamp class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"aValue may be a TimeStamp, a Date or a Time depending on database supported types"
+	^aValue ifNotNil: [aValue asTimeStamp]!
+
+writeSQLTypeOn: aStream using: anSQLDialect
+
+	"9/3/01"
+	
+	aStream nextPutAll: anSQLDialect timestamp! !
+!TimeStamp class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!TimeStamp class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
 
 "End of package definition"!
 
