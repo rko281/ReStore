@@ -33,8 +33,11 @@ package methodNames
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
+	add: #SSWMSAccessDialect -> #platformSpecificFunctions;
+	add: #SSWMySQLDialect -> #platformSpecificFunctions;
 	add: #SSWMySQLDialect -> #timestamp;
 	add: #SSWPostgreSQLDialect -> #legacyNameTransformationFor:with:;
+	add: #SSWPostgreSQLDialect -> #platformSpecificFunctions;
 	add: #SSWReStore -> #binaryStoreOn:;
 	add: #SSWReStore -> #connectString:;
 	add: #SSWReStore -> #createConnection;
@@ -49,6 +52,8 @@ package methodNames
 	add: #SSWSQLDialect -> #timestamp;
 	add: #SSWSQLDialect -> #useLegacyNameTransformations;
 	add: #SSWSQLDialect -> #writeSQLForTimeStamp:on:;
+	add: #SSWSQLiteDialect -> #platformSpecificFunctions;
+	add: #SSWSQLServerDialect -> #platformSpecificFunctions;
 	add: #SSWSQLServerDialect -> #timestamp;
 	add: #SSWSQLWriteStream -> #nextPutTimeStamp:;
 	add: #StackFrame -> #_method:;
@@ -444,7 +449,7 @@ _allReferences
 	"For references to the receiver, not the proxiedObject"
 
 	<primitive: 153>
-	^nil primitiveFailed!
+	^nil primitiveFailed: _failureCode!
 
 _proxyClass
 
@@ -484,14 +489,28 @@ dialectReservedWords
 	"Access 2013 (and others?) appears to (sometimes?) truncate the result of SQL_KEYWORDS to 255 characters, omitting some important reserved words (e.g. NUMBER).
 	Attempt to handle this by returning a hardcoded set here"
 
-	^#('ALPHANUMERIC' 'AUTOINCREMENT' 'BINARY' 'BYTE' 'COUNTER' 'CURRENCY' 'DATABASE' 'DATABASENAME' 'DATETIME' 'DISALLOW' 'DISTINCTROW' 'DOUBLEFLOAT' 'FLOAT4' 'FLOAT8' 'GENERAL' 'IEEEDOUBLE' 'IEEESINGLE' 'IGNORE' 'INT' 'INTEGER1' 'INTEGER2' 'INTEGER4' 'LEVEL' 'LOGICAL' 'LOGICAL1' 'LONG' 'LONGBINARY' 'LONGCHAR' 'LONGTEXT' 'MEMO' 'MONEY' 'NOTE' 'NUMBER' 'OLEOBJECT' 'OPTION' 'OWNERACCESS' 'PARAMETERS' 'PERCENT' 'PIVOT' 'SHORT' 'SINGLE' 'SINGLEFLOAT' 'SMALLINT' 'STDEV' 'STDEVP' 'STRING' 'TABLEID' 'TEXT' 'TOP' 'TRANSFORM' 'UNSIGNEDBYTE' 'VALUES' 'VAR' 'VARBINARY' 'VARP' 'YESNO')! !
+	^#('ALPHANUMERIC' 'AUTOINCREMENT' 'BINARY' 'BYTE' 'COUNTER' 'CURRENCY' 'DATABASE' 'DATABASENAME' 'DATETIME' 'DISALLOW' 'DISTINCTROW' 'DOUBLEFLOAT' 'FLOAT4' 'FLOAT8' 'GENERAL' 'IEEEDOUBLE' 'IEEESINGLE' 'IGNORE' 'INT' 'INTEGER1' 'INTEGER2' 'INTEGER4' 'LEVEL' 'LOGICAL' 'LOGICAL1' 'LONG' 'LONGBINARY' 'LONGCHAR' 'LONGTEXT' 'MEMO' 'MONEY' 'NOTE' 'NUMBER' 'OLEOBJECT' 'OPTION' 'OWNERACCESS' 'PARAMETERS' 'PERCENT' 'PIVOT' 'SHORT' 'SINGLE' 'SINGLEFLOAT' 'SMALLINT' 'STDEV' 'STDEVP' 'STRING' 'TABLEID' 'TEXT' 'TOP' 'TRANSFORM' 'UNSIGNEDBYTE' 'VALUES' 'VAR' 'VARBINARY' 'VARP' 'YESNO')!
+
+platformSpecificFunctions
+
+	^Dictionary new
+		at: #month put: 'DATEPART(''m'',%1)' asSQLFunctionIntegerResult;
+		yourself! !
 !SSWMSAccessDialect categoriesFor: #dialectReservedWords!constants!public! !
+!SSWMSAccessDialect categoriesFor: #platformSpecificFunctions!constants!public! !
 
 !SSWMySQLDialect methodsFor!
+
+platformSpecificFunctions
+
+	^Dictionary new
+		at: #month put: 'MONTH(%1)' asSQLFunctionIntegerResult;
+		yourself!
 
 timestamp
 
 	^'DATETIME'! !
+!SSWMySQLDialect categoriesFor: #platformSpecificFunctions!constants!public! !
 !SSWMySQLDialect categoriesFor: #timestamp!datatypes!public! !
 
 !SSWPostgreSQLDialect methodsFor!
@@ -500,8 +519,15 @@ legacyNameTransformationFor: aSymbol with: aString
 
 	"ReStore has always used lowercase with Postgres"
 
-	^(super legacyNameTransformationFor: aSymbol with: aString) asLowercase! !
+	^(super legacyNameTransformationFor: aSymbol with: aString) asLowercase!
+
+platformSpecificFunctions
+
+	^Dictionary new
+		at: #month put: 'EXTRACT(MONTH FROM %1)' asSQLFunctionIntegerResult;
+		yourself! !
 !SSWPostgreSQLDialect categoriesFor: #legacyNameTransformationFor:with:!helpers!private! !
+!SSWPostgreSQLDialect categoriesFor: #platformSpecificFunctions!constants!public! !
 
 !SSWReStore methodsFor!
 
@@ -644,11 +670,27 @@ writeSQLForTimeStamp: aTimeStamp on: aStream
 !SSWSQLDialect categoriesFor: #useLegacyNameTransformations!initializing!private! !
 !SSWSQLDialect categoriesFor: #writeSQLForTimeStamp:on:!public!writing sql! !
 
+!SSWSQLiteDialect methodsFor!
+
+platformSpecificFunctions
+
+	^Dictionary new
+		at: #month put: 'CAST(STRFTIME(''%%m'',%1) AS INTEGER)' asSQLFunctionIntegerResult;
+		yourself! !
+!SSWSQLiteDialect categoriesFor: #platformSpecificFunctions!constants!public! !
+
 !SSWSQLServerDialect methodsFor!
+
+platformSpecificFunctions
+
+	^Dictionary new
+		at: #month put: 'MONTH(%1)' asSQLFunctionIntegerResult;
+		yourself!
 
 timestamp
 
 	^'DATETIME'! !
+!SSWSQLServerDialect categoriesFor: #platformSpecificFunctions!constants!public! !
 !SSWSQLServerDialect categoriesFor: #timestamp!datatypes!public! !
 
 !SSWSQLWriteStream methodsFor!

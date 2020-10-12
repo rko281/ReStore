@@ -218,7 +218,7 @@ writeDebugInfoOn: aStream
 	nextChunk := self parent upToParameterPlaceholderOn: readStream.
 	nextChunk isEmpty ifFalse: 
 		[sqlStream nextPutAll: nextChunk.
-		valuesStream atEnd ifFalse: [valuesStream nextOrNil printOn: sqlStream]].
+		valuesStream atEnd ifFalse: [valuesStream nextAvailable printOn: sqlStream]].
 	readStream atEnd] whileFalse.
 
 	aStream nextPutAll: sqlStream contents; nextPut: $;; cr! !

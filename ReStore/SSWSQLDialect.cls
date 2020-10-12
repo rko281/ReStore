@@ -260,6 +260,7 @@ defaultSQLFunctions
 
 	self commonFunctions keysAndValuesDo: [ :message :sql | allDefaults at: message put: sql].
 	self dialectSpecificFunctions keysAndValuesDo: [ :message :sql | allDefaults at: message put: sql].
+	self platformSpecificFunctions keysAndValuesDo: [ :message :sql | allDefaults at: message put: sql].
 
 	^allDefaults!
 
@@ -438,6 +439,13 @@ maxTimeResolution
 maxVarchar
 
 	^self maxCharacter!
+
+platformSpecificFunctions
+
+	"Return a mapping from Smalltalk method names which are specific to this platform (Dolphin, Pharo...) to an equivalent SQL function in this dialect.
+	Subclass implementations should be in the appropriate platform-specific package"
+
+	^Dictionary new!
 
 postLoginScript
 
@@ -739,6 +747,7 @@ varchar
 !SSWSQLDialect categoriesFor: #maxTableNameLength:!accessing!public! !
 !SSWSQLDialect categoriesFor: #maxTimeResolution!public! !
 !SSWSQLDialect categoriesFor: #maxVarchar!constants!public! !
+!SSWSQLDialect categoriesFor: #platformSpecificFunctions!constants!public! !
 !SSWSQLDialect categoriesFor: #postLoginScript!constants!public! !
 !SSWSQLDialect categoriesFor: #printParameterPlaceholder:on:!helpers!public! !
 !SSWSQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !

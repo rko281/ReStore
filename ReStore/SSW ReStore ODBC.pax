@@ -183,7 +183,7 @@ sqlDescribeParam: anExternalHandle parameterNumber: columnInteger dataTypePtr: t
 	      SQLSMALLINT *   NullablePtr);  "
 
 	<stdcall: sword SQLDescribeParam handle sword SWORD* DWORD* SWORD* SWORD*>
-	^self invalidCall! !
+	^self invalidCall: _failureCode! !
 !ODBCLibrary categoriesFor: #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:!public!win32 functions-odbc library! !
 
 !SSWDBField methodsFor!
