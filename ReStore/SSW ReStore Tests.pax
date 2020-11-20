@@ -644,7 +644,7 @@ SSWReStoreQueryTest subclass: #SSWReStoreFunctionTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreQueryTest subclass: #SSWReStoreIsNilQueryTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'instances'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -654,7 +654,7 @@ SSWReStoreQueryTest subclass: #SSWReStoreJoinQueryTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreQueryTest subclass: #SSWReStoreNotNilQueryTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'instances'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

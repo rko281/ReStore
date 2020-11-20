@@ -13,10 +13,30 @@ package classNames
 
 package methodNames
 	add: #SimplePerson -> #friendSurnameOrNil;
+	add: #SimplePerson -> #testIsNilJumpBytecodePattern1;
+	add: #SimplePerson -> #testIsNilJumpBytecodePattern2;
+	add: #SimplePerson -> #testIsNilJumpBytecodePattern3a;
+	add: #SimplePerson -> #testIsNilJumpBytecodePattern3b;
+	add: #SimplePerson -> #testIsNilJumpBytecodePattern4;
+	add: #SimplePerson -> #testNotNilJumpBytecodePattern1;
+	add: #SimplePerson -> #testNotNilJumpBytecodePattern2;
+	add: #SimplePerson -> #testNotNilJumpBytecodePattern3a;
+	add: #SimplePerson -> #testNotNilJumpBytecodePattern3b;
+	add: #SimplePerson -> #testNotNilJumpBytecodePattern4;
 	add: #SSWODBCStatement -> #testExec;
 	add: #SSWReStoreBlockAndOrQueryTest -> #note;
 	add: #SSWReStoreFullTableTest -> #test21VerifyLegacyNameTransformationMode;
 	add: #SSWReStoreFunctionTest -> #testPlatformSpecificFunction;
+	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern1:;
+	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern2:;
+	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern3a:;
+	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern3b:;
+	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern4:;
+	add: #SSWReStoreIsNilQueryTest -> #assertMethodIsNilJumpBytecodePattern1:;
+	add: #SSWReStoreIsNilQueryTest -> #assertMethodIsNilJumpBytecodePattern2:;
+	add: #SSWReStoreIsNilQueryTest -> #assertMethodIsNilJumpBytecodePattern3a:;
+	add: #SSWReStoreIsNilQueryTest -> #assertMethodIsNilJumpBytecodePattern3b:;
+	add: #SSWReStoreIsNilQueryTest -> #assertMethodIsNilJumpBytecodePattern4:;
 	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern1;
 	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern2;
 	add: #SSWReStoreIsNilQueryTest -> #testIsNilJumpBytecodePattern3a;
@@ -27,6 +47,16 @@ package methodNames
 	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern3a;
 	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern3b;
 	add: #SSWReStoreIsNilQueryTest -> #testMethodIsNilJumpBytecodePattern4;
+	add: #SSWReStoreNotNilQueryTest -> #assertMethodNotNilJumpBytecodePattern1:;
+	add: #SSWReStoreNotNilQueryTest -> #assertMethodNotNilJumpBytecodePattern2:;
+	add: #SSWReStoreNotNilQueryTest -> #assertMethodNotNilJumpBytecodePattern3a:;
+	add: #SSWReStoreNotNilQueryTest -> #assertMethodNotNilJumpBytecodePattern3b:;
+	add: #SSWReStoreNotNilQueryTest -> #assertMethodNotNilJumpBytecodePattern4:;
+	add: #SSWReStoreNotNilQueryTest -> #assertNotNilJumpBytecodePattern1:;
+	add: #SSWReStoreNotNilQueryTest -> #assertNotNilJumpBytecodePattern2:;
+	add: #SSWReStoreNotNilQueryTest -> #assertNotNilJumpBytecodePattern3a:;
+	add: #SSWReStoreNotNilQueryTest -> #assertNotNilJumpBytecodePattern3b:;
+	add: #SSWReStoreNotNilQueryTest -> #assertNotNilJumpBytecodePattern4:;
 	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern1;
 	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern2;
 	add: #SSWReStoreNotNilQueryTest -> #testMethodNotNilJumpBytecodePattern3a;
@@ -95,8 +125,78 @@ friendSurnameOrNil
 
 	^self hasFriend
 		ifTrue: [self friend surname]
-		ifFalse: [nil]! !
+		ifFalse: [nil]!
+
+testIsNilJumpBytecodePattern1
+
+	"JumpIfNil to ^True"
+
+	^(self friend isNil or: [self firstName = 'John']) or: [self firstName = 'Zoe']!
+
+testIsNilJumpBytecodePattern2
+
+	"JumpIfNotNil to ^False"
+
+	^self friend isNil and: [self firstName = 'John']!
+
+testIsNilJumpBytecodePattern3a
+
+	"JumpIfNotNil immediately followed by ^True"
+
+	^self friend isNil or: [self firstName = 'John']!
+
+testIsNilJumpBytecodePattern3b
+
+	"JumpIfNotNil to just after ^True"
+
+	^(self friend isNil and: [self firstName = 'John']) or: [self firstName = 'Zoe']!
+
+testIsNilJumpBytecodePattern4
+
+	"JumpIfNil to non-return without ^True in jumped-over code "
+
+	^(self friend isNil or: [self test isNil]) and: [self firstName = 'Zoe']!
+
+testNotNilJumpBytecodePattern1
+
+	"JumpIfNotNil to ^True"
+
+	^(self friend notNil or: [self firstName = 'Jim']) or: [self firstName = 'David']!
+
+testNotNilJumpBytecodePattern2
+
+	"JumpIfNil to ^False"
+
+	^self friend notNil and: [self firstName = 'John']!
+
+testNotNilJumpBytecodePattern3a
+
+	"JumpIfNil immediately followed by ^True"
+
+	^self friend notNil or: [self firstName = 'Jim']!
+
+testNotNilJumpBytecodePattern3b
+
+	"JumpIfNil to just after ^True"
+
+	^(self friend notNil and: [self firstName = 'Jim']) or: [self firstName = 'Zoe']!
+
+testNotNilJumpBytecodePattern4
+
+	"JumpIfNotNil to non-return without ^True in jumped-over code "
+
+	^(self friend notNil or: [self test isNil]) and: [self firstName = 'Zoe']! !
 !SimplePerson categoriesFor: #friendSurnameOrNil!public! !
+!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern1!public!testing! !
+!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern2!public!testing! !
+!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern3a!public!testing! !
+!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern3b!public!testing! !
+!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern4!public!testing! !
+!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern1!public!testing! !
+!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern2!public!testing! !
+!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern3a!public!testing! !
+!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern3b!public!testing! !
+!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern4!public!testing! !
 
 !SSWODBCStatement methodsFor!
 
@@ -166,195 +266,272 @@ testPlatformSpecificFunction
 
 !SSWReStoreIsNilQueryTest methodsFor!
 
+assertIsNilJumpBytecodePattern1: aCompiledMethod
+
+	"JumpIfNil to ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertIsNilJumpBytecodePattern2: aCompiledMethod
+
+	"JumpIfNotNil to ^False"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: ##(OpcodePool.PushPseudo + 1). "PushFalse"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertIsNilJumpBytecodePattern3a: aCompiledMethod
+
+	"JumpIfNotNil immediately followed by ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream next. "jump offset"
+	self assert: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertIsNilJumpBytecodePattern3b: aCompiledMethod
+
+	"JumpIfNotNil to just after ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream skip: (bytecodeStream next - 2). 
+	self assert: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertIsNilJumpBytecodePattern4: aCompiledMethod
+
+	"JumpIfNil to non-return without ^True in jumped-over code "
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream next timesRepeat: [self deny: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"]. 
+	self deny: bytecodeStream next equals: OpcodePool.ReturnFromBlock.
+	self deny: bytecodeStream next equals: OpcodePool.ReturnFromBlock.!
+
+assertMethodIsNilJumpBytecodePattern1: aCompiledMethod
+
+	"JumpIfNil to ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: OpcodePool.ReturnPseudo "ReturnTrue"!
+
+assertMethodIsNilJumpBytecodePattern2: aCompiledMethod
+
+	"JumpIfNotNil to ^False"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: ##(OpcodePool.ReturnPseudo + 1) "ReturnFalse"!
+
+assertMethodIsNilJumpBytecodePattern3a: aCompiledMethod
+
+	"JumpIfNotNil immediately followed by ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream next. "jump offset"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnPseudo "ReturnTrue"!
+
+assertMethodIsNilJumpBytecodePattern3b: aCompiledMethod
+
+	"JumpIfNotNil to just after ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream skip: (bytecodeStream next - 1). 
+	self assert: bytecodeStream next equals: OpcodePool.ReturnPseudo "ReturnTrue"!
+
+assertMethodIsNilJumpBytecodePattern4: aCompiledMethod
+
+	"JumpIfNil to non-return without ^True in jumped-over code "
+
+	| bytecodeStream destByte |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream next timesRepeat: [self deny: bytecodeStream next equals: OpcodePool.ReturnPseudo. "ReturnTrue"]. 
+
+	destByte := bytecodeStream next.
+	##({OpcodePool.ReturnFromBlock. OpcodePool.ReturnFromBlockHome. OpcodePool.ReturnPseudo. OpcodePool.ReturnFalse. OpcodePool.ReturnFromMessage. OpcodePool.ReturnNil. OpcodePool.ReturnSelf}) do: [ :each | self deny: destByte equals: each]!
+
 testIsNilJumpBytecodePattern1
 
 	"JumpIfNil to ^True"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 17 219 16 226 11 222 5 226 13 43 132 119 58 106 226 13 44 132 106 216 48 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertIsNilJumpBytecodePattern1: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | (each friend isNil or: [each firstName = 'John']) or: [each firstName = 'Zoe']].
-	marker2 := 234.
 
-	self assert: (results size = 4).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 4!
 
 testIsNilJumpBytecodePattern2
 
 	"JumpIfNotNil to ^False"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 223 5 226 13 43 132 106 59 106 216 47 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertIsNilJumpBytecodePattern2: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | each friend isNil and: [each firstName = 'John']].
-	marker2 := 234.
 
-	self assert: (results size = 0).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 0!
 
 testIsNilJumpBytecodePattern3a
 
 	"JumpIfNotNil immediately followed by ^True"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 223 2 58 106 226 13 43 132 106 216 47 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertIsNilJumpBytecodePattern3a: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | each friend isNil or: [each firstName = 'John']].
-	marker2 := 234.
 
-	self assert: (results size = 3).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 3!
 
 testIsNilJumpBytecodePattern3b
 
 	"JumpIfNotNil to just after ^True"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 17 226 11 223 7 226 13 43 132 119 58 106 226 13 206 16 132 106 216 49 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertIsNilJumpBytecodePattern3b: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | (each friend isNil and: [each firstName = 'John']) or: [each firstName = 'Zoe']].
-	marker2 := 234.
 
-	self assert: (results size = 1).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 1!
 
 testIsNilJumpBytecodePattern4
 
 	"JumpIfNil to non-return without ^True in jumped-over code "
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 16 226 11 222 4 226 13 223 6 226 15 206 16 132 106 59 106 216 49 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertIsNilJumpBytecodePattern4: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | (each friend isNil or: [each test isNil]) and: [each firstName = 'Zoe']].
-	marker2 := 234.
 
-	self assert: (results size = 1).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 1!
 
 testMethodIsNilJumpBytecodePattern1
 
 	"JumpIfNil to ^True"
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern1) byteCodes.
-	self assert: bytecodes = #[171 222 4 173 32 132 118 102 173 33 132 105].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodIsNilJumpBytecodePattern1: (SimplePerson>>#testIsNilJumpBytecodePattern1).
 
 	results := instances select: [ :each | each testIsNilJumpBytecodePattern1].
 
-	self assert: (results size = 4)!
+	self assert: results size equals: 4!
 
 testMethodIsNilJumpBytecodePattern2
 
 	"JumpIfNotNil immediately followed by ^True"
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern2) byteCodes.
-	self assert: bytecodes = #[171 223 4 173 32 132 105 103].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodIsNilJumpBytecodePattern2: (SimplePerson>>#testIsNilJumpBytecodePattern2).
 
 	results := instances select: [ :each | each testIsNilJumpBytecodePattern2].
 
-	self assert: (results size = 0)!
+	self assert: results size equals: 0!
 
 testMethodIsNilJumpBytecodePattern3a
 
 	"JumpIfNil to non-return without ^True in jumped-over code "
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern3a) byteCodes.
-	self assert: bytecodes = #[171 223 1 102 173 32 132 105].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodIsNilJumpBytecodePattern3a: (SimplePerson>>#testIsNilJumpBytecodePattern3a).
 
 	results := instances select: [ :each | each testIsNilJumpBytecodePattern3a].
 
-	self assert: (results size = 3)!
+	self assert: results size equals: 3!
 
 testMethodIsNilJumpBytecodePattern3b
 
-	"JumpIfNil to non-return without ^True in jumped-over code "
+	"JumpIfNotNil to just after ^True"
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern3b) byteCodes.
-	self assert: bytecodes = #[171 223 5 173 32 132 118 102 173 34 132 105].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodIsNilJumpBytecodePattern3b: (SimplePerson>>#testIsNilJumpBytecodePattern3b).
 
 	results := instances select: [ :each | each testIsNilJumpBytecodePattern3b].
 
-	self assert: (results size = 1)!
+	self assert: results size equals: 1!
 
 testMethodIsNilJumpBytecodePattern4
 
 	"JumpIfNil to non-return without ^True in jumped-over code "
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testIsNilJumpBytecodePattern4) byteCodes.
-	self assert: bytecodes = #[171 222 3 173 223 4 175 34 132 105 103].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodIsNilJumpBytecodePattern4: (SimplePerson>>#testIsNilJumpBytecodePattern4).
 
 	results := instances select: [ :each | each testIsNilJumpBytecodePattern4].
 
-	self assert: (results size = 1)! !
+	self assert: results size equals: 1! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern1:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern2:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern3a:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern3b:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern4:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern1:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern2:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern3a:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern3b:!helpers!private! !
+!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern4:!helpers!private! !
 !SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern1!public!unit tests! !
 !SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern2!public!unit tests! !
 !SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern3a!public!unit tests! !
@@ -368,195 +545,271 @@ testMethodIsNilJumpBytecodePattern4
 
 !SSWReStoreNotNilQueryTest methodsFor!
 
+assertMethodNotNilJumpBytecodePattern1: aCompiledMethod
+
+	"JumpIfNotNil to ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: OpcodePool.ReturnPseudo "ReturnTrue"!
+
+assertMethodNotNilJumpBytecodePattern2: aCompiledMethod
+
+	"JumpIfNil to ^False"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: ##(OpcodePool.ReturnPseudo + 1) "ReturnFalse"!
+
+assertMethodNotNilJumpBytecodePattern3a: aCompiledMethod
+
+	"JumpIfNil immediately followed by ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream next. "jump offset"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnPseudo "ReturnTrue"!
+
+assertMethodNotNilJumpBytecodePattern3b: aCompiledMethod
+
+	"JumpIfNil to just after ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream skip: (bytecodeStream next - 1). 
+	self assert: bytecodeStream next equals: OpcodePool.ReturnPseudo "ReturnTrue"!
+
+assertMethodNotNilJumpBytecodePattern4: aCompiledMethod
+
+	"JumpIfNotNil to non-return without ^True in jumped-over code "
+
+	| bytecodeStream destByte |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipTo: (OpcodePool.ShortSendSelfZeroArgs + (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1).
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream next timesRepeat: [self deny: bytecodeStream next equals: OpcodePool.ReturnPseudo. "ReturnTrue"]. 
+
+	destByte := bytecodeStream next.
+	##({OpcodePool.ReturnFromBlock. OpcodePool.ReturnFromBlockHome. OpcodePool.ReturnPseudo. OpcodePool.ReturnFalse. OpcodePool.ReturnFromMessage. OpcodePool.ReturnNil. OpcodePool.ReturnSelf}) do: [ :each | self deny: destByte equals: each]!
+
+assertNotNilJumpBytecodePattern1: aCompiledMethod
+
+	"JumpIfNotNil to ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertNotNilJumpBytecodePattern2: aCompiledMethod
+
+	"JumpIfNil to ^False"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream skip: bytecodeStream next. 
+	self assert: bytecodeStream next equals: ##(OpcodePool.PushPseudo + 1). "PushFalse"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertNotNilJumpBytecodePattern3a: aCompiledMethod
+
+	"JumpIfNil immediately followed by ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream next. "jump offset"
+	self assert: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertNotNilJumpBytecodePattern3b: aCompiledMethod
+
+	"JumpIfNil to just after ^True"
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNil.
+	bytecodeStream skip: (bytecodeStream next - 2). 
+	self assert: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"
+	self assert: bytecodeStream next equals: OpcodePool.ReturnFromBlock!
+
+assertNotNilJumpBytecodePattern4: aCompiledMethod
+
+	"JumpIfNotNil to non-return without ^True in jumped-over code "
+
+	| bytecodeStream |
+
+	bytecodeStream := aCompiledMethod byteCodes readStream.
+	bytecodeStream skipToAll: {OpcodePool.SendTempZeroArgs. (aCompiledMethod allLiterals indexOf: 'FRIEND' asLowercase asSymbol) - 1}.
+	self assert: bytecodeStream next equals: OpcodePool.NearJumpIfNotNil.
+	bytecodeStream next timesRepeat: [self deny: bytecodeStream next equals: OpcodePool.PushPseudo. "PushTrue"]. 
+	self deny: bytecodeStream next equals: OpcodePool.ReturnFromBlock.
+	self deny: bytecodeStream next equals: OpcodePool.ReturnFromBlock.!
+
 testMethodNotNilJumpBytecodePattern1
 
 	"JumpIfNotNil to ^True"
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern1) byteCodes.
-	self assert: bytecodes = #[171 223 4 173 32 132 118 102 173 33 132 105].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodNotNilJumpBytecodePattern1: (SimplePerson>>#testNotNilJumpBytecodePattern1).
 
 	results := instances select: [ :each | each testNotNilJumpBytecodePattern1].
-
-	self assert: (results size = 4)!
+	self assert: results size equals: 4!
 
 testMethodNotNilJumpBytecodePattern2
 
 	"JumpIfNil to ^False"
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern2) byteCodes.
-	self assert: bytecodes = #[171 222 4 173 32 132 105 103].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodNotNilJumpBytecodePattern2: (SimplePerson>>#testNotNilJumpBytecodePattern2).
 
 	results := instances select: [ :each | each testNotNilJumpBytecodePattern2].
 
-	self assert: (results size = 1)!
+	self assert: results size equals: 1!
 
 testMethodNotNilJumpBytecodePattern3a
 
 	"JumpIfNil immediately followed by ^True"
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern3a) byteCodes.
-	self assert: bytecodes = #[171 222 1 102 173 32 132 105].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodNotNilJumpBytecodePattern3a: (SimplePerson>>#testNotNilJumpBytecodePattern3a).
 
 	results := instances select: [ :each | each testNotNilJumpBytecodePattern3a].
 
-	self assert: (results size = 3)!
+	self assert: results size equals: 3!
 
 testMethodNotNilJumpBytecodePattern3b
 
 	"JumpIfNil to just after ^True"
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern3b) byteCodes.
-	self assert: bytecodes = #[171 222 5 173 32 132 118 102 173 34 132 105].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodNotNilJumpBytecodePattern3b: (SimplePerson>>#testNotNilJumpBytecodePattern3b).
 
 	results := instances select: [ :each | each testNotNilJumpBytecodePattern3b].
 
-	self assert: (results size = 1)!
+	self assert: results size equals: 1!
 
 testMethodNotNilJumpBytecodePattern4
 
 	"JumpIfNotNil to non-return without ^True in jumped-over code "
 
-	| instances bytecodes results |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := (SimplePerson>>#testNotNilJumpBytecodePattern4) byteCodes.
-	self assert: bytecodes = #[171 223 3 173 223 4 175 34 132 105 103].
-
-	instances := SimplePerson storedInstancesIn: reStore.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertMethodNotNilJumpBytecodePattern4: (SimplePerson>>#testNotNilJumpBytecodePattern4).
 
 	results := instances select: [ :each | each testNotNilJumpBytecodePattern4].
 
-	self assert: (results size = 1)!
+	self assert: results size equals: 1!
 
 testNotNilJumpBytecodePattern1
 
 	"JumpIfNotNil to ^True"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 17 219 16 226 11 223 5 226 13 43 132 119 58 106 226 13 44 132 106 216 48 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertNotNilJumpBytecodePattern1: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | (each friend notNil or: [each firstName = 'Jim']) or: [each firstName = 'David']].
-	marker2 := 234.
 
-	self assert: (results size = 4).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 4!
 
 testNotNilJumpBytecodePattern2
 
 	"JumpIfNil to ^False"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 222 5 226 13 43 132 106 59 106 216 47 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertNotNilJumpBytecodePattern2: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | each friend notNil and: [each firstName = 'John']].
-	marker2 := 234.
 
-	self assert: (results size = 1).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 1!
 
 testNotNilJumpBytecodePattern3a
 
 	"JumpIfNil immediately followed by ^True"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 16 219 11 226 11 222 2 58 106 226 13 43 132 106 216 47 91 238 234].
-
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertNotNilJumpBytecodePattern3a: Processor activeProcess topFrame method.
+	
 	results := instances select: [ :each | each friend notNil or: [each firstName = 'Jim']].
-	marker2 := 234.
 
-	self assert: (results size = 3).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 3!
 
 testNotNilJumpBytecodePattern3b
 
 	"JumpIfNil to just after ^True"
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 17 226 11 222 7 226 13 43 132 119 58 106 226 13 206 16 132 106 216 49 91 238 234].
-
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertNotNilJumpBytecodePattern3b: Processor activeProcess topFrame method.
+	
 	results := instances select: [ :each | (each friend notNil and: [each firstName = 'Jim']) or: [each firstName = 'Zoe']].
-	marker2 := 234.
 
-	self assert: (results size = 1).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234!
+	self assert: results size equals: 1!
 
 testNotNilJumpBytecodePattern4
 
 	"JumpIfNotNil to non-return without ^True in jumped-over code "
 
-	| instances bytecodes results marker1 marker2 |
+	| results |
 
-	"Verify the bytecodes haven't changed from those we're trying to test"
-	bytecodes := Processor activeProcess topFrame method byteCodes.
-	self assert: (bytecodes copyFrom: (bytecodes indexOf: (122+1)) to: (bytecodes indexOf: (233+1))) = #[123 92 17 206 18 219 16 226 11 223 4 226 13 223 6 226 15 206 16 132 106 59 106 216 49 91 238 234].
+	"Verify the bytecodes exhibit the pattern we're testing"
+	self assertNotNilJumpBytecodePattern4: Processor activeProcess topFrame method.
 
-	instances := SimplePerson storedInstancesIn: reStore.
-
-	marker1 := 123.
 	results := instances select: [ :each | (each friend notNil or: [each test isNil]) and: [each firstName = 'Zoe']].
-	marker2 := 234.
 
-	self assert: (results size = 1).
-
-	"So they're not unreferenced"
-	self assert: marker1 = 123.
-	self assert: marker2 = 234! !
+	self assert: results size equals: 1! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern1:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern2:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern3a:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern3b:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern4:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern1:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern2:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern3a:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern3b:!helpers!private! !
+!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern4:!helpers!private! !
 !SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern1!public!unit tests! !
 !SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern2!public!unit tests! !
 !SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern3a!public!unit tests! !

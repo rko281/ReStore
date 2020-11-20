@@ -190,66 +190,6 @@ test
 test: anObject
 	test := anObject!
 
-testIsNilJumpBytecodePattern1
-
-	"JumpIfNil to ^True"
-
-	^(self friend isNil or: [self firstName = 'John']) or: [self firstName = 'Zoe']!
-
-testIsNilJumpBytecodePattern2
-
-	"JumpIfNotNil to ^False"
-
-	^self friend isNil and: [self firstName = 'John']!
-
-testIsNilJumpBytecodePattern3a
-
-	"JumpIfNotNil immediately followed by ^True"
-
-	^self friend isNil or: [self firstName = 'John']!
-
-testIsNilJumpBytecodePattern3b
-
-	"JumpIfNotNil to just after ^True"
-
-	^(self friend isNil and: [self firstName = 'John']) or: [self firstName = 'Zoe']!
-
-testIsNilJumpBytecodePattern4
-
-	"JumpIfNil to non-return without ^True in jumped-over code "
-
-	^(self friend isNil or: [self test isNil]) and: [self firstName = 'Zoe']!
-
-testNotNilJumpBytecodePattern1
-
-	"JumpIfNotNil to ^True"
-
-	^(self friend notNil or: [self firstName = 'Jim']) or: [self firstName = 'David']!
-
-testNotNilJumpBytecodePattern2
-
-	"JumpIfNil to ^False"
-
-	^self friend notNil and: [self firstName = 'John']!
-
-testNotNilJumpBytecodePattern3a
-
-	"JumpIfNil immediately followed by ^True"
-
-	^self friend notNil or: [self firstName = 'Jim']!
-
-testNotNilJumpBytecodePattern3b
-
-	"JumpIfNil to just after ^True"
-
-	^(self friend notNil and: [self firstName = 'Jim']) or: [self firstName = 'Zoe']!
-
-testNotNilJumpBytecodePattern4
-
-	"JumpIfNotNil to non-return without ^True in jumped-over code "
-
-	^(self friend notNil or: [self test isNil]) and: [self firstName = 'Zoe']!
-
 time
 	"Private - Answer the value of the receiver's ''time'' instance variable."
 
@@ -302,16 +242,6 @@ time: anObject
 !SimplePerson categoriesFor: #surname:!accessing!private! !
 !SimplePerson categoriesFor: #test!accessing!private! !
 !SimplePerson categoriesFor: #test:!accessing!private! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern1!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern2!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern3a!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern3b!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern4!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern1!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern2!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern3a!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern3b!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern4!public!testing! !
 !SimplePerson categoriesFor: #time!accessing!private! !
 !SimplePerson categoriesFor: #time:!accessing!private! !
 
@@ -329,7 +259,7 @@ reStoreDefinition
 
 	^super reStoreDefinition
 		define: #surname as: (String maxSize: 100);
-		define: #firstName as: (String maxSize: 8);
+		define: #firstName as: (String maxSize: 50);
 		define: #emailAddress as: (String maxSize: 100);
 		define: #time as: DateAndTime;
 		define: #friend as: SimplePerson;
