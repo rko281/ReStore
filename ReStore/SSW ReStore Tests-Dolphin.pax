@@ -69,11 +69,13 @@ package methodNames
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern4;
 	add: #SSWReStoreQueryTest -> #testQueryWithIfTrueMethodFollowedByOr;
 	add: #SSWReStoreTableTest -> #test21VerifyLegacyNameTransformationMode;
+	add: #SSWReStoreTest -> #addMethod:withSelector:toClass:;
 	add: #SSWReStoreTest -> #countQueries;
 	add: #SSWReStoreTest -> #debugStream;
 	add: #SSWReStoreTest -> #dsn;
 	add: #SSWReStoreTest -> #initConnectionFor:;
 	add: #SSWReStoreTest -> #queryCount;
+	add: #SSWReStoreTest -> #removeSelector:fromClass:;
 	add: #SSWReStoreTest -> #resetQueryCount;
 	add: #SSWReStoreTest -> #stopQueryCounting;
 	add: #SSWReStoreTypeTest -> #testTimeStamp;
@@ -871,6 +873,13 @@ test21VerifyLegacyNameTransformationMode
 
 !SSWReStoreTest methodsFor!
 
+addMethod: aCompiledMethod withSelector: aSymbol toClass: aClass
+
+	"Add/replace the method named aSymbol in aClass with aCompiledMethod.
+	This is a temporary addition/replacement for the purposes of a test case; do not update aCompiledMethod"
+	aClass methodDictionary at: aSymbol put: aCompiledMethod.
+	aClass flushMethodCache!
+
 countQueries
 
 	self resetQueryCount.
@@ -904,6 +913,13 @@ queryCount
 
 	^SSWReStoreTest queryCount!
 
+removeSelector: aSymbol fromClass: aClass
+
+	"Remove the temporarily-added method at aSymbol in aClass's methodDictionary"
+
+	aClass methodDictionary removeKey: aSymbol.
+	aClass flushMethodCache!
+
 resetQueryCount
 
 	^SSWReStoreTest resetQueryCount!
@@ -914,11 +930,13 @@ stopQueryCounting
 		[ :origExec |
 		SSWODBCStatement methodDictionary at: #exec put: origExec.
 		SSWODBCStatement flushMethodCache]! !
+!SSWReStoreTest categoriesFor: #addMethod:withSelector:toClass:!public!running! !
 !SSWReStoreTest categoriesFor: #countQueries!public!running! !
 !SSWReStoreTest categoriesFor: #debugStream!public!unit tests! !
 !SSWReStoreTest categoriesFor: #dsn!accessing!public! !
 !SSWReStoreTest categoriesFor: #initConnectionFor:!public!running! !
 !SSWReStoreTest categoriesFor: #queryCount!accessing!public! !
+!SSWReStoreTest categoriesFor: #removeSelector:fromClass:!public!running! !
 !SSWReStoreTest categoriesFor: #resetQueryCount!public!running! !
 !SSWReStoreTest categoriesFor: #stopQueryCounting!public!running! !
 

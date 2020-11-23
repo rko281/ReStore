@@ -589,8 +589,9 @@ testRefreshWithOnRollback
 	"Test previously-failing case where refreshing an object with an onRollback implementation which references an also-refreshed linked persistent object caused incorrect proxy swapping"
 
 	"Add an appropriate implementation of onRollback to both classes involved in the test since ordering of objects in transaction varies"
-	OwnedTest methodDictionary at: #onRollback put: (OwnedTest>>#testOnRollback).
-	OwnerTest methodDictionary at: #onRollback put: (OwnerTest>>#testOnRollback).
+	self 
+		addMethod: OwnedTest>>#testOnRollback withSelector: #onRollback toClass: OwnedTest;
+		addMethod: OwnerTest>>#testOnRollback withSelector: #onRollback toClass: OwnerTest.
 
 	[| owner owned |
 
@@ -608,8 +609,9 @@ testRefreshWithOnRollback
 	self assert: owned isDBProxy.
 
 	] ensure: 
-		[OwnedTest methodDictionary removeKey: #onRollback.
-		OwnerTest methodDictionary removeKey: #onRollback]!
+		[self 
+			removeSelector: #onRollback fromClass: OwnedTest;
+			removeSelector: #onRollback fromClass: OwnerTest]!
 
 usesVersioning
 

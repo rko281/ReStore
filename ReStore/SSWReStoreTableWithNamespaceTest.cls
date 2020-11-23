@@ -45,13 +45,13 @@ releaseReStore: aReStore
 
 setUp
 
-	{SimplePerson. SimplePerson2. SuperPerson} do: [ :cls | cls class methodDictionary at: #addClassDefinitionTo: put: (self class class>>#addDatabaseNameTo:)].
+	{SimplePerson. SimplePerson2. SuperPerson} do: [ :cls | self addMethod: self class class>>#addDatabaseNameTo: withSelector: #addClassDefinitionTo: toClass: cls class].
 
 	super setUp!
 
 tearDown
 
-	{SimplePerson. SimplePerson2. SuperPerson} do: [ :cls | cls class methodDictionary removeKey: #addClassDefinitionTo:].
+	{SimplePerson. SimplePerson2. SuperPerson} do: [ :cls | self removeSelector: #addClassDefinitionTo: fromClass: cls class].
 
 	"Error trap superclass implementation primarily for SQLite which drops attached database on reconnect, leading to 'table not found' errors in destroyAllClasses"
 	[super tearDown] on: reStore connection dbErrorClass do: [ :exc | ('*no such table*' match: exc description) ifTrue: [exc return] ifFalse: [exc pass]]!
