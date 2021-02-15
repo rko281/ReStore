@@ -994,15 +994,9 @@ objectFromRow: aDatabaseRow table: anSSWDBTable
 	If the required proxy object is not in the cache, create it.
 	If the object is already recovered, refresh it from the row if it's not been changed in the image"
 	
-	| id |
-
-	id := aDatabaseRow atField: anSSWDBTable idField.
-
-	^id isNil
-	ifTrue:
-		[nil	"Should never happen"]
-	ifFalse:
-		[self 
+	^(aDatabaseRow lookupField: anSSWDBTable idField) ifNotNil: 
+		[ :id | 
+		self 
 			cachedObjectOfClass: (anSSWDBTable instanceClassFromRow: aDatabaseRow)
 			withID: id 
 			ifAbsent: [self createProxyForRow: aDatabaseRow fromTable: anSSWDBTable withID: id]
@@ -1217,7 +1211,7 @@ refreshProxyIfUpdated: anSSWDBObjectProxy
 		[anSSWDBObjectProxy _proxiedObjectMissing. 
 		^true].
 
-	^(row atField: table versionControlField ifAbsent: [nil]) ~= anSSWDBObjectProxy _version 
+	^(row lookupField: table versionControlField) ~= anSSWDBObjectProxy _version 
 		ifTrue: [anSSWDBObjectProxy _forceRefresh. true] 
 		ifFalse: [false]!
 

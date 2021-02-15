@@ -201,16 +201,18 @@ createInstanceFromRow: aDBRow
 	| object id |
 	
 	object := self instanceClass basicNew.
-	id := aDBRow atField: self idField ifAbsent: [nil].
 
 	self allDataFieldsDo:
 		[ :field |
 		field applyValueFromRow: aDBRow to: object].
-	
+
+	self collectionSpecs isEmpty ifTrue: [^object].
+
+	id := aDBRow lookupField: self idField.
 	self collectionSpecs do:
 		[ :collection |
 		collection applyTo: object withID: id in: self reStore].
-	
+		
 	^object!
 
 createNonProxiedInstanceFromRow: aDBRow

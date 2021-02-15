@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 DBParameterizedStatement subclass: #SSWODBCStatement
-	instanceVariableNames: 'query'
+	instanceVariableNames: 'query numColumns cachedColumns cachedColumnsIndices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -33,21 +33,26 @@ dbCheckException: anIntegerRetCode
 
 describeCols: columnNumbers 
 
-	"Intercept to set the fields used in the query"
+	"Intercept to set the fields used in the query.
+	Also cache the results - in the common case, a statement is always asked for the same columns so we do this as simply/efficiently as possible"
 
-	^(super describeCols: columnNumbers) collect: 
-		[ :colAttr |
-		SSWODBCColAttr new
-			columnNumber: colAttr columnNumber;
-			name: colAttr name;
-			type: colAttr type;
-			length: colAttr length;
-			precision: colAttr precision;
-			scale: colAttr scale;
-			field: (self query ifNotNil: [ :q | q fieldNamed: colAttr name]);
-			maxBoundBufferSize: self sqlDialect maxColumnBytes;
-			postCreate;
-			yourself]!
+	(cachedColumnsIndices notNil and: [cachedColumnsIndices = columnNumbers]) ifTrue: [^cachedColumns].
+
+	cachedColumnsIndices := columnNumbers.
+	^cachedColumns :=
+		(super describeCols: columnNumbers) collect: 
+			[ :colAttr |
+			SSWODBCColAttr new
+				columnNumber: colAttr columnNumber;
+				name: colAttr name;
+				type: colAttr type;
+				length: colAttr length;
+				precision: colAttr precision;
+				scale: colAttr scale;
+				field: (self query ifNotNil: [ :q | q fieldNamed: colAttr name]);
+				maxBoundBufferSize: self sqlDialect maxColumnBytes;
+				postCreate;
+				yourself]!
 
 describeParam: anInteger
 
@@ -84,10 +89,17 @@ describeParam: anInteger
 
 exec
 
-	"Private - Inline as much as possible for speed"
 	parent debugStream ifNotNil: [ :stream | self writeDebugInfoOn: stream].
 
-	^super exec!
+	self close.
+	isPrepared
+		ifFalse: [self prepare].
+	paramCols notNil
+		ifTrue: [self setValues].
+	self parent 
+		dbCheckException: (ODBCLibrary default sqlExecute: self allocatedHandle) from: self;
+		postExec.
+	executed := true!
 
 exec: aString
 
@@ -115,6 +127,12 @@ execQuery: anSQLQuery
 
 	self exec!
 
+numColumns
+
+	"Cache for reuse"
+
+	^numColumns ifNil: [numColumns := super numColumns]!
+
 parameters
 
 	"Overriden to use SSWDBODBCFields; see superclass implementation for comment"
@@ -123,6 +141,13 @@ parameters
 		[parameters := (paramCols collect: [:col | SSWODBCField newForCol: col statement: self]) asArray.
 		self bindParams.
 		parameters]!
+
+prepare
+
+	"Clear caches"
+	numColumns := cachedColumnsIndices := cachedColumns := nil.
+
+	^super prepare!
 
 query
 
@@ -231,7 +256,9 @@ writeDebugInfoOn: aStream
 !SSWODBCStatement categoriesFor: #exec!operations!private! !
 !SSWODBCStatement categoriesFor: #exec:!operations!public! !
 !SSWODBCStatement categoriesFor: #execQuery:!operations!public! !
+!SSWODBCStatement categoriesFor: #numColumns!accessing!public! !
 !SSWODBCStatement categoriesFor: #parameters!accessing!private! !
+!SSWODBCStatement categoriesFor: #prepare!operations!private! !
 !SSWODBCStatement categoriesFor: #query!accessing!public! !
 !SSWODBCStatement categoriesFor: #query:!accessing!public! !
 !SSWODBCStatement categoriesFor: #readValuesFrom:!operations!public! !

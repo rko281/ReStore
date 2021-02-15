@@ -103,7 +103,7 @@ DBBoundBuffer subclass: #SSWODBCBoundBuffer
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 DBParameterizedStatement subclass: #SSWODBCStatement
-	instanceVariableNames: 'query'
+	instanceVariableNames: 'query numColumns cachedColumns cachedColumnsIndices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

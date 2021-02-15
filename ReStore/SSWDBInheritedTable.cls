@@ -49,7 +49,7 @@ instanceClassFromRow: aDBRow
 
 	"Private - Determine the class to use from the row"
 	
-	^self classField convertValue: (aDBRow atField: self classField)!
+	^self classField convertValue: (aDBRow lookupField: self classField)!
 
 setDefaultClassField
 	

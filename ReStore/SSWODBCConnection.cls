@@ -63,20 +63,6 @@ _columnsInTableViaQuery: aDBTable
 
 	^statement describeCols: (1 to: statement numColumns)!
 
-_dbCheckException: anIntegerRetCode from: anODBCObject
-
-	"Check anIntegerRetCode as returned to anODBCObject.
-	Report an error/notification if appropriate"
-
-	^anIntegerRetCode = SQL_SUCCESS ifFalse: 
-		["Signal an error or warning - decide which"
-		(anIntegerRetCode = SQL_SUCCESS_WITH_INFO or: [anIntegerRetCode = SQL_NO_DATA])
-		ifTrue: 
-			[(self sqlDialect ifNil: ["During login - keep quiet" true] ifNotNil: [ :dialect | dialect shouldMaskSuccessWithInfo]) ifFalse:
-				[DBWarning signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]
-		ifFalse: 
-			[DBError signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]!
-
 allocatedStatementCount
 	^allocatedStatementCount!
 
@@ -111,6 +97,7 @@ basicConnect
 
 	self isConnected ifTrue: 
 		[self sqlDialect: (SSWSQLDialect newFor: self).
+		self willAutoCommit: false.
 		self reset]!
 
 canDescribeParameters
@@ -146,15 +133,21 @@ dbCheckException: anIntegerRetCode
 
 	"Overriden to revector to new dbCheckException:from: method, which may mask certain 'errors' "
 	
-	^self _dbCheckException: anIntegerRetCode from: self!
+	^self dbCheckException: anIntegerRetCode from: self!
 
 dbCheckException: anIntegerRetCode from: anODBCObject
 
-	"Since we end up here following all queries (browse my senders), hook the rollback-on-query behavior required by some dialects here"
+	"Check anIntegerRetCode as returned to anODBCObject.
+	Report an error/notification if appropriate"
 
-	(self sqlDialect shouldRollbackOnQuery and: [self hasTxn not]) ifTrue: [self rollbackTxn].
-
-	^self _dbCheckException: anIntegerRetCode from: anODBCObject!
+	^anIntegerRetCode = SQL_SUCCESS ifFalse: 
+		["Signal an error or warning - decide which"
+		(anIntegerRetCode = SQL_SUCCESS_WITH_INFO or: [anIntegerRetCode = SQL_NO_DATA])
+		ifTrue: 
+			[(self sqlDialect ifNil: ["During login - keep quiet" true] ifNotNil: [ :dialect | dialect shouldMaskSuccessWithInfo]) ifFalse:
+				[DBWarning signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]
+		ifFalse: 
+			[DBError signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]!
 
 dbErrorClass
 
@@ -310,6 +303,12 @@ postConnect
 		[ :script | 
 		self evaluateAsTxn: [self exec: script. true]]!
 
+postExec
+
+	"Private - Sent immediately following the execution of a statement - carry out the rollback-on-query behavior required by some dialects"
+
+	(transaction isNil and: [self sqlDialect shouldRollbackOnQuery]) ifTrue: [DBConnection transact: self action: SQL_ROLLBACK]!
+
 prepareQuery: anSQLQuery
 
 	"Entry point for system-generated querying (read, refresh, insert).
@@ -380,6 +379,13 @@ tablesInNamespace: aStringOrNil
 
 	^self sqlDialect tableNamesInNamespace: aStringOrNil for: self!
 
+transaction: aDBTxn 
+	"Overridden to avoid resetting the willAutoCommit status - ReStore never auto-commits (other than during autoCommitDuring: )"
+
+	transaction notNil 
+		ifTrue: [self error: self printString , ' already has an active transaction'].
+	transaction := aDBTxn.!
+
 upToParameterPlaceholderOn: aStream
 
 	^aStream upTo: $?!
@@ -392,11 +398,10 @@ willAutoCommit: aBoolean
 		[super willAutoCommit: aBoolean]! !
 !SSWODBCConnection categoriesFor: #_columnsInTable:!enquiries!private! !
 !SSWODBCConnection categoriesFor: #_columnsInTableViaQuery:!enquiries!private! !
-!SSWODBCConnection categoriesFor: #_dbCheckException:from:!exceptions!private! !
 !SSWODBCConnection categoriesFor: #allocatedStatementCount!accessing!private! !
 !SSWODBCConnection categoriesFor: #allocatedStatementCount:!accessing!private! !
 !SSWODBCConnection categoriesFor: #allocStmtHandle:!helpers!private! !
-!SSWODBCConnection categoriesFor: #autoCommitDuring:!helpers!private! !
+!SSWODBCConnection categoriesFor: #autoCommitDuring:!private!transactions! !
 !SSWODBCConnection categoriesFor: #basicConnect!operations!private! !
 !SSWODBCConnection categoriesFor: #canDescribeParameters!public!testing! !
 !SSWODBCConnection categoriesFor: #columnDescriptions!accessing!private! !
@@ -404,8 +409,8 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #columnsForFields:!enquiries!public! !
 !SSWODBCConnection categoriesFor: #columnsInTable:!enquiries!public! !
 !SSWODBCConnection categoriesFor: #createNamespace:!operations!private! !
-!SSWODBCConnection categoriesFor: #dbCheckException:!exceptions!public! !
-!SSWODBCConnection categoriesFor: #dbCheckException:from:!exceptions!public! !
+!SSWODBCConnection categoriesFor: #dbCheckException:!exceptions!private! !
+!SSWODBCConnection categoriesFor: #dbCheckException:from:!exceptions!private! !
 !SSWODBCConnection categoriesFor: #dbErrorClass!accessing!public! !
 !SSWODBCConnection categoriesFor: #debugStream!accessing!private! !
 !SSWODBCConnection categoriesFor: #debugStream:!accessing!private! !
@@ -426,6 +431,7 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #newStatement:!operations!private! !
 !SSWODBCConnection categoriesFor: #onStartup!helpers!private! !
 !SSWODBCConnection categoriesFor: #postConnect!operations!private! !
+!SSWODBCConnection categoriesFor: #postExec!executing!private! !
 !SSWODBCConnection categoriesFor: #prepareQuery:!executing!public! !
 !SSWODBCConnection categoriesFor: #printParameterPlaceholder:on:!helpers!private! !
 !SSWODBCConnection categoriesFor: #reservedWords!accessing!public! !
@@ -436,6 +442,7 @@ willAutoCommit: aBoolean
 !SSWODBCConnection categoriesFor: #sqlDialect:!accessing!public! !
 !SSWODBCConnection categoriesFor: #tables!enquiries!public! !
 !SSWODBCConnection categoriesFor: #tablesInNamespace:!enquiries!public! !
+!SSWODBCConnection categoriesFor: #transaction:!public!transactions! !
 !SSWODBCConnection categoriesFor: #upToParameterPlaceholderOn:!helpers!private! !
 !SSWODBCConnection categoriesFor: #willAutoCommit:!accessing!public! !
 
