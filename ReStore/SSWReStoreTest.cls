@@ -102,6 +102,33 @@ createStandardTestInstance
 
 createTestData!
 
+destroyAllClasses
+
+	self shouldDestroyClasses
+		ifTrue: [reStore destroyAllClasses]
+		ifFalse: [self destroyAllData]!
+
+destroyAllData
+
+	| nextID |
+
+	nextID := (reStore tableForClass: SSWDBTableRecord) name.
+
+	reStore evaluateAsTxn: 
+		[| foundNextID count |
+		foundNextID := false.
+		reStore connection tables do: 
+			[ :each | 
+			each = nextID 
+				ifTrue: [foundNextID := true]
+				ifFalse: [reStore executeSQL: 'delete from ', each]].
+		foundNextID ifTrue: 
+			[count := (reStore instancesOf: SSWDBTableRecord) project: [ :each | each _id maximum].
+			reStore 
+				executeSQL: 'update <1s> set next_id = 1 where table_name %<> <1p>' << nextID;
+				executeSQL: 'update <1s> set next_id = <2p> where table_name = <1p>' << {nextID. count first + 1}].
+		true]!
+
 initReStore: aReStore
 
 	self initConnectionFor: aReStore!
@@ -127,8 +154,16 @@ setUp
 	self initReStore: reStore.
 	reStore connect.
 	self addClassesTo: reStore.
-	reStore destroyAllClasses; synchronizeAllClasses.
+	self destroyAllClasses.
+	reStore synchronizeAllClasses.
 	self createTestData!
+
+shouldDestroyClasses
+
+	"For efficiency with some databases we don't destroy classes (this can take a long time) but erase all data instead (see my sender).
+	However some tests may always require a fresh database, in which case return true"
+
+	^reStore sqlDialect shouldDropTablesForTestCases!
 
 tearDown
 
@@ -136,7 +171,7 @@ tearDown
 
 	reStore isNil ifFalse: 
 		[reStore reconnect.
-		reStore destroyAllClasses.
+		self destroyAllClasses.
 		self releaseReStore: reStore.
 		reStore := nil]! !
 !SSWReStoreTest categoriesFor: #addClassesTo:!public!running! !
@@ -144,11 +179,14 @@ tearDown
 !SSWReStoreTest categoriesFor: #createReStore!private!running! !
 !SSWReStoreTest categoriesFor: #createStandardTestInstance!private!running! !
 !SSWReStoreTest categoriesFor: #createTestData!public!running! !
+!SSWReStoreTest categoriesFor: #destroyAllClasses!public!running! !
+!SSWReStoreTest categoriesFor: #destroyAllData!public!running! !
 !SSWReStoreTest categoriesFor: #initReStore:!public!running! !
 !SSWReStoreTest categoriesFor: #performTest!public! !
 !SSWReStoreTest categoriesFor: #refreshDelay!accessing!public! !
 !SSWReStoreTest categoriesFor: #releaseReStore:!public!running! !
 !SSWReStoreTest categoriesFor: #setUp!public!running! !
+!SSWReStoreTest categoriesFor: #shouldDestroyClasses!public!testing! !
 !SSWReStoreTest categoriesFor: #tearDown!public!running! !
 
 !SSWReStoreTest class methodsFor!

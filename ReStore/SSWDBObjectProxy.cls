@@ -225,7 +225,7 @@ debugPrintString
 	"Override to test for deleted status"
 	
 	^self _isDeleted 
-		ifTrue: ['<Deleted persistent object>']
+		ifTrue: [(SSWDBDeletedObject newForClass: class id: id) printString]
 		ifFalse: [super debugPrintString]!
 
 hash
@@ -253,6 +253,12 @@ isKindOf: aClass
 	ifFalse: 
 		[proxiedObject == nil ifTrue: [self _recoverProxiedObject].
 		proxiedObject isKindOf: aClass]!
+
+isSQLNull
+
+	"No need to bother the proxiedObject"
+	
+	^false!
 
 isValidForPersistence
 
@@ -292,10 +298,15 @@ sqlStringIn: anSSWSQLDialect
 unstore
 
 	"Unstore the receiver's proxiedObject, returning the proxiedObject.
-	This message (as opposed to the private _unstore) is only sent when the receiver
-	has not yet been referenced in the current transaction. Hence reference it here"
+	This message (as opposed to the private _unstore) is only sent when the receive has not yet been referenced in the current transaction. Hence reference it here.
+
+	NB: This is also a legacy selector whose meaning was 'unstore in the active transaction'.
+	We have repurposed this to also be a direct 'unstore now' message, which begins and completes in its own transaction.
+	Accomodate both new and legacy behavior by checking if there is currently a transaction in progress"
 	
 	| me him |
+
+	reStore isTransactionInProgress ifFalse: [^self unstored store].
 
 	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
 	proxiedObject isDBDeleted ifTrue: [^self].
@@ -321,6 +332,10 @@ writeSQLOn: aStream
 	"The SQL for a persistent object is its id"
 
 	id writeSQLOn: aStream!
+
+writeSQLOn: aStream forCondition: aSQLCondition
+
+	^self writeSQLOn: aStream forField: aSQLCondition field!
 
 writeSQLOn: aStream forField: aField
 
@@ -357,6 +372,7 @@ writeSQLOn: aStream forField: aField
 !SSWDBObjectProxy categoriesFor: #hash!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isInteger!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isKindOf:!forwarding!public! !
+!SSWDBObjectProxy categoriesFor: #isSQLNull!non forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #isValidForPersistence!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #printOn:!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #printString!forwarding!public! !
@@ -365,6 +381,7 @@ writeSQLOn: aStream forField: aField
 !SSWDBObjectProxy categoriesFor: #unstore!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #unstored!forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #writeSQLOn:!actions-internal!public! !
+!SSWDBObjectProxy categoriesFor: #writeSQLOn:forCondition:!non forwarding!public! !
 !SSWDBObjectProxy categoriesFor: #writeSQLOn:forField:!actions-internal!public! !
 
 !SSWDBObjectProxy class methodsFor!

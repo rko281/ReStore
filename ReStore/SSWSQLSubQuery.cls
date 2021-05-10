@@ -26,6 +26,12 @@ isWriteQuery
 	
 	^self query isWriteQuery!
 
+occurrencesOf: anObject
+
+	^anObject = SSWSQLQueryParameter
+		ifTrue: [self query parameterisedFields size]
+		ifFalse: [super occurrencesOf: anObject "force MNU"]!
+
 preExecIn: anSSWReStore
 
 	self query preExecIn: anSSWReStore!
@@ -47,6 +53,7 @@ writeSQLOn: aStream
 !SSWSQLSubQuery categoriesFor: #isEmpty!public!testing! !
 !SSWSQLSubQuery categoriesFor: #isReadQuery!public!testing! !
 !SSWSQLSubQuery categoriesFor: #isWriteQuery!public!testing! !
+!SSWSQLSubQuery categoriesFor: #occurrencesOf:!accessing!public! !
 !SSWSQLSubQuery categoriesFor: #preExecIn:!operations!public! !
 !SSWSQLSubQuery categoriesFor: #query!accessing!private! !
 !SSWSQLSubQuery categoriesFor: #query:!accessing!private! !

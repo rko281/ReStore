@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SuperPerson subclass: #MidPerson
-	instanceVariableNames: 'middleName'
+	instanceVariableNames: 'middleName midFriend'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -16,9 +16,17 @@ middleName
 	^middleName!
 
 middleName: anObject
-	middleName := anObject! !
+	middleName := anObject!
+
+midFriend
+	^midFriend!
+
+midFriend: anObject
+	midFriend := anObject! !
 !MidPerson categoriesFor: #middleName!accessing!private! !
 !MidPerson categoriesFor: #middleName:!accessing!private! !
+!MidPerson categoriesFor: #midFriend!accessing!private! !
+!MidPerson categoriesFor: #midFriend:!accessing!private! !
 
 !MidPerson class methodsFor!
 
@@ -26,6 +34,7 @@ reStoreDefinition
 
 	^super reStoreDefinition
 		define: #middleName as: (String maxSize: 128);
+		define: #midFriend as: SuperPerson;
 		yourself! !
 !MidPerson class categoriesFor: #reStoreDefinition!public! !
 

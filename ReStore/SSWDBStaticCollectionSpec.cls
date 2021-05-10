@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
-	instanceVariableNames: 'targetClass'
+	instanceVariableNames: 'targetClass deleteEntriesStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -45,6 +45,53 @@ dbInstancesFor: aCollectionProxy
 			(SSWSQLCondition field: self sourceField equalTo: aCollectionProxy _ownerID)).
 
 	^instances!
+
+deleteEntriesQuery
+
+	^SSWSQLDeleteQuery new
+		table: self collectionTable;
+		conditions: (SSWSQLCondition field: self sourceField equalTo: SSWSQLQueryParameter);
+		yourself!
+
+deleteEntriesStatement
+
+	"Return a prepared statement for deleting the entry table entries for this collection"
+
+	^deleteEntriesStatement ifNil: [deleteEntriesStatement := self reStore prepareStatementForQuery: self deleteEntriesQuery]!
+
+deleteQuery
+
+	^self sqlDialect supportsDeleteWithJoin
+		ifTrue: [self deleteQueryWithJoin]
+		ifFalse: [self deleteQueryWithSubQuery]!
+
+deleteQueryWithJoin
+
+	| query |
+
+	query := SSWSQLDeleteQuery new.
+	query 
+		table: self collectionTable;
+		conditions: (SSWSQLCondition field: self sourceField equalTo: SSWSQLQueryParameter).
+
+	self isValueDependent ifTrue: [query addTable: self targetTable withAllFields joinedWithField: self targetField].
+
+	^query!
+
+deleteQueryWithSubQuery
+
+	| subquery |
+
+	subquery := SSWSQLSelectQuery new.
+	subquery
+		field: self targetField;
+		table: self collectionTable;
+		conditions: (SSWSQLCondition field: self sourceField equalTo: SSWSQLQueryParameter).
+
+	^SSWSQLDeleteQuery new
+		table: self targetTable;
+		conditions: (SSWSQLCondition field: self targetTable idField is: (SSWSQLOperator messageSelector: #includedIn:) to: subquery asSubQuery);
+		yourself!
 
 readAllEntriesFor: ids
 
@@ -294,6 +341,11 @@ targetTable
 !SSWDBStaticCollectionSpec categoriesFor: #createCollectionTable!initializing!public! !
 !SSWDBStaticCollectionSpec categoriesFor: #createNonProxiedInstanceFromRow:!actions-internal!private! !
 !SSWDBStaticCollectionSpec categoriesFor: #dbInstancesFor:!accessing!public! !
+!SSWDBStaticCollectionSpec categoriesFor: #deleteEntriesQuery!accessing-queries!public! !
+!SSWDBStaticCollectionSpec categoriesFor: #deleteEntriesStatement!accessing!public! !
+!SSWDBStaticCollectionSpec categoriesFor: #deleteQuery!accessing-queries!public! !
+!SSWDBStaticCollectionSpec categoriesFor: #deleteQueryWithJoin!accessing-queries!private! !
+!SSWDBStaticCollectionSpec categoriesFor: #deleteQueryWithSubQuery!accessing-queries!private! !
 !SSWDBStaticCollectionSpec categoriesFor: #readAllEntriesFor:!actions!private! !
 !SSWDBStaticCollectionSpec categoriesFor: #readAllFor:!actions!public! !
 !SSWDBStaticCollectionSpec categoriesFor: #readAllQuery!accessing-queries!public! !

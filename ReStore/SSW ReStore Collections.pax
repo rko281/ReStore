@@ -177,7 +177,7 @@ SSWDBCacheDictionaryEntry subclass: #SSWDBMultiValueCacheDictionaryEntry
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBTableComponent subclass: #SSWDBCollectionSpec
-	instanceVariableNames: 'templateCollection isValueDependent isValueRelated readStatement refreshStatement refreshWithContentsIfUpdatedStatement'
+	instanceVariableNames: 'templateCollection isValueDependent isValueRelated readStatement refreshStatement refreshWithContentsIfUpdatedStatement deleteStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -192,7 +192,7 @@ SSWDBCollectionSpec subclass: #SSWDBOwnedCollectionSpec
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
-	instanceVariableNames: 'targetClass'
+	instanceVariableNames: 'targetClass deleteEntriesStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -217,7 +217,7 @@ SSWDBKeyedStaticCollectionSpec subclass: #SSWDBOrderedStaticCollectionSpec
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
-	instanceVariableNames: 'keyClass isKeyDependent isKeyRelated'
+	instanceVariableNames: 'keyClass isKeyDependent isKeyRelated keyTableForRead keyTableForRefresh deleteKeysStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

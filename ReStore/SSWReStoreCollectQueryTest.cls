@@ -396,18 +396,82 @@ testObjectFieldCollectQuery
 	self assert: (results last first = 'Zoe').
 	self assert: (results last last fullName = 'John Smith')!
 
-testObjectFieldOnlyCollectQuery
+testObjectFieldOnlyDifferentClassCollectQuery
+
+	"Test returning a single object of a different class in a collect: query.
+	Previously this failed since the class of the receiver collection was used, instead of the class of the target inst var/field"
+
+	| instances withoutFriends results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	withoutFriends := instances select: [ :each | each friend isNil].
+	withoutFriends  do: [ :each | each address: (SimpleAddress new line1: each fullName)].
+	withoutFriends storeAll.
+
+	reStore simulateReconnect.
+
+	results := instances collect: [ :each | each address].
+
+	self assert: (results size = 4).
+	self assert: (results occurrencesOf: nil) = 2.
+	self assert: (results anySatisfy: [ :each | each notNil and: [each line1 = 'Jim Brown']]).
+	self assert: (results anySatisfy: [ :each | each notNil and: [each line1 = 'David Smythe']])!
+
+testObjectFieldOnlySameClassCollectQuery
 
 	| instances results |
 
 	instances := SimplePerson storedInstancesIn: reStore.
 
+	"friend is also a SimplePerson"
 	results := instances collect: [ :each | each friend].
 
 	self assert: (results size = 4).
 	self assert: (results occurrencesOf: nil) = 2.
 	self assert: (results anySatisfy: [ :each | each notNil and: [each fullName = 'David Smythe']]).
 	self assert: (results anySatisfy: [ :each | each notNil and: [each fullName = 'John Smith']])!
+
+testObjectHierarchyFieldOnlyDifferentClassCollectQuery
+
+	| instances withoutFriends results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	withoutFriends := instances select: [ :each | each friend isNil].
+	withoutFriends  do: [ :each | each test: (Test new name: each fullName; yourself)].
+	withoutFriends storeAll.
+
+	reStore simulateReconnect.
+
+	results := instances collect: [ :each | each test].
+
+	self assert: (results size = 4).
+	self assert: (results occurrencesOf: nil) = 2.
+	self assert: (results anySatisfy: [ :each | each notNil and: [each name = 'Jim Brown']]).
+	self assert: (results anySatisfy: [ :each | each notNil and: [each name = 'David Smythe']])!
+
+testObjectHierarchyFieldOnlySameClassCollectQuery
+
+	"Verified use of originalTable in SSWDBQueryTable>>recoverInstanceFromRow:
+	Without this (as previously happened) a bounds error occurs when populating instances since the withAllFields table (which includes all fields in the entire hierarchy) is used"
+
+	| simplePersons detailedPersons instances results |
+
+	simplePersons := (SimplePerson storedInstancesIn: reStore) asOrderedCollection.
+	detailedPersons := simplePersons collect: [ :each | MidPerson new firstName: each firstName; surname: each surname; yourself].
+	simplePersons do: [ :each | each friend ifNotNil: [ :friend | (detailedPersons detect: [ :d | d fullName = each fullName]) midFriend: (SuperPerson new firstName: friend firstName; surname: friend surname; yourself)]].
+	detailedPersons storeAllIn: reStore.
+
+	reStore simulateReconnect.
+
+	instances := MidPerson storedInstancesIn: reStore.
+	results := instances collect: [ :each | each midFriend].
+
+	self assert: (results size = 4).
+	self assert: (results occurrencesOf: nil) = 2.
+	self assert: (results anySatisfy: [ :each | each notNil and: [each fullName = 'John Smith']]).
+	self assert: (results anySatisfy: [ :each | each notNil and: [each fullName = 'David Smythe']])!
 
 testSingleConditionCollectQuery
 
@@ -478,7 +542,10 @@ testThisObjectFieldOnlyCollectQuery
 !SSWReStoreCollectQueryTest categoriesFor: #testNotNilFirstCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testNotNilLastCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testObjectFieldCollectQuery!public!unit tests! !
-!SSWReStoreCollectQueryTest categoriesFor: #testObjectFieldOnlyCollectQuery!public!unit tests! !
+!SSWReStoreCollectQueryTest categoriesFor: #testObjectFieldOnlyDifferentClassCollectQuery!public!unit tests! !
+!SSWReStoreCollectQueryTest categoriesFor: #testObjectFieldOnlySameClassCollectQuery!public!unit tests! !
+!SSWReStoreCollectQueryTest categoriesFor: #testObjectHierarchyFieldOnlyDifferentClassCollectQuery!public!unit tests! !
+!SSWReStoreCollectQueryTest categoriesFor: #testObjectHierarchyFieldOnlySameClassCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testSingleConditionCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testSingleFieldCollectQuery!public!unit tests! !
 !SSWReStoreCollectQueryTest categoriesFor: #testSingleInlinedFunctionCollectQuery!public!unit tests! !

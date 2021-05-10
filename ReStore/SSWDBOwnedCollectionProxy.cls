@@ -20,6 +20,16 @@ _checkHasChanged
 
 	^self _isDeleted or: [self _isPersistent not or: [collectionSpec hasCollection: proxiedObject anyAdditionsOrRemovalsFrom: copyCollection]]!
 
+_commitChanges
+
+	"Deletion of dependent collection elements"
+	(collectionSpec isValueDependent and: [self _isDeleted]) ifTrue: 
+		[collectionSpec deleteStatement
+			values: (Array with: owner _id);
+			exec].
+	
+	^true!
+
 _copyCollection
 
 	"The receiver automatically detects changes to its proxiedObject 
@@ -57,8 +67,9 @@ _prepareToCommit
 	ifTrue:
 		[self _isDeleted
 		ifTrue:
-			[added := #().
-			removed := copyCollection]
+			[added := #(). 
+			removed := copyCollection.
+			collectionSpec isValueDependent ifTrue: [removed do: [ :each | each isDBProxy ifTrue: [reStore transaction addDeletedObject: each _proxiedObject]]]]
 		ifFalse:
 			[added := collectionSpec elementsIn: proxiedObject notIn: copyCollection.
 			removed := collectionSpec elementsIn: copyCollection notIn: proxiedObject]]
@@ -129,6 +140,7 @@ _unstore
 	proxiedObject := nil! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_acquireCopyCollection!actions!private! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_checkHasChanged!public!testing! !
+!SSWDBOwnedCollectionProxy categoriesFor: #_commitChanges!actions-internal!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection!accessing!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection:!accessing!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_isDeleted!public!testing! !

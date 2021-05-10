@@ -20,7 +20,7 @@ fieldNamed: aString
 
 	"Return the individual field with the given name"
 
-	^self table allFieldsDetect: [ :field | field name = aString] ifNone: [nil]!
+	^self table fieldNamed: aString!
 
 hasAggregateFunction
 

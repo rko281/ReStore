@@ -32,12 +32,6 @@ _collectionSpec: anSSWDBCollectionSpec
 	
 	collectionSpec := anSSWDBCollectionSpec!
 
-_commitChanges
-
-	"Default: no action for collections"
-	
-	^true!
-
 _forceRefresh
 
 	self _isRecovered ifTrue: [collectionSpec refreshCollectionForProxy: self]!
@@ -141,7 +135,6 @@ withRelatedComponents
 !SSWDBCollectionProxy categoriesFor: #_checkHasChanged!public!testing! !
 !SSWDBCollectionProxy categoriesFor: #_collectionSpec!accessing!public! !
 !SSWDBCollectionProxy categoriesFor: #_collectionSpec:!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #_commitChanges!actions-internal!public! !
 !SSWDBCollectionProxy categoriesFor: #_forceRefresh!actions-refresh!public! !
 !SSWDBCollectionProxy categoriesFor: #_forceRefreshWithContents!actions-refresh!public! !
 !SSWDBCollectionProxy categoriesFor: #_owner!accessing!public! !

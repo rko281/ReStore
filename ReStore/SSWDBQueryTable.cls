@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SSWDBQueryTable
-	instanceVariableNames: 'table repetitionIndex'
+	instanceVariableNames: 'table repetitionIndex allFields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -12,17 +12,21 @@ https://github.com/rko281/ReStore'!
 !SSWDBQueryTable categoriesForClass!Unclassified! !
 !SSWDBQueryTable methodsFor!
 
-= anSSWDBQueryTable
+= anSSWDBTable
 
-	^self name = anSSWDBQueryTable name and: [self repetitionIndex = anSSWDBQueryTable repetitionIndex]!
+	^self == anSSWDBTable or: [self species == anSSWDBTable species and: [self name = anSSWDBTable name and: [self repetitionIndex = anSSWDBTable repetitionIndex]]]!
+
+allFields
+
+	^allFields ifNil: [allFields := self table allFields collect: [ :each | SSWDBQueryTableField forField: each in: self]]!
 
 allFieldsDetect: aBlock ifNone: noneBlock
 
-	^self table allFieldsDetect: aBlock ifNone: noneBlock!
+	^self allFields detect: aBlock ifNone: noneBlock!
 
 allFieldsDo: aBlock
 
-	^self table allFieldsDo: aBlock!
+	^self allFields do: aBlock!
 
 collectionAccessing: aSymbol
 
@@ -32,13 +36,15 @@ collectionAccessing: aSymbol
 
 fieldAccessing: aSymbol
 
-	"Forward to the real table"
-	
-	^self table fieldAccessing: aSymbol!
+	^self allFieldsDetect: [ :field | field accessor accesses: aSymbol] ifNone: [nil]!
+
+fieldNamed: aString
+
+	^self allFieldsDetect: [ :field | field name = aString] ifNone: [nil]!
 
 hash
 
-	^self name hash + self repetitionIndex!
+	^self name hash bitXor: self repetitionIndex!
 
 hasNamespace
 
@@ -52,18 +58,37 @@ hasStaticConditions
 
 idField
 
-	"Generate an ID field with the same details as that of the receiver's table,
-	but belonging to the receiver"
-	
-	^SSWDBQueryTableField forField: self table idField in: self!
+	^self allFields detect: [ :each | each field == self table idField]!
 
 instanceClass
 
 	^self table instanceClass!
 
+instanceClassFromRow: aRow
+
+	"isKindOf: test to avoid aliasing the row if not needed"
+	^(self table isKindOf: SSWDBInheritedTable)
+		ifTrue: [self instanceClass]
+		ifFalse: [self table instanceClassFromRow: (aRow copy deAliasQueryFieldsFor: self)]!
+
 name
 
 	^self table name!
+
+originalTable
+
+	"Return the original table wrapped by the receiver.
+	This may be == self table, however where the receiver wraps a withAllFields table it will be different"
+
+	^self reStore tableForClass: self instanceClass!
+
+recoverInstanceFromRow: aRow into: aDBProxy
+
+	^self originalTable recoverInstanceFromRow: (aRow copy deAliasQueryFieldsFor: self) into: aDBProxy!
+
+refreshProxy: aDBProxy whereChangedFromRow: aRow
+
+	^self originalTable refreshProxy: aDBProxy whereChangedFromRow: (aRow copy deAliasQueryFieldsFor: self)!
 
 repetitionIndex
 
@@ -126,6 +151,14 @@ table: anSSWDBTable
 	
 	table := anSSWDBTable!
 
+versionControlField
+
+	| versionControlField |
+
+	versionControlField := self table versionControlField.
+
+	^self allFields detect: [ :each | each field == versionControlField]!
+
 withAllFields
 
 	self table: self table withAllFields.
@@ -149,16 +182,22 @@ writeSQLOn: aStream
 		[aStream nextPutAll: ' AS '.
 		self writeSQLNameOn: aStream]! !
 !SSWDBQueryTable categoriesFor: #=!comparing!public! !
+!SSWDBQueryTable categoriesFor: #allFields!accessing!public! !
 !SSWDBQueryTable categoriesFor: #allFieldsDetect:ifNone:!enumerating!public! !
 !SSWDBQueryTable categoriesFor: #allFieldsDo:!enumerating!public! !
 !SSWDBQueryTable categoriesFor: #collectionAccessing:!evaluating!public! !
 !SSWDBQueryTable categoriesFor: #fieldAccessing:!evaluating!public! !
+!SSWDBQueryTable categoriesFor: #fieldNamed:!accessing!public! !
 !SSWDBQueryTable categoriesFor: #hash!comparing!public! !
 !SSWDBQueryTable categoriesFor: #hasNamespace!public!testing! !
-!SSWDBQueryTable categoriesFor: #hasStaticConditions!evaluating!public! !
-!SSWDBQueryTable categoriesFor: #idField!evaluating!public! !
+!SSWDBQueryTable categoriesFor: #hasStaticConditions!public!testing! !
+!SSWDBQueryTable categoriesFor: #idField!accessing!public! !
 !SSWDBQueryTable categoriesFor: #instanceClass!accessing!public! !
+!SSWDBQueryTable categoriesFor: #instanceClassFromRow:!accessing!public! !
 !SSWDBQueryTable categoriesFor: #name!accessing!public! !
+!SSWDBQueryTable categoriesFor: #originalTable!accessing!public! !
+!SSWDBQueryTable categoriesFor: #recoverInstanceFromRow:into:!operations!public! !
+!SSWDBQueryTable categoriesFor: #refreshProxy:whereChangedFromRow:!operations!public! !
 !SSWDBQueryTable categoriesFor: #repetitionIndex!accessing!public! !
 !SSWDBQueryTable categoriesFor: #repetitionIndex:!accessing!public! !
 !SSWDBQueryTable categoriesFor: #reStore!accessing!public! !
@@ -167,6 +206,7 @@ writeSQLOn: aStream
 !SSWDBQueryTable categoriesFor: #staticConditions!accessing!public! !
 !SSWDBQueryTable categoriesFor: #table!accessing!public! !
 !SSWDBQueryTable categoriesFor: #table:!accessing!public! !
+!SSWDBQueryTable categoriesFor: #versionControlField!accessing!public! !
 !SSWDBQueryTable categoriesFor: #withAllFields!accessing!public! !
 !SSWDBQueryTable categoriesFor: #writeSQLNameOn:!output!public! !
 !SSWDBQueryTable categoriesFor: #writeSQLOn:!output!public! !

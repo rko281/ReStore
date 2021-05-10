@@ -12,6 +12,10 @@ https://github.com/rko281/ReStore'!
 !SSWDBTable categoriesForClass!Unclassified! !
 !SSWDBTable methodsFor!
 
+= anSSWDBTable
+
+	^self == anSSWDBTable or: [self species == anSSWDBTable species and: [self name = anSSWDBTable name]]!
+
 abbreviate: aSymbol to: abbrevSymbol
 
 	"Define abbrevSymbol as an abbreviated name for the inst var named aSymbol"
@@ -780,6 +784,10 @@ rootTable
 
 	^self!
 
+species
+
+	^SSWDBTable!
+
 sqlDefinition
 
 	| stream |
@@ -927,6 +935,7 @@ writeSQLNameOn: aStream
 
 	super writeSQLNameOn: aStream
 ! !
+!SSWDBTable categoriesFor: #=!comparing!public! !
 !SSWDBTable categoriesFor: #abbreviate:to:!defining!private! !
 !SSWDBTable categoriesFor: #abbreviations!accessing!public! !
 !SSWDBTable categoriesFor: #abbreviations:!accessing!public! !
@@ -1015,6 +1024,7 @@ writeSQLNameOn: aStream
 !SSWDBTable categoriesFor: #reStore:!accessing!public! !
 !SSWDBTable categoriesFor: #rootClass!evaluating!public! !
 !SSWDBTable categoriesFor: #rootTable!evaluating!public! !
+!SSWDBTable categoriesFor: #species!accessing!public! !
 !SSWDBTable categoriesFor: #sqlDefinition!output!public! !
 !SSWDBTable categoriesFor: #sqlDialect!evaluating!public! !
 !SSWDBTable categoriesFor: #staticConditions!evaluating!public! !

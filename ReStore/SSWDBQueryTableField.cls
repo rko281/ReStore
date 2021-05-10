@@ -14,7 +14,7 @@ https://github.com/rko281/ReStore'!
 
 = anSSWDBField
 
-	^anSSWDBField = self field!
+	^self == anSSWDBField or: [anSSWDBField = self field and: [anSSWDBField table = self table]]!
 
 accessorPath
 
@@ -30,7 +30,11 @@ accessorPath: anObject
 
 hash
 
-	^self field hash!
+	^self table hash bitXor: self name hash!
+
+isInlined
+
+	^self field isInlined!
 
 printOn: aStream
 
@@ -85,6 +89,7 @@ writeSQLOn: aStream
 !SSWDBQueryTableField categoriesFor: #accessorPath!accessing!public! !
 !SSWDBQueryTableField categoriesFor: #accessorPath:!accessing!public! !
 !SSWDBQueryTableField categoriesFor: #hash!comparing!public! !
+!SSWDBQueryTableField categoriesFor: #isInlined!public!testing! !
 !SSWDBQueryTableField categoriesFor: #printOn:!output!public! !
 !SSWDBQueryTableField categoriesFor: #table!accessing!public! !
 !SSWDBQueryTableField categoriesFor: #table:!accessing!public! !

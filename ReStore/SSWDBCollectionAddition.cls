@@ -22,7 +22,7 @@ commitFor: aCollectionProxy
 		ifTrue: [self affectedEntry targetID: nil]
 		ifFalse: [self affectedEntry targetID: self affectedEntry target _id]."
 
-	aCollectionProxy _collectionSpec insertEntry: self affectedEntry in: aCollectionProxy _reStore!
+	aCollectionProxy _collectionSpec insertEntry: self affectedEntry!
 
 prepareToCommitFor: aCollectionProxy
 

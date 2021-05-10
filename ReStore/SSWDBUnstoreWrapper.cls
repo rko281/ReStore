@@ -24,10 +24,15 @@ _commitIn: anSSWReStore
 
 	self object unstore!
 
+_dbProxyIfNone: aBlock
+
+	^self object _dbProxyIfNone: aBlock!
+
 _reStoreIfNone: aBlock
 
-	^SSWReStore reStoreForObject: self object ifNone: aBlock! !
+	^self object _reStoreIfNone: aBlock! !
 !SSWDBUnstoreWrapper categoriesFor: #_checkHasChangedIn:!public!testing! !
 !SSWDBUnstoreWrapper categoriesFor: #_commitIn:!operations!public! !
+!SSWDBUnstoreWrapper categoriesFor: #_dbProxyIfNone:!accessing!public! !
 !SSWDBUnstoreWrapper categoriesFor: #_reStoreIfNone:!accessing!public! !
 

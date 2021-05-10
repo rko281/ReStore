@@ -30,6 +30,8 @@ _checkHasChanged
 
 	| changed |
 
+	self _isDeleted ifTrue: [^true].
+
 	self _setChanges.
 	changed := changes isEmpty not.
 
@@ -55,6 +57,28 @@ _collectionEntries: aCollection
 _commitChanges
 
 	changes do: [ :change | change commitFor: self].
+
+	"Deletion of collection table entries, keys and values (as appropriate)"
+	self _isDeleted ifTrue: 
+		[collectionSpec isValueDependent ifTrue: 
+			[collectionSpec deleteStatement
+				values: (Array with: owner _id);
+				exec].
+
+		"Keys"
+		collectionSpec isKeyDependent ifTrue: 
+			[collectionSpec deleteKeysStatement ifNotNil: 
+				[ :stmt |
+				stmt
+					values: (Array with: owner _id);
+					exec]].
+
+		"Entries, if not already done by the above"
+		(collectionSpec sqlDialect supportsDeleteWithJoin and: [collectionSpec isKeyDependent or: [collectionSpec isValueDependent]]) ifFalse: 
+			[collectionSpec deleteEntriesStatement
+				values: (Array with: owner _id);
+				exec]].
+
 	^true!
 
 _hasChanged
@@ -64,7 +88,7 @@ _hasChanged
 	
 	self _setChanges.
 
-	^changes isEmpty not!
+	^self _isDeleted or: [changes isEmpty not]!
 
 _isDeleted
 
@@ -126,7 +150,16 @@ _setChanges
 	ifTrue: 
 		[self _isDeleted
 		ifTrue: 
-			[changes := collectionEntries collect: [ :entry | SSWDBCollectionRemoval newWithEntry: entry]]
+			[changes := #().
+			(collectionSpec isValueDependent or: [collectionSpec isKeyDependent]) ifTrue: 
+				[collectionEntries do: 
+					[ :each |
+					(collectionSpec isKeyDependent and: [each index isDBProxy]) ifTrue: 
+						[reStore transaction addDeletedObject: each index _proxiedObject.
+						each index unstore].
+					(collectionSpec isValueDependent and: [each target isDBProxy]) ifTrue: 
+						[reStore transaction addDeletedObject: each target _proxiedObject.
+						each target unstore]]]]
 		ifFalse: 
 			[changes := proxiedObject _changesFrom: collectionEntries.
 			collectionSpec isKeyDependent ifTrue: 

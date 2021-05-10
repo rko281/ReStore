@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBTableComponent subclass: #SSWDBCollectionSpec
-	instanceVariableNames: 'templateCollection isValueDependent isValueRelated readStatement refreshStatement refreshWithContentsIfUpdatedStatement'
+	instanceVariableNames: 'templateCollection isValueDependent isValueRelated readStatement refreshStatement refreshWithContentsIfUpdatedStatement deleteStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -11,12 +11,6 @@ SSWDBCollectionSpec comment: 'ReStore
 https://github.com/rko281/ReStore'!
 !SSWDBCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBCollectionSpec methodsFor!
-
-aboutToBeUnstored: aProxyObject
-
-	"Also unstore member objects, if the receiver is dependent"
-
-	self isValueDependent ifTrue: [(self accessor valueIn: aProxyObject) do: [ :each | each unstore]]!
 
 applyTo: anObject withID: anInteger in: anSSWReStore
 
@@ -77,6 +71,18 @@ defineAs: aSymbol in: anSSWDBTable
 
 	^anSSWDBTable define: aSymbol asCollectionSpec: self
 !
+
+deleteQuery
+
+	"Return a SQL query for deleting the elements of this collection"
+
+	^self subclassResponsibility!
+
+deleteStatement
+
+	"Return a prepared statement for deleting this collection"
+
+	^deleteStatement ifNil: [deleteStatement := self reStore prepareStatementForQuery: self deleteQuery]!
 
 freePreparedStatements
 
@@ -241,7 +247,6 @@ templateCollection: aCollection
 	for collections created by this class (i.e. a copy of templateCollection is used)"
 	
 	templateCollection := aCollection! !
-!SSWDBCollectionSpec categoriesFor: #aboutToBeUnstored:!actions!public! !
 !SSWDBCollectionSpec categoriesFor: #applyTo:withID:in:!actions!public! !
 !SSWDBCollectionSpec categoriesFor: #beValueDependent!defining!public! !
 !SSWDBCollectionSpec categoriesFor: #beValueRelated!defining!public! !
@@ -251,6 +256,8 @@ templateCollection: aCollection
 !SSWDBCollectionSpec categoriesFor: #containedTables!evaluating!public! !
 !SSWDBCollectionSpec categoriesFor: #dbInstancesFor:!evaluating!public! !
 !SSWDBCollectionSpec categoriesFor: #defineAs:in:!defining!public! !
+!SSWDBCollectionSpec categoriesFor: #deleteQuery!accessing-queries!public! !
+!SSWDBCollectionSpec categoriesFor: #deleteStatement!accessing!public! !
 !SSWDBCollectionSpec categoriesFor: #freePreparedStatements!initialize/release!public! !
 !SSWDBCollectionSpec categoriesFor: #initialize!initialize/release!public! !
 !SSWDBCollectionSpec categoriesFor: #isKeyDependent!public!testing! !

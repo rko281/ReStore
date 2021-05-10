@@ -263,7 +263,7 @@ testPlatformSpecificFunction
 
 	expectedResults := (1 to: 12) collect: [ :index | {12 - index. index}].
 	results := (SimpleProductOrder storedInstancesIn: reStore) collect: [ :each | each quantity || each date month].
-	self assert: results asArray equals: expectedResults! !
+	self assert: (results asSortedCollection: [ :a :b | a first >= b first]) asArray equals: expectedResults! !
 !SSWReStoreFunctionTest categoriesFor: #testPlatformSpecificFunction!public!unit tests! !
 
 !SSWReStoreIsNilQueryTest methodsFor!

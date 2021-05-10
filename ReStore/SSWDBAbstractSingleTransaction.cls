@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
-	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects allocatedIDs'
+	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects allocatedIDs deletedObjects'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -18,6 +18,10 @@ abandon
 
 	self currentReferencedObjects do: [ :each | each _swapReferences].
 	self endObjectCollection!
+
+addDeletedObject: aDBProxy
+
+	^self deletedObjects add: aDBProxy!
 
 allocatedIDs
 
@@ -94,7 +98,8 @@ beginObjectCollection
 	
 	self 
 		currentReferencedObjects: self newEmptyObjectsSet;
-		allReferencedObjects: self newEmptyObjectsSet!
+		allReferencedObjects: self newEmptyObjectsSet;
+		deletedObjects: self newEmptyObjectsSet!
 
 beginWithin: anotherTransaction
 
@@ -151,6 +156,20 @@ currentReferencedObjects: anIdentitySet
 	
 	currentReferencedObjects := anIdentitySet!
 
+deletedObjects
+
+	"deletedObjects stores any persistent objects which have been deleted during this transaction.
+	This is used to prevent redundant duplicate deletion attempts, e.g. where an object is a member of a deleted collection"
+	
+	^deletedObjects!
+
+deletedObjects: anIdentitySet
+
+	"deletedObjects stores any persistent objects which have been deleted during this transaction.
+	This is used to prevent redundant duplicate deletion attempts, e.g. where an object is a member of a deleted collection"
+	
+	deletedObjects := anIdentitySet!
+
 endObjectCollection
 
 	"End the accumulation of referenced objects"
@@ -163,6 +182,10 @@ includesProxy: anSSWDBProxy
 
 	^(self currentReferencedObjects includes: anSSWDBProxy)
 		or: [self allReferencedObjects includes: anSSWDBProxy]!
+
+isAlreadyDeleted: aDBProxy
+
+	^self deletedObjects includes: aDBProxy!
 
 newEmptyObjectsSet
 
@@ -252,6 +275,7 @@ resetChangedObjects
 
 	self changedObjects: nil! !
 !SSWDBAbstractSingleTransaction categoriesFor: #abandon!actions!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #addDeletedObject:!actions!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs:!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #allocateIDFor:tableRecord:!actions!public! !
@@ -267,8 +291,11 @@ resetChangedObjects
 !SSWDBAbstractSingleTransaction categoriesFor: #commitAllocatedIDs!actions!private! !
 !SSWDBAbstractSingleTransaction categoriesFor: #currentReferencedObjects!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #currentReferencedObjects:!accessing!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #deletedObjects!accessing!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #deletedObjects:!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #endObjectCollection!initializing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #includesProxy:!public!testing! !
+!SSWDBAbstractSingleTransaction categoriesFor: #isAlreadyDeleted:!public!testing! !
 !SSWDBAbstractSingleTransaction categoriesFor: #newEmptyObjectsSet!evaluating!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #newEmptyObjectsSet:!evaluating!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #nextCollectionPhase!initializing!public! !

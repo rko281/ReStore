@@ -33,6 +33,16 @@ createTestObject
 
 	reStore evaluateAsTransaction: [self templateTestObject storeIn: reStore]!
 
+destroyAllData
+
+	"GenericTest>>component can change definition; ReStore doesn't check for this so drop any contained tables"
+	((reStore tableForClass: GenericTest) collectionAccessing: #component) ifNotNil: 
+		[ :collection | 
+		collection containedTables isEmpty ifFalse: 
+			[collection containedTables do: [ :table | reStore executeSQLAsTxn: {'drop table if exists ', table name. 'delete from next_id where table_name = <1p>' << table name}]]].
+
+	super destroyAllData!
+
 fetchTestObjects
 
 	(Delay forMilliseconds: 10) wait.
@@ -60,6 +70,7 @@ templateTestObject
 !SSWReStoreGenericTest categoriesFor: #componentDefinition!accessing!public! !
 !SSWReStoreGenericTest categoriesFor: #createTestData!public!running! !
 !SSWReStoreGenericTest categoriesFor: #createTestObject!public!running! !
+!SSWReStoreGenericTest categoriesFor: #destroyAllData!public!running! !
 !SSWReStoreGenericTest categoriesFor: #fetchTestObjects!public!running! !
 !SSWReStoreGenericTest categoriesFor: #setUp!public!running! !
 !SSWReStoreGenericTest categoriesFor: #templateComponent!accessing!public! !

@@ -42,6 +42,16 @@ createCollectionTable
 	self collectionTable: 
 		(self entryClass dbTableNamed: (sourceName, targetName) in: self table reStore)!
 
+deleteEntry: anSSWDBCollectionEntry
+
+	| query statement |
+
+	query := SSWSQLDeleteObjectQuery forObject: anSSWDBCollectionEntry.
+
+	statement := self collectionTable deleteStatementGeneratedFrom: query.
+	statement values: query values.
+	statement exec; close.!
+
 deleteEntry: anSSWDBCollectionEntry in: anSSWReStore 
 
 	anSSWDBCollectionEntry table: self collectionTable.
@@ -53,6 +63,16 @@ entryClass
 	"Return the class of collection entry appropriate for the receiver"
 	
 	^SSWDBCollectionEntry!
+
+insertEntry: anSSWDBCollectionEntry
+
+	| query statement |
+
+	query := SSWSQLInsertQuery forObject: anSSWDBCollectionEntry.
+
+	statement := self collectionTable insertStatementGeneratedFrom: query.
+	statement values: query values.
+	statement exec; close!
 
 insertEntry: anSSWDBCollectionEntry in: anSSWReStore 
 
@@ -99,8 +119,10 @@ targetField: anSSWDBField
 !SSWDBGeneralCollectionSpec categoriesFor: #collectionTable:!accessing!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #containedTables!evaluating!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #createCollectionTable!initializing!public! !
+!SSWDBGeneralCollectionSpec categoriesFor: #deleteEntry:!actions - api!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #deleteEntry:in:!actions - api!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #entryClass!constants!public! !
+!SSWDBGeneralCollectionSpec categoriesFor: #insertEntry:!actions - api!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #insertEntry:in:!actions - api!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #queryClass!constants!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #sourceField!accessing!public! !

@@ -45,10 +45,15 @@ writeSQLOn: aStream
 
 !SSWSQLParameterField class methodsFor!
 
+dbMaxFieldSize
+
+	^nil!
+
 forValue: anObject
 
 	^self new
 		value: anObject;
 		yourself! !
+!SSWSQLParameterField class categoriesFor: #dbMaxFieldSize!accessing!public! !
 !SSWSQLParameterField class categoriesFor: #forValue:!instance creation!public! !
 

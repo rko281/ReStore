@@ -100,7 +100,7 @@ Object subclass: #SSWDBQueryField
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SSWDBQueryTable
-	instanceVariableNames: 'table repetitionIndex'
+	instanceVariableNames: 'table repetitionIndex allFields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

@@ -358,7 +358,7 @@ shouldUseColumnsStatement
 
 tableNamesInNamespace: aString for: aDBConnection
 
-	| stream table query results |
+	| stream table results |
 
 	table := SSWDBTable new namespace: aString; name: 'sqlite_master'; yourself.
 	stream := self sqlWriteStream.

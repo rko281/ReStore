@@ -126,6 +126,12 @@ setUp
 
 	super setUp!
 
+shouldDestroyClasses
+
+	"For table tests we need a fresh database"
+
+	^true!
+
 test01VerifySetup
 
 	self assert: ((SimplePerson storedInstancesIn: reStore) size = (self sampleSize * 2))!
@@ -444,7 +450,8 @@ test20QueryRelatedHierarchy
 !SSWReStoreTableTest categoriesFor: #renameClass!helpers!private! !
 !SSWReStoreTableTest categoriesFor: #renameDetailedClass!helpers!private! !
 !SSWReStoreTableTest categoriesFor: #sampleSize!constants!public! !
-!SSWReStoreTableTest categoriesFor: #setUp!public!Running! !
+!SSWReStoreTableTest categoriesFor: #setUp!public!running! !
+!SSWReStoreTableTest categoriesFor: #shouldDestroyClasses!public!testing! !
 !SSWReStoreTableTest categoriesFor: #test01VerifySetup!public!unit tests! !
 !SSWReStoreTableTest categoriesFor: #test02RenameClass!public!unit tests! !
 !SSWReStoreTableTest categoriesFor: #test03RenameInstVar!public!unit tests! !

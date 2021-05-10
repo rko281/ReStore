@@ -545,6 +545,12 @@ standardNamespace: aString
 
 	standardNamespace := aString!
 
+supportsDeleteWithJoin
+
+	"Answer whether this dialect supports DELETE queries featuring JOINs"
+
+	^false!
+
 supportsImplicitTrueConditions
 
 	"Does this dialect support implicit true conditions like IS_SOMETHING or does it require IS_SOMETHING = TRUE"
@@ -760,6 +766,7 @@ varchar
 !SSWSQLDialect categoriesFor: #sqlWriteStream!helpers!public! !
 !SSWSQLDialect categoriesFor: #standardNamespace!accessing!public! !
 !SSWSQLDialect categoriesFor: #standardNamespace:!accessing!public! !
+!SSWSQLDialect categoriesFor: #supportsDeleteWithJoin!public!testing! !
 !SSWSQLDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
 !SSWSQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
 !SSWSQLDialect categoriesFor: #time!datatypes!public! !

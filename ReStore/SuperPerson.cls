@@ -20,6 +20,10 @@ firstName: a
 
 	firstName := a!
 
+fullName
+
+	^self firstName, ' ', self surname!
+
 surname
 
 	^surname!
@@ -29,6 +33,7 @@ surname: a
 	surname := a! !
 !SuperPerson categoriesFor: #firstName!public! !
 !SuperPerson categoriesFor: #firstName:!public! !
+!SuperPerson categoriesFor: #fullName!public! !
 !SuperPerson categoriesFor: #surname!public! !
 !SuperPerson categoriesFor: #surname:!public! !
 

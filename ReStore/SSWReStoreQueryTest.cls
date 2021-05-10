@@ -609,6 +609,26 @@ testCollectQueryWithRelatedObjectInlineFunction
 	self assert: ((results at: 3) = #('David' 'Smith' 'David Smythe' 'John')).
 	self assert: ((results at: 4) = #('John' 'Brown' 'John Smith' 'Zoe'))!
 
+testCollectQueryWithRelatedObjectOfDifferentClass
+
+	"Previously failed; generated object of the class of the collection instead of the target object"
+
+	| instances john dave results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	john := instances detect: [ :each | each firstName = 'John'].
+	dave := instances detect: [ :each | each firstName = 'David'].
+
+	john address: (SimpleAddress new postcode: 'J1 1JJ'; yourself).
+	dave address: (SimpleAddress new postcode: 'D2 2DD'; yourself).
+
+	{john. dave} storeAll.
+
+	results := instances collect: [ :each | each address].
+
+	self assert: ((results reject: [ :each | each isNil]) collect: [ :each | each postcode]) asSortedCollection asArray equals: #('D2 2DD' 'J1 1JJ')!
+
 testConcatenateQueryWithJoins
 
 	| instances john results |
@@ -784,6 +804,7 @@ testReverse
 !SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObject!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObjectFunction!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObjectInlineFunction!public!unit tests! !
+!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObjectOfDifferentClass!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testConcatenateQueryWithJoins!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testIncludesInQueryBlockEmptyCriteria!public!unit tests! !
 !SSWReStoreQueryTest categoriesFor: #testIncludesInQueryBlockPersistentObject!public!unit tests! !

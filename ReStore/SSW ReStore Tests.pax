@@ -39,6 +39,19 @@ package classNames
 	add: #SSWReStoreDefaultReadTest;
 	add: #SSWReStoreDefaultTest;
 	add: #SSWReStoreDefaultWriteTest;
+	add: #SSWReStoreDeleteCollectionTest;
+	add: #SSWReStoreDeleteDependentCollectionTest;
+	add: #SSWReStoreDeleteDependentDictionaryTest;
+	add: #SSWReStoreDeleteDependentGeneralCollectionTest;
+	add: #SSWReStoreDeleteDependentKeyDependentValueDictionaryTest;
+	add: #SSWReStoreDeleteDependentKeyRelatedValueDictionaryTest;
+	add: #SSWReStoreDeleteDependentOwnedCollectionTest;
+	add: #SSWReStoreDeleteRelatedCollectionTest;
+	add: #SSWReStoreDeleteRelatedDictionaryTest;
+	add: #SSWReStoreDeleteRelatedGeneralCollectionTest;
+	add: #SSWReStoreDeleteRelatedKeyDependentValueDictionaryTest;
+	add: #SSWReStoreDeleteRelatedKeyRelatedValueDictionaryTest;
+	add: #SSWReStoreDeleteRelatedOwnedCollectionTest;
 	add: #SSWReStoreDependentCacheDictionaryTest;
 	add: #SSWReStoreDependentDictionaryTest;
 	add: #SSWReStoreDependentKeyDictionaryTest;
@@ -53,6 +66,7 @@ package classNames
 	add: #SSWReStoreGeneralAffiliationTest;
 	add: #SSWReStoreGeneralCollectionReadWithComponentsTest;
 	add: #SSWReStoreGeneralCollectionSubQueryTest;
+	add: #SSWReStoreGeneralDictionaryReadWithComponentsTest;
 	add: #SSWReStoreGeneralTest;
 	add: #SSWReStoreGenericCollectionTest;
 	add: #SSWReStoreGenericNonRelatedCollectionTest;
@@ -122,7 +136,10 @@ package classNames
 	yourself.
 
 package methodNames
+	add: #SSWMySQLDialect -> #shouldDropTablesForTestCases;
+	add: #SSWPostgreSQLDialect -> #shouldDropTablesForTestCases;
 	add: #SSWReStore -> #simulateReconnect;
+	add: #SSWSQLDialect -> #shouldDropTablesForTestCases;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -239,7 +256,7 @@ SuperPerson subclass: #DetailedPerson2
 	poolDictionaries: ''
 	classInstanceVariableNames: 'useDateOfBirth useBestFriend useLongNotes'!
 SuperPerson subclass: #MidPerson
-	instanceVariableNames: 'middleName'
+	instanceVariableNames: 'middleName midFriend'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -688,12 +705,82 @@ SSWReStoreCollectionSubQueryTest subclass: #SSWReStoreOwnedCollectionSubQueryTes
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreReadWithComponentsTest subclass: #SSWReStoreDeleteCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreReadWithComponentsTest subclass: #SSWReStoreGeneralCollectionReadWithComponentsTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreReadWithComponentsTest subclass: #SSWReStoreGeneralDictionaryReadWithComponentsTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreReadWithComponentsTest subclass: #SSWReStoreOwnedCollectionReadWithComponentsTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteCollectionTest subclass: #SSWReStoreDeleteDependentCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteCollectionTest subclass: #SSWReStoreDeleteRelatedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteDependentCollectionTest subclass: #SSWReStoreDeleteDependentGeneralCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteDependentCollectionTest subclass: #SSWReStoreDeleteDependentOwnedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteDependentGeneralCollectionTest subclass: #SSWReStoreDeleteDependentDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteDependentDictionaryTest subclass: #SSWReStoreDeleteDependentKeyDependentValueDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteDependentDictionaryTest subclass: #SSWReStoreDeleteRelatedKeyDependentValueDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteRelatedCollectionTest subclass: #SSWReStoreDeleteRelatedGeneralCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteRelatedCollectionTest subclass: #SSWReStoreDeleteRelatedOwnedCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteRelatedGeneralCollectionTest subclass: #SSWReStoreDeleteRelatedDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteRelatedDictionaryTest subclass: #SSWReStoreDeleteDependentKeyRelatedValueDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDeleteRelatedDictionaryTest subclass: #SSWReStoreDeleteRelatedKeyRelatedValueDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -713,6 +800,20 @@ SSWReStoreTableTest subclass: #SSWReStoreTableWithNamespaceTest
 
 
 "Loose Methods"!
+
+!SSWMySQLDialect methodsFor!
+
+shouldDropTablesForTestCases
+
+	^false! !
+!SSWMySQLDialect categoriesFor: #shouldDropTablesForTestCases!public!testing! !
+
+!SSWPostgreSQLDialect methodsFor!
+
+shouldDropTablesForTestCases
+
+	^false! !
+!SSWPostgreSQLDialect categoriesFor: #shouldDropTablesForTestCases!public!testing! !
 
 !SSWReStore methodsFor!
 
@@ -736,6 +837,16 @@ simulateReconnect
 	self class activated: self.
 	self persistentSystemClasses do: [ :each | self addClass: each]! !
 !SSWReStore categoriesFor: #simulateReconnect!connection!public! !
+
+!SSWSQLDialect methodsFor!
+
+shouldDropTablesForTestCases
+
+	"For efficiency during SUnit test runs, for some databases we don't drop tables (this can take a long time) but erase all data instead.
+	Return true to drop tables prior to a test, false to erase data instead"
+
+	^true! !
+!SSWSQLDialect categoriesFor: #shouldDropTablesForTestCases!public!testing! !
 
 "End of package definition"!
 

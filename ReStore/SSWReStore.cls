@@ -528,11 +528,15 @@ deleteProxy: aProxydObject
 
 	| query statement |
 
+	(self transaction isAlreadyDeleted: aProxydObject) ifTrue: [^self].
+
 	query := SSWSQLDeleteObjectQuery forObject: aProxydObject.
 
 	statement := aProxydObject _dbTable deleteStatementGeneratedFrom: query.
 	statement values: query values.
-	statement exec; close!
+	statement exec; close.
+
+	self transaction addDeletedObject: aProxydObject!
 
 deregisterProxy: anSSWDBObjectProxy
 
@@ -744,13 +748,13 @@ fetchObjectOfClass: aClass withQuery: anSSWSQLQuery ifNone: aBlock
 		ifTrue: [aBlock value]
 		ifFalse: [self objectFromRow: row table: (self tableForClass: aClass)]!
 
+fetchObjectsFromTable: aDBTable withQuery: anSSWSQLQuery into: aCollection
+
+	self rowsFromQuery: anSSWSQLQuery do: [ :row | aCollection _dbAdd: (self objectFromRow: row table: aDBTable)]!
+
 fetchObjectsOfClass: aClass withQuery: anSSWSQLQuery into: aCollection
 
-	| table |
-		
-	table := self tableForClass: aClass.
-
-	self rowsFromQuery: anSSWSQLQuery do: [ :row | aCollection _dbAdd: (self objectFromRow: row table: table)]!
+	^self fetchObjectsFromTable: (self tableForClass: aClass) withQuery: anSSWSQLQuery into: aCollection!
 
 fetchObjectsOfClass: aClass withStatement: aDBPreparedStatement into: aCollection
 
@@ -1706,6 +1710,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #executeSQLAsTxn:!connection!public! !
 !SSWReStore categoriesFor: #executeSQLFrom:!connection!public! !
 !SSWReStore categoriesFor: #fetchObjectOfClass:withQuery:ifNone:!public!querying! !
+!SSWReStore categoriesFor: #fetchObjectsFromTable:withQuery:into:!public!querying! !
 !SSWReStore categoriesFor: #fetchObjectsOfClass:withQuery:into:!public!querying! !
 !SSWReStore categoriesFor: #fetchObjectsOfClass:withStatement:into:!public!querying! !
 !SSWReStore categoriesFor: #finalize!connection!initialize/release!public! !

@@ -37,6 +37,15 @@ dbInstancesFor: aCollectionProxy
 	^instances
 		!
 
+deleteQuery
+
+	self ownerField == nil ifTrue: [self setOwnerFieldFrom: self reStore].
+
+	^SSWSQLDeleteQuery new
+		table: self targetTable;
+		conditions: (SSWSQLCondition field: self ownerField equalTo: SSWSQLQueryParameter);
+		yourself!
+
 elementsIn: aCollection notIn: anotherCollection
 
 	^aCollection reject: [ :each | anotherCollection identityIncludes: each]!
@@ -287,6 +296,7 @@ targetTable
 !SSWDBOwnedCollectionSpec categoriesFor: #allElementsIn:!accessing!private! !
 !SSWDBOwnedCollectionSpec categoriesFor: #copyCollection:!actions!private! !
 !SSWDBOwnedCollectionSpec categoriesFor: #dbInstancesFor:!accessing!public! !
+!SSWDBOwnedCollectionSpec categoriesFor: #deleteQuery!accessing-queries!public! !
 !SSWDBOwnedCollectionSpec categoriesFor: #elementsIn:notIn:!accessing!private! !
 !SSWDBOwnedCollectionSpec categoriesFor: #hasCollection:anyAdditionsOrRemovalsFrom:!private!testing! !
 !SSWDBOwnedCollectionSpec categoriesFor: #orderingSpecs!accessing!public! !

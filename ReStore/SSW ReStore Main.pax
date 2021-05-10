@@ -168,7 +168,7 @@ Notification subclass: #StoreFailure
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
-	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects allocatedIDs'
+	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects allocatedIDs deletedObjects'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

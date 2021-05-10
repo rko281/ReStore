@@ -26,8 +26,7 @@ canRemoveValue
 
 commitFor: aCollectionProxy
 
-	self affectedEntry isPersistent ifTrue: 
-		[aCollectionProxy _collectionSpec deleteEntry: self affectedEntry in: aCollectionProxy _reStore]! !
+	self affectedEntry isPersistent ifTrue: [aCollectionProxy _collectionSpec deleteEntry: self affectedEntry]! !
 !SSWDBCollectionRemoval categoriesFor: #applyTo:!actions!public! !
 !SSWDBCollectionRemoval categoriesFor: #canRemoveKey!public!testing! !
 !SSWDBCollectionRemoval categoriesFor: #canRemoveValue!public!testing! !

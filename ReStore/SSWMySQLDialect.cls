@@ -107,6 +107,12 @@ renameTable: oldTable to: newTable in: anSSWReStore
 			nextPutAll: ' RENAME TO ';
 			writeSQLFor: newTable]  "<-subtle difference; MySQL needs the fully-qualified new name in case of namespace qualification, or the table will move to the standard namespace"!
 
+supportsDeleteWithJoin
+
+	"Answer whether this dialect supports DELETE queries featuring JOINs"
+
+	^true!
+
 supportsMultipleAddColumns
 
 	^true!
@@ -129,6 +135,7 @@ unsizedStringTypes
 !SSWMySQLDialect categoriesFor: #maxVarchar!constants!public! !
 !SSWMySQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
 !SSWMySQLDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
+!SSWMySQLDialect categoriesFor: #supportsDeleteWithJoin!public!testing! !
 !SSWMySQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
 !SSWMySQLDialect categoriesFor: #unsizedStringTypes!datatypes!public! !
 
