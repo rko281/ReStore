@@ -44,19 +44,14 @@ createCollectionTable
 
 deleteEntry: anSSWDBCollectionEntry
 
-	| query statement |
+	| query |
 
 	query := SSWSQLDeleteObjectQuery forObject: anSSWDBCollectionEntry.
 
-	statement := self collectionTable deleteStatementGeneratedFrom: query.
-	statement values: query values.
-	statement exec; close.!
-
-deleteEntry: anSSWDBCollectionEntry in: anSSWReStore 
-
-	anSSWDBCollectionEntry table: self collectionTable.
-
-	anSSWReStore executeQuery: (SSWSQLDeleteObjectQuery forObject: anSSWDBCollectionEntry)!
+	(self collectionTable deleteStatementGeneratedFrom: query)
+		values: query values;
+		exec; 
+		close!
 
 entryClass
 
@@ -73,10 +68,6 @@ insertEntry: anSSWDBCollectionEntry
 	statement := self collectionTable insertStatementGeneratedFrom: query.
 	statement values: query values.
 	statement exec; close!
-
-insertEntry: anSSWDBCollectionEntry in: anSSWReStore 
-
-	anSSWReStore executeQuery: (SSWSQLInsertQuery forObject: anSSWDBCollectionEntry)!
 
 queryClass
 
@@ -120,10 +111,8 @@ targetField: anSSWDBField
 !SSWDBGeneralCollectionSpec categoriesFor: #containedTables!evaluating!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #createCollectionTable!initializing!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #deleteEntry:!actions - api!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #deleteEntry:in:!actions - api!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #entryClass!constants!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #insertEntry:!actions - api!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #insertEntry:in:!actions - api!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #queryClass!constants!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #sourceField!accessing!public! !
 !SSWDBGeneralCollectionSpec categoriesFor: #sourceField:!accessing!public! !

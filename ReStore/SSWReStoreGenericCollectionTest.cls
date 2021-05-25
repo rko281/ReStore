@@ -141,6 +141,44 @@ testDependencyDeleteOnRemoval
 
 	self _testComponentExistenceOnDependency: component!
 
+testDependencyDeleteOnRepeatedRemoval
+
+	"Check that non-dependent collection contents are or are not deleted when removed, as appropriate for the specified relationship (i.e. delete if dependent, otherwise not)"
+
+	| component id cls |
+
+	component := collection anyOne.
+	id := component _id.
+	cls := component class.
+
+	"Add a second occurrence of component"
+	collection add: component.
+	testObject store.
+
+	reStore simulateReconnect.
+	self fetchTestObjects.
+	component := (cls storedInstancesIn: reStore) detect: [ :each | each _id = id] ifNone: [nil].
+	self assert: component notNil.
+	self assert: (collection occurrencesOf: component) equals: 2.
+
+	"Remove one occurrence of component"
+	self remove: component fromCollection: collection.
+	testObject store.
+
+	reStore simulateReconnect.
+	self fetchTestObjects.
+
+	"Whether we're dealing with a dependent relationship or not, component should still exist since it is still in the collection"
+	component := (cls storedInstancesIn: reStore) detect: [ :each | each _id = id] ifNone: [nil].
+	self assert: component notNil.
+	self assert: (collection occurrencesOf: component) equals: 1.
+
+	"Remove the remaining occcurrence and test existence depending on dependency"
+	self remove: component fromCollection: collection.
+	testObject store.
+
+	self _testComponentExistenceOnDependency: component!
+
 testDependencyDeleteOnReplacement
 
 	"Check that non-dependent collection contents are or are not deleted when replaced, as appropriate for the specified relationship (i.e. delete if dependent, otherwise not)"
@@ -186,6 +224,7 @@ testIncludes
 !SSWReStoreGenericCollectionTest categoriesFor: #testCollectionRefreshComponentReplace!public! !
 !SSWReStoreGenericCollectionTest categoriesFor: #testDependencyCascadedDelete!public!unit tests! !
 !SSWReStoreGenericCollectionTest categoriesFor: #testDependencyDeleteOnRemoval!public!unit tests! !
+!SSWReStoreGenericCollectionTest categoriesFor: #testDependencyDeleteOnRepeatedRemoval!public!unit tests! !
 !SSWReStoreGenericCollectionTest categoriesFor: #testDependencyDeleteOnReplacement!public!unit tests! !
 !SSWReStoreGenericCollectionTest categoriesFor: #testIncludes!public! !
 
@@ -193,6 +232,12 @@ testIncludes
 
 isAbstract
 
-	^self == SSWReStoreGenericCollectionTest! !
-!SSWReStoreGenericCollectionTest class categoriesFor: #isAbstract!public! !
+	^self == SSWReStoreGenericCollectionTest!
+
+multipleOccurrenceTestSelectors
+
+	"Return the selectors of any tests that depend on the ability to support multiple occurrences of an object in the collection tested by this class"
+	^#(#testDependencyDeleteOnRepeatedRemoval)! !
+!SSWReStoreGenericCollectionTest class categoriesFor: #isAbstract!public!testing! !
+!SSWReStoreGenericCollectionTest class categoriesFor: #multipleOccurrenceTestSelectors!accessing!public! !
 

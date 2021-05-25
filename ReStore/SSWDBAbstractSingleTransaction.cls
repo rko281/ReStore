@@ -233,8 +233,10 @@ prepareToCommit
 	"Pre-write validate the changed objects. This may cause other objects to be added to the transaction,
 	so repeat until no more changed objects are found"
 	[noneChanged] whileFalse:
-		[noneChanged := true.
+		[| needingPhase2 |
+		noneChanged := true.
 		currentObjects := self currentReferencedObjects.
+		needingPhase2 := self newEmptyObjectsSet.
 		self nextCollectionPhase.
 		currentObjects do: 
 			[ :proxy | 
@@ -243,10 +245,11 @@ prepareToCommit
 				ifTrue: 
 					[noneChanged := false.
 					changed add: proxy.
-					proxy _prepareToCommit]
+					proxy _prepareToCommitPhase1 ifTrue: [needingPhase2 add: proxy]]
 				ifFalse:
-					[self currentReferencedObjects add: proxy]]]].
-
+					[self currentReferencedObjects add: proxy]]].
+		needingPhase2 do: [ :each | each _prepareToCommitPhase2]].
+	
 	self currentReferencedObjects do: [ :proxy | proxy _swapReferences].
 	self changedObjects: (changed collect: [ :proxy | proxy _swapReferences]). 
 

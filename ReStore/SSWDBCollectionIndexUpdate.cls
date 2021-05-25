@@ -24,10 +24,6 @@ applyTo: aCollection
 			removeAtIndex: oldIndex;
 			add: self affectedEntry afterIndex: (self newIndex - 1)]"!
 
-canRemoveKey
-
-	^true!
-
 commitFor: aCollectionProxy
 
 	self affectedEntry isPersistent ifTrue: 
@@ -35,10 +31,6 @@ commitFor: aCollectionProxy
 			updateEntry: self affectedEntry 
 			withIndex: self newIndex
 			in: aCollectionProxy _reStore]!
-
-indexChange
-
-	^self newIndex - self oldIndex!
 
 newIndex
 
@@ -58,19 +50,17 @@ oldIndex
 
 	^self affectedEntry index!
 
-prepareToCommitFor: anSSWDBCachingCollectionProxy
+prepareToCommitFor: anSSWDBCollectionProxy
 
-	self newIndex _ensureActiveIn: anSSWDBCachingCollectionProxy _reStore.
+	self newIndex _ensureActiveIn: anSSWDBCollectionProxy _reStore.
 
-	^super prepareToCommitFor: anSSWDBCachingCollectionProxy! !
+	^super prepareToCommitFor: anSSWDBCollectionProxy! !
 !SSWDBCollectionIndexUpdate categoriesFor: #applyTo:!actions - api!public! !
-!SSWDBCollectionIndexUpdate categoriesFor: #canRemoveKey!public!testing! !
 !SSWDBCollectionIndexUpdate categoriesFor: #commitFor:!actions - api!public! !
-!SSWDBCollectionIndexUpdate categoriesFor: #indexChange!accessing!public! !
 !SSWDBCollectionIndexUpdate categoriesFor: #newIndex!accessing!public! !
 !SSWDBCollectionIndexUpdate categoriesFor: #newIndex:!accessing!public! !
 !SSWDBCollectionIndexUpdate categoriesFor: #oldIndex!accessing!public! !
-!SSWDBCollectionIndexUpdate categoriesFor: #prepareToCommitFor:!actions!public! !
+!SSWDBCollectionIndexUpdate categoriesFor: #prepareToCommitFor:!actions - api!public! !
 
 !SSWDBCollectionIndexUpdate class methodsFor!
 

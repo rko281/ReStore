@@ -65,3 +65,12 @@ templateComponent
 !SSWReStoreRelatedCacheDictionaryTest categoriesFor: #templateCollection!accessing!public! !
 !SSWReStoreRelatedCacheDictionaryTest categoriesFor: #templateComponent!public! !
 
+!SSWReStoreRelatedCacheDictionaryTest class methodsFor!
+
+allTestSelectors
+
+	^super allTestSelectors 
+		removeAll: self multipleOccurrenceTestSelectors;
+		yourself! !
+!SSWReStoreRelatedCacheDictionaryTest class categoriesFor: #allTestSelectors!accessing!public! !
+

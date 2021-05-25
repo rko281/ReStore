@@ -33,20 +33,6 @@ applyTo: aCollectionOfEntries
 	
 	self subclassResponsibility!
 
-canRemoveKey
-
-	"Return a Boolean indicating whether the receiver can potentially remove a key/index from a collection.
-	Default - false"
-
-	^false!
-
-canRemoveValue
-
-	"Return a Boolean indicating whether the receiver can potentially remove a value object from a collection.
-	Default - false"
-
-	^false!
-
 commitFor: aCollectionProxy
 
 	"Apply the change represented by the receiver onto the ReStore in which
@@ -60,8 +46,6 @@ prepareToCommitFor: anSSWDBCachingCollectionProxy
 !SSWDBCollectionChange categoriesFor: #affectedEntry!accessing!public! !
 !SSWDBCollectionChange categoriesFor: #affectedEntry:!accessing!public! !
 !SSWDBCollectionChange categoriesFor: #applyTo:!actions!public! !
-!SSWDBCollectionChange categoriesFor: #canRemoveKey!public!testing! !
-!SSWDBCollectionChange categoriesFor: #canRemoveValue!public!testing! !
 !SSWDBCollectionChange categoriesFor: #commitFor:!actions!public! !
 !SSWDBCollectionChange categoriesFor: #prepareToCommitFor:!actions!public! !
 

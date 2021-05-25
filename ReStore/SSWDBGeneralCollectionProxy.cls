@@ -161,13 +161,17 @@ _setChanges
 						[reStore transaction addDeletedObject: each target _proxiedObject.
 						each target unstore]]]]
 		ifFalse: 
-			[changes := proxiedObject _changesFrom: collectionEntries.
-			collectionSpec isKeyDependent ifTrue: 
-				[changes addAll: (proxiedObject _keyRemovalsIn: changes)].
-			collectionSpec isValueDependent ifTrue: 
-				[changes addAll: (proxiedObject _valueRemovalsIn: changes)]]]
+			[changes := proxiedObject _changesFrom: collectionEntries]]
 	ifFalse: 
 		[changes := proxiedObject _collectionAdditions]!
+
+_shouldUnstoreKey: anObject
+
+	^self _collectionSpec isKeyDependent and: [(self _proxiedObject includesKey: anObject) not]!
+
+_shouldUnstoreValue: anObject
+
+	^self _collectionSpec isValueDependent and: [(self _proxiedObject identityIncludes: anObject) not]!
 
 _unstore
 
@@ -189,6 +193,8 @@ _unstore
 !SSWDBGeneralCollectionProxy categoriesFor: #_resetChanges!actions!public! !
 !SSWDBGeneralCollectionProxy categoriesFor: #_rollbackChanges!actions!public! !
 !SSWDBGeneralCollectionProxy categoriesFor: #_setChanges!actions!public! !
+!SSWDBGeneralCollectionProxy categoriesFor: #_shouldUnstoreKey:!private!testing! !
+!SSWDBGeneralCollectionProxy categoriesFor: #_shouldUnstoreValue:!private!testing! !
 !SSWDBGeneralCollectionProxy categoriesFor: #_unstore!actions!public! !
 
 !SSWDBGeneralCollectionProxy class methodsFor!

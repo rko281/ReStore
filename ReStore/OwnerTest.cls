@@ -373,11 +373,11 @@ reStoreDefinition
 		define: #ownedSet as: 
 			(Set of: OwnedTest dependent owner: #owner);
 		define: #ownedArray as:
-			((Array new: 4) of: OwnedTest owner: #owner);
+			((Array new: 4) of: OwnedTest dependent owner: #owner);
 		define: #ownedOrdered as: 
 			(OrderedCollection of: OwnedTest dependent owner: #owner);
 		define: #ownedSorted as:
-			(SortedCollection of: OwnedTest owner: #owner);
+			(SortedCollection of: OwnedTest dependent owner: #owner);
 		define: #ownedList as: 
 			((SSWReStoreTest listModelOn: OrderedCollection new) of: OwnedTest dependent owner: #owner) ;
 

@@ -20,14 +20,19 @@ _checkHasChanged
 
 	^self _isDeleted or: [self _isPersistent not or: [collectionSpec hasCollection: proxiedObject anyAdditionsOrRemovalsFrom: copyCollection]]!
 
-_commitChanges
+_commitChangesPhase1
 
-	"Deletion of dependent collection elements"
+	"The only collection-level change is deletion of the entire collection; this is done in phase 2"
+	^true!
+
+_commitChangesPhase2
+
+	"Deletion of dependent collection elements - done as part of phase 2 to allow moved elements to first have their owner pointer updated"
 	(collectionSpec isValueDependent and: [self _isDeleted]) ifTrue: 
 		[collectionSpec deleteStatement
 			values: (Array with: owner _id);
 			exec].
-	
+
 	^true!
 
 _copyCollection
@@ -96,6 +101,59 @@ _prepareToCommit
 			collectionSpec ownerAccessor value: nil in: each.
 			each isDBProxy ifTrue: [each _referenced]]]!
 
+_prepareToCommitPhase1
+
+	"Prepare to 'commit' the receiver by ensuring that all elements added to the	proxiedObject point back to the owner.
+	Removals are handled in phase2 to allow elements to be transferred between owned collections"
+
+	| added |
+
+	self _isPersistent
+	ifTrue:
+		[self _isDeleted
+			ifTrue: [added := #()]
+			ifFalse: [added := collectionSpec elementsIn: proxiedObject notIn: copyCollection]]
+	ifFalse:
+		[added := collectionSpec allElementsIn: proxiedObject].
+
+	added := added reject: [ :each | each isNil].
+
+	added isEmpty ifFalse:
+		[owner __ensureActive.
+		added do: 
+			[ :each | 
+			each _ensureActiveIn: reStore.
+			collectionSpec ownerAccessor value: owner _proxiedObject in: each]].
+
+	"If the receiver is persistent we need phase 2"
+	^self _isPersistent!
+
+_prepareToCommitPhase2
+
+	"Prepare to 'commit' the receiver by ensuring that elements removed from the receiver have their backpointer nil'd, or are deleted if dependent"
+
+	| removed ownerObject |
+
+	self _isDeleted
+	ifTrue: 
+		[removed := copyCollection.
+		ownerObject := owner _copyObject]
+	ifFalse: 
+		[removed := collectionSpec elementsIn: copyCollection notIn: proxiedObject.
+		ownerObject := owner _proxiedObject].
+
+	removed := removed reject: [ :each | each isNil or: [(collectionSpec ownerAccessor valueIn: each) ifNil: ["manually nil'd out" false] ifNotNil: [ :eachOwner | eachOwner ~~ ownerObject]]].
+
+	collectionSpec isValueDependent
+	ifTrue:
+		[self _isDeleted ifTrue: [removed do: [ :each | each isDBProxy ifTrue: [reStore transaction addDeletedObject: each _proxiedObject]]].
+		removed do: [ :each | each unstore]]
+	ifFalse:
+		[removed do: 
+			[ :each |
+			collectionSpec ownerAccessor value: nil in: each.
+			each isDBProxy ifTrue: [each _referenced]]]!
+
 _proxiedObject: aCollection
 
 	"Overriden to set the copyCollection"
@@ -140,13 +198,16 @@ _unstore
 	proxiedObject := nil! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_acquireCopyCollection!actions!private! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_checkHasChanged!public!testing! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_commitChanges!actions-internal!public! !
+!SSWDBOwnedCollectionProxy categoriesFor: #_commitChangesPhase1!actions-internal!public! !
+!SSWDBOwnedCollectionProxy categoriesFor: #_commitChangesPhase2!actions-internal!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection!accessing!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection:!accessing!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_isDeleted!public!testing! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_isPersistent!public!testing! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_postCommitChanges!actions!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommit!actions!public! !
+!SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
+!SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommitPhase1!actions-internal!public! !
+!SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommitPhase2!actions-internal!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_proxiedObject:!accessing!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_rollbackChanges!actions!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_unstore!actions!public! !

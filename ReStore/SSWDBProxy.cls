@@ -51,6 +51,22 @@ _commitChanges
 	
 	self subclassResponsibility!
 
+_commitChangesPhase1
+
+	"Commit to the reStore changes to the receiver's proxiedObject - phase 1 of 2.
+	Return a Boolean indicating success"
+
+	"Default behaviour for subclasses only requiring a single phase"
+	^self _commitChanges!
+
+_commitChangesPhase2
+
+	"Commit to the reStore changes to the receiver's proxiedObject - phase 2 of 2.
+	Return a Boolean indicating success"
+
+	"Subclasses only requiring a single phase should override _commitChanges"
+	^true!
+
 _commitIn: anSSWReStore
 
 	"Add the receiver to the referenced set (if it is recovered) for subsequent commit"
@@ -202,6 +218,22 @@ _prepareToCommit
 	"Prepare to commit changes to the receiver's proxiedObject"
 	
 	self subclassResponsibility!
+
+_prepareToCommitPhase1
+
+	"Prepare to commit changes to the receiver's proxiedObject - pass 1 of 2.
+	Answer true or false depending on whether the receiver needs phase 2 to complete its preparations"
+
+	"Default action for subclasses only needing one pass"
+	self _prepareToCommit.
+	^false!
+
+_prepareToCommitPhase2
+
+	"Prepare to commit changes to the receiver's proxiedObject - pass 2 of 2."
+
+	"Subclasses only requiring a single phase should override _prepareToCommit"
+	^self!
 
 _proxiedObject
 
@@ -494,6 +526,8 @@ yourself
 !SSWDBProxy categoriesFor: #_checkHasChanged!public!testing! !
 !SSWDBProxy categoriesFor: #_checkHasChangedIn:!public!testing! !
 !SSWDBProxy categoriesFor: #_commitChanges!actions-internal!public! !
+!SSWDBProxy categoriesFor: #_commitChangesPhase1!actions-internal!public! !
+!SSWDBProxy categoriesFor: #_commitChangesPhase2!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_commitIn:!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_dbProxyIn:!accessing:direct!public! !
 !SSWDBProxy categoriesFor: #_dbProxyIn:ifNone:!accessing:direct!public! !
@@ -515,6 +549,8 @@ yourself
 !SSWDBProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_postSwapReferences!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
+!SSWDBProxy categoriesFor: #_prepareToCommitPhase1!actions-internal!public! !
+!SSWDBProxy categoriesFor: #_prepareToCommitPhase2!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_proxiedObject!accessing!public! !
 !SSWDBProxy categoriesFor: #_proxiedObject:!accessing!public! !
 !SSWDBProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !

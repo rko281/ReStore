@@ -13,8 +13,9 @@ package classNames
 	add: #SSWDBCollectionChange;
 	add: #SSWDBCollectionEntry;
 	add: #SSWDBCollectionIndexUpdate;
-	add: #SSWDBCollectionObjectRemoval;
+	add: #SSWDBCollectionKeyUpdate;
 	add: #SSWDBCollectionRemoval;
+	add: #SSWDBCollectionRemovalWithKey;
 	add: #SSWDBCollectionSpec;
 	add: #SSWDBCollectionUpdate;
 	add: #SSWDBGeneralCollectionSpec;
@@ -42,13 +43,13 @@ package methodNames
 	add: #Collection -> #_collectionAdditions;
 	add: #Collection -> #_dbAdd:;
 	add: #Collection -> #_dbAdd:suggestedIndex:;
+	add: #Collection -> #_dbKeyUpdateClass;
+	add: #Collection -> #_dbRemovalClass;
 	add: #Collection -> #_fetchAll:;
 	add: #Collection -> #_keyedChangesFrom:;
 	add: #Collection -> #_keyedCollectionAdditions;
-	add: #Collection -> #_keyRemovalsIn:;
 	add: #Collection -> #_nonKeyedCollectionAdditions;
 	add: #Collection -> #_proxifyIn:;
-	add: #Collection -> #_valueRemovalsIn:;
 	add: #Collection -> #_valuesRemovedBy:;
 	add: #Collection -> #fetch:;
 	add: #Collection -> #fetchAll:;
@@ -65,8 +66,9 @@ package methodNames
 	add: #Dictionary -> #_changesFrom:;
 	add: #Dictionary -> #_collectionAdditions;
 	add: #Dictionary -> #_dbAdd:suggestedIndex:;
+	add: #Dictionary -> #_dbKeyUpdateClass;
+	add: #Dictionary -> #_dbRemovalClass;
 	add: #Dictionary -> #_isMultiValue;
-	add: #Dictionary -> #_keyRemovalsIn:;
 	add: #Dictionary -> #_multiValueChangesFrom:;
 	add: #Dictionary -> #_multiValueKeyedCollectionAdditions;
 	add: #Dictionary -> #_valuesRemovedBy:;
@@ -131,11 +133,6 @@ Object subclass: #SSWDBCollectionEntry
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-Object subclass: #SSWDBCollectionObjectRemoval
-	instanceVariableNames: 'removedObject'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 SSWDBCacheDictionaryWrapper subclass: #SSWDBMultiValueCacheDictionaryWrapper
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -158,6 +155,16 @@ SSWDBCollectionChange subclass: #SSWDBCollectionRemoval
 	classInstanceVariableNames: ''!
 SSWDBCollectionChange subclass: #SSWDBCollectionUpdate
 	instanceVariableNames: 'newTarget'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCollectionIndexUpdate subclass: #SSWDBCollectionKeyUpdate
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBCollectionRemoval subclass: #SSWDBCollectionRemovalWithKey
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -330,6 +337,14 @@ _dbAdd: anObject suggestedIndex: anInteger
 
 	^self _dbAdd: anObject!
 
+_dbKeyUpdateClass
+
+	^SSWDBCollectionIndexUpdate!
+
+_dbRemovalClass
+
+	^SSWDBCollectionRemoval!
+
 _fetchAll: aCollection
 
 	"Private - ReStore - for each element of the receiver, use a single query (ideally, or multiple batched queries if the receiver's size is too large for the readAll batch size)
@@ -367,13 +382,13 @@ _keyedChangesFrom: aCollectionOfEntries
 			"No entry found = element has been added to the receiver" 
 			[(changes add: (SSWDBCollectionAddition added: each at: newKey)) affectedEntry].
 		entry index = newKey ifFalse: 
-			[changes add: (SSWDBCollectionIndexUpdate entry: entry newIndex: newKey)]].
+			[changes add: (self _dbKeyUpdateClass entry: entry newIndex: newKey)]].
 
 	"Any remaining entries indicate elements removed from the receiver"
 	map keysAndValuesDo:
 		[ :each :entries | 
 		entries isEmpty ifFalse:		"Minor optimisation"
-			[entries do: [ :entry | changes add: (SSWDBCollectionRemoval newWithEntry: entry)]]].
+			[entries do: [ :entry | changes add: (self _dbRemovalClass newWithEntry: entry)]]].
 
 	^changes!
 
@@ -390,15 +405,6 @@ _keyedCollectionAdditions
 	self keysAndValuesDo: [ :key :each | additions add: (SSWDBCollectionAddition added: each at: key)].
 
 	^additions!
-
-_keyRemovalsIn: aCollectionOfChanges
-
-	"Return a collection of SSWDBCollectionObjectRemovals representing those keys (indexes)
-	removed from the receiver by aCollectionOfChanges.
-
-	Default - none. Subclasses for whom this is important (i.e. have persistent indexes) should implement"
-
-	^#()!
 
 _nonKeyedCollectionAdditions
 
@@ -418,19 +424,6 @@ _proxifyIn: aCollectionProxy
 
 	aCollectionProxy _proxiedObject: self.
 	^self!
-
-_valueRemovalsIn: aCollectionOfChanges
-
-	"Return a collection of SSWDBCollectionObjectRemovals representing those values (objects)
-	removed from the receiver which are the targets of the affectedEntries of aCollectionOfChanges"
-
-	| removalChanges |
-
-	"Restrict the changes to just those that can potentially result in the removal of a value object"
-	removalChanges := aCollectionOfChanges select: [ :change | change canRemoveValue].
-
-	^(self _valuesRemovedBy: removalChanges) collect: 
-		[ :valueObject | SSWDBCollectionObjectRemoval newWithObject: valueObject]!
 
 _valuesRemovedBy: aCollectionOfChanges
 
@@ -536,13 +529,13 @@ staticCollectionSpecClass
 !Collection categoriesFor: #_collectionAdditions!private!restore-internal! !
 !Collection categoriesFor: #_dbAdd:!private!restore-internal! !
 !Collection categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
+!Collection categoriesFor: #_dbKeyUpdateClass!private!restore-internal! !
+!Collection categoriesFor: #_dbRemovalClass!private!restore-internal! !
 !Collection categoriesFor: #_fetchAll:!private!restore-internal! !
 !Collection categoriesFor: #_keyedChangesFrom:!private!restore-internal! !
 !Collection categoriesFor: #_keyedCollectionAdditions!private!restore-internal! !
-!Collection categoriesFor: #_keyRemovalsIn:!private!restore-internal! !
 !Collection categoriesFor: #_nonKeyedCollectionAdditions!private!restore-internal! !
 !Collection categoriesFor: #_proxifyIn:!private!restore-internal! !
-!Collection categoriesFor: #_valueRemovalsIn:!private!restore-internal! !
 !Collection categoriesFor: #_valuesRemovedBy:!private!restore-internal! !
 !Collection categoriesFor: #fetch:!converting!public! !
 !Collection categoriesFor: #fetchAll:!converting!public! !
@@ -608,19 +601,17 @@ _dbAdd: targetObject suggestedIndex: keyObject
 
 	^self at: keyObject put: targetObject!
 
+_dbKeyUpdateClass
+
+	^SSWDBCollectionKeyUpdate!
+
+_dbRemovalClass
+
+	^SSWDBCollectionRemovalWithKey!
+
 _isMultiValue
 
 	^self isEmpty not and: [(self anyOne isKindOf: Collection) and: [self anyOne isString not]]!
-
-_keyRemovalsIn: aCollectionOfChanges
-
-	^(aCollectionOfChanges isEmpty or: [aCollectionOfChanges first affectedEntry isKindOf: SSWDBCacheDictionaryEntry])
-	ifTrue:
-		[#()]
-	ifFalse:
-		[aCollectionOfChanges
-			select: [ :change | change canRemoveKey and: [(self includesKey: change affectedEntry index) not]]
-			thenCollect: [ :change | SSWDBCollectionObjectRemoval newWithObject: change affectedEntry index]]!
 
 _multiValueChangesFrom: aCollectionOfEntries
 
@@ -744,8 +735,9 @@ staticCollectionSpecClass
 !Dictionary categoriesFor: #_changesFrom:!comparing!private! !
 !Dictionary categoriesFor: #_collectionAdditions!comparing!private! !
 !Dictionary categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
+!Dictionary categoriesFor: #_dbKeyUpdateClass!private!restore-internal! !
+!Dictionary categoriesFor: #_dbRemovalClass!private!restore-internal! !
 !Dictionary categoriesFor: #_isMultiValue!private!testing! !
-!Dictionary categoriesFor: #_keyRemovalsIn:!comparing!private! !
 !Dictionary categoriesFor: #_multiValueChangesFrom:!comparing!private! !
 !Dictionary categoriesFor: #_multiValueKeyedCollectionAdditions!comparing!private! !
 !Dictionary categoriesFor: #_valuesRemovedBy:!comparing!private! !

@@ -16,10 +16,6 @@ applyTo: aCollection
 
 	self affectedEntry target: self newTarget!
 
-canRemoveValue
-
-	^true!
-
 commitFor: aCollectionProxy
 
 	self affectedEntry isPersistent ifTrue: 
@@ -40,12 +36,18 @@ newTarget: anObject
 	"newTarget stores the object which is now in the position of the collection
 	associated with the receiver's entry"
 
-	newTarget := anObject! !
+	newTarget := anObject!
+
+prepareToCommitFor: anSSWDBCollectionProxy
+
+	(anSSWDBCollectionProxy _shouldUnstoreValue: self affectedEntry target) ifTrue: [self affectedEntry target unstore].
+
+	^super prepareToCommitFor: anSSWDBCollectionProxy! !
 !SSWDBCollectionUpdate categoriesFor: #applyTo:!actions - api!public! !
-!SSWDBCollectionUpdate categoriesFor: #canRemoveValue!public!testing! !
 !SSWDBCollectionUpdate categoriesFor: #commitFor:!actions - api!public! !
 !SSWDBCollectionUpdate categoriesFor: #newTarget!accessing!public! !
 !SSWDBCollectionUpdate categoriesFor: #newTarget:!accessing!public! !
+!SSWDBCollectionUpdate categoriesFor: #prepareToCommitFor:!actions - api!public! !
 
 !SSWDBCollectionUpdate class methodsFor!
 

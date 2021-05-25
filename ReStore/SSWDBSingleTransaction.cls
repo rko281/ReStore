@@ -19,7 +19,9 @@ commitTo: aDBConnection
 	
 	aDBConnection beginRWTxn.
 	self preCommit.
-	self changedObjects do: [ :proxyObj | proxyObj _commitChanges].
+	self changedObjects 
+		do: [ :proxyObj | proxyObj _commitChangesPhase1];
+		do: [ :proxyObj | proxyObj _commitChangesPhase2].
 	aDBConnection commitTxn.
 
 	self postCommit.

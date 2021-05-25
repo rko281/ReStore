@@ -16,19 +16,16 @@ applyTo: aCollection
 
 	self affectedEntry removeFrom: aCollection!
 
-canRemoveKey
-
-	^true!
-
-canRemoveValue
-
-	^true!
-
 commitFor: aCollectionProxy
 
-	self affectedEntry isPersistent ifTrue: [aCollectionProxy _collectionSpec deleteEntry: self affectedEntry]! !
+	self affectedEntry isPersistent ifTrue: [aCollectionProxy _collectionSpec deleteEntry: self affectedEntry]!
+
+prepareToCommitFor: anSSWDBCollectionProxy
+
+	(anSSWDBCollectionProxy _shouldUnstoreValue: self affectedEntry target) ifTrue: [self affectedEntry target unstore].
+
+	^super prepareToCommitFor: anSSWDBCollectionProxy! !
 !SSWDBCollectionRemoval categoriesFor: #applyTo:!actions!public! !
-!SSWDBCollectionRemoval categoriesFor: #canRemoveKey!public!testing! !
-!SSWDBCollectionRemoval categoriesFor: #canRemoveValue!public!testing! !
 !SSWDBCollectionRemoval categoriesFor: #commitFor:!actions - api!public! !
+!SSWDBCollectionRemoval categoriesFor: #prepareToCommitFor:!actions - api!public! !
 
