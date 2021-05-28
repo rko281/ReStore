@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBWrapper subclass: #SSWDBObjectWithComponents
-	instanceVariableNames: 'exclusions'
+	instanceVariableNames: 'exclusions originatingComponent'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -87,13 +87,21 @@ componentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet
 			[ :component |
 			component componentsOf: self object do: 
 				[ :each | 
-				each withComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]]]!
+				each withComponents 
+					originatingComponent: component;
+					withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]]]!
 
 exclusions
 	^exclusions!
 
 exclusions: anObject
 	exclusions := anObject!
+
+originatingComponent
+	^originatingComponent!
+
+originatingComponent: anObject
+	originatingComponent := anObject!
 
 withComponents
 
@@ -139,6 +147,8 @@ withoutAll: aCollection
 !SSWDBObjectWithComponents categoriesFor: #componentsIn:do:visited:evaluated:!enumerating!private! !
 !SSWDBObjectWithComponents categoriesFor: #exclusions!accessing!private! !
 !SSWDBObjectWithComponents categoriesFor: #exclusions:!accessing!private! !
+!SSWDBObjectWithComponents categoriesFor: #originatingComponent!public! !
+!SSWDBObjectWithComponents categoriesFor: #originatingComponent:!public! !
 !SSWDBObjectWithComponents categoriesFor: #withComponents!accessing!public! !
 !SSWDBObjectWithComponents categoriesFor: #withComponentsIn:do:!enumerating!private! !
 !SSWDBObjectWithComponents categoriesFor: #withComponentsIn:do:visited:evaluated:!enumerating!private! !

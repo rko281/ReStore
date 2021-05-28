@@ -58,6 +58,7 @@ package methodNames
 	add: #Object -> #_id;
 	add: #Object -> #_idIn:;
 	add: #Object -> #_isRecovered;
+	add: #Object -> #_orProxiedObject;
 	add: #Object -> #_refreshIfUpdatedIn:;
 	add: #Object -> #_refreshIn:;
 	add: #Object -> #_refreshWithContents;
@@ -188,7 +189,7 @@ SSWDBSingleTransaction subclass: #SSWDBSingleTransactionWithVersioning
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBWrapper subclass: #SSWDBObjectWithComponents
-	instanceVariableNames: 'exclusions'
+	instanceVariableNames: 'exclusions originatingComponent'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -426,7 +427,7 @@ _commitIn: aReStore
 	"...however if the object is encountered multiple times during a commitObjects: operation, its proxy will have flipped to the object"
 	(aReStore isInCurrentTransaction: self) ifFalse: 
 		"isValidForPersistence test excludes base object types (String, Number etc.)"
-		[self isValidForPersistence ifFalse: [self storeIn: aReStore]]!
+		[self isValidForPersistence ifFalse: [self storeInAnsweringProxy: aReStore]]!
 
 _dbProxy
 
@@ -464,8 +465,7 @@ _ensurePersistentIn: anSSWReStore
 
 	"Ensure that the receiver is persistent in the given ReStore"
 
-	self isValidForPersistence ifFalse:
-		[anSSWReStore locateProxyForObject: self ifNone: [self storeIn: anSSWReStore]]!
+	(self isValidForPersistence or: [anSSWReStore isPersistent: self]) ifFalse: [self storeInAnsweringProxy: anSSWReStore]!
 
 _forceRefreshIn: aReStore
 
@@ -511,6 +511,10 @@ _isRecovered
 	(compared to an unrecovered proxy - we do not consider the case where the receiver is non-persistent)"
 
 	^true!
+
+_orProxiedObject
+
+	^self!
 
 _refreshIfUpdatedIn: aReStore
 
@@ -829,6 +833,7 @@ writeSQLOn: aStream
 !Object categoriesFor: #_id!private!restore-internal! !
 !Object categoriesFor: #_idIn:!private!restore-internal! !
 !Object categoriesFor: #_isRecovered!private!restore-internal! !
+!Object categoriesFor: #_orProxiedObject!private!restore-internal! !
 !Object categoriesFor: #_refreshIfUpdatedIn:!private!restore-internal! !
 !Object categoriesFor: #_refreshIn:!private!restore-internal! !
 !Object categoriesFor: #_refreshWithContents!private!restore-internal! !

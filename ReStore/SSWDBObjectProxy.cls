@@ -143,8 +143,7 @@ _postSwapReferences
 
 _prepareToCommit
 
-	self _isDeleted ifFalse: 
-		[reStore preWriteValidate: self]!
+	self _isDeleted ifFalse: [self _storeNonPersistentComponents]!
 
 _proxiedObjectMissing
 
@@ -169,6 +168,26 @@ _refreshFromRow: aDatabaseRow table: aDBTable
 	^(aDBTable refreshProxy: self whereChangedFromRow: aDatabaseRow)
 		ifTrue: [proxiedObject onRefresh. true]
 		ifFalse: [false]!
+
+_storeNonPersistentComponents
+
+	"Ensure that each non-persistent component of the proxiedObject exists in the receiver's reStore"
+
+	| table |
+
+	table := self _dbTable.
+
+	table dataFields do: [ :field | (field accessor valueIn: proxiedObject) _ensurePersistentIn: reStore].
+		
+	table collectionSpecs do:
+		[ :collectionSpec || collection |
+		collection := collectionSpec accessor valueIn: self.
+		collection isNil ifTrue: [collection := collectionSpec newCollection].
+		collection isDBProxy ifFalse: 
+			[| proxy |
+			proxy := self _collectionProxyFor: collectionSpec.
+			proxy _proxiedObject == collection ifFalse: 
+				[proxy _setProxiedObject: collection; _referenced]]]!
 
 _unrecoveredProxyString
 
@@ -362,6 +381,7 @@ writeSQLOn: aStream forField: aField
 !SSWDBObjectProxy categoriesFor: #_proxiedObjectMissing!actions-internal!public! !
 !SSWDBObjectProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !
 !SSWDBObjectProxy categoriesFor: #_refreshFromRow:table:!actions-internal!public! !
+!SSWDBObjectProxy categoriesFor: #_storeNonPersistentComponents!actions-internal!private! !
 !SSWDBObjectProxy categoriesFor: #_unrecoveredProxyString!accessing!public! !
 !SSWDBObjectProxy categoriesFor: #_unstore!actions-internal!public! !
 !SSWDBObjectProxy categoriesFor: #=!forwarding!public! !

@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBObjectWithRelatedComponents subclass: #SSWDBCollectionWithRelatedContents
-	instanceVariableNames: ''
+	instanceVariableNames: 'cachedProxy'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -12,15 +12,44 @@ https://github.com/rko281/ReStore'!
 !SSWDBCollectionWithRelatedContents categoriesForClass!Unclassified! !
 !SSWDBCollectionWithRelatedContents methodsFor!
 
+collection
+
+	^self proxy 
+		ifNil: [self object] 
+		ifNotNil: [ :proxy | proxy _proxiedObject]!
+
 componentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet
 
-	| proxy |
+	self isRelated ifFalse: [^self].
 
-	proxy := self object _dbProxyIn: aReStore ifNone: [nil]. 
-	(proxy isNil or: [proxy _collectionSpec isRelated]) ifFalse: [^self].
-
-	(proxy ifNil: [self object] ifNotNil: [ :prx | prx _proxiedObject]) do:
+	self collection do:
 		[ :each | 
-		each withRelatedComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]! !
+		each withRelatedComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]!
+
+isRelated
+
+	^(self originatingComponent ifNil: [self proxy ifNotNil: [ :proxy | proxy _collectionSpec]])
+		ifNil: [true]
+		ifNotNil: [ :spec | spec isRelated]!
+
+object: anObject
+
+	anObject isDBProxy 
+		ifTrue: [cachedProxy := anObject _proxiedObject]
+		ifFalse: [cachedProxy := anObject].
+
+	super object: anObject!
+
+proxy
+
+	self object isDBProxy ifTrue: [^self object].
+
+	^cachedProxy isDBProxy 
+		ifTrue: [cachedProxy]
+		ifFalse: [self object _dbProxyIfNone: [nil]]! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #collection!public! !
 !SSWDBCollectionWithRelatedContents categoriesFor: #componentsIn:do:visited:evaluated:!enumerating!private! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #isRelated!public! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #object:!public! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #proxy!public! !
 

@@ -882,6 +882,10 @@ isInCurrentTransaction: anObject
 
 	^(self transaction proxyForObject: anObject ifNone: [nil]) notNil!
 
+isPersistent: anObject
+
+	^(self classCacheFor: anObject class) anySatisfy: [ :proxyOrObject | proxyOrObject _orProxiedObject == anObject]!
+
 isSystemClass: aClass
 
 	^self persistentSystemClasses includes: aClass!
@@ -945,7 +949,7 @@ nextIDForTable: anSSWDBTable
 	nextID := directTableRecord nextID + 1.
 
 	statement := self nextIDStatement.
-	statement values: (Array with: nextID with: directTableRecord _id with: directTableRecord nextID); exec.
+	statement values: (Array with: nextID with: tableRecord _id with: directTableRecord nextID); exec.
 	statement rowsAffected = 1 ifTrue: [^nextID].
 
 	"Refresh and try again"
@@ -1046,10 +1050,6 @@ prepareStatementForQuery: anSSWSQLQuery
 	anSSWSQLQuery preExecIn: self.
 
 	^self connection prepareQuery: anSSWSQLQuery!
-
-preWriteValidate: anObject
-
-	(self tableForClass: anObject class) storeNonPersistentComponentsOf: anObject!
 
 proxy: anSSWDBProxy forwarded: aMessage
 
@@ -1731,6 +1731,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #isClassPersistent:!public!testing! !
 !SSWReStore categoriesFor: #isConnected!public!testing! !
 !SSWReStore categoriesFor: #isInCurrentTransaction:!private!transaction management! !
+!SSWReStore categoriesFor: #isPersistent:!public!testing! !
 !SSWReStore categoriesFor: #isSystemClass:!public!testing! !
 !SSWReStore categoriesFor: #isTransactionInProgress!public!transaction api! !
 !SSWReStore categoriesFor: #lazyRefresh:!public!transactionless api! !
@@ -1749,7 +1750,6 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #onStartup!initialize/release!public! !
 !SSWReStore categoriesFor: #persistentSystemClasses!class maintenance!private! !
 !SSWReStore categoriesFor: #prepareStatementForQuery:!connection!public! !
-!SSWReStore categoriesFor: #preWriteValidate:!public!read/write objects! !
 !SSWReStore categoriesFor: #proxy:forwarded:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #proxyCache!accessing!public! !
 !SSWReStore categoriesFor: #proxyCache:!accessing!public! !

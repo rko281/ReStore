@@ -133,7 +133,7 @@ commitAllocatedIDs
 		directTableRecord := tableRecord _proxiedObject.
 		nextID := directTableRecord nextID + ids size.
 		statement := tableRecord _reStore nextIDStatement.
-		statement values: (Array with: nextID with: directTableRecord _id with: directTableRecord nextID); exec.
+		statement values: (Array with: nextID with: tableRecord _id with: directTableRecord nextID); exec.
 		statement rowsAffected = 1] whileFalse: 
 			["Update clash; refresh and try again"
 			tableRecord _recoverProxiedObject]]!

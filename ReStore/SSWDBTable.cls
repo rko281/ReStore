@@ -814,29 +814,6 @@ staticConditions
 	
 	^SSWSQLConditionCollection new!
 
-storeNonPersistentComponentsOf: aProxyObject
-
-	"Ensure that each non-persistency-valid component of the proxiedObject of aProxyObject 
-	accessed by the receiver's components exists in the aProxyObject's ReStore 
-	- store those that do not exist."
-	
-	| proxiedObject |
-	
-	proxiedObject := aProxyObject _proxiedObject.
-
-	self dataFields do:
-		[ :field | (field accessor valueIn: proxiedObject) _ensurePersistentIn: self reStore].
-		
-	self collectionSpecs do:
-		[ :collectionSpec || collection |
-		collection := collectionSpec accessor valueIn: aProxyObject.
-		collection isNil ifTrue: [collection := collectionSpec newCollection].
-		collection isDBProxy ifFalse: 
-			[| proxy |
-			proxy := aProxyObject _collectionProxyFor: collectionSpec.
-			proxy _proxiedObject == collection ifFalse: 
-				[proxy _setProxiedObject: collection; _referenced]]]!
-
 symbolicNameFor: aSymbol
 
 	"Return the correct symbolic name to use for the inst var named aSymbol.
@@ -1028,7 +1005,6 @@ writeSQLNameOn: aStream
 !SSWDBTable categoriesFor: #sqlDefinition!output!public! !
 !SSWDBTable categoriesFor: #sqlDialect!evaluating!public! !
 !SSWDBTable categoriesFor: #staticConditions!evaluating!public! !
-!SSWDBTable categoriesFor: #storeNonPersistentComponentsOf:!public!validating! !
 !SSWDBTable categoriesFor: #symbolicNameFor:!evaluating!private! !
 !SSWDBTable categoriesFor: #synchronizeDefinition!db maintenance!public! !
 !SSWDBTable categoriesFor: #synchronizeFields!db maintenance!public! !
