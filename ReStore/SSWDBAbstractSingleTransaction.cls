@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
-	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects allocatedIDs deletedObjects'
+	instanceVariableNames: 'allReferencedObjects currentReferencedObjects activeProxiesMap changedObjects allocatedIDs deletedObjects'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -18,6 +18,18 @@ abandon
 
 	self currentReferencedObjects do: [ :each | each _swapReferences].
 	self endObjectCollection!
+
+activeProxiesMap
+
+	"activeProxiesMap stores an IdentityDictionary mapping objects active in this transaction to their proxy"
+
+	^activeProxiesMap!
+
+activeProxiesMap: anIdentityDictionary
+
+	"activeProxiesMap stores an IdentityDictionary mapping objects active in this transaction to their proxy"
+
+	activeProxiesMap := anIdentityDictionary!
 
 addDeletedObject: aDBProxy
 
@@ -90,6 +102,7 @@ begin
 	
 	self
 		allocatedIDs: (IdentityDictionary new: 64);
+		activeProxiesMap: (IdentityDictionary new: 128);
 		beginObjectCollection!
 
 beginObjectCollection
@@ -178,6 +191,10 @@ endObjectCollection
 		allReferencedObjects: nil;
 		currentReferencedObjects: self newEmptyObjectsSet!
 
+includesProxiedObject: anObject
+
+	^self activeProxiesMap includesKey: anObject!
+
 includesProxy: anSSWDBProxy
 
 	^(self currentReferencedObjects includes: anSSWDBProxy)
@@ -255,17 +272,16 @@ prepareToCommit
 
 	self endObjectCollection!
 
-proxy: aProxydObject forwarded: aMessage
+proxy: aDBProxy forwarded: aMessage
 
-	"Add aProxydObject to the collection of potentially-changed objects
-	(the receiver performs no checking on the message sent)"
+	"Add aDBProxy to the collection of potentially-changed objects (the receiver performs no checking on the message sent)"
 
-	self currentReferencedObjects add: aProxydObject!
+	self activeProxiesMap at: aDBProxy _proxiedObject put: aDBProxy.
+	self currentReferencedObjects add: aDBProxy!
 
 proxyForObject: anObject ifNone: aBlock
 
-	^self currentReferencedObjects detect: [ :each | each _proxiedObject == anObject] ifNone:
-		[self allReferencedObjects detect: [ :each | each _proxiedObject == anObject] ifNone: aBlock]!
+	^self activeProxiesMap at: anObject ifAbsent: aBlock!
 
 removeProxy: aProxydObject
 
@@ -278,6 +294,8 @@ resetChangedObjects
 
 	self changedObjects: nil! !
 !SSWDBAbstractSingleTransaction categoriesFor: #abandon!actions!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #activeProxiesMap!accessing!private! !
+!SSWDBAbstractSingleTransaction categoriesFor: #activeProxiesMap:!accessing!private! !
 !SSWDBAbstractSingleTransaction categoriesFor: #addDeletedObject:!actions!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs:!accessing!public! !
@@ -297,6 +315,7 @@ resetChangedObjects
 !SSWDBAbstractSingleTransaction categoriesFor: #deletedObjects!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #deletedObjects:!accessing!public! !
 !SSWDBAbstractSingleTransaction categoriesFor: #endObjectCollection!initializing!public! !
+!SSWDBAbstractSingleTransaction categoriesFor: #includesProxiedObject:!public!testing! !
 !SSWDBAbstractSingleTransaction categoriesFor: #includesProxy:!public!testing! !
 !SSWDBAbstractSingleTransaction categoriesFor: #isAlreadyDeleted:!public!testing! !
 !SSWDBAbstractSingleTransaction categoriesFor: #newEmptyObjectsSet!evaluating!public! !

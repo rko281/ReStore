@@ -58,7 +58,6 @@ package methodNames
 	add: #Object -> #_id;
 	add: #Object -> #_idIn:;
 	add: #Object -> #_isRecovered;
-	add: #Object -> #_orProxiedObject;
 	add: #Object -> #_refreshIfUpdatedIn:;
 	add: #Object -> #_refreshIn:;
 	add: #Object -> #_refreshWithContents;
@@ -169,7 +168,7 @@ Notification subclass: #StoreFailure
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
-	instanceVariableNames: 'allReferencedObjects currentReferencedObjects changedObjects allocatedIDs deletedObjects'
+	instanceVariableNames: 'allReferencedObjects currentReferencedObjects activeProxiesMap changedObjects allocatedIDs deletedObjects'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -449,7 +448,7 @@ _dbProxyIn: aReStore
 
 _dbProxyIn: aReStore ifNone: aBlock
 	
-	^aReStore actualProxyForObject: self ifNone: aBlock!
+	^aReStore activeProxyForObject: self ifNone: aBlock!
 
 _ensureActiveIn: anSSWReStore
 
@@ -463,9 +462,10 @@ _ensureActiveIn: anSSWReStore
 
 _ensurePersistentIn: anSSWReStore
 
-	"Ensure that the receiver is persistent in the given ReStore"
+	"Ensure that the receiver is persistent in the given ReStore.
+	When received by a non-proxy object, the receiver is either non-persistent (store it) or already in the current transaction (do nothing)"
 
-	(self isValidForPersistence or: [anSSWReStore isPersistent: self]) ifFalse: [self storeInAnsweringProxy: anSSWReStore]!
+	(self isValidForPersistence or: [anSSWReStore isInCurrentTransaction: self]) ifFalse: [self storeInAnsweringProxy: anSSWReStore]!
 
 _forceRefreshIn: aReStore
 
@@ -511,10 +511,6 @@ _isRecovered
 	(compared to an unrecovered proxy - we do not consider the case where the receiver is non-persistent)"
 
 	^true!
-
-_orProxiedObject
-
-	^self!
 
 _refreshIfUpdatedIn: aReStore
 
@@ -777,13 +773,9 @@ storeInAnsweringProxy: anSSWReStore
 	"Store the receiver object as a new persistent object in anSSWReStore.
 	Return the new proxy (intended for privileged code only)"
 	
-	| proxy |
-
-	proxy := anSSWReStore createProxyForNewObject: self.
-
-	proxy _referenced.
-
-	^proxy!
+	^(anSSWReStore createProxyForNewObject: self)
+		_referenced;
+		yourself!
 
 unstore
 
@@ -833,7 +825,6 @@ writeSQLOn: aStream
 !Object categoriesFor: #_id!private!restore-internal! !
 !Object categoriesFor: #_idIn:!private!restore-internal! !
 !Object categoriesFor: #_isRecovered!private!restore-internal! !
-!Object categoriesFor: #_orProxiedObject!private!restore-internal! !
 !Object categoriesFor: #_refreshIfUpdatedIn:!private!restore-internal! !
 !Object categoriesFor: #_refreshIn:!private!restore-internal! !
 !Object categoriesFor: #_refreshWithContents!private!restore-internal! !

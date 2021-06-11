@@ -200,10 +200,6 @@ _newProxiedObject: anObject
 	
 	self _setProxiedObject: anObject!
 
-_orProxiedObject
-
-	^proxiedObject!
-
 _postCommitChanges
 
 	"The receiver's changes have been successfully committed.
@@ -550,7 +546,6 @@ yourself
 !SSWDBProxy categoriesFor: #_lazyRefresh!actions-refresh!public! !
 !SSWDBProxy categoriesFor: #_lazyRefreshIn:!actions-refresh!public! !
 !SSWDBProxy categoriesFor: #_newProxiedObject:!accessing!public! !
-!SSWDBProxy categoriesFor: #_orProxiedObject!accessing!public! !
 !SSWDBProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_postSwapReferences!actions-internal!public! !
 !SSWDBProxy categoriesFor: #_prepareToCommit!actions-internal!public! !

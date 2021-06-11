@@ -26,20 +26,15 @@ abandonTransaction
 		self transaction: self transaction ownerTransaction.
 		self connection rollbackTxn]!
 
-actualProxyForObject: anObject ifNone: aBlock
+activeProxyForObject: anObject ifNone: aBlock
 
-	"Locate within the receiver's proxyCache the proxy object wrapping anObject.
-	Ensure that we return a proxy (not a reference-swapped real object)"
+	"Locate and return the proxy object wrapping anObject, or the result of a Block if none"
 
 	"Base types (String, Number etc.) - these are never proxified"
 	anObject class isPersistentBaseClass ifTrue: [^aBlock value].
 
-	(self tableForClass: anObject class ifAbsent: [nil]) notNil ifTrue:
-		[(self locateProxyForObject: anObject ifNone: [nil])
-			ifNil: [^aBlock value]
-			ifNotNil: [ :proxy | proxy isDBProxy ifTrue: [^proxy]]].
-
-	"Check in the active transaction"
+	"We only need to lookup proxies if they are active in the current transaction (since all external references to the proxy will have swapped to its proxied object).
+	Therefor we only need to check in the active transaction"
 	^self transaction
 		ifNil: [aBlock value]
 		ifNotNil: [ :trans | trans proxyForObject: anObject ifNone: aBlock]!
@@ -880,11 +875,7 @@ isConnected
 
 isInCurrentTransaction: anObject
 
-	^(self transaction proxyForObject: anObject ifNone: [nil]) notNil!
-
-isPersistent: anObject
-
-	^(self classCacheFor: anObject class) anySatisfy: [ :proxyOrObject | proxyOrObject _orProxiedObject == anObject]!
+	^self transaction includesProxiedObject: anObject!
 
 isSystemClass: aClass
 
@@ -907,17 +898,6 @@ lazyRefreshAll: aCollection
 		self connection rollbackTxn.
 
 		aCollection do: [ :each | each _lazyRefreshIn: self]]!
-
-locateProxyForObject: anObject ifNone: aBlock
-
-	"Locate within the receiver's proxyCache the proxy object wrapping anObject.
-	If none found, return the result of evaluating aBlock"
-	
-	^(self classCacheFor: anObject class) detect: 
-		[ :proxyOrObject | 
-		proxyOrObject isDBProxy
-			ifTrue: [proxyOrObject _proxiedObject == anObject]
-			ifFalse: [proxyOrObject == anObject]] ifNone: aBlock!
 
 nextIDCache
 
@@ -1643,7 +1623,7 @@ validateTable: anSSWDBTable
 			[self error: 'Oversize table name. Enable full table records (see supportsFullTableRecords)']]! !
 !SSWReStore categoriesFor: #_rollbackObjects:!private!transaction management! !
 !SSWReStore categoriesFor: #abandonTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #actualProxyForObject:ifNone:!proxy manipulation!public! !
+!SSWReStore categoriesFor: #activeProxyForObject:ifNone:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #addClass:!class maintenance!public! !
 !SSWReStore categoriesFor: #addClasses:!class maintenance!public! !
 !SSWReStore categoriesFor: #addClassWithSubclasses:!class maintenance!public! !
@@ -1731,12 +1711,10 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #isClassPersistent:!public!testing! !
 !SSWReStore categoriesFor: #isConnected!public!testing! !
 !SSWReStore categoriesFor: #isInCurrentTransaction:!private!transaction management! !
-!SSWReStore categoriesFor: #isPersistent:!public!testing! !
 !SSWReStore categoriesFor: #isSystemClass:!public!testing! !
 !SSWReStore categoriesFor: #isTransactionInProgress!public!transaction api! !
 !SSWReStore categoriesFor: #lazyRefresh:!public!transactionless api! !
 !SSWReStore categoriesFor: #lazyRefreshAll:!public!transactionless api! !
-!SSWReStore categoriesFor: #locateProxyForObject:ifNone:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #nextIDCache!accessing!public! !
 !SSWReStore categoriesFor: #nextIDCache:!accessing!public! !
 !SSWReStore categoriesFor: #nextIDForTable:!cache management!public! !
@@ -1887,7 +1865,7 @@ proxyForObject: anObject ifNone: aBlock
 		[ :aReStore | 
 		"Only interrogate aReStore if it stores instances of the class of anObject"
 		((aReStore tableCache includesKey: anObject class) or: [anObject isKindOf: Collection]) ifTrue:
-			[(aReStore actualProxyForObject: anObject ifNone: [nil]) ifNotNil: [ :proxy | ^proxy]]].
+			[(aReStore activeProxyForObject: anObject ifNone: [nil]) ifNotNil: [ :proxy | ^proxy]]].
 
 	^aBlock value!
 

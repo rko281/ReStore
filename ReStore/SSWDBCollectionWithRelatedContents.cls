@@ -47,9 +47,9 @@ proxy
 	^cachedProxy isDBProxy 
 		ifTrue: [cachedProxy]
 		ifFalse: [self object _dbProxyIfNone: [nil]]! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #collection!public! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #collection!accessing!public! !
 !SSWDBCollectionWithRelatedContents categoriesFor: #componentsIn:do:visited:evaluated:!enumerating!private! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #isRelated!public! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #object:!public! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #proxy!public! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #isRelated!public!testing! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #object:!accessing!public! !
+!SSWDBCollectionWithRelatedContents categoriesFor: #proxy!accessing!public! !
 
