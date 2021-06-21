@@ -61,46 +61,6 @@ _postCommitChanges
 
 	self _acquireCopyCollection!
 
-_prepareToCommit
-
-	"Prepare to 'commit' the receiver by ensuring that all elements added to the
-	proxiedObject point back to the owner, and that removed elements do not"
-
-	| added removed |
-
-	self _isPersistent
-	ifTrue:
-		[self _isDeleted
-		ifTrue:
-			[added := #(). 
-			removed := copyCollection.
-			collectionSpec isValueDependent ifTrue: [removed do: [ :each | each isDBProxy ifTrue: [reStore transaction addDeletedObject: each _proxiedObject]]]]
-		ifFalse:
-			[added := collectionSpec elementsIn: proxiedObject notIn: copyCollection.
-			removed := collectionSpec elementsIn: copyCollection notIn: proxiedObject]]
-	ifFalse:
-		[added := collectionSpec allElementsIn: proxiedObject.
-		removed := #()].
-
-	added := added reject: [ :each | each isNil].
-	removed := removed reject: [ :each | each isNil].
-
-	added isEmpty ifFalse:
-		[owner __ensureActive.
-		added do: 
-			[ :each | 
-			each _ensureActiveIn: reStore.
-			collectionSpec ownerAccessor value: owner _proxiedObject in: each]].
-
-	collectionSpec isValueDependent
-	ifTrue:
-		[removed do: [ :each | each unstore]]
-	ifFalse:
-		[removed do: 
-			[ :each | 
-			collectionSpec ownerAccessor value: nil in: each.
-			each isDBProxy ifTrue: [each _referenced]]]!
-
 _prepareToCommitPhase1
 
 	"Prepare to 'commit' the receiver by ensuring that all elements added to the	proxiedObject point back to the owner.
@@ -152,7 +112,7 @@ _prepareToCommitPhase2
 		[removed do: 
 			[ :each |
 			collectionSpec ownerAccessor value: nil in: each.
-			each isDBProxy ifTrue: [each _referenced]]]!
+			each _ensureActiveIn: reStore]]!
 
 _proxiedObject: aCollection
 
@@ -205,7 +165,6 @@ _unstore
 !SSWDBOwnedCollectionProxy categoriesFor: #_isDeleted!public!testing! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_isPersistent!public!testing! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_postCommitChanges!actions!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommitPhase1!actions-internal!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommitPhase2!actions-internal!public! !
 !SSWDBOwnedCollectionProxy categoriesFor: #_proxiedObject:!accessing!public! !

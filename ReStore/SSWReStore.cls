@@ -631,6 +631,10 @@ ensureCanChangeTransactionMode
 
 	self isConnected ifTrue: [self error: 'Cannot change transaction mode whilst connected']!
 
+ensureIsActiveInCurrentTransaction: anObject
+
+	^self transaction ensureIsActive: anObject!
+
 ensureNoActiveTransaction
 
 	self hasTransaction ifTrue:
@@ -1678,6 +1682,7 @@ validateTable: anSSWDBTable
 !SSWReStore categoriesFor: #disconnect!connection!public! !
 !SSWReStore categoriesFor: #enableFullTableRecords!class maintenance!public! !
 !SSWReStore categoriesFor: #ensureCanChangeTransactionMode!initialize/release!private! !
+!SSWReStore categoriesFor: #ensureIsActiveInCurrentTransaction:!proxy manipulation!public! !
 !SSWReStore categoriesFor: #ensureNoActiveTransaction!private!transaction management! !
 !SSWReStore categoriesFor: #evaluateAsTransaction:!public!transaction api! !
 !SSWReStore categoriesFor: #evaluateAsTransactionUntilSuccess:!public!transaction api! !

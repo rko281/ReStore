@@ -24,6 +24,10 @@ __ensureActive
 
 	(reStore transaction includesProxy: self) ifFalse: [self _referenced]!
 
+__referenced
+
+	reStore proxy: self forwarded: ##(Message selector: #_referenced)!
+
 _changedObjectsIn: aReStore
 
 	^(self _checkHasChangedIn: aReStore)
@@ -268,7 +272,7 @@ _referenced
 		ifTrue: [me := self _swapReferences]
 		ifFalse: [me := self].
 
-	me _reStore proxy: me forwarded: ##(Message selector: #_referenced).
+	me __referenced.
 	
 	^me!
 
@@ -522,6 +526,7 @@ yourself
 	
 	^self! !
 !SSWDBProxy categoriesFor: #__ensureActive!actions-internal!public! !
+!SSWDBProxy categoriesFor: #__referenced!actions-internal!private! !
 !SSWDBProxy categoriesFor: #_changedObjectsIn:!accessing!public! !
 !SSWDBProxy categoriesFor: #_checkHasChanged!public!testing! !
 !SSWDBProxy categoriesFor: #_checkHasChangedIn:!public!testing! !
