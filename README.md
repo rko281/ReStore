@@ -22,11 +22,10 @@ Previous versions of ReStore transformed class and instance variable names to ta
 ReStore now users lowercase for transformed names and wraps any reserved words in quotes to avoid the need to append postfixes. If you synchronizeClasses with an existing ReStore database you may experience data loss where new name transformations do not match previous ones. You can revert to the previous strategy by sending `useLegacyNameTransformations` to the ReStore instance after login. You should of course also always backup important data prior to synchronizing classes. You may also find the SSW ReStore Deprecated package useful.
 
 ## SQLite Native Support
-ReStore now optionally supports SQLite via the non-ODBC [native interface](https://github.com/rko281/SQLite3). To install ReStore with SQLite native support evaluate:
-  `GitHubPackageManager install: 'rko281/ReStore/SQLite3'`
+ReStore now optionally supports SQLite via a non-ODBC [native interface](https://github.com/rko281/SQLite3)
+ * To install ReStore with SQLite native support evaluate:<br>          `GitHubPackageManager install: 'rko281/ReStore/SQLite3'`
 * Ensure the 32-bit `sqlite3.dll` is available on your system path (download [here](https://www.sqlite.org/download.html))
-* To specify a SQLite connection send the message `connection:` to your ReStore instance; example:
-  `aReStore connection: (SSWSQLite3Connection on: 'c:\temp\sqlite.db')`
+* To specify a SQLite connection send the message `connection:` to your ReStore instance; example:<br>            `aReStore connection: (SSWSQLite3Connection on: 'c:\temp\sqlite.db')`
 
 # A Simple Example
 Let's consider a simple customer order application with the following classes (found in the `SSW ReStore Examples` package):
