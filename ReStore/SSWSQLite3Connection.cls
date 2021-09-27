@@ -18,8 +18,8 @@ _columnsInTable: aDBTable
 	names isNil ifTrue: [ ^#() ].
 
 	columns := OrderedCollection new: names size.
-	names doWithIndex: 
-		[ :name :index | 
+	names keysAndValuesDo:
+		[ :index :name | 
 		columns add:
 			( SSWDBColAttr new 
 					name: name;
