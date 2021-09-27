@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreReadStreamTest
 	instanceVariableNames: 'readStream'
@@ -53,6 +53,11 @@ sampleSet
 sampleSize
 
 	^50!
+
+tearDown
+
+	readStream close.
+	super tearDown!
 
 testAtEnd
 
@@ -231,27 +236,30 @@ testUpToInclude
 	j25 := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John25'].
 
 	self _testIncludeDuring: [readStream upTo: j25]! !
-!SSWReStoreReadStreamTest categoriesFor: #_testIncludeDuring:!private!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #_testRead:during:!private!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreReadStreamTest categoriesFor: #sampleSet!public!running! !
-!SSWReStoreReadStreamTest categoriesFor: #sampleSize!public!running! !
-!SSWReStoreReadStreamTest categoriesFor: #testAtEnd!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNext!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNextAvailable!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNextAvailableInclude!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNextAvailableN!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNextAvailableNInclude!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNextInclude!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNextN!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testNextNInclude!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testPeek!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testPositionBackwards!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testPositionForwards!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testReset!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testSize!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testUpTo!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testUpToEnd!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testUpToEndInclude!public!unit tests! !
-!SSWReStoreReadStreamTest categoriesFor: #testUpToInclude!public!unit tests! !
+!SSWReStoreReadStreamTest categoriesForMethods!
+_testIncludeDuring:!private!unit tests! !
+_testRead:during:!private!unit tests! !
+createTestData!public!running! !
+sampleSet!public!running! !
+sampleSize!public!running! !
+tearDown!public!running! !
+testAtEnd!public!unit tests! !
+testNext!public!unit tests! !
+testNextAvailable!public!unit tests! !
+testNextAvailableInclude!public!unit tests! !
+testNextAvailableN!public!unit tests! !
+testNextAvailableNInclude!public!unit tests! !
+testNextInclude!public!unit tests! !
+testNextN!public!unit tests! !
+testNextNInclude!public!unit tests! !
+testPeek!public!unit tests! !
+testPositionBackwards!public!unit tests! !
+testPositionForwards!public!unit tests! !
+testReset!public!unit tests! !
+testSize!public!unit tests! !
+testUpTo!public!unit tests! !
+testUpToEnd!public!unit tests! !
+testUpToEndInclude!public!unit tests! !
+testUpToInclude!public!unit tests! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreProductOrdersTest subclass: #SSWReStoreCollectionSubQueryTest
 	instanceVariableNames: 'customers goldPlatedWobulator'
@@ -300,22 +300,24 @@ testSelectSimpleSizeComparison
 
 	matches := customers select: [ :each | (each orders select: [ :order | order quantity >= 1000]) size >= 10].
 	self assert: (matches isEmpty)! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testAnySatisfyDeep!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testAnySatisfyPersistent!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testAnySatisfySimple!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testCollectFirst!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testCollectionSize!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testCollectLast!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testCollectSize!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testConditionAndCollectWithSize!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testConditionAndCollectWithSubQuery!public! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testIncludes!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testIsEmpty!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testIsNotEmpty!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testSelectSimpleCollectFirst!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testSelectSimpleCollectSize!public!unit tests! !
-!SSWReStoreCollectionSubQueryTest categoriesFor: #testSelectSimpleSizeComparison!public!unit tests! !
+!SSWReStoreCollectionSubQueryTest categoriesForMethods!
+createTestData!public!running! !
+testAnySatisfyDeep!public!unit tests! !
+testAnySatisfyPersistent!public!unit tests! !
+testAnySatisfySimple!public!unit tests! !
+testCollectFirst!public!unit tests! !
+testCollectionSize!public!unit tests! !
+testCollectLast!public!unit tests! !
+testCollectSize!public!unit tests! !
+testConditionAndCollectWithSize!public!unit tests! !
+testConditionAndCollectWithSubQuery!public! !
+testIncludes!public!unit tests! !
+testIsEmpty!public!unit tests! !
+testIsNotEmpty!public!unit tests! !
+testSelectSimpleCollectFirst!public!unit tests! !
+testSelectSimpleCollectSize!public!unit tests! !
+testSelectSimpleSizeComparison!public!unit tests! !
+!
 
 !SSWReStoreCollectionSubQueryTest class methodsFor!
 
@@ -326,6 +328,8 @@ isAbstract
 myTestSelectors
 
 	^SSWReStoreCollectionSubQueryTest testSelectors! !
-!SSWReStoreCollectionSubQueryTest class categoriesFor: #isAbstract!public! !
-!SSWReStoreCollectionSubQueryTest class categoriesFor: #myTestSelectors!public! !
+!SSWReStoreCollectionSubQueryTest class categoriesForMethods!
+isAbstract!public! !
+myTestSelectors!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 PositionableStream subclass: #SSWDBReadStream
 	instanceVariableNames: 'instancesCollection peeked'
@@ -160,24 +160,26 @@ upToEnd
 	[self atEnd] whileFalse: [results add: self basicNext].
 
 	^self evaluatePostReadActionsFor: results! !
-!SSWDBReadStream categoriesFor: #basicNext!evaluating!private! !
-!SSWDBReadStream categoriesFor: #close!actions!public! !
-!SSWDBReadStream categoriesFor: #collectionNext!evaluating!private! !
-!SSWDBReadStream categoriesFor: #evaluatePostReadActionsFor:!evaluating!private! !
-!SSWDBReadStream categoriesFor: #instancesCollection!accessing!public! !
-!SSWDBReadStream categoriesFor: #instancesCollection:!accessing!public! !
-!SSWDBReadStream categoriesFor: #next!evaluating!public! !
-!SSWDBReadStream categoriesFor: #next:!evaluating!public! !
-!SSWDBReadStream categoriesFor: #nextAvailable:!evaluating!public! !
-!SSWDBReadStream categoriesFor: #peek!evaluating!public! !
-!SSWDBReadStream categoriesFor: #position:!positioning!public! !
-!SSWDBReadStream categoriesFor: #reinitialize!initializing!private! !
-!SSWDBReadStream categoriesFor: #reset!positioning!public! !
-!SSWDBReadStream categoriesFor: #resetPeeked!initializing!private! !
-!SSWDBReadStream categoriesFor: #resetResultsSet!positioning!private! !
-!SSWDBReadStream categoriesFor: #reStore!accessing!public! !
-!SSWDBReadStream categoriesFor: #resync!initializing!private! !
-!SSWDBReadStream categoriesFor: #setInstancesCollection:!initializing!private! !
-!SSWDBReadStream categoriesFor: #upTo:!evaluating!public! !
-!SSWDBReadStream categoriesFor: #upToEnd!evaluating!public! !
+!SSWDBReadStream categoriesForMethods!
+basicNext!evaluating!private! !
+close!actions!public! !
+collectionNext!evaluating!private! !
+evaluatePostReadActionsFor:!evaluating!private! !
+instancesCollection!accessing!public! !
+instancesCollection:!accessing!public! !
+next!evaluating!public! !
+next:!evaluating!public! !
+nextAvailable:!evaluating!public! !
+peek!evaluating!public! !
+position:!positioning!public! !
+reinitialize!initializing!private! !
+reset!positioning!public! !
+resetPeeked!initializing!private! !
+resetResultsSet!positioning!private! !
+reStore!accessing!public! !
+resync!initializing!private! !
+setInstancesCollection:!initializing!private! !
+upTo:!evaluating!public! !
+upToEnd!evaluating!public! !
+!
 

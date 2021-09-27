@@ -23,7 +23,6 @@ package methodNames
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern3a;
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern3b;
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern4;
-	add: #SSWODBCStatement -> #testExec;
 	add: #SSWReStoreBlockAndOrQueryTest -> #note;
 	add: #SSWReStoreFullTableTest -> #test21VerifyLegacyNameTransformationMode;
 	add: #SSWReStoreFunctionTest -> #testPlatformSpecificFunction;
@@ -70,14 +69,11 @@ package methodNames
 	add: #SSWReStoreQueryTest -> #testQueryWithIfTrueMethodFollowedByOr;
 	add: #SSWReStoreTableTest -> #test21VerifyLegacyNameTransformationMode;
 	add: #SSWReStoreTest -> #addMethod:withSelector:toClass:;
-	add: #SSWReStoreTest -> #countQueries;
 	add: #SSWReStoreTest -> #debugStream;
 	add: #SSWReStoreTest -> #dsn;
 	add: #SSWReStoreTest -> #initConnectionFor:;
-	add: #SSWReStoreTest -> #queryCount;
+	add: #SSWReStoreTest -> #nativeConnection;
 	add: #SSWReStoreTest -> #removeSelector:fromClass:;
-	add: #SSWReStoreTest -> #resetQueryCount;
-	add: #SSWReStoreTest -> #stopQueryCounting;
 	add: #SSWReStoreTypeTest -> #testTimeStamp;
 	add: 'SSWReStoreTest class' -> #incrementQueryCount;
 	add: 'SSWReStoreTest class' -> #isDolphin;
@@ -98,7 +94,6 @@ package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
 	'SSW ReStore Main'
-	'SSW ReStore ODBC'
 	'SSW ReStore Tests').
 
 package!
@@ -188,25 +183,19 @@ testNotNilJumpBytecodePattern4
 	"JumpIfNotNil to non-return without ^True in jumped-over code "
 
 	^(self friend notNil or: [self test isNil]) and: [self firstName = 'Zoe']! !
-!SimplePerson categoriesFor: #friendSurnameOrNil!public! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern1!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern2!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern3a!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern3b!public!testing! !
-!SimplePerson categoriesFor: #testIsNilJumpBytecodePattern4!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern1!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern2!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern3a!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern3b!public!testing! !
-!SimplePerson categoriesFor: #testNotNilJumpBytecodePattern4!public!testing! !
-
-!SSWODBCStatement methodsFor!
-
-testExec
-
-	SSWReStoreTest incrementQueryCount.
-	^self _testExec! !
-!SSWODBCStatement categoriesFor: #testExec!public! !
+!SimplePerson categoriesForMethods!
+friendSurnameOrNil!public! !
+testIsNilJumpBytecodePattern1!public!testing! !
+testIsNilJumpBytecodePattern2!public!testing! !
+testIsNilJumpBytecodePattern3a!public!testing! !
+testIsNilJumpBytecodePattern3b!public!testing! !
+testIsNilJumpBytecodePattern4!public!testing! !
+testNotNilJumpBytecodePattern1!public!testing! !
+testNotNilJumpBytecodePattern2!public!testing! !
+testNotNilJumpBytecodePattern3a!public!testing! !
+testNotNilJumpBytecodePattern3b!public!testing! !
+testNotNilJumpBytecodePattern4!public!testing! !
+!
 
 !SSWReStoreBlockAndOrQueryTest methodsFor!
 
@@ -220,7 +209,9 @@ note
 
 (0 to: 255) allSatisfy: [ :b1 | 
 	(0 to: 255) allSatisfy: [ :b2 | ((ByteArray with: b1 with: b2) swordAtOffset: 0) = (ByteCodeDispatcher decodeLongJump: b1 byte2: b2)]]"! !
-!SSWReStoreBlockAndOrQueryTest categoriesFor: #note!public!Running! !
+!SSWReStoreBlockAndOrQueryTest categoriesForMethods!
+note!public!Running! !
+!
 
 !SSWReStoreFullTableTest methodsFor!
 
@@ -248,7 +239,9 @@ test21VerifyLegacyNameTransformationMode
 	ifFalse: 
 		[self assert: table name equals: 'WHERE_0'.
 		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD']! !
-!SSWReStoreFullTableTest categoriesFor: #test21VerifyLegacyNameTransformationMode!public!unit tests! !
+!SSWReStoreFullTableTest categoriesForMethods!
+test21VerifyLegacyNameTransformationMode!public!unit tests! !
+!
 
 !SSWReStoreFunctionTest methodsFor!
 
@@ -259,12 +252,14 @@ testPlatformSpecificFunction
 
 	| expectedResults results |
 
-	((1 to: 12) collect: [ :index | SimpleProductOrder new quantity: (12 - index); date: (Date newDay: 1 monthIndex: index year: 2020); yourself]) storeAllIn: reStore.
+	((1 to: 12) collect: [ :index | SimpleProductOrder new quantity: (12 - index); date: (Date newDay: 2 monthIndex: index year: 2020); yourself]) storeAllIn: reStore.
 
 	expectedResults := (1 to: 12) collect: [ :index | {12 - index. index}].
 	results := (SimpleProductOrder storedInstancesIn: reStore) collect: [ :each | each quantity || each date month].
 	self assert: (results asSortedCollection: [ :a :b | a first >= b first]) asArray equals: expectedResults! !
-!SSWReStoreFunctionTest categoriesFor: #testPlatformSpecificFunction!public!unit tests! !
+!SSWReStoreFunctionTest categoriesForMethods!
+testPlatformSpecificFunction!public!unit tests! !
+!
 
 !SSWReStoreIsNilQueryTest methodsFor!
 
@@ -524,26 +519,28 @@ testMethodIsNilJumpBytecodePattern4
 	results := instances select: [ :each | each testIsNilJumpBytecodePattern4].
 
 	self assert: results size equals: 1! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern1:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern2:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern3a:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern3b:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertIsNilJumpBytecodePattern4:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern1:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern2:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern3a:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern3b:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #assertMethodIsNilJumpBytecodePattern4:!helpers!private! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern1!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern2!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern3a!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern3b!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testIsNilJumpBytecodePattern4!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern1!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern2!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern3a!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern3b!public!unit tests! !
-!SSWReStoreIsNilQueryTest categoriesFor: #testMethodIsNilJumpBytecodePattern4!public!unit tests! !
+!SSWReStoreIsNilQueryTest categoriesForMethods!
+assertIsNilJumpBytecodePattern1:!helpers!private! !
+assertIsNilJumpBytecodePattern2:!helpers!private! !
+assertIsNilJumpBytecodePattern3a:!helpers!private! !
+assertIsNilJumpBytecodePattern3b:!helpers!private! !
+assertIsNilJumpBytecodePattern4:!helpers!private! !
+assertMethodIsNilJumpBytecodePattern1:!helpers!private! !
+assertMethodIsNilJumpBytecodePattern2:!helpers!private! !
+assertMethodIsNilJumpBytecodePattern3a:!helpers!private! !
+assertMethodIsNilJumpBytecodePattern3b:!helpers!private! !
+assertMethodIsNilJumpBytecodePattern4:!helpers!private! !
+testIsNilJumpBytecodePattern1!public!unit tests! !
+testIsNilJumpBytecodePattern2!public!unit tests! !
+testIsNilJumpBytecodePattern3a!public!unit tests! !
+testIsNilJumpBytecodePattern3b!public!unit tests! !
+testIsNilJumpBytecodePattern4!public!unit tests! !
+testMethodIsNilJumpBytecodePattern1!public!unit tests! !
+testMethodIsNilJumpBytecodePattern2!public!unit tests! !
+testMethodIsNilJumpBytecodePattern3a!public!unit tests! !
+testMethodIsNilJumpBytecodePattern3b!public!unit tests! !
+testMethodIsNilJumpBytecodePattern4!public!unit tests! !
+!
 
 !SSWReStoreNotNilQueryTest methodsFor!
 
@@ -802,26 +799,28 @@ testNotNilJumpBytecodePattern4
 	results := instances select: [ :each | (each friend notNil or: [each test isNil]) and: [each firstName = 'Zoe']].
 
 	self assert: results size equals: 1! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern1:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern2:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern3a:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern3b:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertMethodNotNilJumpBytecodePattern4:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern1:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern2:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern3a:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern3b:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #assertNotNilJumpBytecodePattern4:!helpers!private! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern1!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern2!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern3a!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern3b!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testMethodNotNilJumpBytecodePattern4!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern1!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern2!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern3a!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern3b!public!unit tests! !
-!SSWReStoreNotNilQueryTest categoriesFor: #testNotNilJumpBytecodePattern4!public!unit tests! !
+!SSWReStoreNotNilQueryTest categoriesForMethods!
+assertMethodNotNilJumpBytecodePattern1:!helpers!private! !
+assertMethodNotNilJumpBytecodePattern2:!helpers!private! !
+assertMethodNotNilJumpBytecodePattern3a:!helpers!private! !
+assertMethodNotNilJumpBytecodePattern3b:!helpers!private! !
+assertMethodNotNilJumpBytecodePattern4:!helpers!private! !
+assertNotNilJumpBytecodePattern1:!helpers!private! !
+assertNotNilJumpBytecodePattern2:!helpers!private! !
+assertNotNilJumpBytecodePattern3a:!helpers!private! !
+assertNotNilJumpBytecodePattern3b:!helpers!private! !
+assertNotNilJumpBytecodePattern4:!helpers!private! !
+testMethodNotNilJumpBytecodePattern1!public!unit tests! !
+testMethodNotNilJumpBytecodePattern2!public!unit tests! !
+testMethodNotNilJumpBytecodePattern3a!public!unit tests! !
+testMethodNotNilJumpBytecodePattern3b!public!unit tests! !
+testMethodNotNilJumpBytecodePattern4!public!unit tests! !
+testNotNilJumpBytecodePattern1!public!unit tests! !
+testNotNilJumpBytecodePattern2!public!unit tests! !
+testNotNilJumpBytecodePattern3a!public!unit tests! !
+testNotNilJumpBytecodePattern3b!public!unit tests! !
+testNotNilJumpBytecodePattern4!public!unit tests! !
+!
 
 !SSWReStoreQueryTest methodsFor!
 
@@ -837,7 +836,9 @@ testQueryWithIfTrueMethodFollowedByOr
 
 	self assert: smiths size = 2.
 	self assert: ((smiths collect: [ :each | each firstName]) asSortedCollection asArray) equals: #('John' 'Zoe')! !
-!SSWReStoreQueryTest categoriesFor: #testQueryWithIfTrueMethodFollowedByOr!public!unit tests! !
+!SSWReStoreQueryTest categoriesForMethods!
+testQueryWithIfTrueMethodFollowedByOr!public!unit tests! !
+!
 
 !SSWReStoreTableTest methodsFor!
 
@@ -869,7 +870,9 @@ test21VerifyLegacyNameTransformationMode
 		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD'.
 		"Also check a system class - previously was not reset to new strategy"
 		self assert: (reStore tableForClass: SSWDBTableRecord) name = 'NEXT_ID']! !
-!SSWReStoreTableTest categoriesFor: #test21VerifyLegacyNameTransformationMode!public!unit tests! !
+!SSWReStoreTableTest categoriesForMethods!
+test21VerifyLegacyNameTransformationMode!public!unit tests! !
+!
 
 !SSWReStoreTest methodsFor!
 
@@ -879,15 +882,6 @@ addMethod: aCompiledMethod withSelector: aSymbol toClass: aClass
 	This is a temporary addition/replacement for the purposes of a test case; do not update aCompiledMethod"
 	aClass methodDictionary at: aSymbol put: aCompiledMethod.
 	aClass flushMethodCache!
-
-countQueries
-
-	self resetQueryCount.
-
-	SSWODBCStatement methodDictionary 
-		at: #_testExec put: SSWODBCStatement>>#exec;
-		at: #exec put: SSWODBCStatement>>#testExec.
-	SSWODBCStatement flushMethodCache!
 
 debugStream
 
@@ -905,40 +899,35 @@ initConnectionFor: aReStore
 
 	"Default requires SQLite3 ODBC Driver to be installed"
 
-	self dsn
-		ifNil: [aReStore connectString: 'DRIVER=SQLite3 ODBC Driver;Database=file::memory:?cache=shared']
-		ifNotNil: [ :dsn | aReStore dsn: dsn]!
+	self nativeConnection
+	ifNil: 
+		[self dsn
+			ifNil: [aReStore connectString: 'DRIVER=SQLite3 ODBC Driver;Database=file::memory:?cache=shared'] "Use SQLite in memory"
+			ifNotNil: [ :dsn | aReStore dsn: dsn]]
+	ifNotNil: 
+		[ :nativeConnection | aReStore connection: nativeConnection]!
 
-queryCount
+nativeConnection
 
-	^SSWReStoreTest queryCount!
+	"Return a native (non-ODBC) connection to be tested, or nil to use ODBC"
+
+	"Default to SQLite native connection if installed"
+	^(self class environment at: #SSWSQLite3Connection ifAbsent: [nil]) ifNotNil: [ :cls | cls on: 'file::memory:?cache=shared']!
 
 removeSelector: aSymbol fromClass: aClass
 
 	"Remove the temporarily-added method at aSymbol in aClass's methodDictionary"
 
 	aClass methodDictionary removeKey: aSymbol.
-	aClass flushMethodCache!
-
-resetQueryCount
-
-	^SSWReStoreTest resetQueryCount!
-
-stopQueryCounting
-
-	(SSWODBCStatement methodDictionary removeKey: #_testExec ifAbsent: [nil]) ifNotNil: 
-		[ :origExec |
-		SSWODBCStatement methodDictionary at: #exec put: origExec.
-		SSWODBCStatement flushMethodCache]! !
-!SSWReStoreTest categoriesFor: #addMethod:withSelector:toClass:!public!running! !
-!SSWReStoreTest categoriesFor: #countQueries!public!running! !
-!SSWReStoreTest categoriesFor: #debugStream!public!unit tests! !
-!SSWReStoreTest categoriesFor: #dsn!accessing!public! !
-!SSWReStoreTest categoriesFor: #initConnectionFor:!public!running! !
-!SSWReStoreTest categoriesFor: #queryCount!accessing!public! !
-!SSWReStoreTest categoriesFor: #removeSelector:fromClass:!public!running! !
-!SSWReStoreTest categoriesFor: #resetQueryCount!public!running! !
-!SSWReStoreTest categoriesFor: #stopQueryCounting!public!running! !
+	aClass flushMethodCache! !
+!SSWReStoreTest categoriesForMethods!
+addMethod:withSelector:toClass:!public!running! !
+debugStream!public!running! !
+dsn!accessing!public! !
+initConnectionFor:!public!running! !
+nativeConnection!public!running! !
+removeSelector:fromClass:!public!running! !
+!
 
 !SSWReStoreTest class methodsFor!
 
@@ -967,12 +956,14 @@ queryCount
 resetQueryCount
 
 	queryCount := 0! !
-!SSWReStoreTest class categoriesFor: #incrementQueryCount!public! !
-!SSWReStoreTest class categoriesFor: #isDolphin!public!testing! !
-!SSWReStoreTest class categoriesFor: #listModelClass!public! !
-!SSWReStoreTest class categoriesFor: #listModelOn:!public! !
-!SSWReStoreTest class categoriesFor: #queryCount!public! !
-!SSWReStoreTest class categoriesFor: #resetQueryCount!public! !
+!SSWReStoreTest class categoriesForMethods!
+incrementQueryCount!public! !
+isDolphin!public!testing! !
+listModelClass!public! !
+listModelOn:!public! !
+queryCount!public! !
+resetQueryCount!public! !
+!
 
 !SSWReStoreTypeTest methodsFor!
 
@@ -989,7 +980,9 @@ testTimeStamp
 	t := (DolphinTypeTest storedInstancesIn: reStore) detect: [ :each | each timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil].
 	self assert: t notNil.
 	self assert: t timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ensure: [reStore destroyClass: DolphinTypeTest]! !
-!SSWReStoreTypeTest categoriesFor: #testTimeStamp!public!unit tests! !
+!SSWReStoreTypeTest categoriesForMethods!
+testTimeStamp!public!unit tests! !
+!
 
 "End of package definition"!
 

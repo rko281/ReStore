@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreSpeedTest
 	instanceVariableNames: ''
@@ -160,12 +160,14 @@ test9Delete
 
 	self assert: (SimplePerson storedInstancesIn: reStore) isEmpty.
 	self assert: (time < (self sampleSize * 2)) "Fairly arbitrary but keeps an eye on things"! !
-!SSWReStoreSpeedTest categoriesFor: #sampleSet!public!running! !
-!SSWReStoreSpeedTest categoriesFor: #sampleSize!public!running! !
-!SSWReStoreSpeedTest categoriesFor: #test1Write!public!unit tests! !
-!SSWReStoreSpeedTest categoriesFor: #test2Read!public!unit tests! !
-!SSWReStoreSpeedTest categoriesFor: #test3Update!public!unit tests! !
-!SSWReStoreSpeedTest categoriesFor: #test4RefreshNoChange!public!unit tests! !
-!SSWReStoreSpeedTest categoriesFor: #test5RefreshWithChange!public!unit tests! !
-!SSWReStoreSpeedTest categoriesFor: #test9Delete!public!unit tests! !
+!SSWReStoreSpeedTest categoriesForMethods!
+sampleSet!public!running! !
+sampleSize!public!running! !
+test1Write!public!unit tests! !
+test2Read!public!unit tests! !
+test3Update!public!unit tests! !
+test4RefreshNoChange!public!unit tests! !
+test5RefreshWithChange!public!unit tests! !
+test9Delete!public!unit tests! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreProductOrdersTest subclass: #SSWReStoreAggregateQueryTest
 	instanceVariableNames: ''
@@ -146,7 +146,7 @@ testGroupWithObject
 	| uniqueProducts |
 
 	"SELECT * FROM TABLE GROUP BY FIELD not supported on Access or SQL Server"
-	((reStore sqlDialect isKindOf: SSWMSAccessDialect) or: [reStore sqlDialect isKindOf: SSWSQLServerDialect]) ifTrue: [^self].
+	((reStore sqlDialect isKindOf: SSWMSAccessDialect) or: [reStore sqlDialect isKindOf: SSWSQLServerDialect]) ifTrue: [self skip].
 
 	uniqueProducts := (SimpleProductOrder storedInstancesIn: reStore) project: [ :each | each product].
 
@@ -236,20 +236,22 @@ testSize_ie_Count
 	orders := SimpleProductOrder storedInstancesIn: reStore.
 
 	self assert: (orders size = 17)! !
-!SSWReStoreAggregateQueryTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testAll!public! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testGroupedAverage!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testGroupedCount!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testGroupedMaximum!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testGroupedMinimum!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testGroupedSum!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testGroupWithObject!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testMultiGroupedCount!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testSimpleAverage!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testSimpleCount!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testSimpleGroup!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testSimpleMaximum!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testSimpleMinimum!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testSimpleSum!public!unit tests! !
-!SSWReStoreAggregateQueryTest categoriesFor: #testSize_ie_Count!public!unit tests! !
+!SSWReStoreAggregateQueryTest categoriesForMethods!
+createTestData!public!running! !
+testAll!public! !
+testGroupedAverage!public!unit tests! !
+testGroupedCount!public!unit tests! !
+testGroupedMaximum!public!unit tests! !
+testGroupedMinimum!public!unit tests! !
+testGroupedSum!public!unit tests! !
+testGroupWithObject!public!unit tests! !
+testMultiGroupedCount!public!unit tests! !
+testSimpleAverage!public!unit tests! !
+testSimpleCount!public!unit tests! !
+testSimpleGroup!public!unit tests! !
+testSimpleMaximum!public!unit tests! !
+testSimpleMinimum!public!unit tests! !
+testSimpleSum!public!unit tests! !
+testSize_ie_Count!public!unit tests! !
+!
 

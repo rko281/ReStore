@@ -258,7 +258,9 @@ SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
 instanceFromDBValue: aValue in: anSSWReStore
 
 	^aValue == true or: [aValue = anSSWReStore sqlDialect trueObject]! !
-!Boolean class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+!Boolean class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!private! !
+!
 
 !ByteArray class methodsFor!
 
@@ -267,7 +269,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"ASSERT: aValue isNil OR aValue isKindOf: self"
 
 	^aValue! !
-!ByteArray class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!ByteArray class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
 
 !Class methodsFor!
 
@@ -284,9 +288,11 @@ reStoreValue
 writeSQLOn: aStream
 
 	self name asString printOn: aStream! !
-!Class categoriesFor: #isValidForPersistence!private!testing! !
-!Class categoriesFor: #reStoreValue!accessing!public! !
-!Class categoriesFor: #writeSQLOn:!accessing!public! !
+!Class categoriesForMethods!
+isValidForPersistence!private!testing! !
+reStoreValue!accessing!public! !
+writeSQLOn:!accessing!public! !
+!
 
 !Collection methodsFor!
 
@@ -352,15 +358,17 @@ withComponents
 withRelatedComponents
 
 	^SSWDBCollectionWithRelatedContents on: self! !
-!Collection categoriesFor: #hasAnyChanged!public!restore-api!testing! !
-!Collection categoriesFor: #refreshAll!public!restore-api! !
-!Collection categoriesFor: #rollbackAll!public!restore-api! !
-!Collection categoriesFor: #store!public!restore-api! !
-!Collection categoriesFor: #storeAll!public!restore-api! !
-!Collection categoriesFor: #storeAllIn:!public!restore-api! !
-!Collection categoriesFor: #unstoreAll!public!restore-api! !
-!Collection categoriesFor: #withComponents!converting!public! !
-!Collection categoriesFor: #withRelatedComponents!converting!public! !
+!Collection categoriesForMethods!
+hasAnyChanged!public!restore-api!testing! !
+refreshAll!public!restore-api! !
+rollbackAll!public!restore-api! !
+store!public!restore-api! !
+storeAll!public!restore-api! !
+storeAllIn:!public!restore-api! !
+unstoreAll!public!restore-api! !
+withComponents!converting!public! !
+withRelatedComponents!converting!public! !
+!
 
 !Date class methodsFor!
 
@@ -371,7 +379,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	^(aValue isNil or: [aValue class = Date])
 		ifTrue: [aValue]
 		ifFalse: [anSSWReStore sqlDialect dateFrom: aValue]! !
-!Date class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+!Date class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!private! !
+!
 
 !DateAndTime class methodsFor!
 
@@ -381,7 +391,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	^(aValue isNil or: [aValue class == DateAndTime])
 		ifTrue: [aValue]
 		ifFalse: [anSSWReStore sqlDialect dateAndTimeFrom: aValue]! !
-!DateAndTime class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!DateAndTime class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
 
 !Metaclass class methodsFor!
 
@@ -390,7 +402,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"Classes are represented by name"
 
 	^aValue ifNotNil: [ :clsName | self class environment at: clsName asSymbol ifAbsent: [self error: 'Class not in image']]! !
-!Metaclass class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+!Metaclass class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!private! !
+!
 
 !Number class methodsFor!
 
@@ -399,7 +413,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"ASSERT: aValue isNil OR aValue isKindOf: self"
 
 	^aValue! !
-!Number class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!Number class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
 
 !Object methodsFor!
 
@@ -809,57 +825,59 @@ writeSQLOn: aStream
 
 	"Defer to printOn: by default"
 	^self printOn: aStream! !
-!Object categoriesFor: #_changedObjectsIn:!private!restore-internal! !
-!Object categoriesFor: #_checkHasChangedIn:!private!restore-internal! !
-!Object categoriesFor: #_commitIn:!private!restore-internal! !
-!Object categoriesFor: #_dbProxy!private!restore-internal! !
-!Object categoriesFor: #_dbProxyIfNone:!private!restore-internal! !
-!Object categoriesFor: #_dbProxyIn:!private!restore-internal! !
-!Object categoriesFor: #_dbProxyIn:ifNone:!private!restore-internal! !
-!Object categoriesFor: #_ensureActiveIn:!private!restore-internal! !
-!Object categoriesFor: #_ensurePersistentIn:!private!restore-internal! !
-!Object categoriesFor: #_forceRefreshIn:!private!restore-internal! !
-!Object categoriesFor: #_forceRefreshWithContents!private!restore-internal! !
-!Object categoriesFor: #_hasChangedFrom:!public!restore-internal! !
-!Object categoriesFor: #_id!private!restore-internal! !
-!Object categoriesFor: #_idIn:!private!restore-internal! !
-!Object categoriesFor: #_isRecovered!private!restore-internal! !
-!Object categoriesFor: #_refreshIfUpdatedIn:!private!restore-internal! !
-!Object categoriesFor: #_refreshIn:!private!restore-internal! !
-!Object categoriesFor: #_refreshWithContents!private!restore-internal! !
-!Object categoriesFor: #_refreshWithContentsIfUpdated!private!restore-internal! !
-!Object categoriesFor: #_reStore!private!restore-internal! !
-!Object categoriesFor: #_reStoreIfNone:!private!restore-internal! !
-!Object categoriesFor: #_rollbackIn:!private!restore-internal! !
-!Object categoriesFor: #_touch!private!restore-internal! !
-!Object categoriesFor: #errorNotPersistent!exceptions!public! !
-!Object categoriesFor: #handleUpdateClash:from:to:!public!restore-update clash handling! !
-!Object categoriesFor: #hasChanged!public!restore-api!testing! !
-!Object categoriesFor: #isDBDeleted!public!restore-internal! !
-!Object categoriesFor: #isDBProxy!private!restore-internal! !
-!Object categoriesFor: #isPersistent!public!restore-api!testing! !
-!Object categoriesFor: #isValidForPersistence!private!restore-internal! !
-!Object categoriesFor: #mergeUpdate:from:!public!restore-update clash handling! !
-!Object categoriesFor: #mergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
-!Object categoriesFor: #onAboutToUnstore!public!restore-event handling! !
-!Object categoriesFor: #onRefresh!public!restore-event handling! !
-!Object categoriesFor: #onRollback!public!restore-event handling! !
-!Object categoriesFor: #onUnstored!public!restore-event handling! !
-!Object categoriesFor: #refresh!public!restore-api! !
-!Object categoriesFor: #reStoreValue!public!restore-internal! !
-!Object categoriesFor: #rollback!public!restore-api! !
-!Object categoriesFor: #safeHandleUpdateClash:from:to:!private!restore-update clash handling! !
-!Object categoriesFor: #safeMergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
-!Object categoriesFor: #similarInstances!public!restore-querying! !
-!Object categoriesFor: #similarInstancesIn:!public!restore-querying! !
-!Object categoriesFor: #store!public!restore-api! !
-!Object categoriesFor: #storeIn:!public!restore-api! !
-!Object categoriesFor: #storeInAnsweringProxy:!private!restore-internal! !
-!Object categoriesFor: #unstore!public!restore-api! !
-!Object categoriesFor: #unstored!public!restore-internal! !
-!Object categoriesFor: #withComponents!public!restore-internal! !
-!Object categoriesFor: #withRelatedComponents!public!restore-internal! !
-!Object categoriesFor: #writeSQLOn:!public!restore-internal! !
+!Object categoriesForMethods!
+_changedObjectsIn:!private!restore-internal! !
+_checkHasChangedIn:!private!restore-internal! !
+_commitIn:!private!restore-internal! !
+_dbProxy!private!restore-internal! !
+_dbProxyIfNone:!private!restore-internal! !
+_dbProxyIn:!private!restore-internal! !
+_dbProxyIn:ifNone:!private!restore-internal! !
+_ensureActiveIn:!private!restore-internal! !
+_ensurePersistentIn:!private!restore-internal! !
+_forceRefreshIn:!private!restore-internal! !
+_forceRefreshWithContents!private!restore-internal! !
+_hasChangedFrom:!public!restore-internal! !
+_id!private!restore-internal! !
+_idIn:!private!restore-internal! !
+_isRecovered!private!restore-internal! !
+_refreshIfUpdatedIn:!private!restore-internal! !
+_refreshIn:!private!restore-internal! !
+_refreshWithContents!private!restore-internal! !
+_refreshWithContentsIfUpdated!private!restore-internal! !
+_reStore!private!restore-internal! !
+_reStoreIfNone:!private!restore-internal! !
+_rollbackIn:!private!restore-internal! !
+_touch!private!restore-internal! !
+errorNotPersistent!exceptions!public! !
+handleUpdateClash:from:to:!public!restore-update clash handling! !
+hasChanged!public!restore-api!testing! !
+isDBDeleted!public!restore-internal! !
+isDBProxy!private!restore-internal! !
+isPersistent!public!restore-api!testing! !
+isValidForPersistence!private!restore-internal! !
+mergeUpdate:from:!public!restore-update clash handling! !
+mergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
+onAboutToUnstore!public!restore-event handling! !
+onRefresh!public!restore-event handling! !
+onRollback!public!restore-event handling! !
+onUnstored!public!restore-event handling! !
+refresh!public!restore-api! !
+reStoreValue!public!restore-internal! !
+rollback!public!restore-api! !
+safeHandleUpdateClash:from:to:!private!restore-update clash handling! !
+safeMergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
+similarInstances!public!restore-querying! !
+similarInstancesIn:!public!restore-querying! !
+store!public!restore-api! !
+storeIn:!public!restore-api! !
+storeInAnsweringProxy:!private!restore-internal! !
+unstore!public!restore-api! !
+unstored!public!restore-internal! !
+withComponents!public!restore-internal! !
+withRelatedComponents!public!restore-internal! !
+writeSQLOn:!public!restore-internal! !
+!
 
 !Object class methodsFor!
 
@@ -890,10 +908,12 @@ storedInstancesIn: aReStore
 	"Return all instances of the receiver stored in the database accessed by aReStore"
 
 	^aReStore instancesOf: self! !
-!Object class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
-!Object class categoriesFor: #preferredObjectProxyClass!persistency!public! !
-!Object class categoriesFor: #storedInstances!persistency!public! !
-!Object class categoriesFor: #storedInstancesIn:!persistency!public! !
+!Object class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+preferredObjectProxyClass!persistency!public! !
+storedInstances!persistency!public! !
+storedInstancesIn:!persistency!public! !
+!
 
 !Process methodsFor!
 
@@ -912,36 +932,46 @@ reStore: aReStoreOrNil
 	aReStoreOrNil isNil 
 		ifTrue: [(SSWReStore affiliateFor: self) ifNotNil: [ :reStore | reStore disaffiliateWith: self]]
 		ifFalse: [aReStoreOrNil affiliateWith: self using: [ :proc | Processor activeProcess == proc]]! !
-!Process categoriesFor: #reStore!accessing!public! !
-!Process categoriesFor: #reStore:!accessing!public! !
+!Process categoriesForMethods!
+reStore!accessing!public! !
+reStore:!accessing!public! !
+!
 
 !SSWDBClassWithInfo methodsFor!
 
 instanceFromDBValue: aValue in: aReStore
 
 	^self infoClass instanceFromDBValue: aValue in: aReStore! !
-!SSWDBClassWithInfo categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!SSWDBClassWithInfo categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
 
 !SSWDBDateAndTimeWithResolution methodsFor!
 
 instanceFromDBValue: aValue in: aReStore
 
 	^aValue ifNotNil: [(self infoClass instanceFromDBValue: aValue in: aReStore) withResolution: self resolution]! !
-!SSWDBDateAndTimeWithResolution categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!SSWDBDateAndTimeWithResolution categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
 
 !SSWDBGeneralCollectionSpec methodsFor!
 
 collectionProxyClass
 
 	^SSWDBGeneralCollectionProxy! !
-!SSWDBGeneralCollectionSpec categoriesFor: #collectionProxyClass!constants!public! !
+!SSWDBGeneralCollectionSpec categoriesForMethods!
+collectionProxyClass!constants!public! !
+!
 
 !SSWDBOwnedCollectionSpec methodsFor!
 
 collectionProxyClass
 
 	^SSWDBOwnedCollectionProxy! !
-!SSWDBOwnedCollectionSpec categoriesFor: #collectionProxyClass!constants!public! !
+!SSWDBOwnedCollectionSpec categoriesForMethods!
+collectionProxyClass!constants!public! !
+!
 
 !SSWDBScaledDecimalWithInfo methodsFor!
 
@@ -957,7 +987,9 @@ instanceFromDBValue: aValue in: aReStore
 	scaleFactor := 10 ** self scale.
 
 	^(ScaledDecimal newFromNumber: (aValue * scaleFactor) rounded scale: self scale) / scaleFactor! !
-!SSWDBScaledDecimalWithInfo categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!SSWDBScaledDecimalWithInfo categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
 
 !SSWDBTable methodsFor!
 
@@ -988,9 +1020,11 @@ withIDAndVersionFields
 		idField: self idField;
 		controlFields: (Array with: self versionControlField);
 		yourself! !
-!SSWDBTable categoriesFor: #tableRecord!evaluating!public! !
-!SSWDBTable categoriesFor: #versionControlField!evaluating!public! !
-!SSWDBTable categoriesFor: #withIDAndVersionFields!evaluating!public! !
+!SSWDBTable categoriesForMethods!
+tableRecord!evaluating!public! !
+versionControlField!evaluating!public! !
+withIDAndVersionFields!evaluating!public! !
+!
 
 !String methodsFor!
 
@@ -1005,8 +1039,10 @@ withRelatedComponents
 	"Treat as an object, not a collection"
 
 	^SSWDBObjectWithRelatedComponents on: self! !
-!String categoriesFor: #withComponents!converting!public! !
-!String categoriesFor: #withRelatedComponents!converting!public! !
+!String categoriesForMethods!
+withComponents!converting!public! !
+withRelatedComponents!converting!public! !
+!
 
 !String class methodsFor!
 
@@ -1015,7 +1051,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"ASSERT: aValue isNil OR aValue isKindOf: self"
 
 	^aValue! !
-!String class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
+!String class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
 
 !Time class methodsFor!
 
@@ -1026,7 +1064,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	^(aValue isNil or: [aValue class = Time])
 		ifTrue: [aValue]
 		ifFalse: [anSSWReStore sqlDialect timeFrom: aValue]! !
-!Time class categoriesFor: #instanceFromDBValue:in:!instance creation!private! !
+!Time class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!private! !
+!
 
 !UndefinedObject methodsFor!
 
@@ -1037,8 +1077,10 @@ storeIn: anSSWReStore
 unstore
 
 	"Do nothing - cannot store/unstore an UndefinedObject"! !
-!UndefinedObject categoriesFor: #storeIn:!converting!public! !
-!UndefinedObject categoriesFor: #unstore!converting!public! !
+!UndefinedObject categoriesForMethods!
+storeIn:!converting!public! !
+unstore!converting!public! !
+!
 
 "End of package definition"!
 

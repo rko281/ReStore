@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreGenericCollectionTest subclass: #SSWReStoreGenericRelatedCollectionTest
 	instanceVariableNames: ''
@@ -727,71 +727,75 @@ testRollbackComponentReplace
 	reStore rollback: testObject withRelatedComponents.
 	self assert: (collection includes: originalAndReplacement key).
 	self deny: (collection includes: originalAndReplacement value)! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testCheckHasChangedComponentChangeDeeplyFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testCheckHasChangedComponentChangeFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testCommitComponentChangeDeeplyFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testCommitComponentChangeFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshComponentChangeDeeplyFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshComponentChangeFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshComponentChangeIfUpdatedDeeplyFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshComponentChangeIfUpdatedFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshComponentChangeWithExclusionFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshRollbackComponentChangeDeeplyFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshRollbackComponentChangeDeeplyIfUpdatedFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshRollbackComponentChangeFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRefreshRollbackComponentChangeIfUpdatedFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRollbackComponentChangeDeeplyFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #_testRollbackComponentChangeFrom:!private! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentAddition!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentRemoval!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentReplace!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionCheckHasChangedComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionCheckHasChangedComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionCommitComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionCommitComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRefreshComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRefreshComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRefreshComponentChangeIfUpdated!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRefreshComponentChangeIfUpdatedDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRefreshComponentChangeWithExclusion!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRefreshRollbackComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRefreshRollbackComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRollbackComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCollectionRollbackComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCommitComponentAddition!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCommitComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCommitComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testCommitComponentRemoval!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentAddition!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentChangeAndRemoval!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentChangeIfUpdated!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentChangeIfUpdatedDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentChangeWithExclusion!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentRemoval!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshComponentReplace!public! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshIfUpdatedComponentChangeAndRemoval!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRefreshesComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRollbackComponentAddition!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRollbackComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRollbackComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRollbackComponentChangeIfUpdated!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRollbackComponentChangeIfUpdatedDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRollbackComponentRemoval!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRefreshRollbackComponentReplace!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRollbackComponentAddition!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRollbackComponentChange!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRollbackComponentChangeDeeply!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRollbackComponentRemoval!public!unit tests! !
-!SSWReStoreGenericRelatedCollectionTest categoriesFor: #testRollbackComponentReplace!public!unit tests! !
+!SSWReStoreGenericRelatedCollectionTest categoriesForMethods!
+_testCheckHasChangedComponentChangeDeeplyFrom:!private! !
+_testCheckHasChangedComponentChangeFrom:!private! !
+_testCommitComponentChangeDeeplyFrom:!private! !
+_testCommitComponentChangeFrom:!private! !
+_testRefreshComponentChangeDeeplyFrom:!private! !
+_testRefreshComponentChangeFrom:!private! !
+_testRefreshComponentChangeIfUpdatedDeeplyFrom:!private! !
+_testRefreshComponentChangeIfUpdatedFrom:!private! !
+_testRefreshComponentChangeWithExclusionFrom:!private! !
+_testRefreshRollbackComponentChangeDeeplyFrom:!private! !
+_testRefreshRollbackComponentChangeDeeplyIfUpdatedFrom:!private! !
+_testRefreshRollbackComponentChangeFrom:!private! !
+_testRefreshRollbackComponentChangeIfUpdatedFrom:!private! !
+_testRollbackComponentChangeDeeplyFrom:!private! !
+_testRollbackComponentChangeFrom:!private! !
+testCheckHasChangedComponentAddition!public!unit tests! !
+testCheckHasChangedComponentChange!public!unit tests! !
+testCheckHasChangedComponentChangeDeeply!public!unit tests! !
+testCheckHasChangedComponentRemoval!public!unit tests! !
+testCheckHasChangedComponentReplace!public!unit tests! !
+testCollectionCheckHasChangedComponentChange!public!unit tests! !
+testCollectionCheckHasChangedComponentChangeDeeply!public!unit tests! !
+testCollectionCommitComponentChange!public!unit tests! !
+testCollectionCommitComponentChangeDeeply!public!unit tests! !
+testCollectionRefreshComponentChange!public!unit tests! !
+testCollectionRefreshComponentChangeDeeply!public!unit tests! !
+testCollectionRefreshComponentChangeIfUpdated!public!unit tests! !
+testCollectionRefreshComponentChangeIfUpdatedDeeply!public!unit tests! !
+testCollectionRefreshComponentChangeWithExclusion!public!unit tests! !
+testCollectionRefreshRollbackComponentChange!public!unit tests! !
+testCollectionRefreshRollbackComponentChangeDeeply!public!unit tests! !
+testCollectionRollbackComponentChange!public!unit tests! !
+testCollectionRollbackComponentChangeDeeply!public!unit tests! !
+testCommitComponentAddition!public!unit tests! !
+testCommitComponentChange!public!unit tests! !
+testCommitComponentChangeDeeply!public!unit tests! !
+testCommitComponentRemoval!public!unit tests! !
+testRefreshComponentAddition!public!unit tests! !
+testRefreshComponentChange!public!unit tests! !
+testRefreshComponentChangeAndRemoval!public!unit tests! !
+testRefreshComponentChangeDeeply!public!unit tests! !
+testRefreshComponentChangeIfUpdated!public!unit tests! !
+testRefreshComponentChangeIfUpdatedDeeply!public!unit tests! !
+testRefreshComponentChangeWithExclusion!public!unit tests! !
+testRefreshComponentRemoval!public!unit tests! !
+testRefreshComponentReplace!public! !
+testRefreshIfUpdatedComponentChangeAndRemoval!public!unit tests! !
+testRefreshRefreshesComponentChange!public!unit tests! !
+testRefreshRollbackComponentAddition!public!unit tests! !
+testRefreshRollbackComponentChange!public!unit tests! !
+testRefreshRollbackComponentChangeDeeply!public!unit tests! !
+testRefreshRollbackComponentChangeIfUpdated!public!unit tests! !
+testRefreshRollbackComponentChangeIfUpdatedDeeply!public!unit tests! !
+testRefreshRollbackComponentRemoval!public!unit tests! !
+testRefreshRollbackComponentReplace!public!unit tests! !
+testRollbackComponentAddition!public!unit tests! !
+testRollbackComponentChange!public!unit tests! !
+testRollbackComponentChangeDeeply!public!unit tests! !
+testRollbackComponentRemoval!public!unit tests! !
+testRollbackComponentReplace!public!unit tests! !
+!
 
 !SSWReStoreGenericRelatedCollectionTest class methodsFor!
 
 isAbstract
 
 	^self == SSWReStoreGenericRelatedCollectionTest! !
-!SSWReStoreGenericRelatedCollectionTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreGenericRelatedCollectionTest class categoriesForMethods!
+isAbstract!public! !
+!
 

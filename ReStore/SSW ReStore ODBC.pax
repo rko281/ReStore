@@ -113,7 +113,7 @@ DBColAttr subclass: #SSWODBCColAttr
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 DBConnection subclass: #SSWODBCConnection
-	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions'
+	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions queryCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -135,7 +135,9 @@ dbMaxFieldSize
 	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
 
 	^nil! !
-!ByteArray class categoriesFor: #dbMaxFieldSize!public!specification! !
+!ByteArray class categoriesForMethods!
+dbMaxFieldSize!public!specification! !
+!
 
 !DBError methodsFor!
 
@@ -150,9 +152,11 @@ isInvalidTransactionState
 isRecordDeletedError
 
 	^tag notNil and: [tag errors anySatisfy: [ :each | each isInvalidCursorPosition]]! !
-!DBError categoriesFor: #isCommunicationLinkFailure!public!testing! !
-!DBError categoriesFor: #isInvalidTransactionState!public!testing! !
-!DBError categoriesFor: #isRecordDeletedError!public!testing! !
+!DBError categoriesForMethods!
+isCommunicationLinkFailure!public!testing! !
+isInvalidTransactionState!public!testing! !
+isRecordDeletedError!public!testing! !
+!
 
 !DBErrorDetails methodsFor!
 
@@ -167,9 +171,11 @@ isInvalidCursorPosition
 isInvalidTransactionState
 
 	^self sqlState = '25000'! !
-!DBErrorDetails categoriesFor: #isCommunicationLinkFailure!public!testing! !
-!DBErrorDetails categoriesFor: #isInvalidCursorPosition!public!testing! !
-!DBErrorDetails categoriesFor: #isInvalidTransactionState!public!testing! !
+!DBErrorDetails categoriesForMethods!
+isCommunicationLinkFailure!public!testing! !
+isInvalidCursorPosition!public!testing! !
+isInvalidTransactionState!public!testing! !
+!
 
 !ODBCLibrary methodsFor!
 
@@ -184,7 +190,9 @@ sqlDescribeParam: anExternalHandle parameterNumber: columnInteger dataTypePtr: t
 
 	<stdcall: sword SQLDescribeParam handle sword SWORD* DWORD* SWORD* SWORD*>
 	^self invalidCall: _failureCode! !
-!ODBCLibrary categoriesFor: #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:!public!win32 functions-odbc library! !
+!ODBCLibrary categoriesForMethods!
+sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:!public!win32 functions-odbc library! !
+!
 
 !SSWDBField methodsFor!
 
@@ -195,8 +203,10 @@ asParameterColumn: anInteger for: aStatement
 columnIn: anODBCConnection
 
 	^(anODBCConnection columnsInTable: self table) at: self! !
-!SSWDBField categoriesFor: #asParameterColumn:for:!accessing!public! !
-!SSWDBField categoriesFor: #columnIn:!accessing!public! !
+!SSWDBField categoriesForMethods!
+asParameterColumn:for:!accessing!public! !
+columnIn:!accessing!public! !
+!
 
 !SSWDBFunctionField methodsFor!
 
@@ -205,21 +215,27 @@ asParameterColumn: anInteger for: aStatement
 	^(super asParameterColumn: anInteger for: aStatement)
 		isFunctionParameter: true;
 		yourself! !
-!SSWDBFunctionField categoriesFor: #asParameterColumn:for:!public! !
+!SSWDBFunctionField categoriesForMethods!
+asParameterColumn:for:!public! !
+!
 
 !SSWDBQueryField methodsFor!
 
 asParameterColumn: anInteger for: aStatement
 
 	^self field asParameterColumn: anInteger for: aStatement! !
-!SSWDBQueryField categoriesFor: #asParameterColumn:for:!accessing!public! !
+!SSWDBQueryField categoriesForMethods!
+asParameterColumn:for:!accessing!public! !
+!
 
 !SSWDBStringWithInfo methodsFor!
 
 dbMaxFieldSize
 
 	^self fieldSize! !
-!SSWDBStringWithInfo categoriesFor: #dbMaxFieldSize!accessing!public! !
+!SSWDBStringWithInfo categoriesForMethods!
+dbMaxFieldSize!accessing!public! !
+!
 
 !SSWMSAccessDialect methodsFor!
 
@@ -230,8 +246,10 @@ canDescribeParameters
 shouldMaskSuccessWithInfo
 
 	^false! !
-!SSWMSAccessDialect categoriesFor: #canDescribeParameters!public!testing! !
-!SSWMSAccessDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
+!SSWMSAccessDialect categoriesForMethods!
+canDescribeParameters!public!testing! !
+shouldMaskSuccessWithInfo!public!testing! !
+!
 
 !SSWMySQLDialect methodsFor!
 
@@ -246,16 +264,20 @@ schemaNameForTable: aDBTable
 tableNamesInNamespace: aString for: aDBConnection
 
 	^aDBConnection tables: aString owners: nil tables: nil types: '''TABLE'''! !
-!SSWMySQLDialect categoriesFor: #catalogNameForTable:!helpers!public! !
-!SSWMySQLDialect categoriesFor: #schemaNameForTable:!helpers!public! !
-!SSWMySQLDialect categoriesFor: #tableNamesInNamespace:for:!helpers!public! !
+!SSWMySQLDialect categoriesForMethods!
+catalogNameForTable:!helpers!public! !
+schemaNameForTable:!helpers!public! !
+tableNamesInNamespace:for:!helpers!public! !
+!
 
 !SSWPostgreSQLDialect methodsFor!
 
 shouldCheckAutoCommit
 
 	^true! !
-!SSWPostgreSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
+!SSWPostgreSQLDialect categoriesForMethods!
+shouldCheckAutoCommit!public!testing! !
+!
 
 !SSWSQLDialect methodsFor!
 
@@ -319,17 +341,19 @@ shouldUseColumnsStatement
 tableNamesInNamespace: aStringOrNil for: aDBConnection
 
 	^aDBConnection tables: nil owners: (aStringOrNil ifNil: [self standardNamespace]) tables: nil types: '''TABLE'''! !
-!SSWSQLDialect categoriesFor: #canDescribeParameters!public!testing! !
-!SSWSQLDialect categoriesFor: #catalogNameForTable:!helpers!public! !
-!SSWSQLDialect categoriesFor: #createNamespaceSQLFor:!maintenance!private! !
-!SSWSQLDialect categoriesFor: #cursorType!constants!public! !
-!SSWSQLDialect categoriesFor: #dropNamespaceSQLFor:!maintenance!private! !
-!SSWSQLDialect categoriesFor: #schemaNameForTable:!helpers!public! !
-!SSWSQLDialect categoriesFor: #shouldCheckAutoCommit!public!testing! !
-!SSWSQLDialect categoriesFor: #shouldMaskSuccessWithInfo!public!testing! !
-!SSWSQLDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
-!SSWSQLDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
-!SSWSQLDialect categoriesFor: #tableNamesInNamespace:for:!helpers!public! !
+!SSWSQLDialect categoriesForMethods!
+canDescribeParameters!public!testing! !
+catalogNameForTable:!helpers!public! !
+createNamespaceSQLFor:!maintenance!private! !
+cursorType!constants!public! !
+dropNamespaceSQLFor:!maintenance!private! !
+schemaNameForTable:!helpers!public! !
+shouldCheckAutoCommit!public!testing! !
+shouldMaskSuccessWithInfo!public!testing! !
+shouldRollbackOnQuery!public!testing! !
+shouldUseColumnsStatement!public!testing! !
+tableNamesInNamespace:for:!helpers!public! !
+!
 
 !SSWSQLiteDialect methodsFor!
 
@@ -370,18 +394,22 @@ tableNamesInNamespace: aString for: aDBConnection
 	results := aDBConnection query: stream contents.
 
 	^results collect: [ :each | each atIndex: 1]! !
-!SSWSQLiteDialect categoriesFor: #createNamespaceSQLFor:!maintenance!private! !
-!SSWSQLiteDialect categoriesFor: #dropNamespaceSQLFor:!maintenance!private! !
-!SSWSQLiteDialect categoriesFor: #shouldRollbackOnQuery!public!testing! !
-!SSWSQLiteDialect categoriesFor: #shouldUseColumnsStatement!public!testing! !
-!SSWSQLiteDialect categoriesFor: #tableNamesInNamespace:for:!helpers!public! !
+!SSWSQLiteDialect categoriesForMethods!
+createNamespaceSQLFor:!maintenance!private! !
+dropNamespaceSQLFor:!maintenance!private! !
+shouldRollbackOnQuery!public!testing! !
+shouldUseColumnsStatement!public!testing! !
+tableNamesInNamespace:for:!helpers!public! !
+!
 
 !SSWSQLParameterField methodsFor!
 
 asParameterColumn: anInteger for: aStatement
 
 	^(aStatement describeParam: anInteger) ifNil: [self value asParameterColumn]! !
-!SSWSQLParameterField categoriesFor: #asParameterColumn:for:!converting!public! !
+!SSWSQLParameterField categoriesForMethods!
+asParameterColumn:for:!converting!public! !
+!
 
 !SSWSQLServerDialect methodsFor!
 
@@ -396,8 +424,10 @@ cursorType
 	"Default #forwardOnly gives 'Connection is busy with results for another hstmt' error"
 
 	^#keysetDriven! !
-!SSWSQLServerDialect categoriesFor: #canDescribeParameters!public!testing! !
-!SSWSQLServerDialect categoriesFor: #cursorType!constants!public! !
+!SSWSQLServerDialect categoriesForMethods!
+canDescribeParameters!public!testing! !
+cursorType!constants!public! !
+!
 
 !SSWSQLWriteStream methodsFor!
 
@@ -410,14 +440,18 @@ parameterizedColumnsFor: aStatement
 	self parameterizedFields keysAndValuesDo: [ :index :field | parameterizedColumns at: index put: (field asParameterColumn: index for: aStatement)].
 
 	^parameterizedColumns! !
-!SSWSQLWriteStream categoriesFor: #parameterizedColumnsFor:!accessing!public! !
+!SSWSQLWriteStream categoriesForMethods!
+parameterizedColumnsFor:!accessing!public! !
+!
 
 !String methodsFor!
 
 asParameterColumn
 
 	^SSWODBCColAttr forString: self! !
-!String categoriesFor: #asParameterColumn!converting!public! !
+!String categoriesForMethods!
+asParameterColumn!converting!public! !
+!
 
 !String class methodsFor!
 
@@ -426,7 +460,9 @@ dbMaxFieldSize
 	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
 
 	^nil! !
-!String class categoriesFor: #dbMaxFieldSize!public!specification! !
+!String class categoriesForMethods!
+dbMaxFieldSize!public!specification! !
+!
 
 "End of package definition"!
 

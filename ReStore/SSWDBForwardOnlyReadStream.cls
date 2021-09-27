@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBReadStream subclass: #SSWDBForwardOnlyReadStream
 	instanceVariableNames: ''
@@ -14,12 +14,15 @@ position: anInteger
 
 	anInteger >= self position ifTrue: [^(anInteger - self position) timesRepeat: [self collectionNext]].
 
-	self reinitialize.
+	self resetResultsSet.
 	anInteger timesRepeat: [self collectionNext]!
 
 resetResultsSet
 
+	collection isNil ifFalse: [collection free].
 	self reinitialize! !
-!SSWDBForwardOnlyReadStream categoriesFor: #position:!positioning!public! !
-!SSWDBForwardOnlyReadStream categoriesFor: #resetResultsSet!positioning!public! !
+!SSWDBForwardOnlyReadStream categoriesForMethods!
+position:!positioning!public! !
+resetResultsSet!positioning!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 TestCase subclass: #SSWReStoreTest
 	instanceVariableNames: 'reStore'
@@ -15,6 +15,10 @@ https://github.com/rko281/ReStore'!
 addClassesTo: aReStore
 
 	aReStore addClass: Test; addClass: OwnedTest; addClass: OwnerTest!
+
+countQueries
+
+	self resetQueryCount!
 
 countQueriesDuring: aBlock
 
@@ -138,6 +142,10 @@ performTest
 	reStore debugTo: self debugStream.
 	^super performTest!
 
+queryCount
+
+	^reStore connection queryCount!
+
 refreshDelay
 
 	^(Delay forSeconds: reStore sqlDialect updateDelaySeconds) wait!
@@ -147,6 +155,10 @@ releaseReStore: aReStore
 	aReStore isConnected ifTrue: [aReStore disconnect].
 
 	aReStore clearTableCache!
+
+resetQueryCount
+
+	reStore connection resetQueryCount!
 
 setUp
 
@@ -165,6 +177,10 @@ shouldDestroyClasses
 
 	^reStore sqlDialect shouldDropTablesForTestCases!
 
+stopQueryCounting
+
+	reStore connection resetQueryCount!
+
 tearDown
 
 	self resetQueryCount; stopQueryCounting.
@@ -174,25 +190,33 @@ tearDown
 		self destroyAllClasses.
 		self releaseReStore: reStore.
 		reStore := nil]! !
-!SSWReStoreTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreTest categoriesFor: #countQueriesDuring:!public!running! !
-!SSWReStoreTest categoriesFor: #createReStore!private!running! !
-!SSWReStoreTest categoriesFor: #createStandardTestInstance!private!running! !
-!SSWReStoreTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreTest categoriesFor: #destroyAllClasses!public!running! !
-!SSWReStoreTest categoriesFor: #destroyAllData!public!running! !
-!SSWReStoreTest categoriesFor: #initReStore:!public!running! !
-!SSWReStoreTest categoriesFor: #performTest!public! !
-!SSWReStoreTest categoriesFor: #refreshDelay!accessing!public! !
-!SSWReStoreTest categoriesFor: #releaseReStore:!public!running! !
-!SSWReStoreTest categoriesFor: #setUp!public!running! !
-!SSWReStoreTest categoriesFor: #shouldDestroyClasses!public!testing! !
-!SSWReStoreTest categoriesFor: #tearDown!public!running! !
+!SSWReStoreTest categoriesForMethods!
+addClassesTo:!public!running! !
+countQueries!public!running! !
+countQueriesDuring:!public!running! !
+createReStore!private!running! !
+createStandardTestInstance!private!running! !
+createTestData!public!running! !
+destroyAllClasses!public!running! !
+destroyAllData!public!running! !
+initReStore:!public!running! !
+performTest!public! !
+queryCount!accessing!public! !
+refreshDelay!accessing!public! !
+releaseReStore:!public!running! !
+resetQueryCount!public!running! !
+setUp!public!running! !
+shouldDestroyClasses!public!testing! !
+stopQueryCounting!public!running! !
+tearDown!public!running! !
+!
 
 !SSWReStoreTest class methodsFor!
 
 isAbstract
 
 	^self == SSWReStoreTest! !
-!SSWReStoreTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreTest class categoriesForMethods!
+isAbstract!public! !
+!
 

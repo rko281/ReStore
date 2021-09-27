@@ -1,0 +1,125 @@
+﻿"Filed out from Dolphin Smallalk"!
+
+SQLite3Cursor subclass: #SSWSQLite3ResultSet
+	instanceVariableNames: 'firstRow query'
+	classVariableNames: ''
+	poolDictionaries: 'SQLite3Constants'
+	classInstanceVariableNames: ''!
+SSWSQLite3ResultSet guid: (GUID fromString: '{cd22f984-8475-4ee3-9d18-195a9f903add}')!
+SSWSQLite3ResultSet comment: ''!
+!SSWSQLite3ResultSet categoriesForClass!Unclassified! !
+!SSWSQLite3ResultSet methodsFor!
+
+do: aBlock
+
+	[self next
+		ifNil: [ false ]
+		ifNotNil: [ :next | aBlock value: next. true]] whileTrue!
+
+first
+	^firstRow ifNil: [ self next ]!
+
+free
+
+	statement isNil ifFalse: 
+		[statement free.
+		statement := nil]!
+
+initialize 
+
+	super initialize.
+	self rowClass: SSWSQLite3Row !
+
+last
+
+	| next last |
+
+	[next := self next
+	next isNil ] whileFalse: [last := next].
+
+	^last!
+
+next
+
+	^firstRow isNil 
+		ifTrue: [ firstRow := super next ]
+		ifFalse: [ super next ]!
+
+nextOfClass: aRowClass
+
+	| next |
+	
+	next := super nextOfClass: aRowClass.
+	
+	(next notNil and: [ self query notNil ]) ifTrue: [next createFieldMapFrom: self query].
+	
+	^next!
+
+numRows
+
+	^connection changes!
+
+query
+
+	^query!
+
+readStream
+
+	^SSWDBForwardOnlyReadStream on: self!
+
+results
+
+	^self!
+
+size
+
+	"size as in number of rows.
+	nil = unknown"
+
+	^nil!
+
+species
+
+	^OrderedCollection !
+
+statement: anSSWSQLite3Statement
+
+	statement := anSSWSQLite3Statement.
+	connection := anSSWSQLite3Statement parent!
+
+statement: aStatement moreRows: aBoolean rows: rCollection
+
+	statement := aStatement.
+	connection := aStatement parent.
+	query := aStatement query.
+		
+	moreRows := aBoolean.
+	rows := rCollection!
+
+statement: aStatement moreRows: aBoolean rows: rCollection mutators: mCollection
+
+	statement := aStatement.
+	connection := aStatement parent.
+	query := aStatement query.
+		
+	moreRows := aBoolean.
+	rows := rCollection! !
+!SSWSQLite3ResultSet categoriesForMethods!
+do:!private! !
+first!accessing!public! !
+free!initialization!public! !
+initialize!initialization!public! !
+last!accessing!public! !
+next!API!public! !
+nextOfClass:!API!public! !
+numRows!accessing!public! !
+query!accessing!public! !
+readStream!accessing!public! !
+results!accessing!public! !
+size!accessing!public! !
+species!accessing!public! !
+statement:!accessing!public! !
+statement:moreRows:rows:!initialization!public! !
+statement:moreRows:rows:mutators:!initialization!public! !
+!
+

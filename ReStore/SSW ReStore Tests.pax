@@ -806,14 +806,18 @@ SSWReStoreTableTest subclass: #SSWReStoreTableWithNamespaceTest
 shouldDropTablesForTestCases
 
 	^false! !
-!SSWMySQLDialect categoriesFor: #shouldDropTablesForTestCases!public!testing! !
+!SSWMySQLDialect categoriesForMethods!
+shouldDropTablesForTestCases!public!testing! !
+!
 
 !SSWPostgreSQLDialect methodsFor!
 
 shouldDropTablesForTestCases
 
 	^false! !
-!SSWPostgreSQLDialect categoriesFor: #shouldDropTablesForTestCases!public!testing! !
+!SSWPostgreSQLDialect categoriesForMethods!
+shouldDropTablesForTestCases!public!testing! !
+!
 
 !SSWReStore methodsFor!
 
@@ -836,7 +840,9 @@ simulateReconnect
 	self transactionMutex: Mutex new.
 	self class activated: self.
 	self persistentSystemClasses do: [ :each | self addClass: each]! !
-!SSWReStore categoriesFor: #simulateReconnect!connection!public! !
+!SSWReStore categoriesForMethods!
+simulateReconnect!connection!public! !
+!
 
 !SSWSQLDialect methodsFor!
 
@@ -846,7 +852,9 @@ shouldDropTablesForTestCases
 	Return true to drop tables prior to a test, false to erase data instead"
 
 	^true! !
-!SSWSQLDialect categoriesFor: #shouldDropTablesForTestCases!public!testing! !
+!SSWSQLDialect categoriesForMethods!
+shouldDropTablesForTestCases!public!testing! !
+!
 
 "End of package definition"!
 

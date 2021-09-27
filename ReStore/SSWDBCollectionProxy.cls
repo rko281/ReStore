@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBProxy subclass: #SSWDBCollectionProxy
 	instanceVariableNames: 'collectionSpec owner'
@@ -132,23 +132,25 @@ withRelatedComponents
 	"Avoid faulting in the proxied object"
 
 	^SSWDBCollectionWithRelatedContents on: self! !
-!SSWDBCollectionProxy categoriesFor: #_checkHasChanged!public!testing! !
-!SSWDBCollectionProxy categoriesFor: #_collectionSpec!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #_collectionSpec:!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #_forceRefresh!actions-refresh!public! !
-!SSWDBCollectionProxy categoriesFor: #_forceRefreshWithContents!actions-refresh!public! !
-!SSWDBCollectionProxy categoriesFor: #_owner!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #_owner:!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #_ownerID!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #_postSwapReferences!actions-internal!public! !
-!SSWDBCollectionProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
-!SSWDBCollectionProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !
-!SSWDBCollectionProxy categoriesFor: #_refreshIfUpdated!actions-refresh!public! !
-!SSWDBCollectionProxy categoriesFor: #_refreshWithContentsIfUpdated!actions-refresh!public! !
-!SSWDBCollectionProxy categoriesFor: #_unrecoveredProxyString!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #class!forwarding!public! !
-!SSWDBCollectionProxy categoriesFor: #orRemote!forwarding!public! !
-!SSWDBCollectionProxy categoriesFor: #remote!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #withComponents!accessing!public! !
-!SSWDBCollectionProxy categoriesFor: #withRelatedComponents!accessing!public! !
+!SSWDBCollectionProxy categoriesForMethods!
+_checkHasChanged!public!testing! !
+_collectionSpec!accessing!public! !
+_collectionSpec:!accessing!public! !
+_forceRefresh!actions-refresh!public! !
+_forceRefreshWithContents!actions-refresh!public! !
+_owner!accessing!public! !
+_owner:!accessing!public! !
+_ownerID!accessing!public! !
+_postSwapReferences!actions-internal!public! !
+_prepareToCommit!actions-internal!public! !
+_recoverProxiedObject!actions-internal!public! !
+_refreshIfUpdated!actions-refresh!public! !
+_refreshWithContentsIfUpdated!actions-refresh!public! !
+_unrecoveredProxyString!accessing!public! !
+class!forwarding!public! !
+orRemote!forwarding!public! !
+remote!accessing!public! !
+withComponents!accessing!public! !
+withRelatedComponents!accessing!public! !
+!
 

@@ -1,0 +1,32 @@
+﻿| package |
+package := Package name: 'SQLite3'.
+package paxVersion: 1;
+	basicComment: ''.
+
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'ReStore'
+	'SSW ReStore SQLite3').
+
+package setManualPrerequisites: #(
+	'ReStore'
+	'SSW ReStore SQLite3').
+
+package!
+
+"Class Definitions"!
+
+
+"Global Aliases"!
+
+
+"Loose Methods"!
+
+"End of package definition"!
+

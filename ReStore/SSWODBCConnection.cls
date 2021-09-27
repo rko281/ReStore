@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 DBConnection subclass: #SSWODBCConnection
-	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions'
+	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions queryCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -265,6 +265,10 @@ hasTxn
 
 	^transaction notNil!
 
+incrementQueryCount
+
+	queryCount ifNotNil: [ queryCount := queryCount + 1 ]!
+
 isConnected
 
 	^handle ~= nil!
@@ -272,6 +276,11 @@ isConnected
 isDebug
 
 	^self debugStream notNil!
+
+logStatementExec: aStatement
+
+	debugStream ifNotNil: [aStatement  writeDebugInfoOn: debugStream].
+	queryCount ifNotNil: [ queryCount := queryCount + 1 ]!
 
 newParameterizedStatement: aSymbol
 
@@ -323,6 +332,12 @@ printParameterPlaceholder: anInteger on: aStream
 
 	aStream nextPut: $?!
 
+queryCount
+	^queryCount!
+
+queryCount: anObject
+	queryCount := anObject!
+
 reservedWords
 
 	| defaults |
@@ -340,6 +355,10 @@ reset
 	self 
 		columnDescriptions: IdentityDictionary new;
 		allocatedStatementCount: 0!
+
+resetQueryCount
+
+	self queryCount: 0!
 
 rollbackTxn
 
@@ -367,6 +386,10 @@ sqlDialect: anSSWSQLDialect
 	"sqlDialect stores the SSWSQLDialect of the database to which the receiver connects"
 
 	sqlDialect := anSSWSQLDialect!
+
+stopQueryCounting
+
+	self queryCount: nil!
 
 tables
 
@@ -396,53 +419,61 @@ willAutoCommit: aBoolean
 
 	(self sqlDialect shouldCheckAutoCommit and: [self willAutoCommit = aBoolean]) ifFalse: 
 		[super willAutoCommit: aBoolean]! !
-!SSWODBCConnection categoriesFor: #_columnsInTable:!enquiries!private! !
-!SSWODBCConnection categoriesFor: #_columnsInTableViaQuery:!enquiries!private! !
-!SSWODBCConnection categoriesFor: #allocatedStatementCount!accessing!private! !
-!SSWODBCConnection categoriesFor: #allocatedStatementCount:!accessing!private! !
-!SSWODBCConnection categoriesFor: #allocStmtHandle:!helpers!private! !
-!SSWODBCConnection categoriesFor: #autoCommitDuring:!private!transactions! !
-!SSWODBCConnection categoriesFor: #basicConnect!operations!private! !
-!SSWODBCConnection categoriesFor: #canDescribeParameters!public!testing! !
-!SSWODBCConnection categoriesFor: #columnDescriptions!accessing!private! !
-!SSWODBCConnection categoriesFor: #columnDescriptions:!accessing!private! !
-!SSWODBCConnection categoriesFor: #columnsForFields:!enquiries!public! !
-!SSWODBCConnection categoriesFor: #columnsInTable:!enquiries!public! !
-!SSWODBCConnection categoriesFor: #createNamespace:!operations!private! !
-!SSWODBCConnection categoriesFor: #dbCheckException:!exceptions!private! !
-!SSWODBCConnection categoriesFor: #dbCheckException:from:!exceptions!private! !
-!SSWODBCConnection categoriesFor: #dbErrorClass!accessing!public! !
-!SSWODBCConnection categoriesFor: #debugStream!accessing!private! !
-!SSWODBCConnection categoriesFor: #debugStream:!accessing!private! !
-!SSWODBCConnection categoriesFor: #defaultCursorType!operations!public! !
-!SSWODBCConnection categoriesFor: #defaultMaxColumnBytes!constants!public! !
-!SSWODBCConnection categoriesFor: #disconnect!operations!private! !
-!SSWODBCConnection categoriesFor: #dropNamespace:!operations!private! !
-!SSWODBCConnection categoriesFor: #evaluateAsTxn:!public!transactions! !
-!SSWODBCConnection categoriesFor: #executeQuery:cursoredFetch:!executing!public! !
-!SSWODBCConnection categoriesFor: #forgetTable:!helpers!private! !
-!SSWODBCConnection categoriesFor: #freeStmtHandle:!helpers!private! !
-!SSWODBCConnection categoriesFor: #getLongInfoString:!helpers!private! !
-!SSWODBCConnection categoriesFor: #hasTxn!public!transactions! !
-!SSWODBCConnection categoriesFor: #isConnected!public!testing! !
-!SSWODBCConnection categoriesFor: #isDebug!public!testing! !
-!SSWODBCConnection categoriesFor: #newParameterizedStatement:!operations!private! !
-!SSWODBCConnection categoriesFor: #newStatement!operations!private! !
-!SSWODBCConnection categoriesFor: #newStatement:!operations!private! !
-!SSWODBCConnection categoriesFor: #onStartup!helpers!private! !
-!SSWODBCConnection categoriesFor: #postConnect!operations!private! !
-!SSWODBCConnection categoriesFor: #postExec!executing!private! !
-!SSWODBCConnection categoriesFor: #prepareQuery:!executing!public! !
-!SSWODBCConnection categoriesFor: #printParameterPlaceholder:on:!helpers!private! !
-!SSWODBCConnection categoriesFor: #reservedWords!accessing!public! !
-!SSWODBCConnection categoriesFor: #reset!helpers!private! !
-!SSWODBCConnection categoriesFor: #rollbackTxn!public!transactions! !
-!SSWODBCConnection categoriesFor: #shouldFreeStatementsOnClose!public!testing! !
-!SSWODBCConnection categoriesFor: #sqlDialect!accessing!public! !
-!SSWODBCConnection categoriesFor: #sqlDialect:!accessing!public! !
-!SSWODBCConnection categoriesFor: #tables!enquiries!public! !
-!SSWODBCConnection categoriesFor: #tablesInNamespace:!enquiries!public! !
-!SSWODBCConnection categoriesFor: #transaction:!public!transactions! !
-!SSWODBCConnection categoriesFor: #upToParameterPlaceholderOn:!helpers!private! !
-!SSWODBCConnection categoriesFor: #willAutoCommit:!accessing!public! !
+!SSWODBCConnection categoriesForMethods!
+_columnsInTable:!enquiries!private! !
+_columnsInTableViaQuery:!enquiries!private! !
+allocatedStatementCount!accessing!private! !
+allocatedStatementCount:!accessing!private! !
+allocStmtHandle:!helpers!private! !
+autoCommitDuring:!private!transactions! !
+basicConnect!operations!private! !
+canDescribeParameters!public!testing! !
+columnDescriptions!accessing!private! !
+columnDescriptions:!accessing!private! !
+columnsForFields:!enquiries!public! !
+columnsInTable:!enquiries!public! !
+createNamespace:!operations!private! !
+dbCheckException:!exceptions!private! !
+dbCheckException:from:!exceptions!private! !
+dbErrorClass!accessing!public! !
+debugStream!accessing!private! !
+debugStream:!accessing!private! !
+defaultCursorType!operations!public! !
+defaultMaxColumnBytes!constants!public! !
+disconnect!operations!private! !
+dropNamespace:!operations!private! !
+evaluateAsTxn:!public!transactions! !
+executeQuery:cursoredFetch:!executing!public! !
+forgetTable:!helpers!private! !
+freeStmtHandle:!helpers!private! !
+getLongInfoString:!helpers!private! !
+hasTxn!public!transactions! !
+incrementQueryCount!operations!private! !
+isConnected!public!testing! !
+isDebug!public!testing! !
+logStatementExec:!operations!private! !
+newParameterizedStatement:!operations!private! !
+newStatement!operations!private! !
+newStatement:!operations!private! !
+onStartup!helpers!private! !
+postConnect!operations!private! !
+postExec!executing!private! !
+prepareQuery:!executing!public! !
+printParameterPlaceholder:on:!helpers!private! !
+queryCount!accessing!public! !
+queryCount:!accessing!private! !
+reservedWords!accessing!public! !
+reset!helpers!private! !
+resetQueryCount!operations!private! !
+rollbackTxn!public!transactions! !
+shouldFreeStatementsOnClose!public!testing! !
+sqlDialect!accessing!public! !
+sqlDialect:!accessing!public! !
+stopQueryCounting!operations!private! !
+tables!enquiries!public! !
+tablesInNamespace:!enquiries!public! !
+transaction:!public!transactions! !
+upToParameterPlaceholderOn:!helpers!private! !
+willAutoCommit:!accessing!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 ProtoObject subclass: #SSWDBProxy
 	instanceVariableNames: 'proxiedObject reStore'
@@ -525,72 +525,74 @@ yourself
 	"No need to bother the proxiedObject"
 	
 	^self! !
-!SSWDBProxy categoriesFor: #__ensureActive!actions-internal!public! !
-!SSWDBProxy categoriesFor: #__referenced!actions-internal!private! !
-!SSWDBProxy categoriesFor: #_changedObjectsIn:!accessing!public! !
-!SSWDBProxy categoriesFor: #_checkHasChanged!public!testing! !
-!SSWDBProxy categoriesFor: #_checkHasChangedIn:!public!testing! !
-!SSWDBProxy categoriesFor: #_commitChanges!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_commitChangesPhase1!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_commitChangesPhase2!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_commitIn:!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_dbProxyIn:!accessing:direct!public! !
-!SSWDBProxy categoriesFor: #_dbProxyIn:ifNone:!accessing:direct!public! !
-!SSWDBProxy categoriesFor: #_doesNotUnderstand:!forwarding!public! !
-!SSWDBProxy categoriesFor: #_ensureActiveIn:!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_ensurePersistentIn:!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_forceRefresh!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_forceRefreshIn:!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_forceRefreshWithContents!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_forgetProxiedObject!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_hasChanged!public!testing! !
-!SSWDBProxy categoriesFor: #_hasChangedFrom:!public!testing! !
-!SSWDBProxy categoriesFor: #_isDeleted!public!testing! !
-!SSWDBProxy categoriesFor: #_isPersistent!public!testing! !
-!SSWDBProxy categoriesFor: #_isRecovered!public!testing! !
-!SSWDBProxy categoriesFor: #_lazyRefresh!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_lazyRefreshIn:!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_newProxiedObject:!accessing!public! !
-!SSWDBProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_postSwapReferences!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_prepareToCommitPhase1!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_prepareToCommitPhase2!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_proxiedObject!accessing!public! !
-!SSWDBProxy categoriesFor: #_proxiedObject:!accessing!public! !
-!SSWDBProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_referenced!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_refresh!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_refreshIfUpdated!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_refreshIfUpdatedIn:!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_refreshIn:!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_refreshWithContents!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_refreshWithContentsIfUpdated!actions-refresh!public! !
-!SSWDBProxy categoriesFor: #_reStore!accessing!public! !
-!SSWDBProxy categoriesFor: #_reStore:!accessing!public! !
-!SSWDBProxy categoriesFor: #_rollbackChanges!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_rollbackIn:!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_setProxiedObject:!accessing!public! !
-!SSWDBProxy categoriesFor: #_swapReferences!actions-internal!public! !
-!SSWDBProxy categoriesFor: #_unrecoveredProxyString!accessing!public! !
-!SSWDBProxy categoriesFor: #_unstore!actions-internal!public! !
-!SSWDBProxy categoriesFor: #commit!actions-api!public! !
-!SSWDBProxy categoriesFor: #debugPrintString!non forwarding!public! !
-!SSWDBProxy categoriesFor: #doesNotUnderstand:!forwarding!public! !
-!SSWDBProxy categoriesFor: #includedIn:!public!testing! !
-!SSWDBProxy categoriesFor: #instVarAt:!forwarding!public! !
-!SSWDBProxy categoriesFor: #isDBProxy!public!testing! !
-!SSWDBProxy categoriesFor: #onRollback!actions-internal!public! !
-!SSWDBProxy categoriesFor: #printOn:!forwarding!public! !
-!SSWDBProxy categoriesFor: #printString!forwarding!public! !
-!SSWDBProxy categoriesFor: #refresh!actions-api!public! !
-!SSWDBProxy categoriesFor: #rollback!actions-api!public! !
-!SSWDBProxy categoriesFor: #softRollback!actions-api!public! !
-!SSWDBProxy categoriesFor: #store!actions-api!public! !
-!SSWDBProxy categoriesFor: #storeIn:!actions-api!public! !
-!SSWDBProxy categoriesFor: #subclassResponsibility!non forwarding!public! !
-!SSWDBProxy categoriesFor: #validateReStore:!actions-internal!private! !
-!SSWDBProxy categoriesFor: #withComponents!accessing!public! !
-!SSWDBProxy categoriesFor: #withRelatedComponents!accessing!public! !
-!SSWDBProxy categoriesFor: #yourself!non forwarding!public! !
+!SSWDBProxy categoriesForMethods!
+__ensureActive!actions-internal!public! !
+__referenced!actions-internal!private! !
+_changedObjectsIn:!accessing!public! !
+_checkHasChanged!public!testing! !
+_checkHasChangedIn:!public!testing! !
+_commitChanges!actions-internal!public! !
+_commitChangesPhase1!actions-internal!public! !
+_commitChangesPhase2!actions-internal!public! !
+_commitIn:!actions-internal!public! !
+_dbProxyIn:!accessing:direct!public! !
+_dbProxyIn:ifNone:!accessing:direct!public! !
+_doesNotUnderstand:!forwarding!public! !
+_ensureActiveIn:!actions-internal!public! !
+_ensurePersistentIn:!actions-internal!public! !
+_forceRefresh!actions-refresh!public! !
+_forceRefreshIn:!actions-refresh!public! !
+_forceRefreshWithContents!actions-refresh!public! !
+_forgetProxiedObject!actions-internal!public! !
+_hasChanged!public!testing! !
+_hasChangedFrom:!public!testing! !
+_isDeleted!public!testing! !
+_isPersistent!public!testing! !
+_isRecovered!public!testing! !
+_lazyRefresh!actions-refresh!public! !
+_lazyRefreshIn:!actions-refresh!public! !
+_newProxiedObject:!accessing!public! !
+_postCommitChanges!actions-internal!public! !
+_postSwapReferences!actions-internal!public! !
+_prepareToCommit!actions-internal!public! !
+_prepareToCommitPhase1!actions-internal!public! !
+_prepareToCommitPhase2!actions-internal!public! !
+_proxiedObject!accessing!public! !
+_proxiedObject:!accessing!public! !
+_recoverProxiedObject!actions-internal!public! !
+_referenced!actions-internal!public! !
+_refresh!actions-refresh!public! !
+_refreshIfUpdated!actions-refresh!public! !
+_refreshIfUpdatedIn:!actions-refresh!public! !
+_refreshIn:!actions-refresh!public! !
+_refreshWithContents!actions-refresh!public! !
+_refreshWithContentsIfUpdated!actions-refresh!public! !
+_reStore!accessing!public! !
+_reStore:!accessing!public! !
+_rollbackChanges!actions-internal!public! !
+_rollbackIn:!actions-internal!public! !
+_setProxiedObject:!accessing!public! !
+_swapReferences!actions-internal!public! !
+_unrecoveredProxyString!accessing!public! !
+_unstore!actions-internal!public! !
+commit!actions-api!public! !
+debugPrintString!non forwarding!public! !
+doesNotUnderstand:!forwarding!public! !
+includedIn:!public!testing! !
+instVarAt:!forwarding!public! !
+isDBProxy!public!testing! !
+onRollback!actions-internal!public! !
+printOn:!forwarding!public! !
+printString!forwarding!public! !
+refresh!actions-api!public! !
+rollback!actions-api!public! !
+softRollback!actions-api!public! !
+store!actions-api!public! !
+storeIn:!actions-api!public! !
+subclassResponsibility!non forwarding!public! !
+validateReStore:!actions-internal!private! !
+withComponents!accessing!public! !
+withRelatedComponents!accessing!public! !
+yourself!non forwarding!public! !
+!
 

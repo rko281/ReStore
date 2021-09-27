@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreTest subclass: #SSWReStoreTypeTest
 	instanceVariableNames: 'date time datetime typeTest'
@@ -134,6 +134,9 @@ testExtendedANSI
 
 	"Test a String containing an extended ANSI character"
 
+	"SQLite Native in Dolphin deals purely in UTF8"
+	reStore sqlDialect class name = #SSWSQLiteNativeDialect ifTrue: [self skip].
+
 	self testStrings: #[99 97 102 233] asAnsiString "café"!
 
 testGeneral
@@ -213,23 +216,25 @@ testUTF8_mixed
 	"Test a String containing a mixture of UTF8 characters"
 
 	self testStrings: (Utf8String fromByteArray: #[195 156 98 195 168 114 115 116 114 195 174 195 177 103 195 169]) "Übèrstrîñgé"! !
-!SSWReStoreTypeTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreTypeTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreTypeTest categoriesFor: #testANSI!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testBytes!public!running! !
-!SSWReStoreTypeTest categoriesFor: #testDate!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testDateQuery!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testDateTime!public! !
-!SSWReStoreTypeTest categoriesFor: #testDateTimeQuery!public! !
-!SSWReStoreTypeTest categoriesFor: #testDateTimeWithMilliseconds!public! !
-!SSWReStoreTypeTest categoriesFor: #testDecimal!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testExtendedANSI!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testGeneral!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testStrings:!private!running! !
-!SSWReStoreTypeTest categoriesFor: #testTime!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testTimeQuery!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testUTF8_2!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testUTF8_3!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testUTF8_4!public!unit tests! !
-!SSWReStoreTypeTest categoriesFor: #testUTF8_mixed!public!unit tests! !
+!SSWReStoreTypeTest categoriesForMethods!
+addClassesTo:!public!running! !
+createTestData!public!running! !
+testANSI!public!unit tests! !
+testBytes!public!running! !
+testDate!public!unit tests! !
+testDateQuery!public!unit tests! !
+testDateTime!public! !
+testDateTimeQuery!public! !
+testDateTimeWithMilliseconds!public! !
+testDecimal!public!unit tests! !
+testExtendedANSI!public!unit tests! !
+testGeneral!public!unit tests! !
+testStrings:!private!running! !
+testTime!public!unit tests! !
+testTimeQuery!public!unit tests! !
+testUTF8_2!public!unit tests! !
+testUTF8_3!public!unit tests! !
+testUTF8_4!public!unit tests! !
+testUTF8_mixed!public!unit tests! !
+!
 

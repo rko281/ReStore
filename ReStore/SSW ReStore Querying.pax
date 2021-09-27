@@ -199,21 +199,27 @@ asSQLConditions
 
 	"Always true = no conditions"
 	^SSWSQLConditionCollection forAND! !
-!Boolean categoriesFor: #asSQLConditions!converting!public! !
+!Boolean categoriesForMethods!
+asSQLConditions!converting!public! !
+!
 
 !Class methodsFor!
 
 isPersistentIn: anSSWReStore
 
 	^anSSWReStore isClassPersistent: self! !
-!Class categoriesFor: #isPersistentIn:!private!testing! !
+!Class categoriesForMethods!
+isPersistentIn:!private!testing! !
+!
 
 !DeafObject methodsFor!
 
 _id
 
 	^self! !
-!DeafObject categoriesFor: #_id!accessing!public! !
+!DeafObject categoriesForMethods!
+_id!accessing!public! !
+!
 
 !Object methodsFor!
 
@@ -273,14 +279,16 @@ similarityComparator
 	"Private - Default is equality"
 
 	^#=! !
-!Object categoriesFor: #||!converting!public! !
-!Object categoriesFor: #concatenatedWith:!double dispatch!private! !
-!Object categoriesFor: #forConcatenation!public!restore-querying! !
-!Object categoriesFor: #imageDo:databaseDo:!public!restore-querying! !
-!Object categoriesFor: #isRequiredForSimilarity!private!testing! !
-!Object categoriesFor: #isSimilarTo:!public!testing! !
-!Object categoriesFor: #qualify:in:via:!actions!private! !
-!Object categoriesFor: #similarityComparator!constants!private! !
+!Object categoriesForMethods!
+||!converting!public! !
+concatenatedWith:!double dispatch!private! !
+forConcatenation!public!restore-querying! !
+imageDo:databaseDo:!public!restore-querying! !
+isRequiredForSimilarity!private!testing! !
+isSimilarTo:!public!testing! !
+qualify:in:via:!actions!private! !
+similarityComparator!constants!private! !
+!
 
 !SSWDBClassWithInfo methodsFor!
 
@@ -289,7 +297,9 @@ isPersistentIn: anSSWReStore
 	"Required class-like behavior"
 
 	^false! !
-!SSWDBClassWithInfo categoriesFor: #isPersistentIn:!private!testing! !
+!SSWDBClassWithInfo categoriesForMethods!
+isPersistentIn:!private!testing! !
+!
 
 !SSWDBCollectionSpec methodsFor!
 
@@ -298,14 +308,18 @@ dbBlockCollectionReceiver
 	"Return a block receiver object suitable for parsing (mainly) subqueries involving the receiver"
 
 	^self subclassResponsibility! !
-!SSWDBCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+!SSWDBCollectionSpec categoriesForMethods!
+dbBlockCollectionReceiver!accessing!public! !
+!
 
 !SSWDBFunctionField methodsFor!
 
 forConcatenation
 
 	^SSWDBQueryConditionCollection with: self! !
-!SSWDBFunctionField categoriesFor: #forConcatenation!converting!public! !
+!SSWDBFunctionField categoriesForMethods!
+forConcatenation!converting!public! !
+!
 
 !SSWDBGeneralCollectionSpec methodsFor!
 
@@ -316,7 +330,9 @@ dbBlockCollectionReceiver
 	^SSWDBGeneralCollectionBlockReceiver new
 		collectionSpec: self;
 		yourself! !
-!SSWDBGeneralCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+!SSWDBGeneralCollectionSpec categoriesForMethods!
+dbBlockCollectionReceiver!accessing!public! !
+!
 
 !SSWDBOwnedCollectionSpec methodsFor!
 
@@ -327,14 +343,18 @@ dbBlockCollectionReceiver
 	^SSWDBOwnedCollectionBlockReceiver new
 		collectionSpec: self;
 		yourself! !
-!SSWDBOwnedCollectionSpec categoriesFor: #dbBlockCollectionReceiver!accessing!public! !
+!SSWDBOwnedCollectionSpec categoriesForMethods!
+dbBlockCollectionReceiver!accessing!public! !
+!
 
 !SSWDBQueryField methodsFor!
 
 asSQLFields
 
 	^self! !
-!SSWDBQueryField categoriesFor: #asSQLFields!converting!public! !
+!SSWDBQueryField categoriesForMethods!
+asSQLFields!converting!public! !
+!
 
 !SSWSQLCondition methodsFor!
 
@@ -380,13 +400,15 @@ writeAliasedSQLOn: aStream
 	"For situations where a condition is being used as a result field in a query"
 
 	aStream nextPutAliasedField: self! !
-!SSWSQLCondition categoriesFor: #convertValue:!output!public! !
-!SSWSQLCondition categoriesFor: #fieldNamed:!accessing!public! !
-!SSWSQLCondition categoriesFor: #finalField!accessing!public! !
-!SSWSQLCondition categoriesFor: #hasFinalField!public!testing! !
-!SSWSQLCondition categoriesFor: #requiresAliasing!public!testing! !
-!SSWSQLCondition categoriesFor: #table!accessing!public! !
-!SSWSQLCondition categoriesFor: #writeAliasedSQLOn:!output!public! !
+!SSWSQLCondition categoriesForMethods!
+convertValue:!output!public! !
+fieldNamed:!accessing!public! !
+finalField!accessing!public! !
+hasFinalField!public!testing! !
+requiresAliasing!public!testing! !
+table!accessing!public! !
+writeAliasedSQLOn:!output!public! !
+!
 
 !SSWSQLConditionCollection methodsFor!
 
@@ -426,12 +448,14 @@ writeAliasedSQLOn: aStream
 	"For situations where a condition is being used as a result field in a query"
 
 	aStream nextPutAliasedField: self! !
-!SSWSQLConditionCollection categoriesFor: #convertValue:!output!public! !
-!SSWSQLConditionCollection categoriesFor: #fieldNamed:!accessing!public! !
-!SSWSQLConditionCollection categoriesFor: #finalField!accessing!public! !
-!SSWSQLConditionCollection categoriesFor: #hasFinalField!public!testing! !
-!SSWSQLConditionCollection categoriesFor: #requiresAliasing!public!testing! !
-!SSWSQLConditionCollection categoriesFor: #writeAliasedSQLOn:!output!public! !
+!SSWSQLConditionCollection categoriesForMethods!
+convertValue:!output!public! !
+fieldNamed:!accessing!public! !
+finalField!accessing!public! !
+hasFinalField!public!testing! !
+requiresAliasing!public!testing! !
+writeAliasedSQLOn:!output!public! !
+!
 
 !SSWSQLParameterField methodsFor!
 
@@ -442,8 +466,10 @@ asSQLFields
 hasAggregateFunction
 
 	^false! !
-!SSWSQLParameterField categoriesFor: #asSQLFields!converting!public! !
-!SSWSQLParameterField categoriesFor: #hasAggregateFunction!public!testing! !
+!SSWSQLParameterField categoriesForMethods!
+asSQLFields!converting!public! !
+hasAggregateFunction!public!testing! !
+!
 
 !String methodsFor!
 
@@ -453,7 +479,9 @@ asWildcard
 		string: self;
 		yourself
 ! !
-!String categoriesFor: #asWildcard!converting!public! !
+!String categoriesForMethods!
+asWildcard!converting!public! !
+!
 
 !UndefinedObject methodsFor!
 
@@ -468,8 +496,10 @@ required
 	"Return the 'required nil' object"
 
 	^RequiredUndefinedObject soleInstance! !
-!UndefinedObject categoriesFor: #isRequiredForSimilarity!private!testing! !
-!UndefinedObject categoriesFor: #required!accessing!public! !
+!UndefinedObject categoriesForMethods!
+isRequiredForSimilarity!private!testing! !
+required!accessing!public! !
+!
 
 "End of package definition"!
 

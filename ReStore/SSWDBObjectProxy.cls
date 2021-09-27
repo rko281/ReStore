@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBProxy subclass: #SSWDBObjectProxy
 	instanceVariableNames: 'class id collectionProxies'
@@ -303,7 +303,7 @@ printString
 
 reStoreValue
 
-	^id!
+	^id reStoreValue!
 
 sqlStringIn: anSSWSQLDialect
 
@@ -363,48 +363,50 @@ writeSQLOn: aStream forField: aField
 	"The SQL for a persistent object is its id"
 
 	id writeSQLOn: aStream forField: aField! !
-!SSWDBObjectProxy categoriesFor: #_aquireCollectionProxiesUsing:!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_class!accessing!public! !
-!SSWDBObjectProxy categoriesFor: #_class:!accessing!public! !
-!SSWDBObjectProxy categoriesFor: #_collectionProxies!accessing!public! !
-!SSWDBObjectProxy categoriesFor: #_collectionProxies:!accessing!public! !
-!SSWDBObjectProxy categoriesFor: #_collectionProxyFor:!accessing:derived!public! !
-!SSWDBObjectProxy categoriesFor: #_collectionProxySwapped:!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_currentVersion!accessing:derived!public! !
-!SSWDBObjectProxy categoriesFor: #_dbTable!accessing:derived!public! !
-!SSWDBObjectProxy categoriesFor: #_id!accessing!public! !
-!SSWDBObjectProxy categoriesFor: #_id:!accessing!public! !
-!SSWDBObjectProxy categoriesFor: #_idIn:!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #_instVarAt:put:!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #_intern!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_isNew!public!testing! !
-!SSWDBObjectProxy categoriesFor: #_postSwapReferences!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_proxiedObjectMissing!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_refreshFromRow:table:!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #_storeNonPersistentComponents!actions-internal!private! !
-!SSWDBObjectProxy categoriesFor: #_unrecoveredProxyString!accessing!public! !
-!SSWDBObjectProxy categoriesFor: #_unstore!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #=!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #basicClass!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #class!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #currentVersion!accessing:derived!public! !
-!SSWDBObjectProxy categoriesFor: #debugPrintString!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #hash!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #isInteger!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #isKindOf:!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #isSQLNull!non forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #isValidForPersistence!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #printOn:!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #printString!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #reStoreValue!accessing:derived!public! !
-!SSWDBObjectProxy categoriesFor: #sqlStringIn:!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #unstore!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #unstored!forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #writeSQLOn:!actions-internal!public! !
-!SSWDBObjectProxy categoriesFor: #writeSQLOn:forCondition:!non forwarding!public! !
-!SSWDBObjectProxy categoriesFor: #writeSQLOn:forField:!actions-internal!public! !
+!SSWDBObjectProxy categoriesForMethods!
+_aquireCollectionProxiesUsing:!actions-internal!public! !
+_class!accessing!public! !
+_class:!accessing!public! !
+_collectionProxies!accessing!public! !
+_collectionProxies:!accessing!public! !
+_collectionProxyFor:!accessing:derived!public! !
+_collectionProxySwapped:!actions-internal!public! !
+_currentVersion!accessing:derived!public! !
+_dbTable!accessing:derived!public! !
+_id!accessing!public! !
+_id:!accessing!public! !
+_idIn:!forwarding!public! !
+_instVarAt:put:!forwarding!public! !
+_intern!actions-internal!public! !
+_isNew!public!testing! !
+_postSwapReferences!actions-internal!public! !
+_prepareToCommit!actions-internal!public! !
+_proxiedObjectMissing!actions-internal!public! !
+_recoverProxiedObject!actions-internal!public! !
+_refreshFromRow:table:!actions-internal!public! !
+_storeNonPersistentComponents!actions-internal!private! !
+_unrecoveredProxyString!accessing!public! !
+_unstore!actions-internal!public! !
+=!forwarding!public! !
+basicClass!forwarding!public! !
+class!forwarding!public! !
+currentVersion!accessing:derived!public! !
+debugPrintString!forwarding!public! !
+hash!forwarding!public! !
+isInteger!forwarding!public! !
+isKindOf:!forwarding!public! !
+isSQLNull!non forwarding!public! !
+isValidForPersistence!forwarding!public! !
+printOn:!forwarding!public! !
+printString!forwarding!public! !
+reStoreValue!accessing:derived!public! !
+sqlStringIn:!forwarding!public! !
+unstore!forwarding!public! !
+unstored!forwarding!public! !
+writeSQLOn:!actions-internal!public! !
+writeSQLOn:forCondition:!non forwarding!public! !
+writeSQLOn:forField:!actions-internal!public! !
+!
 
 !SSWDBObjectProxy class methodsFor!
 
@@ -439,8 +441,10 @@ modifyUpdatesFor: anSSWDBTable
 	None by default, subclasses should override as necessary"
 
 	^OrderedCollection new! !
-!SSWDBObjectProxy class categoriesFor: #_forNewObject:withID:inReStore:!instance creation!public! !
-!SSWDBObjectProxy class categoriesFor: #_forObjectOfClass:withID:inReStore:!instance creation!public! !
-!SSWDBObjectProxy class categoriesFor: #controlFields!constants!public! !
-!SSWDBObjectProxy class categoriesFor: #modifyUpdatesFor:!constants!public! !
+!SSWDBObjectProxy class categoriesForMethods!
+_forNewObject:withID:inReStore:!instance creation!public! !
+_forObjectOfClass:withID:inReStore:!instance creation!public! !
+controlFields!constants!public! !
+modifyUpdatesFor:!constants!public! !
+!
 

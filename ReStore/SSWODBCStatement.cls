@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 DBParameterizedStatement subclass: #SSWODBCStatement
 	instanceVariableNames: 'query numColumns cachedColumns cachedColumnsIndices'
@@ -89,7 +89,7 @@ describeParam: anInteger
 
 exec
 
-	parent debugStream ifNotNil: [ :stream | self writeDebugInfoOn: stream].
+	parent logStatementExec: self.
 
 	self close.
 	isPrepared
@@ -247,26 +247,28 @@ writeDebugInfoOn: aStream
 	readStream atEnd] whileFalse.
 
 	aStream nextPutAll: sqlStream contents; nextPut: $;; cr! !
-!SSWODBCStatement categoriesFor: #close!operations!public! !
-!SSWODBCStatement categoriesFor: #closeAfter:!operations!public! !
-!SSWODBCStatement categoriesFor: #cursoredFetch:!initializing!public! !
-!SSWODBCStatement categoriesFor: #dbCheckException:!exceptions!private! !
-!SSWODBCStatement categoriesFor: #describeCols:!accessing!public! !
-!SSWODBCStatement categoriesFor: #describeParam:!accessing!public! !
-!SSWODBCStatement categoriesFor: #exec!operations!private! !
-!SSWODBCStatement categoriesFor: #exec:!operations!public! !
-!SSWODBCStatement categoriesFor: #execQuery:!operations!public! !
-!SSWODBCStatement categoriesFor: #numColumns!accessing!public! !
-!SSWODBCStatement categoriesFor: #parameters!accessing!private! !
-!SSWODBCStatement categoriesFor: #prepare!operations!private! !
-!SSWODBCStatement categoriesFor: #query!accessing!public! !
-!SSWODBCStatement categoriesFor: #query:!accessing!public! !
-!SSWODBCStatement categoriesFor: #readValuesFrom:!operations!public! !
-!SSWODBCStatement categoriesFor: #rebindParameterAt:!operations!private! !
-!SSWODBCStatement categoriesFor: #results!accessing!public! !
-!SSWODBCStatement categoriesFor: #rowsAffected!accessing!public! !
-!SSWODBCStatement categoriesFor: #setValues!operations!private! !
-!SSWODBCStatement categoriesFor: #sqlDialect!accessing!public! !
-!SSWODBCStatement categoriesFor: #values:!public! !
-!SSWODBCStatement categoriesFor: #writeDebugInfoOn:!operations!public! !
+!SSWODBCStatement categoriesForMethods!
+close!operations!public! !
+closeAfter:!operations!public! !
+cursoredFetch:!initializing!public! !
+dbCheckException:!exceptions!private! !
+describeCols:!accessing!public! !
+describeParam:!accessing!public! !
+exec!public! !
+exec:!operations!public! !
+execQuery:!operations!public! !
+numColumns!accessing!public! !
+parameters!accessing!private! !
+prepare!operations!private! !
+query!accessing!public! !
+query:!accessing!public! !
+readValuesFrom:!operations!public! !
+rebindParameterAt:!operations!private! !
+results!accessing!public! !
+rowsAffected!accessing!public! !
+setValues!operations!private! !
+sqlDialect!accessing!public! !
+values:!public! !
+writeDebugInfoOn:!operations!public! !
+!
 
