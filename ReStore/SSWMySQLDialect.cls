@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLDialect subclass: #SSWMySQLDialect
 	instanceVariableNames: ''
@@ -27,7 +27,7 @@ blobTypes
 	"Full use of MEDIUMBLOB and LONGBLOB will require increasing the default maxColumnBytes (unrealistically so for LONGBLOB)"
 
 	^OrderedCollection new
-		add: (255 "((2 raisedTo: 8) - 1)" -> 'TINYBLOB');
+		add: (self maxVarchar "same as max VARBINARY" -> 'VARBINARY(<1p>)');
 		add: (65535 "((2 raisedTo: 16) - 1)" -> 'BLOB');
 		add: (16777215 "((2 raisedTo: 24) - 1)" -> 'MEDIUMBLOB');
 		add: (4294967295 "((2 raisedTo: 32) - 1)" -> 'LONGBLOB');
@@ -125,24 +125,33 @@ unsizedStringTypes
 		add: (65535 "((2 raisedTo: 16) - 1)" -> 'TEXT');
 		add: (16777215 "((2 raisedTo: 24) - 1)" -> 'MEDIUMTEXT');
 		add: (4294967295 "((2 raisedTo: 32) - 1)" -> 'LONGTEXT');
-		yourself! !
-!SSWMySQLDialect categoriesFor: #alterField:table:in:!maintenance!public! !
-!SSWMySQLDialect categoriesFor: #blobTypes!datatypes!public! !
-!SSWMySQLDialect categoriesFor: #boolean!datatypes!public! !
-!SSWMySQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
-!SSWMySQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
-!SSWMySQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
-!SSWMySQLDialect categoriesFor: #maxVarchar!constants!public! !
-!SSWMySQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
-!SSWMySQLDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
-!SSWMySQLDialect categoriesFor: #supportsDeleteWithJoin!public!testing! !
-!SSWMySQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
-!SSWMySQLDialect categoriesFor: #unsizedStringTypes!datatypes!public! !
+		yourself!
+
+uuid
+
+	^'BINARY(16)'! !
+!SSWMySQLDialect categoriesForMethods!
+alterField:table:in:!maintenance!public! !
+blobTypes!datatypes!public! !
+boolean!datatypes!public! !
+defaultMaxColumnNameLength!constants!public! !
+defaultMaxTableNameLength!constants!public! !
+dialectSpecificFunctions!constants!public! !
+maxVarchar!constants!public! !
+renameField:to:in:!maintenance!public! !
+renameTable:to:in:!maintenance!public! !
+supportsDeleteWithJoin!public!testing! !
+supportsMultipleAddColumns!public!testing! !
+unsizedStringTypes!datatypes!public! !
+uuid!datatypes!public! !
+!
 
 !SSWMySQLDialect class methodsFor!
 
 dbmsName
 
 	^'MySQL'! !
-!SSWMySQLDialect class categoriesFor: #dbmsName!constants!public! !
+!SSWMySQLDialect class categoriesForMethods!
+dbmsName!constants!public! !
+!
 

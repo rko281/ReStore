@@ -17,6 +17,7 @@ package methodNames
 	add: #CompiledCode -> #sswReadsInstVar:at:;
 	add: #CompiledCode -> #sswWritesInstVar:at:;
 	add: #DateAndTime -> #withResolution:;
+	add: #GUID -> #writeSQLOn:;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:from:;
@@ -61,6 +62,11 @@ package methodNames
 	add: #Time -> #withResolution:;
 	add: #TimeStamp -> #withResolution:;
 	add: #TimeStamp -> #writeSQLOn:;
+	add: 'GUID class' -> #dbMaxFieldSize;
+	add: 'GUID class' -> #instanceFromDBValue:in:;
+	add: 'GUID class' -> #isPersistentBaseClass;
+	add: 'GUID class' -> #reStoreNewUnique;
+	add: 'GUID class' -> #writeSQLTypeOn:using:;
 	add: 'SSWDBBlockParser class' -> #platformClass;
 	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
 	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
@@ -106,7 +112,9 @@ SSWDBBlockParser subclass: #SSWDBDolphinBlockParser
 _method: aCompiledMethod 
 
 	super method: aCompiledMethod! !
-!BlockFrame categoriesFor: #_method:!accessing!private! !
+!BlockFrame categoriesForMethods!
+_method:!accessing!private! !
+!
 
 !CompiledCode methodsFor!
 
@@ -145,10 +153,12 @@ sswWritesInstVar: aString at: anInteger
 
 	^(self extraIndex between: 1 and: 6) not 
 		and: [self sswByteCodeDispatcher writesInstVarAt: anInteger]! !
-!CompiledCode categoriesFor: #readsOrWritesAnyInstVar!public!testing! !
-!CompiledCode categoriesFor: #sswByteCodeDispatcher!accessing!private! !
-!CompiledCode categoriesFor: #sswReadsInstVar:at:!public!testing! !
-!CompiledCode categoriesFor: #sswWritesInstVar:at:!public!testing! !
+!CompiledCode categoriesForMethods!
+readsOrWritesAnyInstVar!public!testing! !
+sswByteCodeDispatcher!accessing!private! !
+sswReadsInstVar:at:!public!testing! !
+sswWritesInstVar:at:!public!testing! !
+!
 
 !DateAndTime methodsFor!
 
@@ -164,7 +174,47 @@ withResolution: anInteger
 		setRataDie: rataDie 
 		seconds: ((seconds * multplier) truncated / multplier)
 		offset: offset! !
-!DateAndTime categoriesFor: #withResolution:!accessing!public! !
+!DateAndTime categoriesForMethods!
+withResolution:!accessing!public! !
+!
+
+!GUID methodsFor!
+
+writeSQLOn: aStream
+
+	self asByteArray writeSQLOn: aStream! !
+!GUID categoriesForMethods!
+writeSQLOn:!printing!public! !
+!
+
+!GUID class methodsFor!
+
+dbMaxFieldSize
+
+	^16!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	^aValue isNil ifFalse: [self fromBytes: aValue]!
+
+isPersistentBaseClass
+
+	^true!
+
+reStoreNewUnique
+
+	^self newUnique!
+
+writeSQLTypeOn: aStream using: aSQLDialect
+
+	aStream nextPutAll: aSQLDialect uuid! !
+!GUID class categoriesForMethods!
+dbMaxFieldSize!persistency!private! !
+instanceFromDBValue:in:!persistency!private! !
+isPersistentBaseClass!persistency!private! !
+reStoreNewUnique!persistency!private! !
+writeSQLTypeOn:using:!persistency!private! !
+!
 
 !SSWDBBlockArgument methodsFor!
 
@@ -376,13 +426,15 @@ stackFrameDetect: aBlock
 	[(aBlock value: frame) or: [(frame := frame sender) isNil]] whileFalse.
 
 	^frame! !
-!SSWDBBlockArgument categoriesFor: #isJumpOnNilBytecode:!parsing - internal!private! !
-!SSWDBBlockArgument categoriesFor: #postProcessDNU:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #postProcessDNU:from:!parsing - internal!private! !
-!SSWDBBlockArgument categoriesFor: #postProcessIfNilFor:in:at:!parsing - internal!private! !
-!SSWDBBlockArgument categoriesFor: #preProcessNextMessageFor:in:!parsing - internal!private! !
-!SSWDBBlockArgument categoriesFor: #simulateMessageSend:!helpers!public! !
-!SSWDBBlockArgument categoriesFor: #stackFrameDetect:!public! !
+!SSWDBBlockArgument categoriesForMethods!
+isJumpOnNilBytecode:!parsing - internal!private! !
+postProcessDNU:!parsing - internal!public! !
+postProcessDNU:from:!parsing - internal!private! !
+postProcessIfNilFor:in:at:!parsing - internal!private! !
+preProcessNextMessageFor:in:!parsing - internal!private! !
+simulateMessageSend:!helpers!public! !
+stackFrameDetect:!public! !
+!
 
 !SSWDBBlockEvaluator methodsFor!
 
@@ -431,16 +483,20 @@ perform: selector withArguments: arguments
 		of: selector
 		for: self
 		withArgs: arguments! !
-!SSWDBBlockEvaluator categoriesFor: #perform:!message sending!public! !
-!SSWDBBlockEvaluator categoriesFor: #perform:with:!message sending!public! !
-!SSWDBBlockEvaluator categoriesFor: #perform:withArguments:!message sending!public! !
+!SSWDBBlockEvaluator categoriesForMethods!
+perform:!message sending!public! !
+perform:with:!message sending!public! !
+perform:withArguments:!message sending!public! !
+!
 
 !SSWDBBlockParser class methodsFor!
 
 platformClass
 
 	^SSWDBDolphinBlockParser! !
-!SSWDBBlockParser class categoriesFor: #platformClass!constants!public! !
+!SSWDBBlockParser class categoriesForMethods!
+platformClass!constants!public! !
+!
 
 !SSWDBProxy methodsFor!
 
@@ -458,9 +514,11 @@ _proxyClass
 _proxyInstVarAt: index
 
 	^super instVarAt: index! !
-!SSWDBProxy categoriesFor: #_allReferences!non forwarding!public! !
-!SSWDBProxy categoriesFor: #_proxyClass!accessing:direct!private! !
-!SSWDBProxy categoriesFor: #_proxyInstVarAt:!accessing:direct!private! !
+!SSWDBProxy categoriesForMethods!
+_allReferences!non forwarding!public! !
+_proxyClass!accessing:direct!private! !
+_proxyInstVarAt:!accessing:direct!private! !
+!
 
 !SSWDBQueryCondition methodsFor!
 
@@ -470,7 +528,9 @@ mustBeBoolean
 	Ask the parser to handle"
 
 	^self parser handleMustBeBooleanIn: self! !
-!SSWDBQueryCondition categoriesFor: #mustBeBoolean!evaluating!private! !
+!SSWDBQueryCondition categoriesForMethods!
+mustBeBoolean!evaluating!private! !
+!
 
 !SSWDBQueryConditionCollection methodsFor!
 
@@ -480,7 +540,9 @@ mustBeBoolean
 	Ask the parser to handle"
 
 	^self parser handleMustBeBooleanIn: self! !
-!SSWDBQueryConditionCollection categoriesFor: #mustBeBoolean!evaluating!private! !
+!SSWDBQueryConditionCollection categoriesForMethods!
+mustBeBoolean!evaluating!private! !
+!
 
 !SSWMSAccessDialect methodsFor!
 
@@ -496,8 +558,10 @@ platformSpecificFunctions
 	^Dictionary new
 		at: #month put: 'DATEPART(''m'',%1)' asSQLFunctionIntegerResult;
 		yourself! !
-!SSWMSAccessDialect categoriesFor: #dialectReservedWords!constants!public! !
-!SSWMSAccessDialect categoriesFor: #platformSpecificFunctions!constants!public! !
+!SSWMSAccessDialect categoriesForMethods!
+dialectReservedWords!constants!public! !
+platformSpecificFunctions!constants!public! !
+!
 
 !SSWMySQLDialect methodsFor!
 
@@ -510,8 +574,10 @@ platformSpecificFunctions
 timestamp
 
 	^'DATETIME'! !
-!SSWMySQLDialect categoriesFor: #platformSpecificFunctions!constants!public! !
-!SSWMySQLDialect categoriesFor: #timestamp!datatypes!public! !
+!SSWMySQLDialect categoriesForMethods!
+platformSpecificFunctions!constants!public! !
+timestamp!datatypes!public! !
+!
 
 !SSWPostgreSQLDialect methodsFor!
 
@@ -526,8 +592,10 @@ platformSpecificFunctions
 	^Dictionary new
 		at: #month put: 'EXTRACT(MONTH FROM %1)' asSQLFunctionIntegerResult;
 		yourself! !
-!SSWPostgreSQLDialect categoriesFor: #legacyNameTransformationFor:with:!helpers!private! !
-!SSWPostgreSQLDialect categoriesFor: #platformSpecificFunctions!constants!public! !
+!SSWPostgreSQLDialect categoriesForMethods!
+legacyNameTransformationFor:with:!helpers!private! !
+platformSpecificFunctions!constants!public! !
+!
 
 !SSWReStore methodsFor!
 
@@ -593,14 +661,16 @@ useLegacyNameTransformations
 
 	"Must reset system classes after login to use current dialect's name transformation strategy"
 	self persistentSystemClasses do: [ :each | self addClass: each]! !
-!SSWReStore categoriesFor: #binaryStoreOn:!binary filing!public! !
-!SSWReStore categoriesFor: #connectString:!connection!public! !
-!SSWReStore categoriesFor: #createConnection!initialize/release!public! !
-!SSWReStore categoriesFor: #dsn:!connection!public! !
-!SSWReStore categoriesFor: #openODBC!connection!public! !
-!SSWReStore categoriesFor: #pwd:!connection!public! !
-!SSWReStore categoriesFor: #uid:!connection!public! !
-!SSWReStore categoriesFor: #useLegacyNameTransformations!initialize/release!public! !
+!SSWReStore categoriesForMethods!
+binaryStoreOn:!binary filing!public! !
+connectString:!connection!public! !
+createConnection!initialize/release!public! !
+dsn:!connection!public! !
+openODBC!connection!public! !
+pwd:!connection!public! !
+uid:!connection!public! !
+useLegacyNameTransformations!initialize/release!public! !
+!
 
 !SSWSQLDialect methodsFor!
 
@@ -663,12 +733,14 @@ writeSQLForTimeStamp: aTimeStamp on: aStream
 	aStream
 		nextPut: $';
 		nextPut: $}! !
-!SSWSQLDialect categoriesFor: #dialectReservedWords!constants!public! !
-!SSWSQLDialect categoriesFor: #isReservedWord:!public!testing! !
-!SSWSQLDialect categoriesFor: #legacyNameTransformationFor:with:!helpers!private! !
-!SSWSQLDialect categoriesFor: #timestamp!datatypes!public! !
-!SSWSQLDialect categoriesFor: #useLegacyNameTransformations!initializing!private! !
-!SSWSQLDialect categoriesFor: #writeSQLForTimeStamp:on:!public!writing sql! !
+!SSWSQLDialect categoriesForMethods!
+dialectReservedWords!constants!public! !
+isReservedWord:!public!testing! !
+legacyNameTransformationFor:with:!helpers!private! !
+timestamp!datatypes!public! !
+useLegacyNameTransformations!initializing!private! !
+writeSQLForTimeStamp:on:!public!writing sql! !
+!
 
 !SSWSQLiteDialect methodsFor!
 
@@ -677,7 +749,9 @@ platformSpecificFunctions
 	^Dictionary new
 		at: #month put: 'CAST(STRFTIME(''%%m'',%1) AS INTEGER)' asSQLFunctionIntegerResult;
 		yourself! !
-!SSWSQLiteDialect categoriesFor: #platformSpecificFunctions!constants!public! !
+!SSWSQLiteDialect categoriesForMethods!
+platformSpecificFunctions!constants!public! !
+!
 
 !SSWSQLServerDialect methodsFor!
 
@@ -690,15 +764,19 @@ platformSpecificFunctions
 timestamp
 
 	^'DATETIME'! !
-!SSWSQLServerDialect categoriesFor: #platformSpecificFunctions!constants!public! !
-!SSWSQLServerDialect categoriesFor: #timestamp!datatypes!public! !
+!SSWSQLServerDialect categoriesForMethods!
+platformSpecificFunctions!constants!public! !
+timestamp!datatypes!public! !
+!
 
 !SSWSQLWriteStream methodsFor!
 
 nextPutTimeStamp: aTimeStamp
 
 	self dialect writeSQLForTimeStamp: aTimeStamp on: self! !
-!SSWSQLWriteStream categoriesFor: #nextPutTimeStamp:!printing!public! !
+!SSWSQLWriteStream categoriesForMethods!
+nextPutTimeStamp:!printing!public! !
+!
 
 !StackFrame methodsFor!
 
@@ -714,8 +792,10 @@ sswByteCodeDispatcher
 	^self method sswByteCodeDispatcher
 		ip: self ip;
 		yourself! !
-!StackFrame categoriesFor: #_method:!accessing!private! !
-!StackFrame categoriesFor: #sswByteCodeDispatcher!accessing!private! !
+!StackFrame categoriesForMethods!
+_method:!accessing!private! !
+sswByteCodeDispatcher!accessing!private! !
+!
 
 !Time methodsFor!
 
@@ -728,7 +808,9 @@ withResolution: anInteger
 	multiplier := 10 ** anInteger.
 
 	^Time fromSeconds: ((seconds * multiplier) rounded / multiplier)! !
-!Time categoriesFor: #withResolution:!public! !
+!Time categoriesForMethods!
+withResolution:!public! !
+!
 
 !TimeStamp methodsFor!
 
@@ -740,8 +822,10 @@ writeSQLOn: aStream
 
 	"Defer to the Stream to account for dialect differences"
 	aStream nextPutTimeStamp: self! !
-!TimeStamp categoriesFor: #withResolution:!accessing!public! !
-!TimeStamp categoriesFor: #writeSQLOn:!converting!printing!public! !
+!TimeStamp categoriesForMethods!
+withResolution:!accessing!public! !
+writeSQLOn:!converting!printing!public! !
+!
 
 !TimeStamp class methodsFor!
 
@@ -755,8 +839,10 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	"9/3/01"
 	
 	aStream nextPutAll: anSQLDialect timestamp! !
-!TimeStamp class categoriesFor: #instanceFromDBValue:in:!instance creation!public! !
-!TimeStamp class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!TimeStamp class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+writeSQLTypeOn:using:!printing!public! !
+!
 
 "End of package definition"!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWReStore
 	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
@@ -94,7 +94,7 @@ affiliations
 
 allocateIDFor: anObject in: aDBTable
 
-	^self transaction allocateIDFor: anObject tableRecord: (self tableRecordFor: aDBTable)!
+	^anObject reStoreNewUniqueID ifNil: [self transaction allocateIDFor: anObject tableRecord: (self tableRecordFor: aDBTable)]!
 
 alterInstVar: aSymbol in: aClass
 
@@ -158,23 +158,23 @@ cachedInstancesOf: aClass
 
 	^(self classCacheFor: aClass) values!
 
-cachedObjectOfClass: aClass withID: anID ifAbsent: aBlock
+cachedObjectOfClass: aClass withID: aRawID ifAbsent: aBlock
 
-	"Return the cached object (actually a proxy) of the given class with the given unique ID.
+	"Return the cached object (actually a proxy) of the given class with the given unique ID (raw value as read from database; may need reifying).
 	If none is found, evaluate aBlock"
 	
-	^(self classCacheFor: aClass) at: anID ifAbsent: aBlock!
+	^(self classCacheFor: aClass) at: (aClass reStoreIDClass instanceFromDBValue: aRawID in: self) ifAbsent: aBlock!
 
-cachedObjectOfClass: aClass withID: anID 
+cachedObjectOfClass: aClass withID: aRawID 
 	ifAbsent: absentBlock ifUnrecovered: unrecoveredBlock ifUntouched: untouchedBlock
 
-	"Return the cached object (which may actually a proxy) of the given class with the given unique ID.
+	"Return the cached object (which may actually a proxy) of the given class with the given unique ID (raw value as read from database; may need reifying).
 	If none is found, evaluate absentBlock.
 	If an unrecovered proxy, evaluate unrecoveredBlock with it.
 	If a recovered but not 'touched' proxy, evaluate untouchedBlock with it.
 	A proxy is considered 'touched' if it has been sent a message since the last abort"
 	
-	^(self cachedObjectOfClass: aClass withID: anID ifAbsent: [nil])
+	^(self cachedObjectOfClass: aClass withID: aRawID ifAbsent: [nil])
 	ifNil:
 		[absentBlock value]
 	ifNotNil:
@@ -252,7 +252,7 @@ classCacheFor: aClass
 	"Proxies are cached under the registerClass of their associated table"
 	^self proxyCache 
 		at: (self tableForClass: aClass) registerClass 
-		ifAbsentPut: [WeakIdentityDictionary new: 128]!
+		ifAbsentPut: [WeakLookupTable new: 128]!
 
 clearDBTableNames
 
@@ -1625,171 +1625,173 @@ validateTable: anSSWDBTable
 			anSSWDBTable name: abbrevName]
 		ifFalse:
 			[self error: 'Oversize table name. Enable full table records (see supportsFullTableRecords)']]! !
-!SSWReStore categoriesFor: #_rollbackObjects:!private!transaction management! !
-!SSWReStore categoriesFor: #abandonTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #activeProxyForObject:ifNone:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #addClass:!class maintenance!public! !
-!SSWReStore categoriesFor: #addClasses:!class maintenance!public! !
-!SSWReStore categoriesFor: #addClassWithSubclasses:!class maintenance!public! !
-!SSWReStore categoriesFor: #affiliateWith:using:!initialize/release!public! !
-!SSWReStore categoriesFor: #affiliations!accessing!public! !
-!SSWReStore categoriesFor: #allocateIDFor:in:!cache management!public! !
-!SSWReStore categoriesFor: #alterInstVar:in:!class maintenance!public! !
-!SSWReStore categoriesFor: #applyUpdates:toObject:!public!read/write objects! !
-!SSWReStore categoriesFor: #beginDumbTransaction!private!transaction management! !
-!SSWReStore categoriesFor: #beginTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #cachedInstancesOf:!public!querying! !
-!SSWReStore categoriesFor: #cachedObjectOfClass:withID:ifAbsent:!cache management!public! !
-!SSWReStore categoriesFor: #cachedObjectOfClass:withID:ifAbsent:ifUnrecovered:ifUntouched:!cache management!public! !
-!SSWReStore categoriesFor: #cacheObject:!cache management!public! !
-!SSWReStore categoriesFor: #changedClassOfInstVar:in:modifyUsing:!class maintenance!public! !
-!SSWReStore categoriesFor: #classCacheFor:!cache management!public! !
-!SSWReStore categoriesFor: #clearDBTableNames!cache management!public! !
-!SSWReStore categoriesFor: #clearNextIDCache!cache management!public! !
-!SSWReStore categoriesFor: #clearProxyCache!cache management!public! !
-!SSWReStore categoriesFor: #clearStatementCache!cache management!public! !
-!SSWReStore categoriesFor: #clearTableCache!cache management!public! !
-!SSWReStore categoriesFor: #clearTransaction!private!transaction management! !
-!SSWReStore categoriesFor: #columnsForFields:!connection!public! !
-!SSWReStore categoriesFor: #columnsInTable:!connection!public! !
-!SSWReStore categoriesFor: #commit:!public!transactionless api! !
-!SSWReStore categoriesFor: #commitAll:!public!transactionless api! !
-!SSWReStore categoriesFor: #commitTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #connect!connection!public! !
-!SSWReStore categoriesFor: #connection!accessing!public! !
-!SSWReStore categoriesFor: #connection:!accessing!public! !
-!SSWReStore categoriesFor: #createProxyForNewObject:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #createProxyForObjectOfClass:withID:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #createProxyForRow:fromTable:withID:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #createTableRecordFor:!class maintenance!private! !
-!SSWReStore categoriesFor: #dbErrorClass!connection!public! !
-!SSWReStore categoriesFor: #dbIncludesTable:!public!testing! !
-!SSWReStore categoriesFor: #dbIncludesTableForClass:!class maintenance!public! !
-!SSWReStore categoriesFor: #dbTableNames!accessing!public! !
-!SSWReStore categoriesFor: #dbTableNames:!accessing!public! !
-!SSWReStore categoriesFor: #dbTableNamesFor:!class maintenance!public! !
-!SSWReStore categoriesFor: #debugTo:!connection!public! !
-!SSWReStore categoriesFor: #defaultReadAllBatchSize!constants!private! !
-!SSWReStore categoriesFor: #deferredObjectOfClass:withID:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #deferredObjectOfClass:withID:version:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #deleteProxy:!public!read/write objects! !
-!SSWReStore categoriesFor: #deregisterProxy:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #destroyAllClasses!class maintenance!public! !
-!SSWReStore categoriesFor: #destroyAllTables!class maintenance!public! !
-!SSWReStore categoriesFor: #destroyClass:!class maintenance!public! !
-!SSWReStore categoriesFor: #destroyTable:!class maintenance!private! !
-!SSWReStore categoriesFor: #disaffiliateWith:!initialize/release!public! !
-!SSWReStore categoriesFor: #disconnect!connection!public! !
-!SSWReStore categoriesFor: #enableFullTableRecords!class maintenance!public! !
-!SSWReStore categoriesFor: #ensureCanChangeTransactionMode!initialize/release!private! !
-!SSWReStore categoriesFor: #ensureIsActiveInCurrentTransaction:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #ensureNoActiveTransaction!private!transaction management! !
-!SSWReStore categoriesFor: #evaluateAsTransaction:!public!transaction api! !
-!SSWReStore categoriesFor: #evaluateAsTransactionUntilSuccess:!public!transaction api! !
-!SSWReStore categoriesFor: #evaluateAsTxn:!connection!private! !
-!SSWReStore categoriesFor: #evaluateInTransaction:!public!transaction api! !
-!SSWReStore categoriesFor: #evaluateInTxn:!connection!private! !
-!SSWReStore categoriesFor: #executeQuery:!connection!public! !
-!SSWReStore categoriesFor: #executeQuery:cursoredFetch:!connection!public! !
-!SSWReStore categoriesFor: #executeSQL:!connection!public! !
-!SSWReStore categoriesFor: #executeSQLAsTxn:!connection!public! !
-!SSWReStore categoriesFor: #executeSQLFrom:!connection!public! !
-!SSWReStore categoriesFor: #fetchObjectOfClass:withQuery:ifNone:!public!querying! !
-!SSWReStore categoriesFor: #fetchObjectsFromTable:withQuery:into:!public!querying! !
-!SSWReStore categoriesFor: #fetchObjectsOfClass:withQuery:into:!public!querying! !
-!SSWReStore categoriesFor: #fetchObjectsOfClass:withStatement:into:!public!querying! !
-!SSWReStore categoriesFor: #finalize!connection!initialize/release!public! !
-!SSWReStore categoriesFor: #forceRefresh:!public!transactionless api! !
-!SSWReStore categoriesFor: #forceRefreshAll:!public!transactionless api! !
-!SSWReStore categoriesFor: #forgetClass:!class maintenance!public! !
-!SSWReStore categoriesFor: #fullTableRecordFor:!class maintenance!private! !
-!SSWReStore categoriesFor: #hasActiveAffiliation!public!testing! !
-!SSWReStore categoriesFor: #hasAffiliations!public!testing! !
-!SSWReStore categoriesFor: #hasChanged:!public!transactionless api! !
-!SSWReStore categoriesFor: #hasConnection!public!testing! !
-!SSWReStore categoriesFor: #hasTransaction!private!transaction management! !
-!SSWReStore categoriesFor: #hasTransactionChanges!public!transaction api! !
-!SSWReStore categoriesFor: #haveAnyChanged:!public!transactionless api! !
-!SSWReStore categoriesFor: #insertProxy:!public!read/write objects! !
-!SSWReStore categoriesFor: #instancesOf:!public!querying! !
-!SSWReStore categoriesFor: #isAffiliatedWith:!public!testing! !
-!SSWReStore categoriesFor: #isClassPersistent:!public!testing! !
-!SSWReStore categoriesFor: #isConnected!public!testing! !
-!SSWReStore categoriesFor: #isInCurrentTransaction:!private!transaction management! !
-!SSWReStore categoriesFor: #isSystemClass:!public!testing! !
-!SSWReStore categoriesFor: #isTransactionInProgress!public!transaction api! !
-!SSWReStore categoriesFor: #lazyRefresh:!public!transactionless api! !
-!SSWReStore categoriesFor: #lazyRefreshAll:!public!transactionless api! !
-!SSWReStore categoriesFor: #nextIDCache!accessing!public! !
-!SSWReStore categoriesFor: #nextIDCache:!accessing!public! !
-!SSWReStore categoriesFor: #nextIDForTable:!cache management!public! !
-!SSWReStore categoriesFor: #nextIDStatement!accessing!public! !
-!SSWReStore categoriesFor: #nextIDStatement:!accessing!public! !
-!SSWReStore categoriesFor: #nextShortTableNameFor:!class maintenance!private! !
-!SSWReStore categoriesFor: #objectFromRow:table:!public!querying! !
-!SSWReStore categoriesFor: #objectProxyClass!accessing!public! !
-!SSWReStore categoriesFor: #objectProxyClass:!accessing!public! !
-!SSWReStore categoriesFor: #objectProxyClassFor:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #onStartup!initialize/release!public! !
-!SSWReStore categoriesFor: #persistentSystemClasses!class maintenance!private! !
-!SSWReStore categoriesFor: #prepareStatementForQuery:!connection!public! !
-!SSWReStore categoriesFor: #proxy:forwarded:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #proxyCache!accessing!public! !
-!SSWReStore categoriesFor: #proxyCache:!accessing!public! !
-!SSWReStore categoriesFor: #readAllBatchSize!accessing!public! !
-!SSWReStore categoriesFor: #readAllBatchSize:!accessing!public! !
-!SSWReStore categoriesFor: #reconnect!connection!public! !
-!SSWReStore categoriesFor: #recoverObjectOfClass:withID:into:!public!read/write objects! !
-!SSWReStore categoriesFor: #refresh:!public!transactionless api! !
-!SSWReStore categoriesFor: #refreshAll:!public!transactionless api! !
-!SSWReStore categoriesFor: #refreshAllIfUpdated:!public!transactionless api! !
-!SSWReStore categoriesFor: #refreshAllObjects!public!transaction api! !
-!SSWReStore categoriesFor: #refreshAndRollforwardTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #refreshClasses!class maintenance!public! !
-!SSWReStore categoriesFor: #refreshIfUpdated:!public!transactionless api! !
-!SSWReStore categoriesFor: #refreshProxyIfUpdated:!public!read/write objects! !
-!SSWReStore categoriesFor: #registerProxy:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #removeFromTransaction:!proxy manipulation!public! !
-!SSWReStore categoriesFor: #renamedClass:from:!class maintenance!public! !
-!SSWReStore categoriesFor: #renamedInstVar:from:in:!class maintenance!public! !
-!SSWReStore categoriesFor: #renameTable:to:!class maintenance!private! !
-!SSWReStore categoriesFor: #resetClasses!class maintenance!public! !
-!SSWReStore categoriesFor: #rollback:!public!transactionless api! !
-!SSWReStore categoriesFor: #rollbackAll:!public!transactionless api! !
-!SSWReStore categoriesFor: #rollbackAndRefreshTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #rollbackTransaction!public!transaction api! !
-!SSWReStore categoriesFor: #rowFromQuery:!public!querying! !
-!SSWReStore categoriesFor: #rowsFromQuery:do:!public!querying! !
-!SSWReStore categoriesFor: #rowsFromStatement:do:!public!querying! !
-!SSWReStore categoriesFor: #selectChanged:!public!transaction management! !
-!SSWReStore categoriesFor: #setDefaultTransactionMode!initialize/release!private! !
-!SSWReStore categoriesFor: #softRollback!public!transaction api! !
-!SSWReStore categoriesFor: #sqlDialect!accessing!public! !
-!SSWReStore categoriesFor: #supportsFullTableRecords!accessing!public! !
-!SSWReStore categoriesFor: #supportsFullTableRecords:!accessing!public! !
-!SSWReStore categoriesFor: #supportsVersioning!public!testing! !
-!SSWReStore categoriesFor: #synchronizeAllClasses!class maintenance!public! !
-!SSWReStore categoriesFor: #synchronizeClass:!class maintenance!public! !
-!SSWReStore categoriesFor: #tableCache!accessing!public! !
-!SSWReStore categoriesFor: #tableCache:!accessing!public! !
-!SSWReStore categoriesFor: #tableForClass:!cache management!public! !
-!SSWReStore categoriesFor: #tableForClass:ifAbsent:!cache management!public! !
-!SSWReStore categoriesFor: #tableRecordFor:!cache management!public! !
-!SSWReStore categoriesFor: #transaction!accessing!public! !
-!SSWReStore categoriesFor: #transaction:!accessing!public! !
-!SSWReStore categoriesFor: #transactionClass!accessing!public! !
-!SSWReStore categoriesFor: #transactionClass:!accessing!public! !
-!SSWReStore categoriesFor: #transactionCommitFailures!public!transaction api! !
-!SSWReStore categoriesFor: #transactionCritical:!private!transaction management! !
-!SSWReStore categoriesFor: #transactionCritical:ifLocked:!private!transaction management! !
-!SSWReStore categoriesFor: #transactionMutex!accessing!public! !
-!SSWReStore categoriesFor: #transactionMutex:!accessing!public! !
-!SSWReStore categoriesFor: #translateMessage:toFunction:!initialize/release!public! !
-!SSWReStore categoriesFor: #uncacheObject:!cache management!public! !
-!SSWReStore categoriesFor: #unstoreNextIDsForTables:!class maintenance!private! !
-!SSWReStore categoriesFor: #useTransactionsWithoutVersioning!initialize/release!public! !
-!SSWReStore categoriesFor: #useTransactionsWithVersioning!initialize/release!public! !
-!SSWReStore categoriesFor: #validateTable:!class maintenance!private! !
+!SSWReStore categoriesForMethods!
+_rollbackObjects:!private!transaction management! !
+abandonTransaction!public!transaction api! !
+activeProxyForObject:ifNone:!proxy manipulation!public! !
+addClass:!class maintenance!public! !
+addClasses:!class maintenance!public! !
+addClassWithSubclasses:!class maintenance!public! !
+affiliateWith:using:!initialize/release!public! !
+affiliations!accessing!public! !
+allocateIDFor:in:!cache management!public! !
+alterInstVar:in:!class maintenance!public! !
+applyUpdates:toObject:!public!read/write objects! !
+beginDumbTransaction!private!transaction management! !
+beginTransaction!public!transaction api! !
+cachedInstancesOf:!public!querying! !
+cachedObjectOfClass:withID:ifAbsent:!cache management!public! !
+cachedObjectOfClass:withID:ifAbsent:ifUnrecovered:ifUntouched:!cache management!public! !
+cacheObject:!cache management!public! !
+changedClassOfInstVar:in:modifyUsing:!class maintenance!public! !
+classCacheFor:!cache management!public! !
+clearDBTableNames!cache management!public! !
+clearNextIDCache!cache management!public! !
+clearProxyCache!cache management!public! !
+clearStatementCache!cache management!public! !
+clearTableCache!cache management!public! !
+clearTransaction!private!transaction management! !
+columnsForFields:!connection!public! !
+columnsInTable:!connection!public! !
+commit:!public!transactionless api! !
+commitAll:!public!transactionless api! !
+commitTransaction!public!transaction api! !
+connect!connection!public! !
+connection!accessing!public! !
+connection:!accessing!public! !
+createProxyForNewObject:!proxy manipulation!public! !
+createProxyForObjectOfClass:withID:!proxy manipulation!public! !
+createProxyForRow:fromTable:withID:!proxy manipulation!public! !
+createTableRecordFor:!class maintenance!private! !
+dbErrorClass!connection!public! !
+dbIncludesTable:!public!testing! !
+dbIncludesTableForClass:!class maintenance!public! !
+dbTableNames!accessing!public! !
+dbTableNames:!accessing!public! !
+dbTableNamesFor:!class maintenance!public! !
+debugTo:!connection!public! !
+defaultReadAllBatchSize!constants!private! !
+deferredObjectOfClass:withID:!proxy manipulation!public! !
+deferredObjectOfClass:withID:version:!proxy manipulation!public! !
+deleteProxy:!public!read/write objects! !
+deregisterProxy:!proxy manipulation!public! !
+destroyAllClasses!class maintenance!public! !
+destroyAllTables!class maintenance!public! !
+destroyClass:!class maintenance!public! !
+destroyTable:!class maintenance!private! !
+disaffiliateWith:!initialize/release!public! !
+disconnect!connection!public! !
+enableFullTableRecords!class maintenance!public! !
+ensureCanChangeTransactionMode!initialize/release!private! !
+ensureIsActiveInCurrentTransaction:!proxy manipulation!public! !
+ensureNoActiveTransaction!private!transaction management! !
+evaluateAsTransaction:!public!transaction api! !
+evaluateAsTransactionUntilSuccess:!public!transaction api! !
+evaluateAsTxn:!connection!private! !
+evaluateInTransaction:!public!transaction api! !
+evaluateInTxn:!connection!private! !
+executeQuery:!connection!public! !
+executeQuery:cursoredFetch:!connection!public! !
+executeSQL:!connection!public! !
+executeSQLAsTxn:!connection!public! !
+executeSQLFrom:!connection!public! !
+fetchObjectOfClass:withQuery:ifNone:!public!querying! !
+fetchObjectsFromTable:withQuery:into:!public!querying! !
+fetchObjectsOfClass:withQuery:into:!public!querying! !
+fetchObjectsOfClass:withStatement:into:!public!querying! !
+finalize!connection!initialize/release!public! !
+forceRefresh:!public!transactionless api! !
+forceRefreshAll:!public!transactionless api! !
+forgetClass:!class maintenance!public! !
+fullTableRecordFor:!class maintenance!private! !
+hasActiveAffiliation!public!testing! !
+hasAffiliations!public!testing! !
+hasChanged:!public!transactionless api! !
+hasConnection!public!testing! !
+hasTransaction!private!transaction management! !
+hasTransactionChanges!public!transaction api! !
+haveAnyChanged:!public!transactionless api! !
+insertProxy:!public!read/write objects! !
+instancesOf:!public!querying! !
+isAffiliatedWith:!public!testing! !
+isClassPersistent:!public!testing! !
+isConnected!public!testing! !
+isInCurrentTransaction:!private!transaction management! !
+isSystemClass:!public!testing! !
+isTransactionInProgress!public!transaction api! !
+lazyRefresh:!public!transactionless api! !
+lazyRefreshAll:!public!transactionless api! !
+nextIDCache!accessing!public! !
+nextIDCache:!accessing!public! !
+nextIDForTable:!cache management!public! !
+nextIDStatement!accessing!public! !
+nextIDStatement:!accessing!public! !
+nextShortTableNameFor:!class maintenance!private! !
+objectFromRow:table:!public!querying! !
+objectProxyClass!accessing!public! !
+objectProxyClass:!accessing!public! !
+objectProxyClassFor:!proxy manipulation!public! !
+onStartup!initialize/release!public! !
+persistentSystemClasses!class maintenance!private! !
+prepareStatementForQuery:!connection!public! !
+proxy:forwarded:!proxy manipulation!public! !
+proxyCache!accessing!public! !
+proxyCache:!accessing!public! !
+readAllBatchSize!accessing!public! !
+readAllBatchSize:!accessing!public! !
+reconnect!connection!public! !
+recoverObjectOfClass:withID:into:!public!read/write objects! !
+refresh:!public!transactionless api! !
+refreshAll:!public!transactionless api! !
+refreshAllIfUpdated:!public!transactionless api! !
+refreshAllObjects!public!transaction api! !
+refreshAndRollforwardTransaction!public!transaction api! !
+refreshClasses!class maintenance!public! !
+refreshIfUpdated:!public!transactionless api! !
+refreshProxyIfUpdated:!public!read/write objects! !
+registerProxy:!proxy manipulation!public! !
+removeFromTransaction:!proxy manipulation!public! !
+renamedClass:from:!class maintenance!public! !
+renamedInstVar:from:in:!class maintenance!public! !
+renameTable:to:!class maintenance!private! !
+resetClasses!class maintenance!public! !
+rollback:!public!transactionless api! !
+rollbackAll:!public!transactionless api! !
+rollbackAndRefreshTransaction!public!transaction api! !
+rollbackTransaction!public!transaction api! !
+rowFromQuery:!public!querying! !
+rowsFromQuery:do:!public!querying! !
+rowsFromStatement:do:!public!querying! !
+selectChanged:!public!transaction management! !
+setDefaultTransactionMode!initialize/release!private! !
+softRollback!public!transaction api! !
+sqlDialect!accessing!public! !
+supportsFullTableRecords!accessing!public! !
+supportsFullTableRecords:!accessing!public! !
+supportsVersioning!public!testing! !
+synchronizeAllClasses!class maintenance!public! !
+synchronizeClass:!class maintenance!public! !
+tableCache!accessing!public! !
+tableCache:!accessing!public! !
+tableForClass:!cache management!public! !
+tableForClass:ifAbsent:!cache management!public! !
+tableRecordFor:!cache management!public! !
+transaction!accessing!public! !
+transaction:!accessing!public! !
+transactionClass!accessing!public! !
+transactionClass:!accessing!public! !
+transactionCommitFailures!public!transaction api! !
+transactionCritical:!private!transaction management! !
+transactionCritical:ifLocked:!private!transaction management! !
+transactionMutex!accessing!public! !
+transactionMutex:!accessing!public! !
+translateMessage:toFunction:!initialize/release!public! !
+uncacheObject:!cache management!public! !
+unstoreNextIDsForTables:!class maintenance!private! !
+useTransactionsWithoutVersioning!initialize/release!public! !
+useTransactionsWithVersioning!initialize/release!public! !
+validateTable:!class maintenance!private! !
+!
 
 !SSWReStore class methodsFor!
 
@@ -1897,19 +1899,21 @@ reStoreForObject: anObject ifNone: aBlock
 		ifNil: [aBlock value]
 		ifNotNil: [ :proxy | proxy _reStore]
 ! !
-!SSWReStore class categoriesFor: #activated:!events!public! !
-!SSWReStore class categoriesFor: #activeReStores!accessing!public! !
-!SSWReStore class categoriesFor: #affiliatedDefault!accessing!private! !
-!SSWReStore class categoriesFor: #affiliateFor:!accessing!public! !
-!SSWReStore class categoriesFor: #deactivated:!events!public! !
-!SSWReStore class categoriesFor: #default!accessing!public! !
-!SSWReStore class categoriesFor: #globalDefault!accessing!private! !
-!SSWReStore class categoriesFor: #initialize!initialize/release!public! !
-!SSWReStore class categoriesFor: #initializeReStoreGlobal!initialize/release!private! !
-!SSWReStore class categoriesFor: #new!instance creation!public! !
-!SSWReStore class categoriesFor: #onStartup!events!public! !
-!SSWReStore class categoriesFor: #proxyForObject:ifNone:!accessing!public! !
-!SSWReStore class categoriesFor: #reset!accessing!initialize/release!public! !
-!SSWReStore class categoriesFor: #resetActive!initialize/release!private! !
-!SSWReStore class categoriesFor: #reStoreForObject:ifNone:!accessing!public! !
+!SSWReStore class categoriesForMethods!
+activated:!events!public! !
+activeReStores!accessing!public! !
+affiliatedDefault!accessing!private! !
+affiliateFor:!accessing!public! !
+deactivated:!events!public! !
+default!accessing!public! !
+globalDefault!accessing!private! !
+initialize!initialize/release!public! !
+initializeReStoreGlobal!initialize/release!private! !
+new!instance creation!public! !
+onStartup!events!public! !
+proxyForObject:ifNone:!accessing!public! !
+reset!accessing!initialize/release!public! !
+resetActive!initialize/release!private! !
+reStoreForObject:ifNone:!accessing!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLDialect subclass: #SSWPostgreSQLDialect
 	instanceVariableNames: ''
@@ -99,26 +99,35 @@ renameField: oldField to: newField in: aReStore
 
 unsizedBlob
 
-	^'bytea'! !
-!SSWPostgreSQLDialect categoriesFor: #alterField:table:in:!maintenance!public! !
-!SSWPostgreSQLDialect categoriesFor: #datetime!datatypes!public! !
-!SSWPostgreSQLDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
-!SSWPostgreSQLDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #defaultStandardNamespace!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #double!datatypes!public! !
-!SSWPostgreSQLDialect categoriesFor: #identifierQuoteClose!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #identifierQuoteOpen!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #maxCharacter!constants!public! !
-!SSWPostgreSQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
-!SSWPostgreSQLDialect categoriesFor: #unsizedBlob!datatypes!public! !
+	^'bytea'!
+
+uuid
+
+	^'uuid'! !
+!SSWPostgreSQLDialect categoriesForMethods!
+alterField:table:in:!maintenance!public! !
+datetime!datatypes!public! !
+datetimeWithResolution!datatypes!public! !
+defaultDateTimeResolution!constants!public! !
+defaultMaxColumnNameLength!constants!public! !
+defaultMaxTableNameLength!constants!public! !
+defaultStandardNamespace!constants!public! !
+dialectSpecificFunctions!constants!public! !
+double!datatypes!public! !
+identifierQuoteClose!constants!public! !
+identifierQuoteOpen!constants!public! !
+maxCharacter!constants!public! !
+renameField:to:in:!maintenance!public! !
+unsizedBlob!datatypes!public! !
+uuid!datatypes!public! !
+!
 
 !SSWPostgreSQLDialect class methodsFor!
 
 dbmsName
 
 	^'PostgreSQL'! !
-!SSWPostgreSQLDialect class categoriesFor: #dbmsName!constants!public! !
+!SSWPostgreSQLDialect class categoriesForMethods!
+dbmsName!constants!public! !
+!
 

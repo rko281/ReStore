@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLDialect subclass: #SSWSQLServerDialect
 	instanceVariableNames: ''
@@ -109,29 +109,38 @@ supportsImplicitTrueConditions
 
 unsizedBlob
 
-	^'varbinary(max)'! !
-!SSWSQLServerDialect categoriesFor: #boolean!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #dateAndTimeFormat!constants!public! !
-!SSWSQLServerDialect categoriesFor: #datetime!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
-!SSWSQLServerDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
-!SSWSQLServerDialect categoriesFor: #defaultStandardNamespace!constants!public! !
-!SSWSQLServerDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
-!SSWSQLServerDialect categoriesFor: #double!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #identifierQuoteClose!constants!public! !
-!SSWSQLServerDialect categoriesFor: #identifierQuoteOpen!constants!public! !
-!SSWSQLServerDialect categoriesFor: #integer!datatypes!public! !
-!SSWSQLServerDialect categoriesFor: #maxCharacter!constants!public! !
-!SSWSQLServerDialect categoriesFor: #renameField:to:in:!maintenance!public! !
-!SSWSQLServerDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
-!SSWSQLServerDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
-!SSWSQLServerDialect categoriesFor: #unsizedBlob!datatypes!public! !
+	^'varbinary(max)'!
+
+uuid
+
+	^'UNIQUEIDENTIFIER'! !
+!SSWSQLServerDialect categoriesForMethods!
+boolean!datatypes!public! !
+dateAndTimeFormat!constants!public! !
+datetime!datatypes!public! !
+datetimeWithResolution!datatypes!public! !
+defaultMaxColumnNameLength!constants!public! !
+defaultMaxTableNameLength!constants!public! !
+defaultStandardNamespace!constants!public! !
+dialectSpecificFunctions!constants!public! !
+double!datatypes!public! !
+identifierQuoteClose!constants!public! !
+identifierQuoteOpen!constants!public! !
+integer!datatypes!public! !
+maxCharacter!constants!public! !
+renameField:to:in:!maintenance!public! !
+renameTable:to:in:!maintenance!public! !
+supportsImplicitTrueConditions!public!testing! !
+unsizedBlob!datatypes!public! !
+uuid!datatypes!public! !
+!
 
 !SSWSQLServerDialect class methodsFor!
 
 dbmsName
 
 	^'MICROSOFT SQL SERVER' ! !
-!SSWSQLServerDialect class categoriesFor: #dbmsName!constants!public! !
+!SSWSQLServerDialect class categoriesForMethods!
+dbmsName!constants!public! !
+!
 

@@ -20,6 +20,7 @@ package classNames
 	add: #OwnedTest;
 	add: #OwnerTest;
 	add: #ReStoreTestWithID;
+	add: #ReStoreTestWithStringID;
 	add: #SimpleAddress;
 	add: #SimplePerson;
 	add: #SimplePerson2;
@@ -28,6 +29,7 @@ package classNames
 	add: #SSWReStore2Test;
 	add: #SSWReStoreAbstractQueryTest;
 	add: #SSWReStoreAggregateQueryTest;
+	add: #SSWReStoreAlternativeIDTest;
 	add: #SSWReStoreBlockAndOrQueryTest;
 	add: #SSWReStoreBlockCacheDictionaryTest;
 	add: #SSWReStoreBlockIfNilQueryTest;
@@ -74,6 +76,7 @@ package classNames
 	add: #SSWReStoreGenericRelatedCollectionTest;
 	add: #SSWReStoreGenericTest;
 	add: #SSWReStoreHierarchyTest;
+	add: #SSWReStoreIDTest;
 	add: #SSWReStoreImplicitTrueQueryTest;
 	add: #SSWReStoreInlinedTest;
 	add: #SSWReStoreIsNilQueryTest;
@@ -121,7 +124,9 @@ package classNames
 	add: #SSWReStoreSortTest;
 	add: #SSWReStoreSpeedTest;
 	add: #SSWReStoreSQLInjectionTest;
+	add: #SSWReStoreStringDataIDTest;
 	add: #SSWReStoreStringDictionaryTest;
+	add: #SSWReStoreStringIDTest;
 	add: #SSWReStoreTableTest;
 	add: #SSWReStoreTableWithNamespaceTest;
 	add: #SSWReStoreTest;
@@ -129,10 +134,15 @@ package classNames
 	add: #SSWReStoreTypeTest;
 	add: #SSWReStoreUpdateClashTest;
 	add: #SSWReStoreUpdateClashTestPersistent;
+	add: #SSWReStoreUUIDSubTest;
+	add: #SSWReStoreUUIDTest;
+	add: #StringIDOwnedTest;
 	add: #SubPerson;
 	add: #SuperPerson;
 	add: #Test;
 	add: #TypeTest;
+	add: #UUIDOwnedSubTest;
+	add: #UUIDOwnedTest;
 	yourself.
 
 package methodNames
@@ -149,14 +159,15 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\..\ReStore test\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\..\ReStore test\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'SSW ReStore for Dolphin'
 	'SSW ReStore Main'
 	'SSW ReStore MVP'
 	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities'
-	'..\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
+	'SSW ReStore Tables'
+	'..\..\ReStore test\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
 
 package setManualPrerequisites: #(
 	'SSW ReStore MVP').
@@ -236,10 +247,15 @@ Object subclass: #Test
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #TypeTest
-	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'
+	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer largeInteger float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean uuid'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+ReStoreTestWithID subclass: #ReStoreTestWithStringID
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'counter'!
 SuperPerson subclass: #DetailedPerson
 	instanceVariableNames: 'dob dateOfBirth friend bestFriend'
 	classVariableNames: ''
@@ -275,6 +291,21 @@ Test subclass: #OwnedTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+OwnedTest subclass: #UUIDOwnedTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+UUIDOwnedTest subclass: #StringIDOwnedTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+UUIDOwnedTest subclass: #UUIDOwnedSubTest
+	instanceVariableNames: 'number'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 TestCase subclass: #SSWReStoreTest
 	instanceVariableNames: 'reStore'
 	classVariableNames: ''
@@ -285,17 +316,17 @@ SSWReStoreTest subclass: #SSWReStore2Test
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWReStoreTest subclass: #SSWReStoreDataIDTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 SSWReStoreTest subclass: #SSWReStoreGeneralTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreTest subclass: #SSWReStoreHierarchyTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreIDTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -565,6 +596,36 @@ SSWReStoreUpdateClashTest subclass: #SSWReStoreTransactionlessUpdateClashTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreIDTest subclass: #SSWReStoreAlternativeIDTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreIDTest subclass: #SSWReStoreDataIDTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAlternativeIDTest subclass: #SSWReStoreStringIDTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAlternativeIDTest subclass: #SSWReStoreUUIDTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreUUIDTest subclass: #SSWReStoreUUIDSubTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDataIDTest subclass: #SSWReStoreStringDataIDTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStorePersonTest subclass: #SSWReStoreAbstractQueryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -814,7 +875,7 @@ shouldDropTablesForTestCases!public!testing! !
 
 shouldDropTablesForTestCases
 
-	^false! !
+	^true! !
 !SSWPostgreSQLDialect categoriesForMethods!
 shouldDropTablesForTestCases!public!testing! !
 !

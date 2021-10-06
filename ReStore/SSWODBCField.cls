@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 DBField subclass: #SSWODBCField
 	instanceVariableNames: 'statement needsRebinding'
@@ -72,6 +72,14 @@ setByte: aNumberOrBoolean
 	ifFalse:
 		[super setByte: aNumberOrBoolean]
 !
+
+setByteArray: aByteArrayOrOtherObject
+
+	"Coerce other classes (principally GUID/UUID)"
+
+	aByteArrayOrOtherObject class = ByteArray
+		ifTrue: [super setByteArray: aByteArrayOrOtherObject]
+		ifFalse: [self setByteArray: aByteArrayOrOtherObject asByteArray]!
 
 setDateAndTime: aDateAndTime
 
@@ -170,21 +178,24 @@ value: anObject
 		column lengthC > buffer size ifTrue: [buffer := ByteArray newFixed: (##(2 raisedTo: 16) min: column lengthC)].
 		"Transcript show: (' to <1s> size <2p>' expandMacrosWith: (ODBCTypes keyAtValue: column type) with: column length)."
 		exc return: (super value: anObject)]! !
-!SSWODBCField categoriesFor: #initializeForColumn:!accessing!private! !
-!SSWODBCField categoriesFor: #needsRebinding!accessing!public! !
-!SSWODBCField categoriesFor: #needsRebinding:!accessing!private! !
-!SSWODBCField categoriesFor: #numberToNumeric:!converting!private! !
-!SSWODBCField categoriesFor: #setAnsiString:!converting!private! !
-!SSWODBCField categoriesFor: #setByte:!converting!private! !
-!SSWODBCField categoriesFor: #setDateAndTime:!converting!private! !
-!SSWODBCField categoriesFor: #setLong:!converting!private! !
-!SSWODBCField categoriesFor: #setShort:!converting!private! !
-!SSWODBCField categoriesFor: #setUtf16String:!converting!private! !
-!SSWODBCField categoriesFor: #shouldTranslate:class:!accessing!private! !
-!SSWODBCField categoriesFor: #sqlDialect!accessing!public! !
-!SSWODBCField categoriesFor: #statement!accessing!public! !
-!SSWODBCField categoriesFor: #statement:!accessing!public! !
-!SSWODBCField categoriesFor: #value:!accessing!public! !
+!SSWODBCField categoriesForMethods!
+initializeForColumn:!accessing!private! !
+needsRebinding!accessing!public! !
+needsRebinding:!accessing!private! !
+numberToNumeric:!converting!private! !
+setAnsiString:!converting!private! !
+setByte:!converting!private! !
+setByteArray:!converting!private! !
+setDateAndTime:!converting!private! !
+setLong:!converting!private! !
+setShort:!converting!private! !
+setUtf16String:!converting!private! !
+shouldTranslate:class:!accessing!private! !
+sqlDialect!accessing!public! !
+statement!accessing!public! !
+statement:!accessing!public! !
+value:!accessing!public! !
+!
 
 !SSWODBCField class methodsFor!
 
@@ -193,5 +204,7 @@ newForCol: aColAttr statement: anSSWODBCStatement
 	^(self newForCol: aColAttr)
 		statement: anSSWODBCStatement;
 		yourself! !
-!SSWODBCField class categoriesFor: #newForCol:statement:!instance creation!public! !
+!SSWODBCField class categoriesForMethods!
+newForCol:statement:!instance creation!public! !
+!
 

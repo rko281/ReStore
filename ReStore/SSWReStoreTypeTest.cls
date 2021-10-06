@@ -36,6 +36,7 @@ createTestData
 		unsizedBlob: ((ByteArray new: 6000) atAllPut: 240; yourself);
 
 		integer: 123;
+		largeInteger: 1234567890;
 		float: 123.456;
 		decimal: 12345.67891;
 
@@ -47,8 +48,14 @@ createTestData
 		trueBoolean: true;
 		falseBoolean: false;
 
+		uuid: self uuid;
+
 		storeIn: reStore.
 	reStore commitTransaction.
+
+	self readTypeTest!
+
+readTypeTest
 
 	reStore simulateReconnect.
 	typeTest := (TypeTest storedInstancesIn: reStore) first!
@@ -141,14 +148,35 @@ testExtendedANSI
 
 testGeneral
 
-	self assert: (typeTest char trimBlanks = 'CHAR').
-	self assert: (typeTest varchar = 'VARCHAR').
-	self assert: (typeTest medText = ((String new: 2000) atAllPut: $M; yourself)).
-	self assert: (typeTest largeText = ((String new: 5000) atAllPut: $L; yourself)).
-	self assert: (typeTest unsizedText = ((String new: 6000) atAllPut: $U; yourself)).
-	self assert: (typeTest integer = 123).
-	self assert: (typeTest float = 123.456).
-	self assert: (typeTest falseBoolean = false)!
+	self assert: typeTest char trimBlanks equals: 'CHAR'.
+	self assert: typeTest varchar equals: 'VARCHAR'.
+	self assert: typeTest medText equals: ((String new: 2000) atAllPut: $M; yourself).
+	self assert: typeTest largeText equals: ((String new: 5000) atAllPut: $L; yourself).
+	self assert: typeTest unsizedText equals: ((String new: 6000) atAllPut: $U; yourself).
+	self assert: typeTest integer equals: 123.
+	self assert: typeTest largeInteger equals: 1234567890.
+	self assert: typeTest float equals: 123.456.
+	self assert: typeTest falseBoolean equals: false!
+
+testIntegerRange
+
+	typeTest integer: reStore sqlDialect integerMaximum; store.
+	self readTypeTest.
+	self assert: typeTest integer = reStore sqlDialect integerMaximum.
+
+	typeTest integer: reStore sqlDialect integerMinimum; store.
+	self readTypeTest.
+	self assert: typeTest integer = reStore sqlDialect integerMinimum.!
+
+testLargeIntegerRange
+
+	typeTest largeInteger: reStore sqlDialect largeIntegerMaximum; store.
+	self readTypeTest.
+	self assert: typeTest largeInteger = reStore sqlDialect largeIntegerMaximum.
+
+	typeTest largeInteger: reStore sqlDialect largeIntegerMinimum; store.
+	self readTypeTest.
+	self assert: typeTest largeInteger = reStore sqlDialect largeIntegerMinimum.!
 
 testStrings: aString
 
@@ -189,7 +217,9 @@ testTimeQuery
 
 	reStore simulateReconnect.
 
-	t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each time = (time withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil].
+	reStore sqlDialect defaultTimeResolution = 0 
+		ifTrue: [t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each time = time] ifNone: [nil]]
+		ifFalse: [t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each time = (time withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil]].
 	self assert: t2 notNil.
 	self assert: t2 date = typeTest date!
 
@@ -215,12 +245,33 @@ testUTF8_mixed
 
 	"Test a String containing a mixture of UTF8 characters"
 
-	self testStrings: (Utf8String fromByteArray: #[195 156 98 195 168 114 115 116 114 195 174 195 177 103 195 169]) "Übèrstrîñgé"! !
+	self testStrings: (Utf8String fromByteArray: #[195 156 98 195 168 114 115 116 114 195 174 195 177 103 195 169]) "Übèrstrîñgé"!
+
+testUUID
+
+	self assert: typeTest uuid equals: self uuid!
+
+testUUIDQuery
+
+	| t1 t2 |
+
+	reStore simulateReconnect.
+	t1 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each uuid = self uuid] ifNone: [nil].
+	self assert: t1 notNil.
+	self assert: t1 uuid = self uuid.
+
+	t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each uuid = GUID newUnique] ifNone: [nil].
+	self assert: t2 isNil!
+
+uuid
+
+	^GUID fromString: '{e8beea63-43db-41e6-99e4-f31a64abd779}'! !
 !SSWReStoreTypeTest categoriesForMethods!
 addClassesTo:!public!running! !
 createTestData!public!running! !
+readTypeTest!private!running! !
 testANSI!public!unit tests! !
-testBytes!public!running! !
+testBytes!public!unit tests! !
 testDate!public!unit tests! !
 testDateQuery!public!unit tests! !
 testDateTime!public! !
@@ -229,6 +280,8 @@ testDateTimeWithMilliseconds!public! !
 testDecimal!public!unit tests! !
 testExtendedANSI!public!unit tests! !
 testGeneral!public!unit tests! !
+testIntegerRange!public!unit tests! !
+testLargeIntegerRange!public!unit tests! !
 testStrings:!private!running! !
 testTime!public!unit tests! !
 testTimeQuery!public!unit tests! !
@@ -236,5 +289,8 @@ testUTF8_2!public!unit tests! !
 testUTF8_3!public!unit tests! !
 testUTF8_4!public!unit tests! !
 testUTF8_mixed!public!unit tests! !
+testUUID!public!unit tests! !
+testUUIDQuery!public!unit tests! !
+uuid!constants!public! !
 !
 

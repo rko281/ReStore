@@ -77,6 +77,7 @@ package methodNames
 	add: 'DateAndTime class' -> #writeSQLTypeOn:using:;
 	add: 'Float class' -> #writeSQLTypeOn:using:;
 	add: 'Integer class' -> #writeSQLTypeOn:using:;
+	add: 'LargeInteger class' -> #writeSQLTypeOn:using:;
 	add: 'Metaclass class' -> #writeSQLTypeOn:using:;
 	add: 'Number class' -> #writeSQLTypeOn:using:;
 	add: 'Object class' -> #writeSQLTypeOn:using:;
@@ -248,14 +249,18 @@ then: trueValue else: otherValue
 	Really just here to prevent unimplemented selector warnings but can be used where image/database agnostic code is needed"
 
 	^self ifTrue: [trueValue] ifFalse: [otherValue]! !
-!Boolean categoriesFor: #then:else:!control flow!public! !
+!Boolean categoriesForMethods!
+then:else:!control flow!public! !
+!
 
 !Boolean class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect boolean! !
-!Boolean class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!Boolean class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !ByteArray methodsFor!
 
@@ -268,15 +273,19 @@ writeSQLOn: aStream forField: aField
 
 	"Opt out of the Collection implementation"
 	^aStream nextPut: self forField: aField! !
-!ByteArray categoriesFor: #writeSQLOn:!printing!public! !
-!ByteArray categoriesFor: #writeSQLOn:forField:!printing!public! !
+!ByteArray categoriesForMethods!
+writeSQLOn:!printing!public! !
+writeSQLOn:forField:!printing!public! !
+!
 
 !ByteArray class methodsFor!
 
 writeSQLTypeOn: aStream using: aSQLDialect
 
 	aStream nextPutAll: aSQLDialect blob! !
-!ByteArray class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!ByteArray class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !Character methodsFor!
 
@@ -285,7 +294,9 @@ reStoreValue
 	"As far as SQL is concerned, a Character == a String"
 	
 	^String with: self! !
-!Character categoriesFor: #reStoreValue!accessing!public! !
+!Character categoriesForMethods!
+reStoreValue!accessing!public! !
+!
 
 !Collection methodsFor!
 
@@ -308,37 +319,47 @@ writeSQLOn: aStream with: aBlock
 		separatedBy: [aStream nextPut: $,].
 	
 	aStream nextPut: $)! !
-!Collection categoriesFor: #writeSQLOn:!printing!public! !
-!Collection categoriesFor: #writeSQLOn:forField:!printing!public! !
-!Collection categoriesFor: #writeSQLOn:with:!printing!private! !
+!Collection categoriesForMethods!
+writeSQLOn:!printing!public! !
+writeSQLOn:forField:!printing!public! !
+writeSQLOn:with:!printing!private! !
+!
 
 !Date methodsFor!
 
 asSQLStringIn: aSQLDialect
 
 	^aSQLDialect dateStringFor: self! !
-!Date categoriesFor: #asSQLStringIn:!converting!public! !
+!Date categoriesForMethods!
+asSQLStringIn:!converting!public! !
+!
 
 !Date class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	^aStream nextPutAll: anSQLDialect date! !
-!Date class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!Date class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !DateAndTime methodsFor!
 
 asSQLStringIn: aSQLDialect
 
 	^aSQLDialect dateAndTimeStringFor: self! !
-!DateAndTime categoriesFor: #asSQLStringIn:!converting!public! !
+!DateAndTime categoriesForMethods!
+asSQLStringIn:!converting!public! !
+!
 
 !DateAndTime class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect datetime! !
-!DateAndTime class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!DateAndTime class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !False methodsFor!
 
@@ -346,14 +367,18 @@ asSQLStringIn: aSQLDialect
 
 	"ASSERT: falseObject is a String in this dialect"
 	^aSQLDialect falseObject! !
-!False categoriesFor: #asSQLStringIn:!converting!public! !
+!False categoriesForMethods!
+asSQLStringIn:!converting!public! !
+!
 
 !Float class methodsFor!
 
 writeSQLTypeOn: aStream  using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect double! !
-!Float class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!Float class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !Integer class methodsFor!
 
@@ -362,7 +387,20 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 	"Use INT - long integer"
 	
 	aStream nextPutAll: anSQLDialect integer! !
-!Integer class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!Integer class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
+
+!LargeInteger class methodsFor!
+
+writeSQLTypeOn: aStream  using: anSQLDialect
+
+	"Map LargeInteger to (typically) BIGINT"
+	
+	aStream nextPutAll: anSQLDialect largeInteger! !
+!LargeInteger class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !Metaclass class methodsFor!
 
@@ -372,7 +410,9 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	Use a VARCHAR at 128 characters"
 	
 	(String maxSize: 128) writeSQLTypeOn: aStream using: anSQLDialect! !
-!Metaclass class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!Metaclass class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !Number class methodsFor!
 
@@ -381,7 +421,9 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 	"Default to single float"
 	
 	aStream nextPutAll: anSQLDialect float! !
-!Number class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!Number class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !Object methodsFor!
 
@@ -425,36 +467,44 @@ writeSQLOn: aStream forCondition: aSQLCondition
 writeSQLOn: aStream forField: aField
 
 	^aStream nextPut: self forField: aField! !
-!Object categoriesFor: #ifNull:!control flow!public! !
-!Object categoriesFor: #ifNull:ifNotNull:!control flow!public! !
-!Object categoriesFor: #isSQLNull!public!testing! !
-!Object categoriesFor: #sqlCanBeParameterized!public!testing! !
-!Object categoriesFor: #sqlStringIn:!displaying!public! !
-!Object categoriesFor: #writeSQLOn:forCondition:!printing!public! !
-!Object categoriesFor: #writeSQLOn:forField:!printing!public! !
+!Object categoriesForMethods!
+ifNull:!control flow!public! !
+ifNull:ifNotNull:!control flow!public! !
+isSQLNull!public!testing! !
+sqlCanBeParameterized!public!testing! !
+sqlStringIn:!displaying!public! !
+writeSQLOn:forCondition:!printing!public! !
+writeSQLOn:forField:!printing!public! !
+!
 
 !Object class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 
-	"If not overriden, assume a persistent class with an Integer ID"
+	"If not overriden, assume a persistent class with a unique ID"
 	
-	Integer writeSQLTypeOn: aStream using: anSQLDialect! !
-!Object class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+	self reStoreIDClass writeSQLTypeOn: aStream using: anSQLDialect! !
+!Object class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !SSWDBByteArrayWithInfo methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: ((anSQLDialect blobTypeForSize: self fieldSize) expandMacrosWith: self fieldSize)! !
-!SSWDBByteArrayWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!SSWDBByteArrayWithInfo categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !SSWDBDateAndTimeWithResolution methodsFor!
 
 writeSQLTypeOn: aStream  using: anSQLDialect
 
 	aStream nextPutAll: (anSQLDialect datetimeWithResolution expandMacrosWith: self resolution)! !
-!SSWDBDateAndTimeWithResolution categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!SSWDBDateAndTimeWithResolution categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !SSWDBFixedStringWithInfo methodsFor!
 
@@ -465,7 +515,9 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	(self fieldSize > anSQLDialect maxChar)
 		ifTrue: [aStream nextPutAll: (anSQLDialect unsizedStringTypeForSize: self fieldSize)]
 		ifFalse: [aStream nextPutAll: (anSQLDialect char expandMacrosWith: self fieldSize)]! !
-!SSWDBFixedStringWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!SSWDBFixedStringWithInfo categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !SSWDBScaledDecimalWithInfo methodsFor!
 
@@ -480,7 +532,9 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 		ifFalse: [actualPrecision := self precision].
 
 	aStream nextPutAll: (anSQLDialect decimal expandMacrosWith: actualPrecision with: self scale)! !
-!SSWDBScaledDecimalWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!SSWDBScaledDecimalWithInfo categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !SSWDBVariableStringWithInfo methodsFor!
 
@@ -491,7 +545,9 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	(self fieldSize > anSQLDialect maxVarchar)
 		ifTrue: [aStream nextPutAll: (anSQLDialect unsizedStringTypeForSize: self fieldSize)]
 		ifFalse: [aStream nextPutAll: (anSQLDialect varchar expandMacrosWith: self fieldSize)]! !
-!SSWDBVariableStringWithInfo categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!SSWDBVariableStringWithInfo categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !String methodsFor!
 
@@ -528,13 +584,15 @@ writeSQLOn: aStream forField: aField
 
 	"Opt out of the Collection implementation"
 	^aStream nextPut: self forField: aField! !
-!String categoriesFor: #asSQLFunction!converting!public! !
-!String categoriesFor: #asSQLFunctionBooleanResult!converting!public! !
-!String categoriesFor: #asSQLFunctionIntegerResult!converting!public! !
-!String categoriesFor: #asSQLFunctionStringResult!converting!public! !
-!String categoriesFor: #asSQLFunctionWithResultClass:!converting!public! !
-!String categoriesFor: #writeSQLOn:!printing!public! !
-!String categoriesFor: #writeSQLOn:forField:!printing!public! !
+!String categoriesForMethods!
+asSQLFunction!converting!public! !
+asSQLFunctionBooleanResult!converting!public! !
+asSQLFunctionIntegerResult!converting!public! !
+asSQLFunctionStringResult!converting!public! !
+asSQLFunctionWithResultClass:!converting!public! !
+writeSQLOn:!printing!public! !
+writeSQLOn:forField:!printing!public! !
+!
 
 !String class methodsFor!
 
@@ -543,21 +601,27 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	"As this is the non-sized variant, use a reasonably-sized variable text type"
 	
 	aStream nextPutAll: anSQLDialect unsizedString! !
-!String class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!String class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !Time methodsFor!
 
 asSQLStringIn: aSQLDialect
 
 	^aSQLDialect timeStringFor: self! !
-!Time categoriesFor: #asSQLStringIn:!converting!public! !
+!Time categoriesForMethods!
+asSQLStringIn:!converting!public! !
+!
 
 !Time class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect time! !
-!Time class categoriesFor: #writeSQLTypeOn:using:!printing!public! !
+!Time class categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
 
 !True methodsFor!
 
@@ -565,7 +629,9 @@ asSQLStringIn: aSQLDialect
 
 	"ASSERT: trueObject is a String in this dialect"
 	^aSQLDialect trueObject! !
-!True categoriesFor: #asSQLStringIn:!converting!public! !
+!True categoriesForMethods!
+asSQLStringIn:!converting!public! !
+!
 
 !UndefinedObject methodsFor!
 
@@ -581,9 +647,11 @@ writeSQLOn: aStream forCondition: aSQLCondition
 
 	"Do not parameterize - NULL not allowed as parameterized condition value in some DBs"
 	self writeSQLOn: aStream! !
-!UndefinedObject categoriesFor: #isSQLNull!public!testing! !
-!UndefinedObject categoriesFor: #writeSQLOn:!printing!public! !
-!UndefinedObject categoriesFor: #writeSQLOn:forCondition:!printing!public! !
+!UndefinedObject categoriesForMethods!
+isSQLNull!public!testing! !
+writeSQLOn:!printing!public! !
+writeSQLOn:forCondition:!printing!public! !
+!
 
 "End of package definition"!
 

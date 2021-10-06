@@ -1,6 +1,6 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
-SSWReStoreTest subclass: #SSWReStoreDataIDTest
+SSWReStoreIDTest subclass: #SSWReStoreDataIDTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -12,19 +12,15 @@ https://github.com/rko281/ReStore'!
 !SSWReStoreDataIDTest categoriesForClass!Unclassified! !
 !SSWReStoreDataIDTest methodsFor!
 
-addClassesTo: aReStore
-
-	aReStore addClass: ReStoreTestWithID!
-
 createTestData
 	
 	"Write data with assigned id"
 
 	| obj2 obj7 obj9 |
 
-	obj2 := ReStoreTestWithID name: 'dave' nmbr: 2.
-	obj7 := ReStoreTestWithID name: 'john' nmbr: 7.
-	obj9 := ReStoreTestWithID name: 'jim' nmbr: 9.
+	obj2 := self testClass name: 'dave' nmbr: 2.
+	obj7 := self testClass name: 'john' nmbr: 7.
+	obj9 := self testClass name: 'jim' nmbr: 9.
 
 	obj2 other: obj7.
 
@@ -38,11 +34,11 @@ test1VerifySetUp
 
 	| obj2 |
 
-	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
+	obj2 := self testInstances detect: [:each | each name = 'dave'].
 
-	self assert: obj2 nmbr = 2.
-	self assert: obj2 other nmbr = 7.
-	self assert: obj2 other name = 'john'!
+	self assert: obj2 nmbr equals: 2.
+	self assert: obj2 other nmbr equals: 7.
+	self assert: obj2 other name equals: 'john'!
 
 test2DuplicateCheck
 
@@ -58,11 +54,11 @@ test3Update
 
 	| obj2 |
 
-	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
+	obj2 := self testInstances detect: [:each | each name = 'dave'].
 
-	self assert: obj2 nmbr = 2.
-	self assert: obj2 other nmbr = 7.
-	self assert: obj2 other name = 'john'.
+	self assert: obj2 nmbr equals: 2.
+	self assert: obj2 other nmbr equals: 7.
+	self assert: obj2 other name equals: 'john'.
 
 	reStore connection
 		beginRWTxn;
@@ -71,45 +67,43 @@ test3Update
 
 	reStore simulateReconnect.
 	
-	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
+	obj2 := self testInstances detect: [:each | each name = 'dave'].
 
-	self assert: obj2 nmbr = 2.
-	self assert: obj2 other nmbr = 9.
-	self assert: obj2 other name = 'jim'!
+	self assert: obj2 nmbr equals: 2.
+	self assert: obj2 other nmbr equals: 9.
+	self assert: obj2 other name equals: 'jim'!
 
 test4Query
 
-	| insts matches |
+	| matches |
 
-	insts := ReStoreTestWithID storedInstancesIn: reStore.
+	matches := self testInstances select: [ :e | e nmbr = 2].
+	self assert: matches size equals: 1.
+	self assert: matches first name equals: 'dave'.
 
-	matches := insts select: [ :e | e nmbr = 2].
-	self assert: (matches size = 1).
-	self assert: (matches first name = 'dave').
-
-	matches := insts select: [ :e | e nmbr = 99].
+	matches := self testInstances select: [ :e | e nmbr = 99].
 	self assert: matches isEmpty!
 
 test5QueryByExample
 
 	| template matches |
 
-	template := ReStoreTestWithID new nmbr: 7.
+	template := self testClass new nmbr: 7.
 
 	matches := template similarInstancesIn: reStore.
-	self assert: (matches size = 1).
-	self assert: (matches first name = 'john').
+	self assert: matches size equals: 1.
+	self assert: matches first name equals: 'john'.
 
 	template name: 'john'.
 	matches := template similarInstancesIn: reStore.
-	self assert: (matches size = 1).
-	self assert: (matches first name = 'john').
+	self assert: matches size equals: 1.
+	self assert: matches first name equals: 'john'.
 
 	template name: 'xyz'.
 	matches := template similarInstancesIn: reStore.
 	self assert: matches isEmpty.
 
-	template := ReStoreTestWithID new nmbr: 100.
+	template := self testClass new nmbr: 100.
 	matches := template similarInstancesIn: reStore.
 	self assert: matches isEmpty.
 
@@ -123,10 +117,10 @@ test6VerifyIDInCopy
 
 	| obj2 |
 
-	obj2 := (ReStoreTestWithID storedInstancesIn: reStore) detect: [:each | each name = 'dave'].
+	obj2 := self testInstances detect: [:each | each name = 'dave'].
 
-	self assert: (obj2 _dbProxy _copyObject nmbr = 2).
-	self assert: (obj2 other _dbProxy _copyObject nmbr = 7)!
+	self assert: obj2 _dbProxy _copyObject nmbr equals: 2.
+	self assert: obj2 other _dbProxy _copyObject nmbr equals: 7!
 
 test7VerifyAssignedID
 
@@ -137,14 +131,14 @@ test7VerifyAssignedID
 	self assert: (reStore evaluateAsTxn: [(reStore connection exec: 'update next_id set next_id = 99 where table_name like ''re_store_test_with_id''') numRows = 1]).
 
 	"Verify ID is fully assigned to new instances"
-	newObj := ReStoreTestWithID new name: 'assign_test_1'.
+	newObj := self testClass new name: 'assign_test_1'.
 	self assert: newObj nmbr isNil.
 
 	self assert: (newObj storeIn: reStore).
 	self assert: newObj nmbr equals: 99.
 	self assert: newObj _dbProxy _copyObject nmbr equals: 99.
 
-	newObj := ReStoreTestWithID new name: 'assign_test_2'.
+	newObj := self testClass new name: 'assign_test_2'.
 	self assert: newObj nmbr isNil.
 	self assert: (newObj storeIn: reStore).
 	self assert: newObj nmbr equals: 100.
@@ -153,24 +147,30 @@ test7VerifyAssignedID
 	reStore simulateReconnect.
 
 	"Verify ID persisted in DB"
-	recoveredObj := (ReStoreTestWithID storedInstancesIn: reStore) detect: [ :e | e name = 'assign_test_1'].
+	recoveredObj := self testInstances detect: [ :e | e name = 'assign_test_1'].
 	self assert: recoveredObj nmbr equals: 99.
 
-	recoveredObj := (ReStoreTestWithID storedInstancesIn: reStore) detect: [ :e | e name = 'assign_test_2'].
+	recoveredObj := self testInstances detect: [ :e | e name = 'assign_test_2'].
 	self assert: recoveredObj nmbr equals: 100.
 
 	"Check NEXT_ID table was updated correctly"
-	newObj := ReStoreTestWithID new name: 'assign_test_3'.
+	newObj := self testClass new name: 'assign_test_3'.
 	self assert: newObj nmbr isNil.
 	self assert: (newObj storeIn: reStore).
-	self assert: newObj nmbr equals: 101! !
-!SSWReStoreDataIDTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreDataIDTest categoriesFor: #createTestData!public! !
-!SSWReStoreDataIDTest categoriesFor: #test1VerifySetUp!public!unit tests! !
-!SSWReStoreDataIDTest categoriesFor: #test2DuplicateCheck!public!unit tests! !
-!SSWReStoreDataIDTest categoriesFor: #test3Update!public!unit tests! !
-!SSWReStoreDataIDTest categoriesFor: #test4Query!public!unit tests! !
-!SSWReStoreDataIDTest categoriesFor: #test5QueryByExample!public!unit tests! !
-!SSWReStoreDataIDTest categoriesFor: #test6VerifyIDInCopy!public! !
-!SSWReStoreDataIDTest categoriesFor: #test7VerifyAssignedID!public! !
+	self assert: newObj nmbr equals: 101!
+
+testClass
+
+	^ReStoreTestWithID! !
+!SSWReStoreDataIDTest categoriesForMethods!
+createTestData!public!running! !
+test1VerifySetUp!public!unit tests! !
+test2DuplicateCheck!public!unit tests! !
+test3Update!public!unit tests! !
+test4Query!public!unit tests! !
+test5QueryByExample!public!unit tests! !
+test6VerifyIDInCopy!public!unit tests! !
+test7VerifyAssignedID!public!unit tests! !
+testClass!constants!public! !
+!
 

@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #TypeTest
-	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean'
+	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer largeInteger float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean uuid'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -94,6 +94,12 @@ largeBlob
 largeBlob: anObject
 	largeBlob := anObject!
 
+largeInteger
+	^largeInteger!
+
+largeInteger: anObject
+	largeInteger := anObject!
+
 largeText
 	"Private - Answer the value of the receiver's ''largeText'' instance variable."
 
@@ -162,6 +168,12 @@ unsizedText: anObject
 
 	unsizedText := anObject!
 
+uuid
+	^uuid!
+
+uuid: anObject
+	uuid := anObject!
+
 varchar
 	"Private - Answer the value of the receiver's ''varchar'' instance variable."
 
@@ -171,42 +183,48 @@ varchar: anObject
 	"Private - Set the value of the receiver's ''varchar'' instance variable to the argument, anObject."
 
 	varchar := anObject! !
-!TypeTest categoriesFor: #char!accessing!private! !
-!TypeTest categoriesFor: #char:!accessing!private! !
-!TypeTest categoriesFor: #date!accessing!private! !
-!TypeTest categoriesFor: #date:!accessing!private! !
-!TypeTest categoriesFor: #datetime!accessing!private! !
-!TypeTest categoriesFor: #datetime:!accessing!private! !
-!TypeTest categoriesFor: #datetimeWithMilliseconds!accessing!private! !
-!TypeTest categoriesFor: #datetimeWithMilliseconds:!accessing!private! !
-!TypeTest categoriesFor: #decimal!accessing!private! !
-!TypeTest categoriesFor: #decimal:!accessing!private! !
-!TypeTest categoriesFor: #falseBoolean!accessing!private! !
-!TypeTest categoriesFor: #falseBoolean:!accessing!private! !
-!TypeTest categoriesFor: #float!accessing!private! !
-!TypeTest categoriesFor: #float:!accessing!private! !
-!TypeTest categoriesFor: #integer!accessing!private! !
-!TypeTest categoriesFor: #integer:!accessing!private! !
-!TypeTest categoriesFor: #largeBlob!accessing!private! !
-!TypeTest categoriesFor: #largeBlob:!accessing!private! !
-!TypeTest categoriesFor: #largeText!accessing!private! !
-!TypeTest categoriesFor: #largeText:!accessing!private! !
-!TypeTest categoriesFor: #medBlob!accessing!private! !
-!TypeTest categoriesFor: #medBlob:!accessing!private! !
-!TypeTest categoriesFor: #medText!accessing!private! !
-!TypeTest categoriesFor: #medText:!accessing!private! !
-!TypeTest categoriesFor: #time!accessing!private! !
-!TypeTest categoriesFor: #time:!accessing!private! !
-!TypeTest categoriesFor: #tinyBlob!accessing!private! !
-!TypeTest categoriesFor: #tinyBlob:!accessing!private! !
-!TypeTest categoriesFor: #trueBoolean!accessing!private! !
-!TypeTest categoriesFor: #trueBoolean:!accessing!private! !
-!TypeTest categoriesFor: #unsizedBlob!accessing!private! !
-!TypeTest categoriesFor: #unsizedBlob:!accessing!private! !
-!TypeTest categoriesFor: #unsizedText!accessing!private! !
-!TypeTest categoriesFor: #unsizedText:!accessing!private! !
-!TypeTest categoriesFor: #varchar!accessing!private! !
-!TypeTest categoriesFor: #varchar:!accessing!private! !
+!TypeTest categoriesForMethods!
+char!accessing!private! !
+char:!accessing!private! !
+date!accessing!private! !
+date:!accessing!private! !
+datetime!accessing!private! !
+datetime:!accessing!private! !
+datetimeWithMilliseconds!accessing!private! !
+datetimeWithMilliseconds:!accessing!private! !
+decimal!accessing!private! !
+decimal:!accessing!private! !
+falseBoolean!accessing!private! !
+falseBoolean:!accessing!private! !
+float!accessing!private! !
+float:!accessing!private! !
+integer!accessing!private! !
+integer:!accessing!private! !
+largeBlob!accessing!private! !
+largeBlob:!accessing!private! !
+largeInteger!accessing!private! !
+largeInteger:!accessing!private! !
+largeText!accessing!private! !
+largeText:!accessing!private! !
+medBlob!accessing!private! !
+medBlob:!accessing!private! !
+medText!accessing!private! !
+medText:!accessing!private! !
+time!accessing!private! !
+time:!accessing!private! !
+tinyBlob!accessing!private! !
+tinyBlob:!accessing!private! !
+trueBoolean!accessing!private! !
+trueBoolean:!accessing!private! !
+unsizedBlob!accessing!private! !
+unsizedBlob:!accessing!private! !
+unsizedText!accessing!private! !
+unsizedText:!accessing!private! !
+uuid!accessing!private! !
+uuid:!accessing!private! !
+varchar!accessing!private! !
+varchar:!accessing!private! !
+!
 
 !TypeTest class methodsFor!
 
@@ -225,6 +243,7 @@ reStoreDefinition
 		define: #unsizedBlob as: ByteArray;
 
 		define: #integer as: Integer;
+		define: #largeInteger as: LargeInteger;
 		define: #float as: Float;
 		define: #decimal as: (ScaledDecimal withPrecision: 20 scale: 4);
 
@@ -236,6 +255,10 @@ reStoreDefinition
 		define: #trueBoolean as: Boolean;
 		define: #falseBoolean as: Boolean;
 
+		define: #uuid as: GUID;
+
 		yourself! !
-!TypeTest class categoriesFor: #reStoreDefinition!public! !
+!TypeTest class categoriesForMethods!
+reStoreDefinition!public! !
+!
 

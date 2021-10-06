@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWSQLDialect
 	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace'
@@ -371,6 +371,34 @@ integer
 
 	^'INTEGER'!
 
+integerMaximum
+
+	"Typically 4 byte signed"
+
+	^##((2 ** 31) - 1)!
+
+integerMinimum
+
+	"Typically 4 byte signed"
+
+	^##((2 ** 31) negated)!
+
+largeInteger
+
+	^'BIGINT'!
+
+largeIntegerMaximum
+
+	"Typically 8 byte signed"
+
+	^##((2 ** 63) - 1)!
+
+largeIntegerMinimum
+
+	"Typically 8 byte signed"
+
+	^##((2 ** 63) negated)!
+
 longText
 
 	^'TEXT'!
@@ -691,103 +719,115 @@ updateDelaySeconds
 
 	^0!
 
+uuid
+
+	^(self blobTypeForSize: 16) expandMacrosWith: 16!
+
 varchar
 
 	^'VARCHAR(<1p>)'! !
-!SSWSQLDialect categoriesFor: #addFields:to:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #alterField:table:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #asIdentifier:!helpers!public! !
-!SSWSQLDialect categoriesFor: #blob!datatypes!public! !
-!SSWSQLDialect categoriesFor: #blobTypeForSize:!datatypes!public! !
-!SSWSQLDialect categoriesFor: #blobTypes!datatypes!public! !
-!SSWSQLDialect categoriesFor: #boolean!datatypes!public! !
-!SSWSQLDialect categoriesFor: #char!datatypes!public! !
-!SSWSQLDialect categoriesFor: #classNameTransformation!accessing!public! !
-!SSWSQLDialect categoriesFor: #classNameTransformation:!accessing!public! !
-!SSWSQLDialect categoriesFor: #commonFunctions!constants!public! !
-!SSWSQLDialect categoriesFor: #connection!accessing!private! !
-!SSWSQLDialect categoriesFor: #connection:!accessing!private! !
-!SSWSQLDialect categoriesFor: #date!datatypes!public! !
-!SSWSQLDialect categoriesFor: #dateAndTimeFormat!constants!public! !
-!SSWSQLDialect categoriesFor: #dateAndTimeFrom:!conversions!public! !
-!SSWSQLDialect categoriesFor: #dateAndTimeStringFor:!conversions!public! !
-!SSWSQLDialect categoriesFor: #dateFormat!constants!public! !
-!SSWSQLDialect categoriesFor: #dateFrom:!conversions!public! !
-!SSWSQLDialect categoriesFor: #dateStringFor:!conversions!public! !
-!SSWSQLDialect categoriesFor: #datetime!datatypes!public! !
-!SSWSQLDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
-!SSWSQLDialect categoriesFor: #decimal!datatypes!public! !
-!SSWSQLDialect categoriesFor: #defaultClassNameTransformation!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultInstVarNameTransformation!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultMaxColumnBytes!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultSQLFunctions!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultStandardNamespace!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultTimeResolution!public! !
-!SSWSQLDialect categoriesFor: #defaultUnsizedBlobSize!constants!public! !
-!SSWSQLDialect categoriesFor: #defaultUnsizedStringSize!constants!public! !
-!SSWSQLDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
-!SSWSQLDialect categoriesFor: #double!datatypes!public! !
-!SSWSQLDialect categoriesFor: #dropColumnNamed:fromTable:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #falseObject!constants!public! !
-!SSWSQLDialect categoriesFor: #float!datatypes!public! !
-!SSWSQLDialect categoriesFor: #identifierQuoteClose!constants!public! !
-!SSWSQLDialect categoriesFor: #identifierQuoteOpen!constants!public! !
-!SSWSQLDialect categoriesFor: #initialize!initializing!public! !
-!SSWSQLDialect categoriesFor: #initializeFor:!initializing!public! !
-!SSWSQLDialect categoriesFor: #instVarNameTransformation!accessing!public! !
-!SSWSQLDialect categoriesFor: #instVarNameTransformation:!accessing!public! !
-!SSWSQLDialect categoriesFor: #integer!datatypes!public! !
-!SSWSQLDialect categoriesFor: #longText!datatypes!public! !
-!SSWSQLDialect categoriesFor: #maxAllocatedStatements!constants!public! !
-!SSWSQLDialect categoriesFor: #maxChar!constants!public! !
-!SSWSQLDialect categoriesFor: #maxCharacter!constants!public! !
-!SSWSQLDialect categoriesFor: #maxColumnBytes!accessing!public! !
-!SSWSQLDialect categoriesFor: #maxColumnBytes:!accessing!public! !
-!SSWSQLDialect categoriesFor: #maxColumnNameLength!accessing!public! !
-!SSWSQLDialect categoriesFor: #maxColumnNameLength:!accessing!public! !
-!SSWSQLDialect categoriesFor: #maxDateTimeResolution!constants!public! !
-!SSWSQLDialect categoriesFor: #maxTableNameLength!accessing!public! !
-!SSWSQLDialect categoriesFor: #maxTableNameLength:!accessing!public! !
-!SSWSQLDialect categoriesFor: #maxTimeResolution!public! !
-!SSWSQLDialect categoriesFor: #maxVarchar!constants!public! !
-!SSWSQLDialect categoriesFor: #platformSpecificFunctions!constants!public! !
-!SSWSQLDialect categoriesFor: #postLoginScript!constants!public! !
-!SSWSQLDialect categoriesFor: #printParameterPlaceholder:on:!helpers!public! !
-!SSWSQLDialect categoriesFor: #renameField:to:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
-!SSWSQLDialect categoriesFor: #shouldExpandNamespacedAllFields!public!testing! !
-!SSWSQLDialect categoriesFor: #shouldMapEmptyStringsToNil!public!testing! !
-!SSWSQLDialect categoriesFor: #sqlFunctionFor:!accessing!public! !
-!SSWSQLDialect categoriesFor: #sqlFunctions!accessing!public! !
-!SSWSQLDialect categoriesFor: #sqlFunctions:!accessing!public! !
-!SSWSQLDialect categoriesFor: #sqlWriteStream!helpers!public! !
-!SSWSQLDialect categoriesFor: #standardNamespace!accessing!public! !
-!SSWSQLDialect categoriesFor: #standardNamespace:!accessing!public! !
-!SSWSQLDialect categoriesFor: #supportsDeleteWithJoin!public!testing! !
-!SSWSQLDialect categoriesFor: #supportsImplicitTrueConditions!public!testing! !
-!SSWSQLDialect categoriesFor: #supportsMultipleAddColumns!public!testing! !
-!SSWSQLDialect categoriesFor: #time!datatypes!public! !
-!SSWSQLDialect categoriesFor: #timeFormat!constants!public! !
-!SSWSQLDialect categoriesFor: #timeFrom:!conversions!public! !
-!SSWSQLDialect categoriesFor: #timeStringFor:!conversions!public! !
-!SSWSQLDialect categoriesFor: #timeWithResolution!public! !
-!SSWSQLDialect categoriesFor: #transformClassName:!helpers!public! !
-!SSWSQLDialect categoriesFor: #transformInstVarName:!helpers!public! !
-!SSWSQLDialect categoriesFor: #translateMessage:toFunction:!initializing!public! !
-!SSWSQLDialect categoriesFor: #trueObject!constants!public! !
-!SSWSQLDialect categoriesFor: #unsizedBlob!datatypes!public! !
-!SSWSQLDialect categoriesFor: #unsizedBlobSize!accessing!public! !
-!SSWSQLDialect categoriesFor: #unsizedBlobSize:!accessing!public! !
-!SSWSQLDialect categoriesFor: #unsizedString!datatypes!public! !
-!SSWSQLDialect categoriesFor: #unsizedStringSize!accessing!public! !
-!SSWSQLDialect categoriesFor: #unsizedStringSize:!accessing!public! !
-!SSWSQLDialect categoriesFor: #unsizedStringTypeForSize:!datatypes!public! !
-!SSWSQLDialect categoriesFor: #unsizedStringTypes!datatypes!public! !
-!SSWSQLDialect categoriesFor: #updateDelaySeconds!constants!public! !
-!SSWSQLDialect categoriesFor: #varchar!datatypes!public! !
+!SSWSQLDialect categoriesForMethods!
+addFields:to:in:!maintenance!public! !
+alterField:table:in:!maintenance!public! !
+asIdentifier:!helpers!public! !
+blob!datatypes!public! !
+blobTypeForSize:!datatypes!public! !
+blobTypes!datatypes!public! !
+boolean!datatypes!public! !
+char!datatypes!public! !
+classNameTransformation!accessing!public! !
+classNameTransformation:!accessing!public! !
+commonFunctions!constants!public! !
+connection!accessing!private! !
+connection:!accessing!private! !
+date!datatypes!public! !
+dateAndTimeFormat!constants!public! !
+dateAndTimeFrom:!conversions!public! !
+dateAndTimeStringFor:!conversions!public! !
+dateFormat!constants!public! !
+dateFrom:!conversions!public! !
+dateStringFor:!conversions!public! !
+datetime!datatypes!public! !
+datetimeWithResolution!datatypes!public! !
+decimal!datatypes!public! !
+defaultClassNameTransformation!constants!public! !
+defaultDateTimeResolution!constants!public! !
+defaultInstVarNameTransformation!constants!public! !
+defaultMaxColumnBytes!constants!public! !
+defaultMaxColumnNameLength!constants!public! !
+defaultMaxTableNameLength!constants!public! !
+defaultSQLFunctions!constants!public! !
+defaultStandardNamespace!constants!public! !
+defaultTimeResolution!public! !
+defaultUnsizedBlobSize!constants!public! !
+defaultUnsizedStringSize!constants!public! !
+dialectSpecificFunctions!constants!public! !
+double!datatypes!public! !
+dropColumnNamed:fromTable:in:!maintenance!public! !
+falseObject!constants!public! !
+float!datatypes!public! !
+identifierQuoteClose!constants!public! !
+identifierQuoteOpen!constants!public! !
+initialize!initializing!public! !
+initializeFor:!initializing!public! !
+instVarNameTransformation!accessing!public! !
+instVarNameTransformation:!accessing!public! !
+integer!datatypes!public! !
+integerMaximum!constants!public! !
+integerMinimum!constants!public! !
+largeInteger!datatypes!public! !
+largeIntegerMaximum!constants!public! !
+largeIntegerMinimum!constants!public! !
+longText!datatypes!public! !
+maxAllocatedStatements!constants!public! !
+maxChar!constants!public! !
+maxCharacter!constants!public! !
+maxColumnBytes!accessing!public! !
+maxColumnBytes:!accessing!public! !
+maxColumnNameLength!accessing!public! !
+maxColumnNameLength:!accessing!public! !
+maxDateTimeResolution!constants!public! !
+maxTableNameLength!accessing!public! !
+maxTableNameLength:!accessing!public! !
+maxTimeResolution!public! !
+maxVarchar!constants!public! !
+platformSpecificFunctions!constants!public! !
+postLoginScript!constants!public! !
+printParameterPlaceholder:on:!helpers!public! !
+renameField:to:in:!maintenance!public! !
+renameTable:to:in:!maintenance!public! !
+shouldExpandNamespacedAllFields!public!testing! !
+shouldMapEmptyStringsToNil!public!testing! !
+sqlFunctionFor:!accessing!public! !
+sqlFunctions!accessing!public! !
+sqlFunctions:!accessing!public! !
+sqlWriteStream!helpers!public! !
+standardNamespace!accessing!public! !
+standardNamespace:!accessing!public! !
+supportsDeleteWithJoin!public!testing! !
+supportsImplicitTrueConditions!public!testing! !
+supportsMultipleAddColumns!public!testing! !
+time!datatypes!public! !
+timeFormat!constants!public! !
+timeFrom:!conversions!public! !
+timeStringFor:!conversions!public! !
+timeWithResolution!public! !
+transformClassName:!helpers!public! !
+transformInstVarName:!helpers!public! !
+translateMessage:toFunction:!initializing!public! !
+trueObject!constants!public! !
+unsizedBlob!datatypes!public! !
+unsizedBlobSize!accessing!public! !
+unsizedBlobSize:!accessing!public! !
+unsizedString!datatypes!public! !
+unsizedStringSize!accessing!public! !
+unsizedStringSize:!accessing!public! !
+unsizedStringTypeForSize:!datatypes!public! !
+unsizedStringTypes!datatypes!public! !
+updateDelaySeconds!constants!public! !
+uuid!datatypes!public! !
+varchar!datatypes!public! !
+!
 
 !SSWSQLDialect class methodsFor!
 
@@ -834,10 +874,12 @@ subclassFor: aDBConnection
 
 	"Sort to prefer subclasses with specific version number over non version-specific subclasses"
 	^(self allSubclasses asSortedCollection: [ :c1 :c2 | c1 dbmsVersion size >= c2 dbmsVersion size]) detect: [ :each | each isCompatibleWithConnection: aDBConnection] ifNone: ["Fallback" self]! !
-!SSWSQLDialect class categoriesFor: #dbmsName!constants!public! !
-!SSWSQLDialect class categoriesFor: #dbmsVersion!constants!public! !
-!SSWSQLDialect class categoriesFor: #isCompatibleWithConnection:!public!testing! !
-!SSWSQLDialect class categoriesFor: #new!instance creation!public! !
-!SSWSQLDialect class categoriesFor: #newFor:!instance creation!public! !
-!SSWSQLDialect class categoriesFor: #subclassFor:!accessing!public! !
+!SSWSQLDialect class categoriesForMethods!
+dbmsName!constants!public! !
+dbmsVersion!constants!public! !
+isCompatibleWithConnection:!public!testing! !
+new!instance creation!public! !
+newFor:!instance creation!public! !
+subclassFor:!accessing!public! !
+!
 

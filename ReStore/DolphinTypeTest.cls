@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 TypeTest subclass: #DolphinTypeTest
 	instanceVariableNames: 'timeStamp'
@@ -15,8 +15,10 @@ timeStamp
 
 timeStamp: anObject
 	timeStamp := anObject! !
-!DolphinTypeTest categoriesFor: #timeStamp!accessing!private! !
-!DolphinTypeTest categoriesFor: #timeStamp:!accessing!private! !
+!DolphinTypeTest categoriesForMethods!
+timeStamp!accessing!private! !
+timeStamp:!accessing!private! !
+!
 
 !DolphinTypeTest class methodsFor!
 
@@ -25,5 +27,7 @@ reStoreDefinition
 	^super reStoreDefinition
 		define: #timeStamp as: TimeStamp;
 		yourself! !
-!DolphinTypeTest class categoriesFor: #reStoreDefinition!public! !
+!DolphinTypeTest class categoriesForMethods!
+reStoreDefinition!public! !
+!
 

@@ -30,8 +30,12 @@ cursoredFetch: aBoolean
 
 dataTypeForObject: anObject	^self dataTypeForObject: anObject ifNone: 
 		[ anObject class = TimeStamp 
-			ifTrue: [ #at:putTimeStamp: ]
-			ifFalse: [ #at:putObject: ]]!
+		ifTrue: 
+			[ #at:putTimeStamp: ]
+		ifFalse: 
+			[ anObject class = GUID
+				ifTrue: [ #at:putByteArray: ]
+				ifFalse: [ #at:putObject: ]]]!
 
 exec
 

@@ -417,12 +417,12 @@ _forNewObject: anObject withID: anInteger inReStore: aReStore
 		_collectionProxies: IdentityDictionary new;
 		yourself!
 
-_forObjectOfClass: aClass withID: anInteger  inReStore: aReStore
+_forObjectOfClass: aClass withID: anObject inReStore: aReStore
 
 	^self new
 		_reStore: aReStore;
 		_class: aClass;
-		_id: anInteger;
+		_id: (aClass reStoreIDClass instanceFromDBValue: anObject in: aReStore);
 		yourself!
 
 controlFields

@@ -80,6 +80,7 @@ package methodNames
 	add: #Object -> #onRollback;
 	add: #Object -> #onUnstored;
 	add: #Object -> #refresh;
+	add: #Object -> #reStoreNewUniqueID;
 	add: #Object -> #reStoreValue;
 	add: #Object -> #rollback;
 	add: #Object -> #safeHandleUpdateClash:from:to:;
@@ -684,6 +685,13 @@ refresh
 
 	(self _reStoreIfNone: [self errorNotPersistent]) refresh: self withRelatedComponents!
 
+reStoreNewUniqueID
+
+	"Return a new unique ID object to use for newly-persistent instances of the receiver.
+	Default - ask this class's reStoreIDClass to allocate one"
+
+	^self class reStoreIDClass reStoreNewUnique!
+
 reStoreValue
 
 	"Return an object to use to represent the receiver in ReStore.
@@ -863,6 +871,7 @@ onRefresh!public!restore-event handling! !
 onRollback!public!restore-event handling! !
 onUnstored!public!restore-event handling! !
 refresh!public!restore-api! !
+reStoreNewUniqueID!public!restore-internal! !
 reStoreValue!public!restore-internal! !
 rollback!public!restore-api! !
 safeHandleUpdateClash:from:to:!private!restore-update clash handling! !

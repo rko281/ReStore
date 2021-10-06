@@ -55,11 +55,14 @@ package methodNames
 	add: #SSWSQLJoinedTableCollection -> #joinFields;
 	add: #SSWSQLJoinedTableCollection -> #lastJoinField;
 	add: #SSWSQLTableCollection -> #occurrencesOfIncludingRepetitions:;
+	add: 'Integer class' -> #reStoreNewUnique;
 	add: 'Object class' -> #addClassDefinitionTo:;
 	add: 'Object class' -> #hasPersistentSuperclass;
 	add: 'Object class' -> #isPersistencyInherited;
 	add: 'Object class' -> #persistencyRootClass;
 	add: 'Object class' -> #reStoreDefinition;
+	add: 'Object class' -> #reStoreIDClass;
+	add: 'Object class' -> #reStoreNewUnique;
 	add: 'Object class' -> #reStoreTableClass;
 	add: 'Object class' -> #shouldInheritPersistency;
 	add: 'Object class' -> #shouldInlinePersistency;
@@ -246,8 +249,21 @@ inlined
 	^SSWDBInlinedClass new
 		inlinedClass: self;
 		yourself! !
-!Class categoriesFor: #defineAs:in:!accessing!public! !
-!Class categoriesFor: #inlined!accessing!public! !
+!Class categoriesForMethods!
+defineAs:in:!accessing!public! !
+inlined!accessing!public! !
+!
+
+!Integer class methodsFor!
+
+reStoreNewUnique
+
+	"Return nil to invoke default allocation of auto-incrementing Integer ID"
+
+	^nil! !
+!Integer class categoriesForMethods!
+reStoreNewUnique!persistency!public! !
+!
 
 !Object methodsFor!
 
@@ -284,11 +300,13 @@ unrelated
 	"Return an unrelated version of the receiver"
 
 	^SSWDBUnrelatedWrapper on: self! !
-!Object categoriesFor: #convertValue:!converting!public! !
-!Object categoriesFor: #dependent!defining!public! !
-!Object categoriesFor: #related!defining!public! !
-!Object categoriesFor: #targetClass!accessing!public! !
-!Object categoriesFor: #unrelated!defining!public! !
+!Object categoriesForMethods!
+convertValue:!converting!public! !
+dependent!defining!public! !
+related!defining!public! !
+targetClass!accessing!public! !
+unrelated!defining!public! !
+!
 
 !Object class methodsFor!
 
@@ -340,6 +358,22 @@ reStoreDefinition
 	self addClassDefinitionTo: definition.
 
 	^definition!
+
+reStoreIDClass
+
+	"Return the class used as a unique ID in ReStore.
+	Default is Integer, which ReStore auto-allocates if not explicitly set by application code (usually where unique ID is also application data).
+	Other classes are supported; see instance method reStoreNewUniqueID"
+
+	^Integer!
+
+reStoreNewUnique
+
+	"Return a new unique instance of the receiver to be used as a ReStore unique ID.
+	See instance method reStoreNewUniqueID"
+
+	"If we end up here something is wrong - see other implementors"
+	^self shouldNotImplement!
 
 reStoreTableClass
 
@@ -406,17 +440,21 @@ tableIn: anSSWReStore
 	instead implement reStoreDefinition"
 
 	^self reStoreDefinition asTableIn: anSSWReStore! !
-!Object class categoriesFor: #addClassDefinitionTo:!persistency!public! !
-!Object class categoriesFor: #hasPersistentSuperclass!persistency!public! !
-!Object class categoriesFor: #isPersistencyInherited!persistency!public! !
-!Object class categoriesFor: #persistencyRootClass!persistency!public! !
-!Object class categoriesFor: #reStoreDefinition!persistency!public! !
-!Object class categoriesFor: #reStoreTableClass!persistency!public! !
-!Object class categoriesFor: #shouldInheritPersistency!persistency!public! !
-!Object class categoriesFor: #shouldInlinePersistency!persistency!public! !
-!Object class categoriesFor: #shouldSubclassesInheritPersistency!persistency!public! !
-!Object class categoriesFor: #subclassesInheritingPersistency!persistency!public! !
-!Object class categoriesFor: #tableIn:!persistency!public! !
+!Object class categoriesForMethods!
+addClassDefinitionTo:!persistency!public! !
+hasPersistentSuperclass!persistency!public! !
+isPersistencyInherited!persistency!public! !
+persistencyRootClass!persistency!public! !
+reStoreDefinition!persistency!public! !
+reStoreIDClass!persistency!public! !
+reStoreNewUnique!persistency!public! !
+reStoreTableClass!persistency!public! !
+shouldInheritPersistency!persistency!public! !
+shouldInlinePersistency!persistency!public! !
+shouldSubclassesInheritPersistency!persistency!public! !
+subclassesInheritingPersistency!persistency!public! !
+tableIn:!persistency!public! !
+!
 
 !SSWDBClassWithInfo methodsFor!
 
@@ -433,8 +471,10 @@ defineAs: aSymbol in: anSSWDBTable
 shouldInlinePersistency
 
 	^false! !
-!SSWDBClassWithInfo categoriesFor: #defineAs:in:!defining!public! !
-!SSWDBClassWithInfo categoriesFor: #shouldInlinePersistency!public!testing! !
+!SSWDBClassWithInfo categoriesForMethods!
+defineAs:in:!defining!public! !
+shouldInlinePersistency!public!testing! !
+!
 
 !SSWSQLCondition methodsFor!
 
@@ -448,7 +488,9 @@ copyForQueryTable: aQueryTable
 		field: (SSWDBQueryTableField forField: self field in: aQueryTable);
 		yourself
 	! !
-!SSWSQLCondition categoriesFor: #copyForQueryTable:!evaluating!public! !
+!SSWSQLCondition categoriesForMethods!
+copyForQueryTable:!evaluating!public! !
+!
 
 !SSWSQLConditionCollection methodsFor!
 
@@ -461,7 +503,9 @@ copyForQueryTable: aQueryTable
 	^self collect: [ :each | each copyForQueryTable: aQueryTable]
 
 	! !
-!SSWSQLConditionCollection categoriesFor: #copyForQueryTable:!copying!public! !
+!SSWSQLConditionCollection categoriesForMethods!
+copyForQueryTable:!copying!public! !
+!
 
 !SSWSQLDialect methodsFor!
 
@@ -476,7 +520,9 @@ instVarAccessorFor: aClass
 
 	"Default"
 	^SSWInstVarAccessor new! !
-!SSWSQLDialect categoriesFor: #instVarAccessorFor:!helpers!public! !
+!SSWSQLDialect categoriesForMethods!
+instVarAccessorFor:!helpers!public! !
+!
 
 !SSWSQLJoinedTableCollection methodsFor!
 
@@ -520,10 +566,12 @@ lastJoinField
 	"Patched for issue 120-001(revised)"
 	
 	^self joinConditions last value! !
-!SSWSQLJoinedTableCollection categoriesFor: #add:joinedWithField:!adding/removing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #addAliasingDuplicates:joinedWithField:!adding/removing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #joinFields!accessing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #lastJoinField!accessing!public! !
+!SSWSQLJoinedTableCollection categoriesForMethods!
+add:joinedWithField:!adding/removing!public! !
+addAliasingDuplicates:joinedWithField:!adding/removing!public! !
+joinFields!accessing!public! !
+lastJoinField!accessing!public! !
+!
 
 !SSWSQLTableCollection methodsFor!
 
@@ -537,7 +585,9 @@ occurrencesOfIncludingRepetitions: aTable
 	(self includes: aTable) ifFalse: [^0].
 
 	^(self select: [ :table | (table class = SSWDBQueryTable) and: [table table == aTable]]) size + 1! !
-!SSWSQLTableCollection categoriesFor: #occurrencesOfIncludingRepetitions:!public!searching! !
+!SSWSQLTableCollection categoriesForMethods!
+occurrencesOfIncludingRepetitions:!public!searching! !
+!
 
 "End of package definition"!
 

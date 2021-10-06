@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLDialect subclass: #SSWMSAccessDialect
 	instanceVariableNames: ''
@@ -69,6 +69,20 @@ dialectSpecificFunctions
 
 		yourself!
 
+largeInteger
+
+	"Not supported"
+
+	^self integer!
+
+largeIntegerMaximum
+
+	^self integerMaximum!
+
+largeIntegerMinimum
+
+	^self integerMinimum!
+
 longText
 
 	^'LONGTEXT'!
@@ -115,27 +129,39 @@ updateDelaySeconds
 
 	"Arrived at anecdotally... refresh SUnit tests fail with 4 seconds, pass with 5"
 
-	^5! !
-!SSWMSAccessDialect categoriesFor: #boolean!datatypes!public! !
-!SSWMSAccessDialect categoriesFor: #date!datatypes!public! !
-!SSWMSAccessDialect categoriesFor: #datetimeWithResolution!datatypes!public! !
-!SSWMSAccessDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
-!SSWMSAccessDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
-!SSWMSAccessDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
-!SSWMSAccessDialect categoriesFor: #longText!datatypes!public! !
-!SSWMSAccessDialect categoriesFor: #maxAllocatedStatements!constants!public! !
-!SSWMSAccessDialect categoriesFor: #maxDateTimeResolution!constants!public! !
-!SSWMSAccessDialect categoriesFor: #renameTable:to:in:!maintenance!public! !
-!SSWMSAccessDialect categoriesFor: #shouldMapEmptyStringsToNil!public!testing! !
-!SSWMSAccessDialect categoriesFor: #time!datatypes!public! !
-!SSWMSAccessDialect categoriesFor: #trueObject!constants!public! !
-!SSWMSAccessDialect categoriesFor: #unsizedBlob!datatypes!public! !
-!SSWMSAccessDialect categoriesFor: #updateDelaySeconds!constants!public! !
+	^5!
+
+uuid
+
+	^'GUID'! !
+!SSWMSAccessDialect categoriesForMethods!
+boolean!datatypes!public! !
+date!datatypes!public! !
+datetimeWithResolution!datatypes!public! !
+defaultMaxColumnNameLength!constants!public! !
+defaultMaxTableNameLength!constants!public! !
+dialectSpecificFunctions!constants!public! !
+largeInteger!datatypes!public! !
+largeIntegerMaximum!constants!public! !
+largeIntegerMinimum!constants!public! !
+longText!datatypes!public! !
+maxAllocatedStatements!constants!public! !
+maxDateTimeResolution!constants!public! !
+renameTable:to:in:!maintenance!public! !
+shouldMapEmptyStringsToNil!public!testing! !
+time!datatypes!public! !
+trueObject!constants!public! !
+unsizedBlob!datatypes!public! !
+updateDelaySeconds!constants!public! !
+uuid!datatypes!public! !
+!
 
 !SSWMSAccessDialect class methodsFor!
 
 dbmsName
 
 	^'ACCESS'! !
-!SSWMSAccessDialect class categoriesFor: #dbmsName!constants!public! !
+!SSWMSAccessDialect class categoriesForMethods!
+dbmsName!constants!public! !
+!
 

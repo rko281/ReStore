@@ -58,6 +58,7 @@ package methodNames
 	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
 	add: #String -> #asParameterColumn;
 	add: 'ByteArray class' -> #dbMaxFieldSize;
+	add: 'Object class' -> #dbMaxFieldSize;
 	add: 'String class' -> #dbMaxFieldSize;
 	yourself.
 
@@ -175,6 +176,17 @@ isInvalidTransactionState
 isCommunicationLinkFailure!public!testing! !
 isInvalidCursorPosition!public!testing! !
 isInvalidTransactionState!public!testing! !
+!
+
+!Object class methodsFor!
+
+dbMaxFieldSize
+
+	"Invoked here where the reStoreIDClass is string or binary-based. Pass on to the reStoreIDClass"
+
+	^self reStoreIDClass dbMaxFieldSize! !
+!Object class categoriesForMethods!
+dbMaxFieldSize!persistency!public! !
 !
 
 !ODBCLibrary methodsFor!

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLTable subclass: #SSWDBTable
 	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize namespace'
@@ -196,7 +196,7 @@ createIDField
 	field
 		table: self;
 		accessor: SSWDBIDAccessor new;
-		targetClass: Integer.
+		targetClass: self instanceClass reStoreIDClass.
 	
 	self idField: field!
 
@@ -912,106 +912,108 @@ writeSQLNameOn: aStream
 
 	super writeSQLNameOn: aStream
 ! !
-!SSWDBTable categoriesFor: #=!comparing!public! !
-!SSWDBTable categoriesFor: #abbreviate:to:!defining!private! !
-!SSWDBTable categoriesFor: #abbreviations!accessing!public! !
-!SSWDBTable categoriesFor: #abbreviations:!accessing!public! !
-!SSWDBTable categoriesFor: #aboutToBeUnstored:!evaluating!public! !
-!SSWDBTable categoriesFor: #addDataField:!defining!private! !
-!SSWDBTable categoriesFor: #allDataFieldsDo:!enumerating!public! !
-!SSWDBTable categoriesFor: #allFields!evaluating!public! !
-!SSWDBTable categoriesFor: #allFieldsDetect:ifNone:!enumerating!public! !
-!SSWDBTable categoriesFor: #allFieldsDo:!enumerating!public! !
-!SSWDBTable categoriesFor: #collectionAccessing:!evaluating!public! !
-!SSWDBTable categoriesFor: #collectionSpecs!accessing!public! !
-!SSWDBTable categoriesFor: #collectionSpecs:!accessing!public! !
-!SSWDBTable categoriesFor: #componentAccessing:!evaluating!public! !
-!SSWDBTable categoriesFor: #componentsDo:!enumerating!public! !
-!SSWDBTable categoriesFor: #componentsSelect:!enumerating!public! !
-!SSWDBTable categoriesFor: #containedTableNameRoot!evaluating!private! !
-!SSWDBTable categoriesFor: #containedTables!evaluating!public! !
-!SSWDBTable categoriesFor: #controlFields!accessing!public! !
-!SSWDBTable categoriesFor: #controlFields:!accessing!public! !
-!SSWDBTable categoriesFor: #copyForProxy:!defining!evaluating!public! !
-!SSWDBTable categoriesFor: #createDefinition!db maintenance!public! !
-!SSWDBTable categoriesFor: #createIDField!initialize/release!private! !
-!SSWDBTable categoriesFor: #createInstanceFromRow:!instance creation!public! !
-!SSWDBTable categoriesFor: #createNonProxiedInstanceFromRow:!instance creation!private! !
-!SSWDBTable categoriesFor: #dataAndControlFields!evaluating!public! !
-!SSWDBTable categoriesFor: #dataFields!accessing!public! !
-!SSWDBTable categoriesFor: #dataFields:!accessing!public! !
-!SSWDBTable categoriesFor: #dbNameFor:!evaluating!private! !
-!SSWDBTable categoriesFor: #defaultName!evaluating!public! !
-!SSWDBTable categoriesFor: #define:abbreviation:as:!defining!public! !
-!SSWDBTable categoriesFor: #define:as:!defining!public! !
-!SSWDBTable categoriesFor: #define:asCollectionSpec:!defining!private! !
-!SSWDBTable categoriesFor: #define:asFieldNamed:holding:!defining!private! !
-!SSWDBTable categoriesFor: #define:asInstVarHolding:!defining!private! !
-!SSWDBTable categoriesFor: #define:asInstVarHoldingInlined:!defining!private! !
-!SSWDBTable categoriesFor: #defineAsID:!defining!public! !
-!SSWDBTable categoriesFor: #defineAsID:fieldName:!defining!public! !
-!SSWDBTable categoriesFor: #defineDefaultIDField!defining!private! !
-!SSWDBTable categoriesFor: #defineIDFieldName:!defining!public! !
-!SSWDBTable categoriesFor: #definesName:!public!testing! !
-!SSWDBTable categoriesFor: #deleteStatementGeneratedFrom:!accessing!public! !
-!SSWDBTable categoriesFor: #dependentComponents!accessing!public! !
-!SSWDBTable categoriesFor: #dependentDataFields!evaluating!public! !
-!SSWDBTable categoriesFor: #dependentDataFieldsSelect:!evaluating!public! !
-!SSWDBTable categoriesFor: #fieldAccessing:!evaluating!public! !
-!SSWDBTable categoriesFor: #fieldNamed:!evaluating!public! !
-!SSWDBTable categoriesFor: #fieldsAccessing:!evaluating!public! !
-!SSWDBTable categoriesFor: #forCreation!evaluating!public! !
-!SSWDBTable categoriesFor: #freePreparedStatements!initialize/release!public! !
-!SSWDBTable categoriesFor: #fullName!accessing!public! !
-!SSWDBTable categoriesFor: #fullName:!accessing!public! !
-!SSWDBTable categoriesFor: #hasCollectionAccessing:!public!testing! !
-!SSWDBTable categoriesFor: #hasFieldAccessing:!public!testing! !
-!SSWDBTable categoriesFor: #hasNamespace!public!testing! !
-!SSWDBTable categoriesFor: #idDataField!accessing!public! !
-!SSWDBTable categoriesFor: #idDataField:!accessing!public! !
-!SSWDBTable categoriesFor: #idField!accessing!public! !
-!SSWDBTable categoriesFor: #idField:!accessing!public! !
-!SSWDBTable categoriesFor: #initializeIn:!initialize/release!public! !
-!SSWDBTable categoriesFor: #insertStatementGeneratedFrom:!accessing!public! !
-!SSWDBTable categoriesFor: #instanceClass!accessing!public! !
-!SSWDBTable categoriesFor: #instanceClass:!accessing!public! !
-!SSWDBTable categoriesFor: #instanceClassFromRow:!instance creation!private! !
-!SSWDBTable categoriesFor: #isDefined!public!testing! !
-!SSWDBTable categoriesFor: #isRootTable!public!testing! !
-!SSWDBTable categoriesFor: #isValidForPersistence!public!testing! !
-!SSWDBTable categoriesFor: #name!accessing!public! !
-!SSWDBTable categoriesFor: #namespace!accessing!public! !
-!SSWDBTable categoriesFor: #namespace:!accessing!public! !
-!SSWDBTable categoriesFor: #nonPersistentCopyOf:!instance creation!public! !
-!SSWDBTable categoriesFor: #parameterisedRecoveryQuery!evaluating!public! !
-!SSWDBTable categoriesFor: #parameterisedRefreshQuery!evaluating!public! !
-!SSWDBTable categoriesFor: #qualifiedName!accessing!public! !
-!SSWDBTable categoriesFor: #readAllBatchSize!accessing!public! !
-!SSWDBTable categoriesFor: #readAllBatchSize:!accessing!public! !
-!SSWDBTable categoriesFor: #readStatement!accessing!public! !
-!SSWDBTable categoriesFor: #recoverInstanceFromRow:into:!instance creation!public! !
-!SSWDBTable categoriesFor: #refreshProxy:fromRow:!instance creation!public! !
-!SSWDBTable categoriesFor: #refreshProxy:whereChangedFromRow:!instance creation!public! !
-!SSWDBTable categoriesFor: #refreshStatement!accessing!public! !
-!SSWDBTable categoriesFor: #registerClass!evaluating!public! !
-!SSWDBTable categoriesFor: #relatedComponents!accessing!public! !
-!SSWDBTable categoriesFor: #removeDefinition!db maintenance!public! !
-!SSWDBTable categoriesFor: #removeRedundantContainedTables!db maintenance!public! !
-!SSWDBTable categoriesFor: #reStore!accessing!public! !
-!SSWDBTable categoriesFor: #reStore:!accessing!public! !
-!SSWDBTable categoriesFor: #rootClass!evaluating!public! !
-!SSWDBTable categoriesFor: #rootTable!evaluating!public! !
-!SSWDBTable categoriesFor: #species!accessing!public! !
-!SSWDBTable categoriesFor: #sqlDefinition!output!public! !
-!SSWDBTable categoriesFor: #sqlDialect!evaluating!public! !
-!SSWDBTable categoriesFor: #staticConditions!evaluating!public! !
-!SSWDBTable categoriesFor: #symbolicNameFor:!evaluating!private! !
-!SSWDBTable categoriesFor: #synchronizeDefinition!db maintenance!public! !
-!SSWDBTable categoriesFor: #synchronizeFields!db maintenance!public! !
-!SSWDBTable categoriesFor: #withAllFields!evaluating!public! !
-!SSWDBTable categoriesFor: #withControlFields!evaluating!public! !
-!SSWDBTable categoriesFor: #writeSQLDefinitionOn:!output!public! !
-!SSWDBTable categoriesFor: #writeSQLNameOn:!output!public! !
+!SSWDBTable categoriesForMethods!
+=!comparing!public! !
+abbreviate:to:!defining!private! !
+abbreviations!accessing!public! !
+abbreviations:!accessing!public! !
+aboutToBeUnstored:!evaluating!public! !
+addDataField:!defining!private! !
+allDataFieldsDo:!enumerating!public! !
+allFields!evaluating!public! !
+allFieldsDetect:ifNone:!enumerating!public! !
+allFieldsDo:!enumerating!public! !
+collectionAccessing:!evaluating!public! !
+collectionSpecs!accessing!public! !
+collectionSpecs:!accessing!public! !
+componentAccessing:!evaluating!public! !
+componentsDo:!enumerating!public! !
+componentsSelect:!enumerating!public! !
+containedTableNameRoot!evaluating!private! !
+containedTables!evaluating!public! !
+controlFields!accessing!public! !
+controlFields:!accessing!public! !
+copyForProxy:!defining!evaluating!public! !
+createDefinition!db maintenance!public! !
+createIDField!initialize/release!private! !
+createInstanceFromRow:!instance creation!public! !
+createNonProxiedInstanceFromRow:!instance creation!private! !
+dataAndControlFields!evaluating!public! !
+dataFields!accessing!public! !
+dataFields:!accessing!public! !
+dbNameFor:!evaluating!private! !
+defaultName!evaluating!public! !
+define:abbreviation:as:!defining!public! !
+define:as:!defining!public! !
+define:asCollectionSpec:!defining!private! !
+define:asFieldNamed:holding:!defining!private! !
+define:asInstVarHolding:!defining!private! !
+define:asInstVarHoldingInlined:!defining!private! !
+defineAsID:!defining!public! !
+defineAsID:fieldName:!defining!public! !
+defineDefaultIDField!defining!private! !
+defineIDFieldName:!defining!public! !
+definesName:!public!testing! !
+deleteStatementGeneratedFrom:!accessing!public! !
+dependentComponents!accessing!public! !
+dependentDataFields!evaluating!public! !
+dependentDataFieldsSelect:!evaluating!public! !
+fieldAccessing:!evaluating!public! !
+fieldNamed:!evaluating!public! !
+fieldsAccessing:!evaluating!public! !
+forCreation!evaluating!public! !
+freePreparedStatements!initialize/release!public! !
+fullName!accessing!public! !
+fullName:!accessing!public! !
+hasCollectionAccessing:!public!testing! !
+hasFieldAccessing:!public!testing! !
+hasNamespace!public!testing! !
+idDataField!accessing!public! !
+idDataField:!accessing!public! !
+idField!accessing!public! !
+idField:!accessing!public! !
+initializeIn:!initialize/release!public! !
+insertStatementGeneratedFrom:!accessing!public! !
+instanceClass!accessing!public! !
+instanceClass:!accessing!public! !
+instanceClassFromRow:!instance creation!private! !
+isDefined!public!testing! !
+isRootTable!public!testing! !
+isValidForPersistence!public!testing! !
+name!accessing!public! !
+namespace!accessing!public! !
+namespace:!accessing!public! !
+nonPersistentCopyOf:!instance creation!public! !
+parameterisedRecoveryQuery!evaluating!public! !
+parameterisedRefreshQuery!evaluating!public! !
+qualifiedName!accessing!public! !
+readAllBatchSize!accessing!public! !
+readAllBatchSize:!accessing!public! !
+readStatement!accessing!public! !
+recoverInstanceFromRow:into:!instance creation!public! !
+refreshProxy:fromRow:!instance creation!public! !
+refreshProxy:whereChangedFromRow:!instance creation!public! !
+refreshStatement!accessing!public! !
+registerClass!evaluating!public! !
+relatedComponents!accessing!public! !
+removeDefinition!db maintenance!public! !
+removeRedundantContainedTables!db maintenance!public! !
+reStore!accessing!public! !
+reStore:!accessing!public! !
+rootClass!evaluating!public! !
+rootTable!evaluating!public! !
+species!accessing!public! !
+sqlDefinition!output!public! !
+sqlDialect!evaluating!public! !
+staticConditions!evaluating!public! !
+symbolicNameFor:!evaluating!private! !
+synchronizeDefinition!db maintenance!public! !
+synchronizeFields!db maintenance!public! !
+withAllFields!evaluating!public! !
+withControlFields!evaluating!public! !
+writeSQLDefinitionOn:!output!public! !
+writeSQLNameOn:!output!public! !
+!
 
 !SSWDBTable class methodsFor!
 
@@ -1035,7 +1037,9 @@ new
 		collectionSpecs: OrderedCollection new;
 		abbreviations: Dictionary new;
 		yourself! !
-!SSWDBTable class categoriesFor: #forClass:!instance creation!public! !
-!SSWDBTable class categoriesFor: #forClass:in:!instance creation!public! !
-!SSWDBTable class categoriesFor: #new!instance creation!public! !
+!SSWDBTable class categoriesForMethods!
+forClass:!instance creation!public! !
+forClass:in:!instance creation!public! !
+new!instance creation!public! !
+!
 
