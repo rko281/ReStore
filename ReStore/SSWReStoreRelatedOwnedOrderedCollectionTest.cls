@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedOwnedOrderedCollectionTest
 	instanceVariableNames: ''
@@ -61,6 +61,29 @@ testCollectionDeletionWithElementTransfer
 	element refresh.
 	self assert: element owner equals: template2!
 
+testCollectionElementRemovalWithDirectCollectionStore
+
+	"Verify that an element removed from the collection is stored correctly when the collection (rather than its owner) is stored.
+	Tests a previously-erroring case where elements removed from a depenent owned collection were not unstored if the collection owner was not in the transaction"
+
+	| size element id cls |
+
+	size := collection size.
+	element := collection anyOne. 
+	id := element _id.
+	cls := element class.
+
+	collection remove: element.
+	collection store.
+
+	reStore simulateReconnect.
+	self fetchTestObjects.
+
+	self assert: collection size equals: size - 1.
+	((cls storedInstancesIn: reStore) detect: [ :each | each _id = id] ifNone: [nil]) ifNotNil: [ :elem | self deny: (collection includes: elem)].
+
+	self _testComponentExistenceOnDependency: element!
+
 testCollectionElementRemovalWithNilBackpointer
 
 	"Verify that an element removed from the collection is stored correctly even if the backpointer is manually nil'd out"
@@ -103,13 +126,16 @@ testCollectionElementTransfer
 		[self 
 			_testCollectionElementTransferOf: element from: collection1 ownedBy: testObject to: collection2 ownedBy: template2;
 			_testCollectionElementTransferOf: element from: collection2 ownedBy: template2 to: collection1 ownedBy: testObject]! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesFor: #_testCollectionElementTransferOf:from:ownedBy:to:ownedBy:!helpers!public! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesFor: #replaceInCollection:!helpers!public! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesFor: #testCollectionDeletionWithElementTransfer!public!unit tests! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesFor: #testCollectionElementRemovalWithNilBackpointer!public!unit tests! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesFor: #testCollectionElementTransfer!public!unit tests! !
+!SSWReStoreRelatedOwnedOrderedCollectionTest categoriesForMethods!
+_testCollectionElementTransferOf:from:ownedBy:to:ownedBy:!helpers!public! !
+componentDefinition!accessing!public! !
+replaceInCollection:!helpers!public! !
+templateCollection!accessing!public! !
+testCollectionDeletionWithElementTransfer!public!unit tests! !
+testCollectionElementRemovalWithDirectCollectionStore!public!unit tests! !
+testCollectionElementRemovalWithNilBackpointer!public!unit tests! !
+testCollectionElementTransfer!public!unit tests! !
+!
 
 !SSWReStoreRelatedOwnedOrderedCollectionTest class methodsFor!
 
@@ -118,5 +144,7 @@ allTestSelectors
 	^super allTestSelectors 
 		removeAll: self multipleOccurrenceTestSelectors;
 		yourself! !
-!SSWReStoreRelatedOwnedOrderedCollectionTest class categoriesFor: #allTestSelectors!accessing!public! !
+!SSWReStoreRelatedOwnedOrderedCollectionTest class categoriesForMethods!
+allTestSelectors!accessing!public! !
+!
 

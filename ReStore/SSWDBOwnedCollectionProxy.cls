@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBCollectionProxy subclass: #SSWDBOwnedCollectionProxy
 	instanceVariableNames: 'copyCollection'
@@ -92,17 +92,17 @@ _prepareToCommitPhase2
 
 	"Prepare to 'commit' the receiver by ensuring that elements removed from the receiver have their backpointer nil'd, or are deleted if dependent"
 
-	| removed ownerObject |
+	| removed potentialOwners |
 
 	self _isDeleted
 	ifTrue: 
 		[removed := copyCollection.
-		ownerObject := owner _copyObject]
+		potentialOwners := Array with: owner _copyObject]
 	ifFalse: 
 		[removed := collectionSpec elementsIn: copyCollection notIn: proxiedObject.
-		ownerObject := owner _proxiedObject].
+		potentialOwners := Array with: owner with: owner _proxiedObject].
 
-	removed := removed reject: [ :each | each isNil or: [(collectionSpec ownerAccessor valueIn: each) ifNil: ["manually nil'd out" false] ifNotNil: [ :eachOwner | eachOwner ~~ ownerObject]]].
+	removed := removed reject: [ :each | each isNil or: [(collectionSpec ownerAccessor valueIn: each) ifNil: ["manually nil'd out" false] ifNotNil: [ :eachOwner | (potentialOwners identityIncludes: eachOwner) not]]].
 
 	collectionSpec isValueDependent
 	ifTrue:
@@ -156,18 +156,20 @@ _unstore
 		ifFalse: [reStore removeFromTransaction: self].
 
 	proxiedObject := nil! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_acquireCopyCollection!actions!private! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_checkHasChanged!public!testing! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_commitChangesPhase1!actions-internal!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_commitChangesPhase2!actions-internal!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection!accessing!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_copyCollection:!accessing!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_isDeleted!public!testing! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_isPersistent!public!testing! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_postCommitChanges!actions!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommitPhase1!actions-internal!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_prepareToCommitPhase2!actions-internal!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_proxiedObject:!accessing!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_rollbackChanges!actions!public! !
-!SSWDBOwnedCollectionProxy categoriesFor: #_unstore!actions!public! !
+!SSWDBOwnedCollectionProxy categoriesForMethods!
+_acquireCopyCollection!actions!private! !
+_checkHasChanged!public!testing! !
+_commitChangesPhase1!actions-internal!public! !
+_commitChangesPhase2!actions-internal!public! !
+_copyCollection!accessing!public! !
+_copyCollection:!accessing!public! !
+_isDeleted!public!testing! !
+_isPersistent!public!testing! !
+_postCommitChanges!actions!public! !
+_prepareToCommitPhase1!actions-internal!public! !
+_prepareToCommitPhase2!actions-internal!public! !
+_proxiedObject:!accessing!public! !
+_rollbackChanges!actions!public! !
+_unstore!actions!public! !
+!
 
