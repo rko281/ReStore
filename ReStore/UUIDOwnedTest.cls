@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
-OwnedTest subclass: #UUIDOwnedTest
+GenericOwnedTest subclass: #UUIDOwnedTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

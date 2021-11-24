@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
 	instanceVariableNames: 'targetClass deleteEntriesStatement'
@@ -14,10 +14,11 @@ https://github.com/rko281/ReStore'!
 
 createCollectionTable
 
-	"Intercept to set the Class of the target field in the collection table"
+	"Intercept to set the Class of the source and target fields in the collection table"
 		
 	super createCollectionTable.
 
+	self sourceField targetClass: self table instanceClass reStoreIDClass.
 	self targetField targetClass: self targetClass!
 
 createNonProxiedInstanceFromRow: aDBRow
@@ -338,30 +339,32 @@ targetClass: aClass
 targetTable 
 
 	^self reStore tableForClass: self targetClass! !
-!SSWDBStaticCollectionSpec categoriesFor: #createCollectionTable!initializing!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #createNonProxiedInstanceFromRow:!actions-internal!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #dbInstancesFor:!accessing!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #deleteEntriesQuery!accessing-queries!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #deleteEntriesStatement!accessing!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #deleteQuery!accessing-queries!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #deleteQueryWithJoin!accessing-queries!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #deleteQueryWithSubQuery!accessing-queries!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #readAllEntriesFor:!actions!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #readAllFor:!actions!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #readAllQuery!accessing-queries!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #readQuery!accessing-queries!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #recoverBaseClassCollectionForProxy:!actions-internal!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #recoverCollectionForProxy:!accessing!actions!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #recoverModelClassCollectionForProxy:!actions-internal!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #refreshCollectionForProxy:!accessing!actions!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #refreshCollectionWithContentsIfUpdatedForProxy:!accessing!actions!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #refreshModelClassCollectionForProxy:!actions-internal!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #refreshModelClassCollectionWithContentsIfUpdatedForProxy:!actions-internal!private! !
-!SSWDBStaticCollectionSpec categoriesFor: #refreshQuery!accessing-queries!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #selectQueryIn:!accessing-queries!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #setTargetClass:!initializing!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #targetClass!accessing!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #targetClass:!accessing!public! !
-!SSWDBStaticCollectionSpec categoriesFor: #targetTable!accessing!public! !
+!SSWDBStaticCollectionSpec categoriesForMethods!
+createCollectionTable!initializing!public! !
+createNonProxiedInstanceFromRow:!actions-internal!private! !
+dbInstancesFor:!accessing!public! !
+deleteEntriesQuery!accessing-queries!public! !
+deleteEntriesStatement!accessing!public! !
+deleteQuery!accessing-queries!public! !
+deleteQueryWithJoin!accessing-queries!private! !
+deleteQueryWithSubQuery!accessing-queries!private! !
+readAllEntriesFor:!actions!private! !
+readAllFor:!actions!public! !
+readAllQuery!accessing-queries!public! !
+readQuery!accessing-queries!public! !
+recoverBaseClassCollectionForProxy:!actions-internal!private! !
+recoverCollectionForProxy:!accessing!actions!public! !
+recoverModelClassCollectionForProxy:!actions-internal!private! !
+refreshCollectionForProxy:!accessing!actions!public! !
+refreshCollectionWithContentsIfUpdatedForProxy:!accessing!actions!public! !
+refreshModelClassCollectionForProxy:!actions-internal!private! !
+refreshModelClassCollectionWithContentsIfUpdatedForProxy:!actions-internal!private! !
+refreshQuery!accessing-queries!public! !
+refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
+selectQueryIn:!accessing-queries!public! !
+setTargetClass:!initializing!public! !
+targetClass!accessing!public! !
+targetClass:!accessing!public! !
+targetTable!accessing!public! !
+!
 

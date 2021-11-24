@@ -159,15 +159,15 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'..\..\ReStore test\Core\Object Arts\Dolphin\Base\Dolphin'
-	'..\..\ReStore test\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'SSW ReStore for Dolphin'
 	'SSW ReStore Main'
 	'SSW ReStore MVP'
 	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities'
 	'SSW ReStore Tables'
-	'..\..\ReStore test\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
+	'..\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
 
 package setManualPrerequisites: #(
 	'SSW ReStore MVP').
@@ -180,7 +180,7 @@ Object subclass: #GenericTest
 	instanceVariableNames: 'name component'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: 'componentDefinition'!
+	classInstanceVariableNames: 'componentDefinition reStoreIDClass'!
 Object subclass: #InlinedAddress
 	instanceVariableNames: 'line1 postcode'
 	classVariableNames: ''
@@ -291,7 +291,7 @@ Test subclass: #OwnedTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-OwnedTest subclass: #UUIDOwnedTest
+GenericOwnedTest subclass: #UUIDOwnedTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

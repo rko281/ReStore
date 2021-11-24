@@ -1,10 +1,10 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #GenericTest
 	instanceVariableNames: 'name component'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: 'componentDefinition'!
+	classInstanceVariableNames: 'componentDefinition reStoreIDClass'!
 GenericTest guid: (GUID fromString: '{2c37a8c4-fe10-4775-9f44-50dd5f8c3d0f}')!
 GenericTest comment: 'ReStore
 ©2019 John Aspinall
@@ -39,14 +39,16 @@ name
 
 name: anObject
 	name := anObject! !
-!GenericTest categoriesFor: #=!comparing!public! !
-!GenericTest categoriesFor: #addToMultiKeyDictionary:!adding!public! !
-!GenericTest categoriesFor: #addToSingleKeyDictionary:!adding!public! !
-!GenericTest categoriesFor: #component!accessing!private! !
-!GenericTest categoriesFor: #component:!accessing!private! !
-!GenericTest categoriesFor: #hash!comparing!public! !
-!GenericTest categoriesFor: #name!accessing!private! !
-!GenericTest categoriesFor: #name:!accessing!private! !
+!GenericTest categoriesForMethods!
+=!comparing!public! !
+addToMultiKeyDictionary:!adding!public! !
+addToSingleKeyDictionary:!adding!public! !
+component!accessing!private! !
+component:!accessing!private! !
+hash!comparing!public! !
+name!accessing!private! !
+name:!accessing!private! !
+!
 
 !GenericTest class methodsFor!
 
@@ -61,7 +63,17 @@ reStoreDefinition
 	^super reStoreDefinition 
 		define: #name as: (String maxSize: 128);
 		define: #component as: componentDefinition;
-		yourself! !
-!GenericTest class categoriesFor: #componentDefinition:!public! !
-!GenericTest class categoriesFor: #reStoreDefinition!public! !
+		yourself!
+
+reStoreIDClass
+	^reStoreIDClass ifNil: [super reStoreIDClass]!
+
+reStoreIDClass: anObject
+	reStoreIDClass := anObject! !
+!GenericTest class categoriesForMethods!
+componentDefinition:!public! !
+reStoreDefinition!public! !
+reStoreIDClass!accessing!public! !
+reStoreIDClass:!accessing!private! !
+!
 

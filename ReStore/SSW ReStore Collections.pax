@@ -282,8 +282,10 @@ _dbAdd: anObject suggestedIndex: anInteger
 	^self at: anInteger put: anObject
 
 ! !
-!ArrayedCollection categoriesFor: #_changesFrom:!comparing!private! !
-!ArrayedCollection categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
+!ArrayedCollection categoriesForMethods!
+_changesFrom:!comparing!private! !
+_dbAdd:suggestedIndex:!adding!private! !
+!
 
 !Class methodsFor!
 
@@ -302,8 +304,10 @@ beTargetClassOf: aCollectionSpec
 	Initialize aCollectionSpec accordingly"
 
 	aCollectionSpec targetClass: self! !
-!Class categoriesFor: #beKeyClassOf:!accessing!public! !
-!Class categoriesFor: #beTargetClassOf:!accessing!public! !
+!Class categoriesForMethods!
+beKeyClassOf:!accessing!public! !
+beTargetClassOf:!accessing!public! !
+!
 
 !Collection methodsFor!
 
@@ -525,30 +529,32 @@ staticCollectionSpecClass
 	^SSWDBStaticCollectionSpec
 
 ! !
-!Collection categoriesFor: #_changesFrom:!private!restore-internal! !
-!Collection categoriesFor: #_collectionAdditions!private!restore-internal! !
-!Collection categoriesFor: #_dbAdd:!private!restore-internal! !
-!Collection categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
-!Collection categoriesFor: #_dbKeyUpdateClass!private!restore-internal! !
-!Collection categoriesFor: #_dbRemovalClass!private!restore-internal! !
-!Collection categoriesFor: #_fetchAll:!private!restore-internal! !
-!Collection categoriesFor: #_keyedChangesFrom:!private!restore-internal! !
-!Collection categoriesFor: #_keyedCollectionAdditions!private!restore-internal! !
-!Collection categoriesFor: #_nonKeyedCollectionAdditions!private!restore-internal! !
-!Collection categoriesFor: #_proxifyIn:!private!restore-internal! !
-!Collection categoriesFor: #_valuesRemovedBy:!private!restore-internal! !
-!Collection categoriesFor: #fetch:!converting!public! !
-!Collection categoriesFor: #fetchAll:!converting!public! !
-!Collection categoriesFor: #isOrdered!public!testing! !
-!Collection categoriesFor: #isSortedCollection!public!testing! !
-!Collection categoriesFor: #isValidForPersistence!comparing!private! !
-!Collection categoriesFor: #of:!public!specification! !
-!Collection categoriesFor: #of:owner:!public!specification! !
-!Collection categoriesFor: #of:specClass:!public!specification! !
-!Collection categoriesFor: #orRemote!converting!public! !
-!Collection categoriesFor: #ownedCollectionSpecClass!constants!private! !
-!Collection categoriesFor: #remote!converting!public! !
-!Collection categoriesFor: #staticCollectionSpecClass!constants!private! !
+!Collection categoriesForMethods!
+_changesFrom:!private!restore-internal! !
+_collectionAdditions!private!restore-internal! !
+_dbAdd:!private!restore-internal! !
+_dbAdd:suggestedIndex:!adding!private! !
+_dbKeyUpdateClass!private!restore-internal! !
+_dbRemovalClass!private!restore-internal! !
+_fetchAll:!private!restore-internal! !
+_keyedChangesFrom:!private!restore-internal! !
+_keyedCollectionAdditions!private!restore-internal! !
+_nonKeyedCollectionAdditions!private!restore-internal! !
+_proxifyIn:!private!restore-internal! !
+_valuesRemovedBy:!private!restore-internal! !
+fetch:!converting!public! !
+fetchAll:!converting!public! !
+isOrdered!public!testing! !
+isSortedCollection!public!testing! !
+isValidForPersistence!comparing!private! !
+of:!public!specification! !
+of:owner:!public!specification! !
+of:specClass:!public!specification! !
+orRemote!converting!public! !
+ownedCollectionSpecClass!constants!private! !
+remote!converting!public! !
+staticCollectionSpecClass!constants!private! !
+!
 
 !Collection class methodsFor!
 
@@ -562,8 +568,10 @@ of: targetClass owner: aSymbol
 	^self new of: targetClass owner: aSymbol
 
 ! !
-!Collection class categoriesFor: #of:!public!specification! !
-!Collection class categoriesFor: #of:owner:!public!specification! !
+!Collection class categoriesForMethods!
+of:!public!specification! !
+of:owner:!public!specification! !
+!
 
 !Dictionary methodsFor!
 
@@ -732,21 +740,23 @@ staticCollectionSpecClass
 	^self shouldNotImplement
 
 ! !
-!Dictionary categoriesFor: #_changesFrom:!comparing!private! !
-!Dictionary categoriesFor: #_collectionAdditions!comparing!private! !
-!Dictionary categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
-!Dictionary categoriesFor: #_dbKeyUpdateClass!private!restore-internal! !
-!Dictionary categoriesFor: #_dbRemovalClass!private!restore-internal! !
-!Dictionary categoriesFor: #_isMultiValue!private!testing! !
-!Dictionary categoriesFor: #_multiValueChangesFrom:!comparing!private! !
-!Dictionary categoriesFor: #_multiValueKeyedCollectionAdditions!comparing!private! !
-!Dictionary categoriesFor: #_valuesRemovedBy:!comparing!private! !
-!Dictionary categoriesFor: #of:!public!specification! !
-!Dictionary categoriesFor: #of:keyClass:!private!specification! !
-!Dictionary categoriesFor: #of:keyedOn:!private!specification! !
-!Dictionary categoriesFor: #of:owner:!private!specification! !
-!Dictionary categoriesFor: #of:owner:keyedOn:!private!specification! !
-!Dictionary categoriesFor: #staticCollectionSpecClass!constants!private! !
+!Dictionary categoriesForMethods!
+_changesFrom:!comparing!private! !
+_collectionAdditions!comparing!private! !
+_dbAdd:suggestedIndex:!adding!private! !
+_dbKeyUpdateClass!private!restore-internal! !
+_dbRemovalClass!private!restore-internal! !
+_isMultiValue!private!testing! !
+_multiValueChangesFrom:!comparing!private! !
+_multiValueKeyedCollectionAdditions!comparing!private! !
+_valuesRemovedBy:!comparing!private! !
+of:!public!specification! !
+of:keyClass:!private!specification! !
+of:keyedOn:!private!specification! !
+of:owner:!private!specification! !
+of:owner:keyedOn:!private!specification! !
+staticCollectionSpecClass!constants!private! !
+!
 
 !OrderedCollection methodsFor!
 
@@ -756,7 +766,9 @@ _changesFrom: aCollectionOfEntries
 	For an OrderedCollection, must include full keyed (indexed) changes"
 
 	^self _keyedChangesFrom: aCollectionOfEntries! !
-!OrderedCollection categoriesFor: #_changesFrom:!comparing!private! !
+!OrderedCollection categoriesForMethods!
+_changesFrom:!comparing!private! !
+!
 
 !SequenceableCollection methodsFor!
 
@@ -776,9 +788,11 @@ staticCollectionSpecClass
 	^SSWDBOrderedStaticCollectionSpec
 
 ! !
-!SequenceableCollection categoriesFor: #_collectionAdditions!comparing!private! !
-!SequenceableCollection categoriesFor: #isOrdered!public!testing! !
-!SequenceableCollection categoriesFor: #staticCollectionSpecClass!constants!private! !
+!SequenceableCollection categoriesForMethods!
+_collectionAdditions!comparing!private! !
+isOrdered!public!testing! !
+staticCollectionSpecClass!constants!private! !
+!
 
 !Set methodsFor!
 
@@ -813,9 +827,11 @@ _valuesRemovedBy: aCollectionOfChanges
 	if a change removes an element from the receiver, then all occurrences of that element are removed"
 
 	^aCollectionOfChanges collect: [ :each | each affectedEntry target]! !
-!Set categoriesFor: #_changesFrom:!comparing!private! !
-!Set categoriesFor: #_superValuesRemovedBy:!comparing!private! !
-!Set categoriesFor: #_valuesRemovedBy:!comparing!private! !
+!Set categoriesForMethods!
+_changesFrom:!comparing!private! !
+_superValuesRemovedBy:!comparing!private! !
+_valuesRemovedBy:!comparing!private! !
+!
 
 !SortedCollection methodsFor!
 
@@ -890,12 +906,14 @@ staticCollectionSpecClass
 	^SSWDBSortedStaticCollectionSpec
 
 ! !
-!SortedCollection categoriesFor: #_changesFrom:!comparing!private! !
-!SortedCollection categoriesFor: #_collectionAdditions!comparing!private! !
-!SortedCollection categoriesFor: #_dbAdd:!comparing!private! !
-!SortedCollection categoriesFor: #isSortedCollection!public!testing! !
-!SortedCollection categoriesFor: #orderingSpecsFor:in:!accessing!private! !
-!SortedCollection categoriesFor: #staticCollectionSpecClass!constants!private! !
+!SortedCollection categoriesForMethods!
+_changesFrom:!comparing!private! !
+_collectionAdditions!comparing!private! !
+_dbAdd:!comparing!private! !
+isSortedCollection!public!testing! !
+orderingSpecsFor:in:!accessing!private! !
+staticCollectionSpecClass!constants!private! !
+!
 
 !SSWDBDependentWrapper methodsFor!
 
@@ -912,8 +930,10 @@ beTargetClassOf: aTableComponent
 
 	super beTargetClassOf: aTableComponent.
 	aTableComponent beValueDependent! !
-!SSWDBDependentWrapper categoriesFor: #beKeyClassOf:!defining!public! !
-!SSWDBDependentWrapper categoriesFor: #beTargetClassOf:!defining!public! !
+!SSWDBDependentWrapper categoriesForMethods!
+beKeyClassOf:!defining!public! !
+beTargetClassOf:!defining!public! !
+!
 
 !SSWDBRelatedWrapper methodsFor!
 
@@ -930,8 +950,10 @@ beTargetClassOf: aTableComponent
 
 	self relatedObject beTargetClassOf: aTableComponent.
 	aTableComponent beValueRelated! !
-!SSWDBRelatedWrapper categoriesFor: #beKeyClassOf:!defining!public! !
-!SSWDBRelatedWrapper categoriesFor: #beTargetClassOf:!defining!public! !
+!SSWDBRelatedWrapper categoriesForMethods!
+beKeyClassOf:!defining!public! !
+beTargetClassOf:!defining!public! !
+!
 
 !SSWDBUnrelatedWrapper methodsFor!
 
@@ -948,8 +970,10 @@ beTargetClassOf: aTableComponent
 
 	self unrelatedObject beTargetClassOf: aTableComponent.
 	aTableComponent beValueUnrelated! !
-!SSWDBUnrelatedWrapper categoriesFor: #beKeyClassOf:!defining!public! !
-!SSWDBUnrelatedWrapper categoriesFor: #beTargetClassOf:!defining!public! !
+!SSWDBUnrelatedWrapper categoriesForMethods!
+beKeyClassOf:!defining!public! !
+beTargetClassOf:!defining!public! !
+!
 
 "End of package definition"!
 
