@@ -20,6 +20,8 @@ package classNames
 	add: #OwnedTest;
 	add: #OwnerTest;
 	add: #ReStoreTestWithID;
+	add: #ReStoreTestWithIDOnly;
+	add: #ReStoreTestWithIDSubclass;
 	add: #ReStoreTestWithStringID;
 	add: #SimpleAddress;
 	add: #SimplePerson;
@@ -37,6 +39,7 @@ package classNames
 	add: #SSWReStoreCollectionSubQueryTest;
 	add: #SSWReStoreCollectQueryTest;
 	add: #SSWReStoreCommitTests;
+	add: #SSWReStoreDataIDHierarchyTest;
 	add: #SSWReStoreDataIDTest;
 	add: #SSWReStoreDefaultReadTest;
 	add: #SSWReStoreDefaultTest;
@@ -211,6 +214,11 @@ Object subclass: #ReStoreTestWithID
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+Object subclass: #ReStoreTestWithIDOnly
+	instanceVariableNames: 'nmbr'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 Object subclass: #SimpleAddress
 	instanceVariableNames: 'line1 postcode'
 	classVariableNames: ''
@@ -256,6 +264,11 @@ ReStoreTestWithID subclass: #ReStoreTestWithStringID
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'counter'!
+ReStoreTestWithIDOnly subclass: #ReStoreTestWithIDSubclass
+	instanceVariableNames: 'name other'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SuperPerson subclass: #DetailedPerson
 	instanceVariableNames: 'dob dateOfBirth friend bestFriend'
 	classVariableNames: ''
@@ -617,6 +630,11 @@ SSWReStoreAlternativeIDTest subclass: #SSWReStoreUUIDTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreUUIDTest subclass: #SSWReStoreUUIDSubTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreDataIDTest subclass: #SSWReStoreDataIDHierarchyTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

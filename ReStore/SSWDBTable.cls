@@ -568,7 +568,7 @@ isDefined
 	"Return a Boolean indicating if the receiver table is 'defined'
 	i.e. if it has some meaningful fields/collections"
 	
-	^self dataFields size > 0 or: [self collectionSpecs size > 0]!
+	^self dataFields size > 0 or: [self collectionSpecs size > 0 or: [self idDataField notNil]]!
 
 isRootTable
 

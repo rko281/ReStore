@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWSQLParameterField
 	instanceVariableNames: 'value'
@@ -36,24 +36,23 @@ writeAliasedSQLOn: aStream
 writeSQLOn: aStream
 
 	^self value writeSQLOn: aStream forField: self! !
-!SSWSQLParameterField categoriesFor: #canBeParameterized!public!testing! !
-!SSWSQLParameterField categoriesFor: #requiresAliasing!public!testing! !
-!SSWSQLParameterField categoriesFor: #value!accessing!private! !
-!SSWSQLParameterField categoriesFor: #value:!accessing!private! !
-!SSWSQLParameterField categoriesFor: #writeAliasedSQLOn:!printing!public! !
-!SSWSQLParameterField categoriesFor: #writeSQLOn:!printing!public! !
+!SSWSQLParameterField categoriesForMethods!
+canBeParameterized!public!testing! !
+requiresAliasing!public!testing! !
+value!accessing!private! !
+value:!accessing!private! !
+writeAliasedSQLOn:!printing!public! !
+writeSQLOn:!printing!public! !
+!
 
 !SSWSQLParameterField class methodsFor!
-
-dbMaxFieldSize
-
-	^nil!
 
 forValue: anObject
 
 	^self new
 		value: anObject;
 		yourself! !
-!SSWSQLParameterField class categoriesFor: #dbMaxFieldSize!accessing!public! !
-!SSWSQLParameterField class categoriesFor: #forValue:!instance creation!public! !
+!SSWSQLParameterField class categoriesForMethods!
+forValue:!instance creation!public! !
+!
 

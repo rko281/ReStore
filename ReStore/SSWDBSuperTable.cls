@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBInheritedTable subclass: #SSWDBSuperTable
 	instanceVariableNames: ''
@@ -24,6 +24,11 @@ forCreation
 		name: self name;
 		fullName: self fullName;
 		namespace: self namespace.
+	self idDataField ifNotNil: 
+		[ :field | 
+		tableForCreation 
+			idField: field; 
+			idDataField: field].
 	tableForCreation initializeIn: self reStore.
 	self instanceClass addClassDefinitionTo: tableForCreation.
 	
@@ -83,8 +88,10 @@ refreshProxy: aProxy whereChangedFromRow: aDBRow
 	^class = self instanceClass
 		ifTrue: [super refreshProxy: aProxy whereChangedFromRow: aDBRow]
 		ifFalse: [(self reStore tableForClass: class) refreshProxy: aProxy whereChangedFromRow: aDBRow]! !
-!SSWDBSuperTable categoriesFor: #forCreation!evaluating!public! !
-!SSWDBSuperTable categoriesFor: #recoverInstanceFromRow:into:!instance creation!public! !
-!SSWDBSuperTable categoriesFor: #refreshProxy:fromRow:!instance creation!public! !
-!SSWDBSuperTable categoriesFor: #refreshProxy:whereChangedFromRow:!instance creation!public! !
+!SSWDBSuperTable categoriesForMethods!
+forCreation!evaluating!public! !
+recoverInstanceFromRow:into:!instance creation!public! !
+refreshProxy:fromRow:!instance creation!public! !
+refreshProxy:whereChangedFromRow:!instance creation!public! !
+!
 

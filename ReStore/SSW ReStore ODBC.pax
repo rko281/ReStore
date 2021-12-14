@@ -58,7 +58,9 @@ package methodNames
 	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
 	add: #String -> #asParameterColumn;
 	add: 'ByteArray class' -> #dbMaxFieldSize;
+	add: 'GUID class' -> #dbMaxFieldSize;
 	add: 'Object class' -> #dbMaxFieldSize;
+	add: 'SSWSQLParameterField class' -> #dbMaxFieldSize;
 	add: 'String class' -> #dbMaxFieldSize;
 	yourself.
 
@@ -176,6 +178,15 @@ isInvalidTransactionState
 isCommunicationLinkFailure!public!testing! !
 isInvalidCursorPosition!public!testing! !
 isInvalidTransactionState!public!testing! !
+!
+
+!GUID class methodsFor!
+
+dbMaxFieldSize
+
+	^16! !
+!GUID class categoriesForMethods!
+dbMaxFieldSize!persistency!private! !
 !
 
 !Object class methodsFor!
@@ -421,6 +432,15 @@ asParameterColumn: anInteger for: aStatement
 	^(aStatement describeParam: anInteger) ifNil: [self value asParameterColumn]! !
 !SSWSQLParameterField categoriesForMethods!
 asParameterColumn:for:!converting!public! !
+!
+
+!SSWSQLParameterField class methodsFor!
+
+dbMaxFieldSize
+
+	^nil! !
+!SSWSQLParameterField class categoriesForMethods!
+dbMaxFieldSize!accessing!public! !
 !
 
 !SSWSQLServerDialect methodsFor!

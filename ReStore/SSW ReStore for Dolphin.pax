@@ -62,7 +62,6 @@ package methodNames
 	add: #Time -> #withResolution:;
 	add: #TimeStamp -> #withResolution:;
 	add: #TimeStamp -> #writeSQLOn:;
-	add: 'GUID class' -> #dbMaxFieldSize;
 	add: 'GUID class' -> #instanceFromDBValue:in:;
 	add: 'GUID class' -> #isPersistentBaseClass;
 	add: 'GUID class' -> #reStoreNewUnique;
@@ -189,10 +188,6 @@ writeSQLOn:!printing!public! !
 
 !GUID class methodsFor!
 
-dbMaxFieldSize
-
-	^16!
-
 instanceFromDBValue: aValue in: anSSWReStore
 
 	^aValue isNil ifFalse: [self fromBytes: aValue]!
@@ -209,7 +204,6 @@ writeSQLTypeOn: aStream using: aSQLDialect
 
 	aStream nextPutAll: aSQLDialect uuid! !
 !GUID class categoriesForMethods!
-dbMaxFieldSize!persistency!private! !
 instanceFromDBValue:in:!persistency!private! !
 isPersistentBaseClass!persistency!private! !
 reStoreNewUnique!persistency!private! !
