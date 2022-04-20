@@ -30,14 +30,22 @@ activeProxyForObject: anObject ifNone: aBlock
 
 	"Locate and return the proxy object wrapping anObject, or the result of a Block if none"
 
-	"Base types (String, Number etc.) - these are never proxified"
-	anObject class isPersistentBaseClass ifTrue: [^aBlock value].
-
-	"We only need to lookup proxies if they are active in the current transaction (since all external references to the proxy will have swapped to its proxied object).
-	Therefor we only need to check in the active transaction"
-	^self transaction
-		ifNil: [aBlock value]
-		ifNotNil: [ :trans | trans proxyForObject: anObject ifNone: aBlock]!
+	^self transactionCritical: 
+		["Possibly flipped whilst waiting for the lock" 
+		anObject isDBProxy 
+		ifTrue: 
+			[anObject]
+		ifFalse: 
+			["Base types (String, Number etc.) - these are never proxified"
+			anObject class isPersistentBaseClass
+			ifTrue: 
+				[aBlock value]
+			ifFalse:
+				["We only need to lookup proxies if they are active in the current transaction (since all external references to the proxy will have swapped to its proxied object).
+				Therefor we only need to check in the active transaction"
+				self transaction
+					ifNil: [aBlock value]
+					ifNotNil: [ :trans | trans proxyForObject: anObject ifNone: aBlock]]]]!
 
 addClass: aClass
 
@@ -143,14 +151,13 @@ beginDumbTransaction
 
 beginTransaction
 
-	| newTransaction |
+	self transactionCritical: 
+		[self softRollback.
 
-	self softRollback.
-
-	newTransaction := self transactionClass new.
-	newTransaction beginWithin: self transaction.
-
-	self transaction: newTransaction!
+		self transaction: 
+			(self transactionClass new
+				beginWithin: self transaction;
+				yourself)]!
 
 cachedInstancesOf: aClass
 
@@ -163,7 +170,7 @@ cachedObjectOfClass: aClass withID: aRawID ifAbsent: aBlock
 	"Return the cached object (actually a proxy) of the given class with the given unique ID (raw value as read from database; may need reifying).
 	If none is found, evaluate aBlock"
 	
-	^(self classCacheFor: aClass) at: (aClass reStoreIDClass instanceFromDBValue: aRawID in: self) ifAbsent: aBlock!
+	^self transactionCritical: [(self classCacheFor: aClass) at: (aClass reStoreIDClass instanceFromDBValue: aRawID in: self) ifAbsent: aBlock]!
 
 cachedObjectOfClass: aClass withID: aRawID 
 	ifAbsent: absentBlock ifUnrecovered: unrecoveredBlock ifUntouched: untouchedBlock
@@ -174,17 +181,17 @@ cachedObjectOfClass: aClass withID: aRawID
 	If a recovered but not 'touched' proxy, evaluate untouchedBlock with it.
 	A proxy is considered 'touched' if it has been sent a message since the last abort"
 	
-	^(self cachedObjectOfClass: aClass withID: aRawID ifAbsent: [nil])
-	ifNil:
-		[absentBlock value]
-	ifNotNil:
-		[ :proxy |
-		proxy isDBProxy ifTrue:
-			[proxy _isRecovered 
-				ifTrue: [untouchedBlock value: proxy]
-				ifFalse: [unrecoveredBlock value: proxy]].
-		proxy]
-!
+	^self transactionCritical:
+		[(self cachedObjectOfClass: aClass withID: aRawID ifAbsent: [nil])
+		ifNil:
+			[absentBlock value]
+		ifNotNil:
+			[ :proxy |
+			proxy isDBProxy ifTrue:
+				[proxy _isRecovered 
+					ifTrue: [untouchedBlock value: proxy]
+					ifFalse: [unrecoveredBlock value: proxy]].
+			proxy]]!
 
 cacheObject: aPersistentObjectProxy
 

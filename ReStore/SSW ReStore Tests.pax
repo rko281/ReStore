@@ -107,6 +107,7 @@ package classNames
 	add: #SSWReStoreOwnedMultiValueCacheDictionaryTest;
 	add: #SSWReStorePersonTest;
 	add: #SSWReStoreProcessAffiliationTest;
+	add: #SSWReStoreProcessSafetyTest;
 	add: #SSWReStoreProductOrdersTest;
 	add: #SSWReStoreQueryByExampleTest;
 	add: #SSWReStoreQueryTest;
@@ -676,6 +677,11 @@ SSWReStorePersonTest subclass: #SSWReStoreTableTest
 	classInstanceVariableNames: ''!
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreDefaultTest
 	instanceVariableNames: 'reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreProcessSafetyTest
+	instanceVariableNames: 'semaphore'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
