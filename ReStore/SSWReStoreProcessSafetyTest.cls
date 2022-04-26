@@ -10,6 +10,10 @@ SSWReStoreProcessSafetyTest comment: ''!
 !SSWReStoreProcessSafetyTest categoriesForClass!Unclassified! !
 !SSWReStoreProcessSafetyTest methodsFor!
 
+firstActiveReStore
+
+	^SSWReStore activeReStores do: [ :each | ^each]!
+
 setUp
 
 	semaphore := Semaphore new.
@@ -47,6 +51,41 @@ testBeginDuringBegin
 
 	"Previously gave error 'Nesting of transaction not supported' "
 	self shouldnt: [reStore beginTransaction] raise: Error description: 'Nesting of transaction not supported'!
+
+testGlobablProxyLookupWhenSuspended
+
+	"Verify global proxy lookup (i.e. when not referencing a particular ReStore instance) works when one or more active ReStore instances have their transactionMutex stuck in a suspended process.
+	This can happen during development e.g. when debugging, and prevents proxy lookup for any ReStores from working (subject to ordering of the activeReStores set)"
+
+	| otherReStores priorReStore john lookupProcess proxy |
+
+	"Set up other ReStores until we get one before ours"
+	otherReStores := OrderedCollection new.
+	[priorReStore := SSWReStore new.
+	otherReStores add: priorReStore.
+	self initReStore: priorReStore.
+	priorReStore connect.
+	self addClassesTo: priorReStore.
+	self firstActiveReStore == priorReStore] whileFalse.
+
+	"Suspend priorReStore in the transactionMutex"
+	[priorReStore transactionCritical: [Processor activeProcess suspend]] forkAt: Processor activeProcess priority + 1.
+	self deny: priorReStore transactionMutex owner isActive.
+
+	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	self assert: john isDBProxy.
+
+	lookupProcess := [proxy :=SSWReStore proxyForObject: john ifNone: [nil]] forkAt: Processor activeProcess priority + 1.
+
+	lookupProcess isTerminated ifFalse: 
+		[lookupProcess terminate.
+		self signalFailure: 'Proxy lookup was locked'].
+
+	self assert: proxy notNil.
+	self assert: proxy identicalTo: john.
+
+	priorReStore transactionMutex owner resume.
+	otherReStores do: [ :each | each disconnect]!
 
 testGlobablProxyProxyLookup
 
@@ -154,9 +193,11 @@ yieldAfterWrappedMethod
 
 	^result! !
 !SSWReStoreProcessSafetyTest categoriesForMethods!
+firstActiveReStore!accessing!private! !
 setUp!public!running! !
 tearDown!public!running! !
 testBeginDuringBegin!public!unit tests! !
+testGlobablProxyLookupWhenSuspended!public!unit tests! !
 testGlobablProxyProxyLookup!public!unit tests! !
 testObjectLookupDuringTransaction!public!unit tests! !
 testProxyLookupDuringTransaction!public!unit tests! !

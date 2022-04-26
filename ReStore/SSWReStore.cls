@@ -12,6 +12,21 @@ https://github.com/rko281/ReStore'!
 !SSWReStore categoriesForClass!Unclassified! !
 !SSWReStore methodsFor!
 
+_activeProxyForObject: anObject ifNone: aBlock
+
+	"Private - Locate and return the proxy object wrapping anObject, or the result of a Block if none"
+
+	^anObject isDBProxy 
+	ifTrue: 
+		["Possibly flipped whilst waiting for the lock" 
+		anObject]
+	ifFalse: 
+		["We only need to lookup proxies if they are active in the current transaction (since all external references to the proxy will have swapped to its proxied object).
+		Therefor we only need to check in the active transaction"
+		self transaction
+			ifNil: [aBlock value]
+			ifNotNil: [ :trans | trans proxyForObject: anObject ifNone: aBlock]]!
+
 _rollbackObjects: aCollection
 
 	[self beginTransaction.
@@ -30,22 +45,16 @@ activeProxyForObject: anObject ifNone: aBlock
 
 	"Locate and return the proxy object wrapping anObject, or the result of a Block if none"
 
-	^self transactionCritical: 
-		["Possibly flipped whilst waiting for the lock" 
-		anObject isDBProxy 
-		ifTrue: 
-			[anObject]
-		ifFalse: 
-			["Base types (String, Number etc.) - these are never proxified"
-			anObject class isPersistentBaseClass
-			ifTrue: 
-				[aBlock value]
-			ifFalse:
-				["We only need to lookup proxies if they are active in the current transaction (since all external references to the proxy will have swapped to its proxied object).
-				Therefor we only need to check in the active transaction"
-				self transaction
-					ifNil: [aBlock value]
-					ifNotNil: [ :trans | trans proxyForObject: anObject ifNone: aBlock]]]]!
+	"Base types (String, Number etc.) - these are never proxified"
+	anObject class isPersistentBaseClass ifTrue: [aBlock value].
+	
+	^self 
+		transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]
+		ifLocked:
+			["Prevent lock-ups when in debugger or otherwise suspended"
+			self transactionMutex owner isAlive
+				ifTrue: [self transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]]
+				ifFalse: [self _activeProxyForObject: anObject ifNone: aBlock]]!
 
 addClass: aClass
 
@@ -1633,6 +1642,7 @@ validateTable: anSSWDBTable
 		ifFalse:
 			[self error: 'Oversize table name. Enable full table records (see supportsFullTableRecords)']]! !
 !SSWReStore categoriesForMethods!
+_activeProxyForObject:ifNone:!private!proxy manipulation! !
 _rollbackObjects:!private!transaction management! !
 abandonTransaction!public!transaction api! !
 activeProxyForObject:ifNone:!proxy manipulation!public! !
