@@ -40,12 +40,12 @@ abbreviations: aDictionary
 
 	abbreviations := aDictionary!
 
-aboutToBeUnstored: anObject
+aboutToBeUnstored: anSSWDBProxy
 
-	"anObject (which originated in the receiver table) is about to be removed from the DB.
+	"anSSWDBProxy (which originated in the receiver table) is about to be removed from the DB.
 	Notify the receiver's components so they can take any necessary action"
 
-	self componentsDo: [ :field | field aboutToBeUnstored: anObject]!
+	self componentsDo: [ :field | field aboutToBeUnstored: anSSWDBProxy]!
 
 addDataField: anSSWDBField
 

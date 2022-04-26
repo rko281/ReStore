@@ -97,7 +97,7 @@ _prepareToCommitPhase2
 	self _isDeleted
 	ifTrue: 
 		[removed := copyCollection.
-		potentialOwners := Array with: owner _copyObject]
+		potentialOwners := Array with: owner _proxiedObject]
 	ifFalse: 
 		[removed := collectionSpec elementsIn: copyCollection notIn: proxiedObject.
 		potentialOwners := Array with: owner with: owner _proxiedObject].

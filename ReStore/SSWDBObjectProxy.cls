@@ -198,7 +198,7 @@ _unstore
 	"Unstore the receiver's proxyObject - set the receiver's state so that the receiver is recognised as unstored and hence will be deleted at the next commit"
 
 	"Notify interested parties"
-	self _dbTable aboutToBeUnstored: proxiedObject.
+	self _dbTable aboutToBeUnstored: self.
 	proxiedObject onAboutToUnstore.
 
 	self _isPersistent 
@@ -210,6 +210,14 @@ _unstore
 	collectionProxies do: [ :each | each _unstore].
 
 	proxiedObject := nil!
+
+_valuesForAccessor: anInstVarAccessor
+
+	"Private - Return the value(s) in the receiver's proxy object(s) which could be accessed by anInstVarAccessor"
+
+	^proxiedObject 
+		ifNil: [#()]
+		ifNotNil: [{anInstVarAccessor valueIn: proxiedObject}]!
 
 = anotherObject
 
@@ -387,6 +395,7 @@ _refreshFromRow:table:!actions-internal!public! !
 _storeNonPersistentComponents!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
+_valuesForAccessor:!accessing!private! !
 =!forwarding!public! !
 basicClass!forwarding!public! !
 class!forwarding!public! !

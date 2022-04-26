@@ -116,7 +116,9 @@ SSWDBStringWithInfo subclass: #SSWDBVariableStringWithInfo
 isPersistentBaseClass
 
 	^true! !
-!Boolean class categoriesFor: #isPersistentBaseClass!public!testing! !
+!Boolean class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 !ByteArray class methodsFor!
 
@@ -125,7 +127,9 @@ maxSize: anInteger
 	^SSWDBByteArrayWithInfo new
 		fieldSize: anInteger;
 		yourself! !
-!ByteArray class categoriesFor: #maxSize:!public!specification! !
+!ByteArray class categoriesForMethods!
+maxSize:!public!specification! !
+!
 
 !DateAndTime class methodsFor!
 
@@ -134,7 +138,9 @@ withMillisecondResolution
 	^SSWDBDateAndTimeWithResolution new
 		beMillisecondResolution
 		yourself! !
-!DateAndTime class categoriesFor: #withMillisecondResolution!accessing!public! !
+!DateAndTime class categoriesForMethods!
+withMillisecondResolution!accessing!public! !
+!
 
 !False methodsFor!
 
@@ -143,7 +149,9 @@ asInteger
 	"For DB support"
 
 	^0! !
-!False categoriesFor: #asInteger!converting!public! !
+!False categoriesForMethods!
+asInteger!converting!public! !
+!
 
 !Magnitude class methodsFor!
 
@@ -152,14 +160,18 @@ isPersistentBaseClass
 	"NB not all subclasses are valid, but this is not important"
 
 	^true! !
-!Magnitude class categoriesFor: #isPersistentBaseClass!public!testing! !
+!Magnitude class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 !Metaclass class methodsFor!
 
 isPersistentBaseClass
 
 	^true! !
-!Metaclass class categoriesFor: #isPersistentBaseClass!public!testing! !
+!Metaclass class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 !Object methodsFor!
 
@@ -182,9 +194,11 @@ includedIn: aCollection
 	"Reciprocal of Collection>>includes: "
 
 	^aCollection includes: self! !
-!Object categoriesFor: #_instVarAt:put:!accessing!private! !
-!Object categoriesFor: #chainPerform:!actions!public! !
-!Object categoriesFor: #includedIn:!public!testing! !
+!Object categoriesForMethods!
+_instVarAt:put:!accessing!private! !
+chainPerform:!actions!public! !
+includedIn:!public!testing! !
+!
 
 !Object class methodsFor!
 
@@ -196,7 +210,9 @@ isPersistentBaseClass
 	false by default, subclasses which are so valid may override"
 
 	^false! !
-!Object class categoriesFor: #isPersistentBaseClass!persistency!public! !
+!Object class categoriesForMethods!
+isPersistentBaseClass!persistency!public! !
+!
 
 !ScaledDecimal class methodsFor!
 
@@ -215,8 +231,10 @@ withScale: scaleInteger
 	^SSWDBScaledDecimalWithInfo new
 		scale: scaleInteger;
 		yourself! !
-!ScaledDecimal class categoriesFor: #withPrecision:scale:!public!specification! !
-!ScaledDecimal class categoriesFor: #withScale:!public!specification! !
+!ScaledDecimal class categoriesForMethods!
+withPrecision:scale:!public!specification! !
+withScale:!public!specification! !
+!
 
 !String methodsFor!
 
@@ -225,7 +243,9 @@ orNilIfEmpty
 	^self isEmpty
 		ifTrue: [nil]
 		ifFalse: [self]! !
-!String categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !
+!String categoriesForMethods!
+orNilIfEmpty!accessing!must not strip!public! !
+!
 
 !String class methodsFor!
 
@@ -248,9 +268,11 @@ maxSize: anInteger
 	^SSWDBVariableStringWithInfo new
 		fieldSize: anInteger;
 		yourself! !
-!String class categoriesFor: #fixedSize:!public!specification! !
-!String class categoriesFor: #isPersistentBaseClass!public!testing! !
-!String class categoriesFor: #maxSize:!public!specification! !
+!String class categoriesForMethods!
+fixedSize:!public!specification! !
+isPersistentBaseClass!public!testing! !
+maxSize:!public!specification! !
+!
 
 !Symbol methodsFor!
 
@@ -276,7 +298,9 @@ sswInUnderscoreFormat
 		wasLowercase := char isLowercase].
 			
 	^writeStream contents! !
-!Symbol categoriesFor: #sswInUnderscoreFormat!converting!evaluating!public! !
+!Symbol categoriesForMethods!
+sswInUnderscoreFormat!converting!evaluating!public! !
+!
 
 !True methodsFor!
 
@@ -285,21 +309,27 @@ asInteger
 	"For DB support"
 
 	^1! !
-!True categoriesFor: #asInteger!converting!public! !
+!True categoriesForMethods!
+asInteger!converting!public! !
+!
 
 !UndefinedObject methodsFor!
 
 orNilIfEmpty
 
 	^nil! !
-!UndefinedObject categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !
+!UndefinedObject categoriesForMethods!
+orNilIfEmpty!accessing!must not strip!public! !
+!
 
 !UndefinedObject class methodsFor!
 
 isPersistentBaseClass
 
 	^true! !
-!UndefinedObject class categoriesFor: #isPersistentBaseClass!public!testing! !
+!UndefinedObject class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 "End of package definition"!
 

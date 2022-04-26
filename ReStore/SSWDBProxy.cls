@@ -351,6 +351,21 @@ _setProxiedObject: anObject
 	
 	proxiedObject := anObject!
 
+_shallowCopy
+	"Private - Answer a copy of the receiver which shares the receiver's instance 
+	variables. This implementation suffices for most objects.
+	The primitive does not fail."
+
+	<primitive: 155>
+	| class copy size |
+1 halt.
+	class := self basicClass.
+	size := self basicSize.
+	copy := class isVariable ifTrue: [class basicNew: size] ifFalse: [class basicNew].
+	size := size + class instSize.
+	1 to: size do: [:i | copy instVarAt: i put: (self instVarAt: i)].
+	^copy!
+
 _swapReferences
 
 	"Swap references to the receiver with references to the proxiedObject, returning the receiver.
@@ -572,6 +587,7 @@ _reStore:!accessing!public! !
 _rollbackChanges!actions-internal!public! !
 _rollbackIn:!actions-internal!public! !
 _setProxiedObject:!accessing!public! !
+_shallowCopy!actions-internal!private! !
 _swapReferences!actions-internal!public! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !

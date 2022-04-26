@@ -136,6 +136,7 @@ package classNames
 	add: #SSWReStoreTest;
 	add: #SSWReStoreTransactionlessUpdateClashTest;
 	add: #SSWReStoreTypeTest;
+	add: #SSWReStoreUnstoreTests;
 	add: #SSWReStoreUpdateClashTest;
 	add: #SSWReStoreUpdateClashTestPersistent;
 	add: #SSWReStoreUUIDSubTest;
@@ -596,6 +597,11 @@ SSWReStoreMultiValueCacheDictionaryTest subclass: #SSWReStoreOwnedMultiValueCach
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreOwnedMultiValueCacheDictionaryTest subclass: #SSWReStoreOwnedMultiValueBlockCacheDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreObjectAPITests subclass: #SSWReStoreUnstoreTests
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
