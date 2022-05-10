@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreTest subclass: #SSWReStoreGeneralTest
 	instanceVariableNames: ''
@@ -695,6 +695,32 @@ test31GeneralCollectionRefresh
 
 	self assert: (value name = valueOrig)!
 
+test40OwnedSortedCollectionRollback
+
+	"Ensure resorting after rollback"
+
+	| t |
+
+	t := (OwnerTest storedInstancesIn: reStore) last.
+	self assert: (t ownedSorted collect: [ :each | each name]) asArray equals: #('owned1' 'owned2').
+
+	"Remove an element, change the name to change ordering relative to other elements; re-add; store"
+	t ownedSorted add: 
+		(t ownedSorted removeFirst
+			name: 'owned3';
+			yourself).
+	t store.
+
+	self assert: (t ownedSorted collect: [ :each | each name]) asArray equals: #('owned2' 'owned3').
+
+	"Add but rollback"
+	reStore beginTransaction.
+	t ownedSorted add: (OwnedTest new name: 'owned4').
+	reStore rollbackTransaction.
+
+	"Verify ordering is correct (previously failed; sort order of original 1, 2 contents was used)"
+	self assert: (t ownedSorted collect: [ :each | each name]) asArray equals: #('owned2' 'owned3')!
+
 test99
 
 	| t |
@@ -712,31 +738,34 @@ test99
 
 	reStore clearProxyCache.
 	self assert: (Test storedInstancesIn: reStore) size equals: 1 "single1 is non-dependent so isn't deleted"! !
-!SSWReStoreGeneralTest categoriesFor: #_test21GeneralDictionaryRefresh!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreGeneralTest categoriesFor: #test01Events!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test02Rollback!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test02RollbackManual!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test03Commit!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test03CommitManual!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test03LinkedQuery!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test04!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test05!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test06!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test07!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test08!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test09!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test10!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test11!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test12!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test13!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test14!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test15!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test16!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test17!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test18!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test20GeneralDictionaryRollback!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test30GeneralCollectionRollback!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test31GeneralCollectionRefresh!public!unit tests! !
-!SSWReStoreGeneralTest categoriesFor: #test99!public!unit tests! !
+!SSWReStoreGeneralTest categoriesForMethods!
+_test21GeneralDictionaryRefresh!public!unit tests! !
+createTestData!public!running! !
+test01Events!public!unit tests! !
+test02Rollback!public!unit tests! !
+test02RollbackManual!public!unit tests! !
+test03Commit!public!unit tests! !
+test03CommitManual!public!unit tests! !
+test03LinkedQuery!public!unit tests! !
+test04!public!unit tests! !
+test05!public!unit tests! !
+test06!public!unit tests! !
+test07!public!unit tests! !
+test08!public!unit tests! !
+test09!public!unit tests! !
+test10!public!unit tests! !
+test11!public!unit tests! !
+test12!public!unit tests! !
+test13!public!unit tests! !
+test14!public!unit tests! !
+test15!public!unit tests! !
+test16!public!unit tests! !
+test17!public!unit tests! !
+test18!public!unit tests! !
+test20GeneralDictionaryRollback!public!unit tests! !
+test30GeneralCollectionRollback!public!unit tests! !
+test31GeneralCollectionRefresh!public!unit tests! !
+test40OwnedSortedCollectionRollback!public!unit tests! !
+test99!public!unit tests! !
+!
 

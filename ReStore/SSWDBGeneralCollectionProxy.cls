@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBCollectionProxy subclass: #SSWDBGeneralCollectionProxy
 	instanceVariableNames: 'collectionEntries changes isDeleted'
@@ -134,7 +134,7 @@ _rollbackChanges
 	self _checkHasChanged
 	ifTrue:
 		[rollbackCollection := collectionSpec newCollection.
-		collectionEntries do: [ :entry | entry addTargetTo: rollbackCollection].
+		collectionEntries notNil ifTrue: [collectionEntries do: [ :entry | entry addTargetTo: rollbackCollection]].
 		proxiedObject getEvents ifNotNil: [ :events | rollbackCollection setEvents: events]]
 	ifFalse:
 		[rollbackCollection := self	"Will be proxiedObject after the swap"].
@@ -178,24 +178,26 @@ _unstore
 	self _isPersistent 
 		ifTrue: [isDeleted := true]
 		ifFalse: [reStore removeFromTransaction: self]! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_changes!accessing!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_changes:!accessing!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_checkHasChanged!public!testing! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_collectionEntries!accessing!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_collectionEntries:!accessing!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_commitChanges!actions!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_hasChanged!public!testing! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_isDeleted!accessing!public!testing! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_isDeleted:!accessing!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_isPersistent!public!testing! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_postCommitChanges!actions!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_prepareToCommit!actions!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_resetChanges!actions!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_rollbackChanges!actions!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_setChanges!actions!public! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_shouldUnstoreKey:!private!testing! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_shouldUnstoreValue:!private!testing! !
-!SSWDBGeneralCollectionProxy categoriesFor: #_unstore!actions!public! !
+!SSWDBGeneralCollectionProxy categoriesForMethods!
+_changes!accessing!public! !
+_changes:!accessing!public! !
+_checkHasChanged!public!testing! !
+_collectionEntries!accessing!public! !
+_collectionEntries:!accessing!public! !
+_commitChanges!actions!public! !
+_hasChanged!public!testing! !
+_isDeleted!accessing!public!testing! !
+_isDeleted:!accessing!public! !
+_isPersistent!public!testing! !
+_postCommitChanges!actions!public! !
+_prepareToCommit!actions!public! !
+_resetChanges!actions!public! !
+_rollbackChanges!actions!public! !
+_setChanges!actions!public! !
+_shouldUnstoreKey:!private!testing! !
+_shouldUnstoreValue:!private!testing! !
+_unstore!actions!public! !
+!
 
 !SSWDBGeneralCollectionProxy class methodsFor!
 
@@ -204,5 +206,7 @@ new
 	^super new
 		_isDeleted: false;
 		yourself! !
-!SSWDBGeneralCollectionProxy class categoriesFor: #new!instance creation!public! !
+!SSWDBGeneralCollectionProxy class categoriesForMethods!
+new!instance creation!public! !
+!
 

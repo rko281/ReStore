@@ -27,6 +27,7 @@ package classNames
 	add: #SSWDBOwnedCacheDictionarySpec;
 	add: #SSWDBOwnedCollectionSpec;
 	add: #SSWDBOwnedMultiValueCacheDictionarySpec;
+	add: #SSWDBSortedOwnedCollectionSpec;
 	add: #SSWDBSortedStaticCollectionSpec;
 	add: #SSWDBStaticCacheDictionarySpec;
 	add: #SSWDBStaticCollectionSpec;
@@ -90,6 +91,7 @@ package methodNames
 	add: #SortedCollection -> #_dbAdd:;
 	add: #SortedCollection -> #isSortedCollection;
 	add: #SortedCollection -> #orderingSpecsFor:in:;
+	add: #SortedCollection -> #ownedCollectionSpecClass;
 	add: #SortedCollection -> #staticCollectionSpecClass;
 	add: #SSWDBDependentWrapper -> #beKeyClassOf:;
 	add: #SSWDBDependentWrapper -> #beTargetClassOf:;
@@ -235,6 +237,11 @@ SSWDBStaticCacheDictionarySpec subclass: #SSWDBStaticMultiValueCacheDictionarySp
 	classInstanceVariableNames: ''!
 SSWDBOwnedCollectionSpec subclass: #SSWDBOwnedCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBOwnedCollectionSpec subclass: #SSWDBSortedOwnedCollectionSpec
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -901,6 +908,14 @@ orderingSpecsFor: aClass in: aReStore
 				ifTrue: [each criteria: #target]
 				ifFalse: [each criteria: field accessor name]]]!
 
+ownedCollectionSpecClass 
+
+	"Return the class of owned collection spec that is appropriate for this kind of collection"
+
+	^SSWDBSortedOwnedCollectionSpec
+
+!
+
 staticCollectionSpecClass 
 
 	^SSWDBSortedStaticCollectionSpec
@@ -912,6 +927,7 @@ _collectionAdditions!comparing!private! !
 _dbAdd:!comparing!private! !
 isSortedCollection!public!testing! !
 orderingSpecsFor:in:!accessing!private! !
+ownedCollectionSpecClass!constants!private! !
 staticCollectionSpecClass!constants!private! !
 !
 

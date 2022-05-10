@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreSortTest
 	instanceVariableNames: 'simplePersonCompareMethod'
@@ -252,27 +252,29 @@ testStandardSortWithBlocks
 	instances := (SimplePerson storedInstancesIn: reStore) asSortedCollection: [ :a :b | a firstName < b firstName or: [a firstName = b firstName and: [a surname <= b surname]]].
 
 	self assert: ((instances collect: [ :each | each fullName]) asArray = #('Jim Brown' 'John Smith' 'John Smythe' 'Zoe Brown'))! !
-!SSWReStoreSortTest categoriesFor: #_testClassSortImplementationInverted!inverse!public! !
-!SSWReStoreSortTest categoriesFor: #_testClassSortImplementationWithBlocksInverted!inverse!public! !
-!SSWReStoreSortTest categoriesFor: #_testSortInverted!inverse!public! !
-!SSWReStoreSortTest categoriesFor: #_testSortWithBlocksInverted!inverse!public! !
-!SSWReStoreSortTest categoriesFor: #changeDavidToJohn!public!running! !
-!SSWReStoreSortTest categoriesFor: #setUp!public!running! !
-!SSWReStoreSortTest categoriesFor: #tearDown!public!running! !
-!SSWReStoreSortTest categoriesFor: #testClassSortImplementation!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testClassSortImplementationOnPersistentObject!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testClassSortImplementationReversed!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testClassSortImplementationWithBlocks!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testClassSortImplementationWithBlocksOnPersistentObject!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testDeepSort!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testDeepSortWithBlocks!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testSortImplementation!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testSortImplementationOnPersistentObject!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testSortImplementationOnPersistentObjectWithBlocks!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testSortImplementationReversed!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testSortImplementationWithBlocks!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testStandardSort!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testStandardSortOnPersistentObject!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testStandardSortOnPersistentObjectWithBlocks!public!unit tests! !
-!SSWReStoreSortTest categoriesFor: #testStandardSortWithBlocks!public!unit tests! !
+!SSWReStoreSortTest categoriesForMethods!
+_testClassSortImplementationInverted!inverse!public! !
+_testClassSortImplementationWithBlocksInverted!inverse!public! !
+_testSortInverted!inverse!public! !
+_testSortWithBlocksInverted!inverse!public! !
+changeDavidToJohn!public!running! !
+setUp!public!running! !
+tearDown!public!running! !
+testClassSortImplementation!public!unit tests! !
+testClassSortImplementationOnPersistentObject!public!unit tests! !
+testClassSortImplementationReversed!public!unit tests! !
+testClassSortImplementationWithBlocks!public!unit tests! !
+testClassSortImplementationWithBlocksOnPersistentObject!public!unit tests! !
+testDeepSort!public!unit tests! !
+testDeepSortWithBlocks!public!unit tests! !
+testSortImplementation!public!unit tests! !
+testSortImplementationOnPersistentObject!public!unit tests! !
+testSortImplementationOnPersistentObjectWithBlocks!public!unit tests! !
+testSortImplementationReversed!public!unit tests! !
+testSortImplementationWithBlocks!public!unit tests! !
+testStandardSort!public!unit tests! !
+testStandardSortOnPersistentObject!public!unit tests! !
+testStandardSortOnPersistentObjectWithBlocks!public!unit tests! !
+testStandardSortWithBlocks!public!unit tests! !
+!
 

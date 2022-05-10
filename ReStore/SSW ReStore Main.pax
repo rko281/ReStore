@@ -107,6 +107,7 @@ package methodNames
 	add: #SSWDBTable -> #withIDAndVersionFields;
 	add: #String -> #withComponents;
 	add: #String -> #withRelatedComponents;
+	add: #UndefinedObject -> #_ensurePersistentIn:;
 	add: #UndefinedObject -> #storeIn:;
 	add: #UndefinedObject -> #unstore;
 	add: 'Boolean class' -> #instanceFromDBValue:in:;
@@ -1079,6 +1080,10 @@ instanceFromDBValue:in:!instance creation!private! !
 
 !UndefinedObject methodsFor!
 
+_ensurePersistentIn: aReStore
+
+	"A no-op for nil"!
+
 storeIn: anSSWReStore
 
 	"Do nothing - cannot store an UndefinedObject"!
@@ -1087,6 +1092,7 @@ unstore
 
 	"Do nothing - cannot store/unstore an UndefinedObject"! !
 !UndefinedObject categoriesForMethods!
+_ensurePersistentIn:!public!restore-internal! !
 storeIn:!converting!public! !
 unstore!converting!public! !
 !

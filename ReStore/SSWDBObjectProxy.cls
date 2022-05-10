@@ -180,14 +180,22 @@ _storeNonPersistentComponents
 	table dataFields do: [ :field | (field accessor valueIn: proxiedObject) _ensurePersistentIn: reStore].
 		
 	table collectionSpecs do:
-		[ :collectionSpec || collection |
-		collection := collectionSpec accessor valueIn: self.
-		collection isNil ifTrue: [collection := collectionSpec newCollection].
-		collection isDBProxy ifFalse: 
-			[| proxy |
-			proxy := self _collectionProxyFor: collectionSpec.
-			proxy _proxiedObject == collection ifFalse: 
-				[proxy _setProxiedObject: collection; _referenced]]]!
+		[ :collectionSpec |
+		(collectionSpec accessor valueIn: proxiedObject) 
+		ifNil: 
+			[(self _collectionProxyFor: collectionSpec)
+				_setProxiedObject: collectionSpec newCollection;
+				_referenced]
+		ifNotNil: 
+			[ :collection || proxy |
+			collection isDBProxy ifFalse: 
+				[proxy := self _collectionProxyFor: collectionSpec.
+				proxy _proxiedObject == collection ifFalse: 
+					["Verify the collection isn't being assigned to >1 persistent object"
+					(reStore transaction proxyForObject: collection ifNone: [nil]) isNil ifFalse: [self error: 'attempt to assign collection to >1 persistent object'].
+					proxy 
+						_setProxiedObject: collection; 
+						_referenced]]]]!
 
 _unrecoveredProxyString
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreProductOrdersTest subclass: #SSWReStoreReadWithComponentsTest
 	instanceVariableNames: 'customers'
@@ -386,24 +386,26 @@ testRefreshSingleObject
 	reStore softRollback.
 	allCustomers fetch: #test.
 	self assert: test name = newName! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #_testCollection!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #_testProxyCollectionTiming!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #_testProxySingleObjectTiming!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #_testTiming!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #addOrderFor:to:quantity:!private!running! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #otherCustomersSize!constants!public! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #setUp!public!running! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testCollection!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testEmptyCollection!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testProxyCollection!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testProxyCollectionMultipleRead!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testProxySingleObject!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testProxySingleObjectMultipleRead!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testRefreshCollection!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testRefreshProxyCollection!public!unit tests! !
-!SSWReStoreReadWithComponentsTest categoriesFor: #testRefreshSingleObject!public!unit tests! !
+!SSWReStoreReadWithComponentsTest categoriesForMethods!
+_testCollection!public!unit tests! !
+_testProxyCollectionTiming!public!unit tests! !
+_testProxySingleObjectTiming!public!unit tests! !
+_testTiming!public!unit tests! !
+addClassesTo:!public!running! !
+addOrderFor:to:quantity:!private!running! !
+createTestData!public!running! !
+otherCustomersSize!constants!public! !
+setUp!public!running! !
+testCollection!public!unit tests! !
+testEmptyCollection!public!unit tests! !
+testProxyCollection!public!unit tests! !
+testProxyCollectionMultipleRead!public!unit tests! !
+testProxySingleObject!public!unit tests! !
+testProxySingleObjectMultipleRead!public!unit tests! !
+testRefreshCollection!public!unit tests! !
+testRefreshProxyCollection!public!unit tests! !
+testRefreshSingleObject!public!unit tests! !
+!
 
 !SSWReStoreReadWithComponentsTest class methodsFor!
 
@@ -414,6 +416,8 @@ isAbstract
 myTestSelectors
 
 	^SSWReStoreReadWithComponentsTest testSelectors! !
-!SSWReStoreReadWithComponentsTest class categoriesFor: #isAbstract!public! !
-!SSWReStoreReadWithComponentsTest class categoriesFor: #myTestSelectors!public! !
+!SSWReStoreReadWithComponentsTest class categoriesForMethods!
+isAbstract!public! !
+myTestSelectors!public! !
+!
 

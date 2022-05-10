@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreRelatedOwnedOrderedCollectionTest subclass: #SSWReStoreRelatedOwnedSortedCollectionTest
 	instanceVariableNames: ''
@@ -26,7 +26,9 @@ templateCollection
 		with: self templateComponent
 		with: self templateComponent
 		with: self templateComponent! !
-!SSWReStoreRelatedOwnedSortedCollectionTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreRelatedOwnedSortedCollectionTest categoriesFor: #replaceInCollection:!public! !
-!SSWReStoreRelatedOwnedSortedCollectionTest categoriesFor: #templateCollection!accessing!public! !
+!SSWReStoreRelatedOwnedSortedCollectionTest categoriesForMethods!
+componentDefinition!accessing!public! !
+replaceInCollection:!public! !
+templateCollection!accessing!public! !
+!
 
