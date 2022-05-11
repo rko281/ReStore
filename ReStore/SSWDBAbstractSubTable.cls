@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBInheritedTable subclass: #SSWDBAbstractSubTable
 	instanceVariableNames: 'rootClass classCondition'
@@ -44,6 +44,14 @@ isRootTable
 
 	^false!
 
+recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
+	
+	"Set the class of the proxy to the actual class of object, since this may be one of the receiver's instanceClass' subclasses"
+	
+	super recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy.
+	
+	anSSWDBObjectProxy _class: anSSWDBObjectProxy _proxiedObject class!
+
 registerClass
 
 	"Objects created from this table are registered under the rootClass"
@@ -82,18 +90,21 @@ sqlAndStaticConditionsWith: anSQLConditionCollection
 staticConditions
 
 	^self classCondition! !
-!SSWDBAbstractSubTable categoriesFor: #_classCondition!accessing!private! !
-!SSWDBAbstractSubTable categoriesFor: #classCondition!accessing!public! !
-!SSWDBAbstractSubTable categoriesFor: #defaultName!evaluating!public! !
-!SSWDBAbstractSubTable categoriesFor: #forCreation!evaluating!public! !
-!SSWDBAbstractSubTable categoriesFor: #hasStaticConditions!public!testing! !
-!SSWDBAbstractSubTable categoriesFor: #isRootTable!public!testing! !
-!SSWDBAbstractSubTable categoriesFor: #registerClass!evaluating!public! !
-!SSWDBAbstractSubTable categoriesFor: #rootClass!accessing!public! !
-!SSWDBAbstractSubTable categoriesFor: #rootClass:!accessing!public! !
-!SSWDBAbstractSubTable categoriesFor: #rootTable!evaluating!public! !
-!SSWDBAbstractSubTable categoriesFor: #sqlAndStaticConditionsWith:!evaluating!public! !
-!SSWDBAbstractSubTable categoriesFor: #staticConditions!public! !
+!SSWDBAbstractSubTable categoriesForMethods!
+_classCondition!accessing!private! !
+classCondition!accessing!public! !
+defaultName!evaluating!public! !
+forCreation!evaluating!public! !
+hasStaticConditions!public!testing! !
+isRootTable!public!testing! !
+recoverInstanceFromRow:into:!instance creation!public! !
+registerClass!evaluating!public! !
+rootClass!accessing!public! !
+rootClass:!accessing!public! !
+rootTable!evaluating!public! !
+sqlAndStaticConditionsWith:!evaluating!public! !
+staticConditions!public! !
+!
 
 !SSWDBAbstractSubTable class methodsFor!
 
@@ -105,5 +116,7 @@ forClass: aClass
 		instanceClass: aClass;
 		rootClass: aClass persistencyRootClass;
 		yourself! !
-!SSWDBAbstractSubTable class categoriesFor: #forClass:!instance creation!public! !
+!SSWDBAbstractSubTable class categoriesForMethods!
+forClass:!instance creation!public! !
+!
 
