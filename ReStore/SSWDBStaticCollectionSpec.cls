@@ -2,7 +2,7 @@
 
 SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
 	instanceVariableNames: 'targetClass deleteEntriesStatement'
-	classVariableNames: ''
+	classVariableNames: 'NilCookie'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBStaticCollectionSpec guid: (GUID fromString: '{266e4dd3-398e-11d5-b1df-444553540000}')!
@@ -94,6 +94,44 @@ deleteQueryWithSubQuery
 		conditions: (SSWSQLCondition field: self targetTable idField is: (SSWSQLOperator messageSelector: #includedIn:) to: subquery asSubQuery);
 		yourself!
 
+equalityChangesTo: aCollection from: aCollectionOfEntries
+
+	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via equality (=)"
+
+	| changes previous |
+
+	changes := OrderedCollection new.
+	previous := aCollectionOfEntries collect: [ :entry | entry target].
+
+	aCollection do: [ :each | (previous includes: each) ifFalse: [changes add: (SSWDBCollectionAddition added: each)]].
+	aCollectionOfEntries do: [ :entry | (aCollection includes: entry target) ifFalse: [changes add: (SSWDBCollectionRemoval newWithEntry: entry)]].
+
+	^changes!
+
+hasMutableTargetInstances
+
+	^self targetClass isDirectlyPersisted and: [self targetClass isPersistentBaseClass not and: [self targetClass hasMutablePersistentInstances]]!
+
+identityChangesTo: aCollection from: aCollectionOfEntries
+
+	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via identity (==)"
+
+	| changes previous |
+
+	changes := OrderedCollection new.
+	previous := aCollectionOfEntries collect: [ :entry | entry target].
+
+	aCollection do: [ :each | (previous identityIncludes: each) ifFalse: [changes add: (SSWDBCollectionAddition added: each)]].
+	aCollectionOfEntries do: [ :entry | (aCollection identityIncludes: entry target) ifFalse: [changes add: (SSWDBCollectionRemoval newWithEntry: entry)]].
+
+	^changes!
+
+preserveCollectionEntries: aCollection
+
+	"Private - If the collection stored mutatable directly-persisted objects then we must use a shallowCopy of these for change detection"
+
+	self hasMutableTargetInstances ifTrue: [aCollection do: [ :each | each target: each target shallowCopy]]!
+
 readAllEntriesFor: ids
 
 	| stream targetTable allEntries |
@@ -152,7 +190,7 @@ readQuery
 	| query |
 
 	query := self refreshQuery.
-	self targetClass isPersistentBaseClass ifFalse: [query addTable: self targetTable withAllFields joinedWithField: self targetField].
+	self targetClass isDirectlyPersisted ifFalse: [query addTable: self targetTable withAllFields joinedWithField: self targetField].
 
 	^query!
 
@@ -184,7 +222,7 @@ recoverCollectionForProxy: aCollectionProxy
 
 	"Return the recovered member objects"
 
-	^self targetClass isPersistentBaseClass
+	^self targetClass isDirectlyPersisted
 		ifTrue: [self recoverBaseClassCollectionForProxy: aCollectionProxy]
 		ifFalse: [self recoverModelClassCollectionForProxy: aCollectionProxy]!
 
@@ -224,7 +262,7 @@ refreshCollectionForProxy: aCollectionProxy
 	"Refresh as opposed to read - just fetch the IDs.
 	Return the refreshed contents (always none)"
 
-	^self targetClass isPersistentBaseClass
+	^self targetClass isDirectlyPersisted
 		ifTrue: [self recoverBaseClassCollectionForProxy: aCollectionProxy]
 		ifFalse: [self refreshModelClassCollectionForProxy: aCollectionProxy]!
 
@@ -233,7 +271,7 @@ refreshCollectionWithContentsIfUpdatedForProxy: aCollectionProxy
 	"Refresh the receiver collection and its contents if they have been updated
 	Return the refreshed contents, i.e. the collection itself"
 
-	^self targetClass isPersistentBaseClass
+	^self targetClass isDirectlyPersisted
 		ifTrue: [self recoverBaseClassCollectionForProxy: aCollectionProxy]
 		ifFalse: [self refreshModelClassCollectionWithContentsIfUpdatedForProxy: aCollectionProxy]!
 
@@ -348,6 +386,10 @@ deleteEntriesStatement!accessing!public! !
 deleteQuery!accessing-queries!public! !
 deleteQueryWithJoin!accessing-queries!private! !
 deleteQueryWithSubQuery!accessing-queries!private! !
+equalityChangesTo:from:!change detection!private! !
+hasMutableTargetInstances!public!testing! !
+identityChangesTo:from:!change detection!private! !
+preserveCollectionEntries:!actions-internal!private! !
 readAllEntriesFor:!actions!private! !
 readAllFor:!actions!public! !
 readAllQuery!accessing-queries!public! !
@@ -366,5 +408,14 @@ setTargetClass:!initializing!public! !
 targetClass!accessing!public! !
 targetClass:!accessing!public! !
 targetTable!accessing!public! !
+!
+
+!SSWDBStaticCollectionSpec class methodsFor!
+
+initialize
+
+	NilCookie := Object new! !
+!SSWDBStaticCollectionSpec class categoriesForMethods!
+initialize!initializing!public! !
 !
 

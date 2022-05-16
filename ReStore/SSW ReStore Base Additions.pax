@@ -33,6 +33,8 @@ package methodNames
 	add: 'DateAndTime class' -> #withMillisecondResolution;
 	add: 'Magnitude class' -> #isPersistentBaseClass;
 	add: 'Metaclass class' -> #isPersistentBaseClass;
+	add: 'Object class' -> #isDirectlyPersisted;
+	add: 'Object class' -> #isDirectlyPersistedNonBaseClass;
 	add: 'Object class' -> #isPersistentBaseClass;
 	add: 'ScaledDecimal class' -> #withPrecision:scale:;
 	add: 'ScaledDecimal class' -> #withScale:;
@@ -202,6 +204,22 @@ includedIn:!public!testing! !
 
 !Object class methodsFor!
 
+isDirectlyPersisted
+
+	"Return whether the receiver class is directly persisted in the database, i.e. has a representation that it stored in a single database column.
+	Default - the persistent base classes. 
+
+	Other classes which can provide such a representation of themselves can return true but must also implement certain other methods
+	- see SSWDBDirectlyPersistedObject which may be used as a superclass for such classes"
+
+	^self isPersistentBaseClass!
+
+isDirectlyPersistedNonBaseClass
+
+	"Return whether the receiver class is directly persisted in the database, i.e. has a representation that it stored in a single database column BUT is not one of the persistent base classes"
+
+	^self isPersistentBaseClass not and: [self isDirectlyPersisted]!
+
 isPersistentBaseClass
 
 	"Return whether the receiver class is a valid persistent base class
@@ -211,6 +229,8 @@ isPersistentBaseClass
 
 	^false! !
 !Object class categoriesForMethods!
+isDirectlyPersisted!persistency!public! !
+isDirectlyPersistedNonBaseClass!persistency!public! !
 isPersistentBaseClass!persistency!public! !
 !
 

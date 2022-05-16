@@ -310,7 +310,7 @@ define: aSymbol asFieldNamed: aString holding: aClass
 		(SSWDBStaticField new
 			name: aString;
 			targetClass: aClass;
-			accessor: ((self sqlDialect instVarAccessorFor: aClass) access: aSymbol in: self instanceClass);
+			accessor: ((aClass reStoreInstVarAccessorIn: self sqlDialect) access: aSymbol in: self instanceClass);
 			yourself)!
 
 define: aSymbol asInstVarHolding: aClass

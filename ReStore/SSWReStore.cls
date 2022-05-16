@@ -45,8 +45,8 @@ activeProxyForObject: anObject ifNone: aBlock
 
 	"Locate and return the proxy object wrapping anObject, or the result of a Block if none"
 
-	"Base types (String, Number etc.) - these are never proxified"
-	anObject class isPersistentBaseClass ifTrue: [aBlock value].
+	"Directly-persisted objects are never proxified"
+	anObject class isDirectlyPersisted ifTrue: [aBlock value].
 	
 	^self 
 		transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]

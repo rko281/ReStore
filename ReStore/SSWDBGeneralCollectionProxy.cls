@@ -52,7 +52,8 @@ _collectionEntries: aCollection
 	"The receiver automatically detects changes to its proxiedObject collection
 	by keeping a copy of the SSWDBCollectionEntry records that define the colleciton in the DB"
 	
-	collectionEntries := aCollection!
+	collectionEntries := aCollection.
+	collectionSpec preserveCollectionEntries: aCollection!
 
 _commitChanges
 
@@ -110,7 +111,7 @@ _postCommitChanges
 
 	self _isPersistent 
 		ifTrue: [changes do: [ :change | change applyTo: collectionEntries]]
-		ifFalse: [collectionEntries := changes collect: [ :change | change affectedEntry]].
+		ifFalse: [self _collectionEntries: (changes collect: [ :change | change affectedEntry])].
 	
 	self _resetChanges!
 
@@ -161,9 +162,9 @@ _setChanges
 						[reStore transaction addDeletedObject: each target _proxiedObject.
 						each target unstore]]]]
 		ifFalse: 
-			[changes := proxiedObject _changesFrom: collectionEntries]]
+			[changes := collectionSpec changesTo: proxiedObject from: collectionEntries]]
 	ifFalse: 
-		[changes := proxiedObject _collectionAdditions]!
+		[changes := collectionSpec allAdditionsTo: proxiedObject]!
 
 _shouldUnstoreKey: anObject
 

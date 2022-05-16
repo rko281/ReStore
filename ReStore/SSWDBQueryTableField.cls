@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBQueryField subclass: #SSWDBQueryTableField
 	instanceVariableNames: 'table accessorPath'
@@ -85,16 +85,18 @@ writeSQLOn: aStream
 	aStream 
 		nextPut: $.;
 		nextPutIdentifier: self name! !
-!SSWDBQueryTableField categoriesFor: #=!comparing!public! !
-!SSWDBQueryTableField categoriesFor: #accessorPath!accessing!public! !
-!SSWDBQueryTableField categoriesFor: #accessorPath:!accessing!public! !
-!SSWDBQueryTableField categoriesFor: #hash!comparing!public! !
-!SSWDBQueryTableField categoriesFor: #isInlined!public!testing! !
-!SSWDBQueryTableField categoriesFor: #printOn:!output!public! !
-!SSWDBQueryTableField categoriesFor: #table!accessing!public! !
-!SSWDBQueryTableField categoriesFor: #table:!accessing!public! !
-!SSWDBQueryTableField categoriesFor: #writeAliasedSQLOn:!output!public! !
-!SSWDBQueryTableField categoriesFor: #writeSQLOn:!output!public! !
+!SSWDBQueryTableField categoriesForMethods!
+=!comparing!public! !
+accessorPath!accessing!public! !
+accessorPath:!accessing!public! !
+hash!comparing!public! !
+isInlined!public!testing! !
+printOn:!output!public! !
+table!accessing!public! !
+table:!accessing!public! !
+writeAliasedSQLOn:!output!public! !
+writeSQLOn:!output!public! !
+!
 
 !SSWDBQueryTableField class methodsFor!
 
@@ -109,6 +111,8 @@ forField: anSSWDBField in: anSSWDBQueryTable path: anArray
 		table: anSSWDBQueryTable;
 		accessorPath: anArray;
 		yourself! !
-!SSWDBQueryTableField class categoriesFor: #forField:in:!instance creation!public! !
-!SSWDBQueryTableField class categoriesFor: #forField:in:path:!instance creation!public! !
+!SSWDBQueryTableField class categoriesForMethods!
+forField:in:!instance creation!public! !
+forField:in:path:!instance creation!public! !
+!
 

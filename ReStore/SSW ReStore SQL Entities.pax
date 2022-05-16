@@ -101,7 +101,7 @@ package!
 "Class Definitions"!
 
 Object subclass: #SSWSQLDialect
-	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace'
+	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace nullBoolean'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

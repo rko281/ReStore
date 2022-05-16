@@ -259,7 +259,13 @@ SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
 
 instanceFromDBValue: aValue in: anSSWReStore
 
-	^aValue == true or: [aValue = anSSWReStore sqlDialect trueObject]! !
+	"Check the obvious possibilities first for efficiency"
+	aValue == true ifTrue: [^true].
+	aValue == false ifTrue: [^false].
+
+	^aValue isNil 
+		ifTrue: [anSSWReStore sqlDialect nullBoolean]
+		ifFalse: [aValue = anSSWReStore sqlDialect trueObject]! !
 !Boolean class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!private! !
 !
@@ -626,9 +632,9 @@ isPersistent
 isValidForPersistence
 
 	"Return a Boolean indicating whether the receiver is a valid object for persistent storage.
-	Default - the basic types (Numbers, Strings etc.) are so valid"
+	Default - instances of directly-persisted classes"
 	
-	^self class isPersistentBaseClass!
+	^self class isDirectlyPersisted!
 
 mergeUpdate: aSymbol from: anObject
 
@@ -1092,7 +1098,7 @@ unstore
 
 	"Do nothing - cannot store/unstore an UndefinedObject"! !
 !UndefinedObject categoriesForMethods!
-_ensurePersistentIn:!public!restore-internal! !
+_ensurePersistentIn:!private!restore-internal! !
 storeIn:!converting!public! !
 unstore!converting!public! !
 !

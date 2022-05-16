@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWDBCollectionEntry
 	instanceVariableNames: 'table entryID sourceID target'
@@ -103,23 +103,25 @@ target: anObjectOrNil
 	"Set the target object of the receiver"
 	
 	target := anObjectOrNil! !
-!SSWDBCollectionEntry categoriesFor: #_dbTable!evaluating!public! !
-!SSWDBCollectionEntry categoriesFor: #_id!evaluating!public! !
-!SSWDBCollectionEntry categoriesFor: #_id:!evaluating!public! !
-!SSWDBCollectionEntry categoriesFor: #_proxiedObject!evaluating!public! !
-!SSWDBCollectionEntry categoriesFor: #addTargetTo:!actions!public! !
-!SSWDBCollectionEntry categoriesFor: #addTo:!actions!public! !
-!SSWDBCollectionEntry categoriesFor: #entryID!accessing!public! !
-!SSWDBCollectionEntry categoriesFor: #entryID:!accessing!public! !
-!SSWDBCollectionEntry categoriesFor: #isPersistent!public!testing! !
-!SSWDBCollectionEntry categoriesFor: #prepareToCommitFor:!actions!public! !
-!SSWDBCollectionEntry categoriesFor: #removeFrom:!actions!public! !
-!SSWDBCollectionEntry categoriesFor: #sourceID!accessing!public! !
-!SSWDBCollectionEntry categoriesFor: #sourceID:!accessing!public! !
-!SSWDBCollectionEntry categoriesFor: #table!accessing!public! !
-!SSWDBCollectionEntry categoriesFor: #table:!accessing!public! !
-!SSWDBCollectionEntry categoriesFor: #target!accessing!public! !
-!SSWDBCollectionEntry categoriesFor: #target:!accessing!public! !
+!SSWDBCollectionEntry categoriesForMethods!
+_dbTable!evaluating!public! !
+_id!evaluating!public! !
+_id:!evaluating!public! !
+_proxiedObject!evaluating!public! !
+addTargetTo:!actions!public! !
+addTo:!actions!public! !
+entryID!accessing!public! !
+entryID:!accessing!public! !
+isPersistent!public!testing! !
+prepareToCommitFor:!actions!public! !
+removeFrom:!actions!public! !
+sourceID!accessing!public! !
+sourceID:!accessing!public! !
+table!accessing!public! !
+table:!accessing!public! !
+target!accessing!public! !
+target:!accessing!public! !
+!
 
 !SSWDBCollectionEntry class methodsFor!
 
@@ -133,5 +135,7 @@ dbTableNamed: aString in: anSSWReStore
 		define: #sourceID as: Integer;
 		define: #target asFieldNamed: (anSSWReStore sqlDialect transformInstVarName: #targetID) holding: Integer;
 		yourself! !
-!SSWDBCollectionEntry class categoriesFor: #dbTableNamed:in:!persistence!public! !
+!SSWDBCollectionEntry class categoriesForMethods!
+dbTableNamed:in:!persistence!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBBlockEvaluator subclass: #SSWDBBlockArgument
 	instanceVariableNames: 'currentClass isForModify finalFields'
@@ -14,10 +14,10 @@ https://github.com/rko281/ReStore'!
 
 & aValue
 
-	"Only sent in case of an implicit '= true' expression (or an error)"
+	"Sent in case of an implicit '= true' expression, or possibly Integer bit manipulation"
 
 	^self implicitEqualsTrue 
-		ifNil: [self]
+		ifNil: [self doesNotUnderstand: (MessageSend receiver: self selector: #& argument: aValue)]
 		ifNotNil: [ :result | result & aValue]!
 
 _cacheDictionaryKey_
@@ -34,7 +34,7 @@ _cacheDictionaryKey_
 
 _doesNotUnderstand: aMessage
 
-	| selector arguments field |
+	| selector arguments |
 
 	selector := aMessage selector.
 	arguments := aMessage arguments.
@@ -46,14 +46,14 @@ _doesNotUnderstand: aMessage
 
 	^arguments isEmpty
 	ifTrue:
-		[field := self currentTable fieldAccessing: selector.
-		field isNil 
-		ifTrue: 
+		[(self currentTable fieldAccessing: selector) 
+		ifNil: 
 			[(self currentTable collectionAccessing: selector)
 				ifNil: [self simulateMessageSend: aMessage]
 				ifNotNil: [ :collection | self newCollectionReceiverFor: collection]]
-		ifFalse: 
-			[field isInlined "Need explicit check for inlined fields"
+		ifNotNil: 
+			[ :field |
+			field isInlined "Need explicit check for inlined fields"
 			ifTrue: 
 				[self newInlinedReceiverFor: selector] 
 			ifFalse: 
@@ -61,21 +61,22 @@ _doesNotUnderstand: aMessage
 					ifTrue: [self newReceiverFor: field]
 					ifFalse: [self finalField: (self queryFieldFor: field)]]]]
 	ifFalse:
-		[arguments size > 1 ifTrue: [self parseError: 'Cannot support more than one comparison argument'].
+		["arguments size > 1 ifTrue: [self parseError: 'Cannot support more than one comparison argument']."
 		(self hasFinalField not and: [self currentClass isPersistentBaseClass not and: [arguments last == SSWDBDumbArgument current]]) ifTrue: 
 			["Sort block parsing"
 			^self simulateMessageSend: aMessage].
 		selector last = $: ifTrue: 
 			["Check for 'assignment' in modify: block"
-			field := self currentTable fieldAccessing: selector allButLast asSymbol.
-			field notNil ifTrue: [^(self forModify perform: selector allButLast asSymbol) value: arguments first]].
+			(self currentTable fieldAccessing: selector allButLast asSymbol) isNil ifFalse: [^(self forModify perform: selector allButLast asSymbol) value: arguments first]].
 		self sqlConditionFor: aMessage]!
 
 | aValue
 
-	"Only sent in case of an implicit '= true' expression (or an error)"
+	"Sent in case of an implicit '= true' expression, or possibly Integer bit manipulation"
 
-	^self implicitEqualsTrue | aValue!
+	^self implicitEqualsTrue 
+		ifNil: [self doesNotUnderstand: (MessageSend receiver: self selector: #| argument: aValue)]
+		ifNotNil: [ :result | result | aValue]!
 
 -> aBlockEvaluator
 
@@ -399,6 +400,9 @@ sqlConditionFor: aMessage
 
 	| argument |
 
+	"Check for a method in a non-base directly-persisted class"
+	(self simulateMessageSendToFinalField: aMessage) ifNotNil: [ :result | ^result].
+
 	argument := aMessage arguments first.
 	(argument isKindOf: SSWDBBlockEvaluator) ifTrue: [argument := argument finalField].
 
@@ -437,55 +441,57 @@ writeSQLOn: aStream
 	condition isNil ifFalse: [self finalField: field].
 	
 	^(condition ifNil: [self finalField]) writeSQLOn: aStream! !
-!SSWDBBlockArgument categoriesFor: #&!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #_cacheDictionaryKey_!parsing - internal!private! !
-!SSWDBBlockArgument categoriesFor: #_doesNotUnderstand:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #|!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #->!parsing - functions!public! !
-!SSWDBBlockArgument categoriesFor: #applyFunction:withArguments:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #asSQLConditions!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #asSQLFields!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #at:!parsing - functions!public! !
-!SSWDBBlockArgument categoriesFor: #class!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #copyFrom:to:!parsing - functions!public! !
-!SSWDBBlockArgument categoriesFor: #count!parsing - aggregations!public! !
-!SSWDBBlockArgument categoriesFor: #currentClass!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #currentClass:!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #currentTable!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #doesNotUnderstand:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #finalField!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #finalField:!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #finalFields!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #finalFields:!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #first!parsing - functions!public! !
-!SSWDBBlockArgument categoriesFor: #forModify!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #hasFinalField!public!testing! !
-!SSWDBBlockArgument categoriesFor: #implicitEqualsTrue!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #implyTrue:!parsing - implicit true!private! !
-!SSWDBBlockArgument categoriesFor: #indexOf:!parsing - functions!public! !
-!SSWDBBlockArgument categoriesFor: #isEmpty!parsing - functions!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #isForModify!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #isForModify:!accessing!public! !
-!SSWDBBlockArgument categoriesFor: #isKindOf:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #leftString:!parsing - functions!public! !
-!SSWDBBlockArgument categoriesFor: #matches:!parsing - comparisons!public! !
-!SSWDBBlockArgument categoriesFor: #mustBeBoolean!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #newCollectionReceiverFor:!helpers!public! !
-!SSWDBBlockArgument categoriesFor: #newInlinedReceiverFor:!helpers!public! !
-!SSWDBBlockArgument categoriesFor: #newReceiverFor:!helpers!public! !
-!SSWDBBlockArgument categoriesFor: #not!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #parseError:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #parseError:with:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #peekFinalField!evaluating!public! !
-!SSWDBBlockArgument categoriesFor: #printOn:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #queryFieldFor:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #replaceFrom:to:with:startingAt:!parsing - functions!public! !
-!SSWDBBlockArgument categoriesFor: #sqlAnd:!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #sqlAndWithCondition:!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #sqlConditionFor:!parsing - internal!public! !
-!SSWDBBlockArgument categoriesFor: #sqlOr:!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #sqlOrWithCondition:!parsing - implicit true!public! !
-!SSWDBBlockArgument categoriesFor: #writeSQLOn:!parsing - implicit true!public! !
+!SSWDBBlockArgument categoriesForMethods!
+&!parsing - implicit true!public! !
+_cacheDictionaryKey_!parsing - internal!private! !
+_doesNotUnderstand:!parsing - internal!public! !
+|!parsing - implicit true!public! !
+->!parsing - functions!public! !
+applyFunction:withArguments:!parsing - internal!public! !
+asSQLConditions!parsing - internal!public! !
+asSQLFields!parsing - internal!public! !
+at:!parsing - functions!public! !
+class!parsing - internal!public! !
+copyFrom:to:!parsing - functions!public! !
+count!parsing - aggregations!public! !
+currentClass!accessing!public! !
+currentClass:!accessing!public! !
+currentTable!accessing!public! !
+doesNotUnderstand:!parsing - internal!public! !
+finalField!accessing!public! !
+finalField:!accessing!public! !
+finalFields!accessing!public! !
+finalFields:!accessing!public! !
+first!parsing - functions!public! !
+forModify!parsing - internal!public! !
+hasFinalField!public!testing! !
+implicitEqualsTrue!parsing - implicit true!public! !
+implyTrue:!parsing - implicit true!private! !
+indexOf:!parsing - functions!public! !
+isEmpty!parsing - functions!parsing - implicit true!public! !
+isForModify!accessing!public! !
+isForModify:!accessing!public! !
+isKindOf:!parsing - internal!public! !
+leftString:!parsing - functions!public! !
+matches:!parsing - comparisons!public! !
+mustBeBoolean!parsing - implicit true!public! !
+newCollectionReceiverFor:!helpers!public! !
+newInlinedReceiverFor:!helpers!public! !
+newReceiverFor:!helpers!public! !
+not!parsing - implicit true!public! !
+parseError:!parsing - internal!public! !
+parseError:with:!parsing - internal!public! !
+peekFinalField!evaluating!public! !
+printOn:!parsing - internal!public! !
+queryFieldFor:!parsing - internal!public! !
+replaceFrom:to:with:startingAt:!parsing - functions!public! !
+sqlAnd:!parsing - implicit true!public! !
+sqlAndWithCondition:!parsing - implicit true!public! !
+sqlConditionFor:!parsing - internal!public! !
+sqlOr:!parsing - implicit true!public! !
+sqlOrWithCondition:!parsing - implicit true!public! !
+writeSQLOn:!parsing - implicit true!public! !
+!
 
 !SSWDBBlockArgument class methodsFor!
 
@@ -494,5 +500,7 @@ new
 	^super new
 		finalFields: (OrderedCollection new: 2);
 		yourself! !
-!SSWDBBlockArgument class categoriesFor: #new!instance creation!public! !
+!SSWDBBlockArgument class categoriesForMethods!
+new!instance creation!public! !
+!
 

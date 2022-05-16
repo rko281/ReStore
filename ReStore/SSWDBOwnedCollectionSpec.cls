@@ -254,13 +254,9 @@ selectQueryIn: anSSWReStore
 
 setOrderingSpecs
 
-	self templateCollection isSortedCollection
-	ifTrue: 
-		[self orderingSpecs: (self templateCollection orderingSpecsFor: self targetClass in: self reStore)]
-	ifFalse: 
-		[self templateCollection isOrdered
-			ifTrue: [self orderingSpecs: (Array with: (SSWDBOrderingSpec ascending: self targetTable idField))]
-			ifFalse: [self orderingSpecs: #()]]!
+	^self templateCollection isOrdered
+		ifTrue: [self orderingSpecs: (Array with: (SSWDBOrderingSpec ascending: self targetTable idField))]
+		ifFalse: [self orderingSpecs: #()]!
 
 setOwnerFieldFrom: anSSWReStore
 

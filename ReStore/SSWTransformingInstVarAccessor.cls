@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
 	instanceVariableNames: 'transformation'
@@ -39,9 +39,11 @@ valueIn: anObject
 	origValue ~~ modValue ifTrue: [self value: modValue in: anObject].
 
 	^modValue! !
-!SSWTransformingInstVarAccessor categoriesFor: #transformation!accessing!public! !
-!SSWTransformingInstVarAccessor categoriesFor: #transformation:!accessing!public! !
-!SSWTransformingInstVarAccessor categoriesFor: #valueIn:!evaluating!public! !
+!SSWTransformingInstVarAccessor categoriesForMethods!
+transformation!accessing!public! !
+transformation:!accessing!public! !
+valueIn:!evaluating!public! !
+!
 
 !SSWTransformingInstVarAccessor class methodsFor!
 
@@ -50,5 +52,7 @@ newWithTransformation: aMonadicValuable
 	^self new
 		transformation: aMonadicValuable;
 		yourself! !
-!SSWTransformingInstVarAccessor class categoriesFor: #newWithTransformation:!instance creation!public! !
+!SSWTransformingInstVarAccessor class categoriesForMethods!
+newWithTransformation:!instance creation!public! !
+!
 

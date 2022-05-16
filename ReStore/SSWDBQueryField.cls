@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWDBQueryField
 	instanceVariableNames: 'field'
@@ -95,6 +95,15 @@ targetClass
 	
 	^self field targetClass!
 
+targetClass: aClass
+	
+	aClass = self targetClass ifFalse: 
+		[self field: 
+			(self field withFunction: 
+				('%1' asSQLFunction
+					staticResultClass: aClass;
+					yourself))]!
+
 withFunction: aSQLFunction
 
 	"Return an SSWDBFunctionField base on the receiver with the given function"
@@ -116,22 +125,25 @@ writeSQLForUpdateOn: aStream
 	"Forward to the contained field"
 
 	^self field writeSQLForUpdateOn: aStream! !
-!SSWDBQueryField categoriesFor: #accessor!evaluating!public! !
-!SSWDBQueryField categoriesFor: #accessorPath!accessing!public! !
-!SSWDBQueryField categoriesFor: #canBeParameterized!public!testing! !
-!SSWDBQueryField categoriesFor: #convertValue:!evaluating!public! !
-!SSWDBQueryField categoriesFor: #field!accessing!public! !
-!SSWDBQueryField categoriesFor: #field:!accessing!public! !
-!SSWDBQueryField categoriesFor: #fieldNamed:!evaluating!public! !
-!SSWDBQueryField categoriesFor: #hasAggregateFunction!public!testing! !
-!SSWDBQueryField categoriesFor: #isFieldCollection!public!testing! !
-!SSWDBQueryField categoriesFor: #name!evaluating!public! !
-!SSWDBQueryField categoriesFor: #requiresAliasing!public!testing! !
-!SSWDBQueryField categoriesFor: #reStore!accessing!public! !
-!SSWDBQueryField categoriesFor: #sqlCanBeParameterized!public!testing! !
-!SSWDBQueryField categoriesFor: #table!accessing!public! !
-!SSWDBQueryField categoriesFor: #targetClass!evaluating!public! !
-!SSWDBQueryField categoriesFor: #withFunction:!evaluating!public! !
-!SSWDBQueryField categoriesFor: #withFunction:arguments:!evaluating!public! !
-!SSWDBQueryField categoriesFor: #writeSQLForUpdateOn:!printing!public! !
+!SSWDBQueryField categoriesForMethods!
+accessor!evaluating!public! !
+accessorPath!accessing!public! !
+canBeParameterized!public!testing! !
+convertValue:!evaluating!public! !
+field!accessing!public! !
+field:!accessing!public! !
+fieldNamed:!evaluating!public! !
+hasAggregateFunction!public!testing! !
+isFieldCollection!public!testing! !
+name!evaluating!public! !
+requiresAliasing!public!testing! !
+reStore!accessing!public! !
+sqlCanBeParameterized!public!testing! !
+table!accessing!public! !
+targetClass!accessing!public! !
+targetClass:!accessing!public! !
+withFunction:!evaluating!public! !
+withFunction:arguments:!evaluating!public! !
+writeSQLForUpdateOn:!printing!public! !
+!
 

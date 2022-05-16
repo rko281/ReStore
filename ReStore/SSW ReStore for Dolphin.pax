@@ -24,6 +24,8 @@ package methodNames
 	add: #SSWDBBlockArgument -> #postProcessIfNilFor:in:at:;
 	add: #SSWDBBlockArgument -> #preProcessNextMessageFor:in:;
 	add: #SSWDBBlockArgument -> #simulateMessageSend:;
+	add: #SSWDBBlockArgument -> #simulateMessageSendToFinalField:;
+	add: #SSWDBBlockArgument -> #simulateMethod:withArguments:;
 	add: #SSWDBBlockArgument -> #stackFrameDetect:;
 	add: #SSWDBBlockEvaluator -> #perform:;
 	add: #SSWDBBlockEvaluator -> #perform:with:;
@@ -395,20 +397,51 @@ simulateMessageSend: aMessage
 	Also any messages sent my the method must map to SQL functions in the current dialect.
 	If any of these do not hold true a parseError will occur (or possibly something weirder)"
 
+	self hasFinalField ifTrue: [(self simulateMessageSendToFinalField: aMessage) ifNotNil: [ :result | ^result]].
+
+	^(self currentClass lookupMethod: aMessage selector)
+		ifNil: [self parseError: '<1d> does not implement <2p>' << {self currentClass. aMessage selector}]
+		ifNotNil: [ :method | self simulateMethod: method withArguments: aMessage arguments]!
+
+simulateMessageSendToFinalField: aMessage
+
+	"Private - Attempt to simulate sending aMessage to the targetClass of the receiver's finalField.
+	Only simulate messages implemented by and in directly-persisted non-base classes (e.g. implementations in Object are ignored).
+	Return nil if no method is simulated, otherwise the result of the simulated send"
+
+	| field targetClass reStoreValueMethod messages method |
+
+	field := self peekFinalField.
+	targetClass := field targetClass.
+	targetClass isDirectlyPersistedNonBaseClass ifFalse: [^nil].
+
+	method := targetClass lookupMethod: aMessage selector.
+	(method isNil or: [method methodClass isDirectlyPersistedNonBaseClass not]) ifTrue: [^nil].
+
+	"Check if aMessage is the sole message sent by the implementation of #reStoreValue - shortcut this to reStoreValue"
+	reStoreValueMethod  := targetClass lookupMethod: #reStoreValue.
+	reStoreValueMethod isNil ifTrue: [self parseError: '<1d> does not implement #reStoreValue' << targetClass].
+
+	messages := reStoreValueMethod messages.
+	(messages size = 1 and: [messages anyOne = aMessage selector]) ifTrue: 
+		[field targetClass: targetClass reStoreValueClass.
+		^self].
+
+	^self simulateMethod: method withArguments: aMessage arguments!
+
+simulateMethod: aCompiledMethod withArguments: aCollection
+
 	| method |
 
-	method := self currentClass lookupMethod: aMessage selector.
-	method isNil ifTrue: [self parseError: (self currentClass name, ' does not implement #', aMessage selector)].
-
 	"Check the method has no direct inst var accesses - we can't allow these since the method is actually evaluated with the receiver as, er, the receiver..."
-	method readsOrWritesAnyInstVar ifTrue: [self parseError: aMessage selector, ' directly accesses inst vars - cannot convert to SQL'].
+	aCompiledMethod readsOrWritesAnyInstVar ifTrue: [self parseError: '<1p> directly accesses inst vars - cannot convert to SQL' << aCompiledMethod].
 
 	"Make a local copy of the method in this class in order to invoke it"
-	method := method copy.
+	method := aCompiledMethod copy.
 	method methodClass: self basicClass.
 
 	"Try it!!"
-	^method value: self withArguments: aMessage arguments!
+	^method value: self withArguments: aCollection!
 
 stackFrameDetect: aBlock
 
@@ -427,6 +460,8 @@ postProcessDNU:from:!parsing - internal!private! !
 postProcessIfNilFor:in:at:!parsing - internal!private! !
 preProcessNextMessageFor:in:!parsing - internal!private! !
 simulateMessageSend:!helpers!public! !
+simulateMessageSendToFinalField:!helpers!private! !
+simulateMethod:withArguments:!helpers!private! !
 stackFrameDetect:!public! !
 !
 

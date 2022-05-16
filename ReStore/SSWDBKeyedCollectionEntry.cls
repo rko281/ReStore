@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBCollectionEntry subclass: #SSWDBKeyedCollectionEntry
 	instanceVariableNames: 'index'
@@ -32,10 +32,12 @@ prepareToCommitFor: anSSWDBCachingCollectionProxy
 
 	^self index _ensureActiveIn: anSSWDBCachingCollectionProxy _reStore
 ! !
-!SSWDBKeyedCollectionEntry categoriesFor: #addTargetTo:!actions!public! !
-!SSWDBKeyedCollectionEntry categoriesFor: #index!accessing!public! !
-!SSWDBKeyedCollectionEntry categoriesFor: #index:!accessing!public! !
-!SSWDBKeyedCollectionEntry categoriesFor: #prepareToCommitFor:!actions!public! !
+!SSWDBKeyedCollectionEntry categoriesForMethods!
+addTargetTo:!actions!public! !
+index!accessing!public! !
+index:!accessing!public! !
+prepareToCommitFor:!actions!public! !
+!
 
 !SSWDBKeyedCollectionEntry class methodsFor!
 
@@ -48,5 +50,7 @@ dbTableNamed: aString in: anSSWReStore
 	(table define: #index as: Integer) name: (anSSWReStore sqlDialect transformInstVarName: #index_).
 		
 	^table! !
-!SSWDBKeyedCollectionEntry class categoriesFor: #dbTableNamed:in:!persistence!public! !
+!SSWDBKeyedCollectionEntry class categoriesForMethods!
+dbTableNamed:in:!persistence!public! !
+!
 

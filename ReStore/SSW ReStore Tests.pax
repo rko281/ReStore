@@ -32,6 +32,8 @@ package classNames
 	add: #SSWReStoreAbstractQueryTest;
 	add: #SSWReStoreAggregateQueryTest;
 	add: #SSWReStoreAlternativeIDTest;
+	add: #SSWReStoreBaseCollectionTest;
+	add: #SSWReStoreBaseDictionaryTest;
 	add: #SSWReStoreBlockAndOrQueryTest;
 	add: #SSWReStoreBlockCacheDictionaryTest;
 	add: #SSWReStoreBlockIfNilQueryTest;
@@ -66,6 +68,7 @@ package classNames
 	add: #SSWReStoreDependentOwnedOrderedCollectionTest;
 	add: #SSWReStoreDependentOwnedSortedCollectionTest;
 	add: #SSWReStoreDependentSortedCollectionTest;
+	add: #SSWReStoreDirectlyPersistedTest;
 	add: #SSWReStoreFullTableTest;
 	add: #SSWReStoreFunctionTest;
 	add: #SSWReStoreGeneralAffiliationTest;
@@ -145,6 +148,8 @@ package classNames
 	add: #SubPerson;
 	add: #SuperPerson;
 	add: #Test;
+	add: #TestBitmask;
+	add: #TestWithBitmask;
 	add: #TypeTest;
 	add: #UUIDOwnedSubTest;
 	add: #UUIDOwnedTest;
@@ -271,6 +276,11 @@ ReStoreTestWithIDOnly subclass: #ReStoreTestWithIDSubclass
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWDBDirectlyPersistedObject subclass: #TestBitmask
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SuperPerson subclass: #DetailedPerson
 	instanceVariableNames: 'dob dateOfBirth friend bestFriend'
 	classVariableNames: ''
@@ -303,6 +313,11 @@ Test subclass: #GenericOwnedTest
 	classInstanceVariableNames: ''!
 Test subclass: #OwnedTest
 	instanceVariableNames: 'owner'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Test subclass: #TestWithBitmask
+	instanceVariableNames: 'bitmask orderedCollection sortedCollection array set dictionary'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -366,6 +381,11 @@ SSWReStoreTest subclass: #SSWReStoreTypeTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStore2Test subclass: #SSWReStoreDirectlyPersistedTest
+	instanceVariableNames: 'owner'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStore2Test subclass: #SSWReStoreGenericTest
 	instanceVariableNames: 'testObject testObject2'
 	classVariableNames: ''
@@ -391,6 +411,11 @@ SSWReStore2Test subclass: #SSWReStoreUpdateClashTestPersistent
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWReStoreGenericTest subclass: #SSWReStoreBaseCollectionTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWReStoreGenericTest subclass: #SSWReStoreCacheDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -412,6 +437,11 @@ SSWReStoreGenericTest subclass: #SSWReStoreMultiValueCacheDictionaryTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreGenericTest subclass: #SSWReStoreStringDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreBaseCollectionTest subclass: #SSWReStoreBaseDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
