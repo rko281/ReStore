@@ -10,6 +10,7 @@ package classNames
 	add: #DetailedPerson;
 	add: #DetailedPerson1;
 	add: #DetailedPerson2;
+	add: #FieldNameTest;
 	add: #GenericOwnedTest;
 	add: #GenericTest;
 	add: #InlinedAddress;
@@ -186,6 +187,11 @@ package!
 
 "Class Definitions"!
 
+Object subclass: #FieldNameTest
+	instanceVariableNames: 'id name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: 'shouldUseFieldNames'!
 Object subclass: #GenericTest
 	instanceVariableNames: 'name component'
 	classVariableNames: ''
@@ -947,20 +953,7 @@ simulateReconnect
 	"Simultate a disconnect; reconnect sequence of the receiver, however do not cycle the connection.
 	This is to allow data to be preserved by transirent in-memory test databases (e.g. SQLite :memory: mode)"
 	
-	"Disconnect"
-	self
-		clearProxyCache;
-		clearNextIDCache;
-		clearTransaction;
-		clearDBTableNames;
-		clearStatementCache.
-	self class deactivated: self.
-
-	"Reconnect"
-	self objectProxyClass isNil ifTrue: [self setDefaultTransactionMode].
-	self transactionMutex: Mutex new.
-	self class activated: self.
-	self persistentSystemClasses do: [ :each | self addClass: each]! !
+	self attachTo: self detach! !
 !SSWReStore categoriesForMethods!
 simulateReconnect!connection!public! !
 !

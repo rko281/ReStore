@@ -152,6 +152,13 @@ applyUpdates: anSSWSQLCollection toObject: anSSWDBObjectProxy
 	statement values: query values; exec.
 	^statement rowsAffected = 1!
 
+attachTo: aConnection
+
+	"Attach the receiver to aConnection (probably, but not necessarily, already-connected)"
+
+	self connection: aConnection.
+	self connect!
+
 beginDumbTransaction
 
 	"Begin a dumb transaction to absorb object traversals"
@@ -270,6 +277,15 @@ classCacheFor: aClass
 		at: (self tableForClass: aClass) registerClass 
 		ifAbsentPut: [WeakLookupTable new: 128]!
 
+clearAllCaches
+
+	self
+		clearProxyCache;
+		clearNextIDCache;
+		clearTransaction;
+		clearDBTableNames;
+		clearStatementCache!
+
 clearDBTableNames
 
 	self dbTableNames: nil!
@@ -300,6 +316,12 @@ clearTableCache
 clearTransaction
 
 	self transaction: nil!
+
+clearTxn
+
+	"Clear down any active database txn (transaction)"
+
+	[self connection rollbackTxn] on: Error do: [ :exc | exc return: nil]!
 
 columnsForFields: aCollectionOfDBFields
 
@@ -334,17 +356,17 @@ commitTransaction
 	self isTransactionInProgress ifFalse: [self error: 'No transaction in progress'].
 
 	^self transactionCritical:
-		[| success errorDescription |
+		[| success error |
 
-		errorDescription := nil.
+		error := nil.
 
 		[self transaction prepareToCommit] on: Error do: 
 			[ :exc |
 			self transaction autoRecoverPreCommitIn: self.
-			errorDescription := exc description.
+			error := exc.
 			exc return].
 
-		errorDescription isNil ifFalse: [self error: ('An error occured during pre-commit: ', errorDescription)].
+		error isNil ifFalse: [self error: ('An error occured during pre-commit: ', error description)].
 
 		success := 
 			[self transaction commitTo: self connection.
@@ -353,13 +375,13 @@ commitTransaction
 					[ :exc |
 					[self connection rollbackTxn] on: Error do: [ :txnExc | txnExc return].
 					self transaction autoRecoverCommitIn: self.
-					errorDescription := exc.
+					error := exc.
 					exc return: false].
 		success 
 		ifTrue: 
 			[self transaction: self transaction ownerTransaction]
 		ifFalse:
-			[errorDescription isNil ifFalse: [self error: ('An error occured during commit: ', errorDescription description)]].
+			[error isNil ifFalse: [self error: ('An error occured during commit: ', error description)]].
 	
 		success]!
 
@@ -367,24 +389,11 @@ connect
 
 	"Connect to the database, initializing the receiver"
 
-	self isConnected ifTrue: [self error: 'already connected'].
-
 	self objectProxyClass isNil ifTrue: [self setDefaultTransactionMode].
 
-	"Reinitializate the mutex"
-	self transactionMutex: Mutex new.
+	self isConnected ifFalse: [self openConnection].
 
-	[self connection connect] on: self dbErrorClass do:
-		[ :exc |
-		self connection free.
-		exc signal].
-
-	self class activated: self.
-	self connection willAutoCommit: false.
-	self connection postConnect.
-
-	"Must reset system classes after login to use current dialect's name transformation strategy"
-	self persistentSystemClasses do: [ :each | self addClass: each]!
+	self postConnect!
 
 connection
 
@@ -603,6 +612,25 @@ destroyTable: aTable
 		self unstoreNextIDsForTables: droppedTables.
 		true]] ensure: [self clearDBTableNames]!
 
+detach
+
+	"Detach the receiver from its connection, returning the connection.
+	The connection is left connected for potential reuse"
+
+	| oldConnection |
+
+	self mustBeConnected.
+
+	oldConnection := self connection.
+
+	self 
+		clearTxn;
+		debugTo: nil;
+		connection: nil;
+		postDisconnect.
+
+	^oldConnection!
+
 disaffiliateWith: anObject
 
 	self affiliations removeKey: anObject ifAbsent: [self error: 'not affiliated with ', anObject printString]!
@@ -611,18 +639,9 @@ disconnect
 
 	"Disconnect from the database and clear all caches"
 	
-	self isConnected ifFalse: [self error: 'Not connected'].
+	self mustBeConnected.
 
-	self
-		clearProxyCache;
-		clearNextIDCache;
-		clearTransaction;
-		clearDBTableNames;
-		clearStatementCache.
-
-	self connection close.
-
-	self class deactivated: self!
+	self hardDisconnect!
 
 enableFullTableRecords
 
@@ -657,6 +676,12 @@ ensureNoActiveTransaction
 		[self transaction isDumb
 			ifTrue: [self rollbackTransaction]
 			ifFalse: [self error: 'Active transaction - cannot proceed']]!
+
+enterDebugMode
+
+	"Replace the transactionMutex with one which bypasses critical section checks if it determines we're in the debugger"
+
+	self transactionMutex: SSWDBDebugMutex new!
 
 evaluateAsTransaction: aBlock
 
@@ -722,13 +747,12 @@ executeQuery: anSSWSQLQuery cursoredFetch: aBoolean
 	If it is a read query, return the DBResultSet (client code should close this when done); aBoolean controls whether the result set is cursored (incremental read)
 	If it is a write query, return the number of rows affected"
 
-	| statement |
-
-	statement := self connection executeQuery: anSSWSQLQuery cursoredFetch: aBoolean.
-
-	^anSSWSQLQuery isReadQuery
-		ifTrue: [statement results]
-		ifFalse: [statement rowsAffected]!
+	^self transactionCritical:
+		[| statement |
+		statement := self connection executeQuery: anSSWSQLQuery cursoredFetch: aBoolean.
+		anSSWSQLQuery isReadQuery
+			ifTrue: [statement results]
+			ifFalse: [statement rowsAffected]]!
 
 executeSQL: aString
 
@@ -820,6 +844,14 @@ fullTableRecordFor: anSSWDBTable
 		record isNil
 			ifTrue: [nil]
 			ifFalse: [self nextIDCache at: anSSWDBTable put: record]]!
+
+hardDisconnect
+
+	"Disconnect from the database and clear all caches"
+	
+	self 
+		softDisconnect;
+		postDisconnect!
 
 hasActiveAffiliation
 
@@ -918,6 +950,16 @@ lazyRefreshAll: aCollection
 		self connection rollbackTxn.
 
 		aCollection do: [ :each | each _lazyRefreshIn: self]]!
+
+leaveDebugMode
+
+	"Enter the default non-debug mode"
+
+	self transactionMutex: Mutex new!
+
+mustBeConnected
+	
+	self isConnected ifFalse: [self error: 'Not connected']!
 
 nextIDCache
 
@@ -1037,11 +1079,39 @@ onStartup
 	since these will reference the connection active in the previous session"
 	self clearStatementCache!
 
+openConnection
+
+	"Open the receiver's connection to the database"
+
+	[self connection connect] on: self dbErrorClass do:
+		[ :exc |
+		self connection free.
+		exc pass].
+
+	self connection willAutoCommit: false.
+	self connection postConnect!
+
 persistentSystemClasses
 
 	"Private - Return all ReStore system classes that exist in the database"
 
 	^##(Array with: SSWDBTableRecord)!
+
+postConnect
+
+	"Reinitializate the mutex"
+	self transactionMutex: Mutex new.
+
+	"Must reset system classes after login to use current dialect's name transformation strategy"
+	self persistentSystemClasses do: [ :each | self addClass: each].
+
+	self class activated: self!
+
+postDisconnect
+
+	self clearAllCaches.
+
+	self class deactivated: self!
 
 prepareStatementForQuery: anSSWSQLQuery
 
@@ -1395,6 +1465,13 @@ setDefaultTransactionMode
 
 	self useTransactionsWithVersioning!
 
+softDisconnect
+
+	"Disconnect from the DB but do not clear the proxy cache"
+
+	self clearTxn.
+	self connection close.!
+
 softRollback
 
 	"Carry out a 'soft rollback'. Note this is different from rollbackTransaction:
@@ -1654,6 +1731,7 @@ affiliations!accessing!public! !
 allocateIDFor:in:!cache management!public! !
 alterInstVar:in:!class maintenance!public! !
 applyUpdates:toObject:!public!read/write objects! !
+attachTo:!connection!public! !
 beginDumbTransaction!private!transaction management! !
 beginTransaction!public!transaction api! !
 cachedInstancesOf:!public!querying! !
@@ -1662,12 +1740,14 @@ cachedObjectOfClass:withID:ifAbsent:ifUnrecovered:ifUntouched:!cache management!
 cacheObject:!cache management!public! !
 changedClassOfInstVar:in:modifyUsing:!class maintenance!public! !
 classCacheFor:!cache management!public! !
+clearAllCaches!cache management!public! !
 clearDBTableNames!cache management!public! !
 clearNextIDCache!cache management!public! !
 clearProxyCache!cache management!public! !
 clearStatementCache!cache management!public! !
 clearTableCache!cache management!public! !
 clearTransaction!private!transaction management! !
+clearTxn!connection!private! !
 columnsForFields:!connection!public! !
 columnsInTable:!connection!public! !
 commit:!public!transactionless api! !
@@ -1696,12 +1776,14 @@ destroyAllClasses!class maintenance!public! !
 destroyAllTables!class maintenance!public! !
 destroyClass:!class maintenance!public! !
 destroyTable:!class maintenance!private! !
+detach!connection!public! !
 disaffiliateWith:!initialize/release!public! !
 disconnect!connection!public! !
 enableFullTableRecords!class maintenance!public! !
 ensureCanChangeTransactionMode!initialize/release!private! !
 ensureIsActiveInCurrentTransaction:!proxy manipulation!public! !
 ensureNoActiveTransaction!private!transaction management! !
+enterDebugMode!debugging!public! !
 evaluateAsTransaction:!public!transaction api! !
 evaluateAsTransactionUntilSuccess:!public!transaction api! !
 evaluateAsTxn:!connection!private! !
@@ -1721,6 +1803,7 @@ forceRefresh:!public!transactionless api! !
 forceRefreshAll:!public!transactionless api! !
 forgetClass:!class maintenance!public! !
 fullTableRecordFor:!class maintenance!private! !
+hardDisconnect!connection!private! !
 hasActiveAffiliation!public!testing! !
 hasAffiliations!public!testing! !
 hasChanged:!public!transactionless api! !
@@ -1738,6 +1821,8 @@ isSystemClass:!public!testing! !
 isTransactionInProgress!public!transaction api! !
 lazyRefresh:!public!transactionless api! !
 lazyRefreshAll:!public!transactionless api! !
+leaveDebugMode!debugging!public! !
+mustBeConnected!connection!private! !
 nextIDCache!accessing!public! !
 nextIDCache:!accessing!public! !
 nextIDForTable:!cache management!public! !
@@ -1749,7 +1834,10 @@ objectProxyClass!accessing!public! !
 objectProxyClass:!accessing!public! !
 objectProxyClassFor:!proxy manipulation!public! !
 onStartup!initialize/release!public! !
+openConnection!connection!private! !
 persistentSystemClasses!class maintenance!private! !
+postConnect!connection!private! !
+postDisconnect!connection!private! !
 prepareStatementForQuery:!connection!public! !
 proxy:forwarded:!proxy manipulation!public! !
 proxyCache!accessing!public! !
@@ -1781,6 +1869,7 @@ rowsFromQuery:do:!public!querying! !
 rowsFromStatement:do:!public!querying! !
 selectChanged:!public!transaction management! !
 setDefaultTransactionMode!initialize/release!private! !
+softDisconnect!connection!private! !
 softRollback!public!transaction api! !
 sqlDialect!accessing!public! !
 supportsFullTableRecords!accessing!public! !
@@ -1852,6 +1941,11 @@ default
 
 	^globalDefault!
 
+enterDebugMode
+
+	"Put all active instances into debug mode"
+	self activeReStores do: [ :each | each enterDebugMode]!
+
 globalDefault
 
 	"Private - Return the global default ReStore instance (i.e. the default for all processes not requiring their own private default), creating it if necessary. 
@@ -1867,6 +1961,11 @@ initialize
 initializeReStoreGlobal
 
 	self class environment at: #ReStore put: self globalDefault!
+
+leaveDebugMode
+
+	"Take all active instances out of debug mode"
+	self activeReStores do: [ :each | each leaveDebugMode]!
 
 new
 
@@ -1923,9 +2022,11 @@ affiliatedDefault!accessing!private! !
 affiliateFor:!accessing!public! !
 deactivated:!events!public! !
 default!accessing!public! !
+enterDebugMode!accessing!public! !
 globalDefault!accessing!private! !
 initialize!initialize/release!public! !
 initializeReStoreGlobal!initialize/release!private! !
+leaveDebugMode!accessing!public! !
 new!instance creation!public! !
 onStartup!events!public! !
 proxyForObject:ifNone:!accessing!public! !

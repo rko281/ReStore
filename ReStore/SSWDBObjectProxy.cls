@@ -22,15 +22,12 @@ _aquireCollectionProxiesUsing: collectionSpecs
 	collectionProxies isNil 
 	ifTrue:
 		[collectionProxies := IdentityDictionary new: collectionSpecs size.
-
 		collectionSpecs do:
 			[ :spec |
 			(collectionProxies at: spec put: (spec accessor valueIn: proxiedObject))
 				_owner: self]]
 	ifFalse:
-		[collectionSpecs do:
-			[ :spec |
-			spec accessor value: (collectionProxies at: spec) in: proxiedObject]]!
+		[collectionSpecs do: [ :spec | self _updateCollectionProxyUsing: spec]]!
 
 _class
 
@@ -219,6 +216,12 @@ _unstore
 
 	proxiedObject := nil!
 
+_updateCollectionProxyUsing: aCollectionSpec
+
+	"Return the collection proxy"
+
+	^aCollectionSpec accessor value: (collectionProxies at: aCollectionSpec) in: proxiedObject!
+
 _valuesForAccessor: anInstVarAccessor
 
 	"Private - Return the value(s) in the receiver's proxy object(s) which could be accessed by anInstVarAccessor"
@@ -403,6 +406,7 @@ _refreshFromRow:table:!actions-internal!public! !
 _storeNonPersistentComponents!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
+_updateCollectionProxyUsing:!actions-internal!private! !
 _valuesForAccessor:!accessing!private! !
 =!forwarding!public! !
 basicClass!forwarding!public! !

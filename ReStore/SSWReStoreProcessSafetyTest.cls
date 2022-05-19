@@ -52,6 +52,60 @@ testBeginDuringBegin
 	"Previously gave error 'Nesting of transaction not supported' "
 	self shouldnt: [reStore beginTransaction] raise: Error description: 'Nesting of transaction not supported'!
 
+testDebugMode
+
+	"Verify critial section check is bypassed when a send originates in a specific class, when ReStore is in debug mode"
+
+	| sem proc1 proc2 done |
+
+	sem := Semaphore new.
+	done := false.
+
+	reStore enterDebugMode.
+
+	"Check default behaviour first"
+	proc1 := [reStore transactionCritical: [sem wait]] forkAt: Processor activeProcess priority + 2.
+	self deny: proc1 isTerminated.
+
+	proc2 := [reStore transactionCritical: [done := true]] forkAt: Processor activeProcess priority + 1.
+	self deny: proc1 isTerminated.
+	self deny: done.
+
+	sem signal.
+	self assert: proc1 isTerminated.
+	self assert: proc2 isTerminated.
+	self assert: done.
+
+	"Now make ourselves a debug class and retest"
+	reStore transactionMutex debugClasses add: self class.
+	done := false.
+	proc1 := [reStore transactionCritical: [sem wait]] forkAt: Processor activeProcess priority + 2.
+	self deny: proc1 isTerminated.
+
+	proc2 := [reStore transactionCritical: [done := true]] forkAt: Processor activeProcess priority + 1.
+	self assert: proc2 isTerminated.
+	self assert: done.
+
+	"Allow proc1 to finish"
+	sem signal.
+	self assert: proc1 isTerminated.
+
+	"Finally leave debug mode and verify things back to normal"
+	reStore leaveDebugMode.
+	done := false.
+	proc1 := [reStore transactionCritical: [sem wait]] forkAt: Processor activeProcess priority + 2.
+	self deny: proc1 isTerminated.
+
+	proc2 := [reStore transactionCritical: [done := true]] forkAt: Processor activeProcess priority + 1.
+	self deny: proc1 isTerminated.
+	self deny: done.
+
+	sem signal.
+	self assert: proc1 isTerminated.
+	self assert: proc2 isTerminated.
+	self assert: done.
+!
+
 testGlobablProxyLookupWhenSuspended
 
 	"Verify global proxy lookup (i.e. when not referencing a particular ReStore instance) works when one or more active ReStore instances have their transactionMutex stuck in a suspended process.
@@ -163,6 +217,31 @@ testProxyProxyLookup
 	self assert: john isDBProxy.
 	self assert: (reStore activeProxyForObject: john ifNone: [nil]) identicalTo: john!
 
+testQueryingDuringTransaction
+
+	"Verify querying in one process is blocked whilst a transaction occurs in another"
+
+	| storedInstances john id process wasTransactionInProgress |
+
+	storedInstances := SimplePerson storedInstancesIn: reStore.
+	john := storedInstances detect: [ :each | each firstName = 'John'].
+	id := john _id.
+
+	process := 
+		[self deny: reStore isTransactionInProgress.
+		semaphore wait. 
+		"Execution should restart here when the object is referenced as part of the commit, but should immediately block on the lookup, until the store transaction below is complete"
+		self assert: reStore isTransactionInProgress.
+		self assert: (storedInstances select: [ :each | each surname = 'Brown']) size = 2.
+		wasTransactionInProgress := reStore isTransactionInProgress] forkAt: Processor activeProcess priority + 1.
+
+	self wrappedMethod: (SSWDBProxy>>#__referenced).
+	john storeIn: reStore.
+
+	"Execution resumes here once the higher priority process has terminated"
+	self assert: process isTerminated.
+	self deny: wasTransactionInProgress!
+
 wrappedMethod
 
 	^(##(self)>>#yieldAfterWrappedMethod) literalAt: 1!
@@ -197,11 +276,13 @@ firstActiveReStore!accessing!private! !
 setUp!public!running! !
 tearDown!public!running! !
 testBeginDuringBegin!public!unit tests! !
+testDebugMode!public!unit tests! !
 testGlobablProxyLookupWhenSuspended!public!unit tests! !
 testGlobablProxyProxyLookup!public!unit tests! !
 testObjectLookupDuringTransaction!public!unit tests! !
 testProxyLookupDuringTransaction!public!unit tests! !
 testProxyProxyLookup!public!unit tests! !
+testQueryingDuringTransaction!public!unit tests! !
 wrappedMethod!accessing!public! !
 wrappedMethod:!accessing!public! !
 yieldAfterWrappedMethod!helpers!private! !

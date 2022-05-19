@@ -319,7 +319,7 @@ define: aSymbol asInstVarHolding: aClass
 	
 	^aClass shouldInlinePersistency
 		ifTrue: [self define: aSymbol asInstVarHoldingInlined: aClass]
-		ifFalse: [self define: aSymbol asFieldNamed: (self dbNameFor: aSymbol) holding: aClass]!
+		ifFalse: [self define: aSymbol asFieldNamed: (aSymbol databaseFieldNameIn: self) holding: aClass]!
 
 define: aSymbol asInstVarHoldingInlined: aClass
 
@@ -347,7 +347,7 @@ defineAsID: aSymbol
 	This can be useful in some cases, although the unique ID is really internal information.
 	Return the idField"
 	
-	^self defineAsID: aSymbol fieldName: (self dbNameFor: aSymbol)!
+	^self defineAsID: aSymbol fieldName: (aSymbol databaseFieldNameIn: self)!
 
 defineAsID: aSymbol fieldName: aString
 

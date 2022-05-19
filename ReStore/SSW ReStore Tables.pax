@@ -18,6 +18,7 @@ package classNames
 	add: #SSWDBIDAccessor;
 	add: #SSWDBInheritedTable;
 	add: #SSWDBInlinedClass;
+	add: #SSWDBInstVarWithFieldName;
 	add: #SSWDBIntermediateTable;
 	add: #SSWDBNonParameterizedStaticField;
 	add: #SSWDBPrivateAccessor;
@@ -59,6 +60,9 @@ package methodNames
 	add: #SSWSQLJoinedTableCollection -> #joinFields;
 	add: #SSWSQLJoinedTableCollection -> #lastJoinField;
 	add: #SSWSQLTableCollection -> #occurrencesOfIncludingRepetitions:;
+	add: #Symbol -> #asDatabaseFieldNamed:;
+	add: #Symbol -> #asInstVarName;
+	add: #Symbol -> #databaseFieldNameIn:;
 	add: 'Integer class' -> #reStoreNewUnique;
 	add: 'Object class' -> #addClassDefinitionTo:;
 	add: 'Object class' -> #hasPersistentSuperclass;
@@ -107,6 +111,11 @@ Object subclass: #SSWDBClassDefinition
 	classInstanceVariableNames: ''!
 Object subclass: #SSWDBDirectlyPersistedObject
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #SSWDBInstVarWithFieldName
+	instanceVariableNames: 'instVar fieldName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -652,6 +661,29 @@ reStoreInstVarAccessorIn: aSQLDialect
 		ifFalse: [super reStoreInstVarAccessorIn: aSQLDialect]! !
 !String class categoriesForMethods!
 reStoreInstVarAccessorIn:!persistency!public! !
+!
+
+!Symbol methodsFor!
+
+asDatabaseFieldNamed: aString
+
+	"Return an object representing the instance variable with the receiver's name, which is to be mapped to a database field with the name aString"
+
+	^SSWDBInstVarWithFieldName instVar: self fieldName: aString!
+
+asInstVarName
+
+	^self!
+
+databaseFieldNameIn: anSSWDBTable
+
+	"Return the corresponding field name of the receiver in anSSWDBTable"
+
+	^anSSWDBTable dbNameFor: self! !
+!Symbol categoriesForMethods!
+asDatabaseFieldNamed:!converting!public! !
+asInstVarName!converting!public! !
+databaseFieldNameIn:!converting!public! !
 !
 
 "End of package definition"!

@@ -30,9 +30,12 @@ package methodNames
 	add: #SSWDBBlockEvaluator -> #perform:;
 	add: #SSWDBBlockEvaluator -> #perform:with:;
 	add: #SSWDBBlockEvaluator -> #perform:withArguments:;
+	add: #SSWDBDebugMutex -> #defaultDebugClasses;
+	add: #SSWDBDebugMutex -> #shouldBypassMutexForDebug;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #_proxyInstVarAt:;
+	add: #SSWDBProxy -> #basicPrintOn:;
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
@@ -85,6 +88,7 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\IDE\Base\Development System'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'SSW ReStore Main'
@@ -527,6 +531,28 @@ platformClass
 platformClass!constants!public! !
 !
 
+!SSWDBDebugMutex methodsFor!
+
+defaultDebugClasses
+
+	^{Debugger. InspectorAbstract. BasicInspector. InspectorShell. FlipperInspector}!
+
+shouldBypassMutexForDebug
+
+	| topFrame |
+
+	topFrame := Processor activeProcess topFrame sender.
+
+	[topFrame notNil] whileTrue: 
+		[(debugClasses anySatisfy: [:each | topFrame receiver basicClass includesBehavior: each]) ifTrue: [^true].
+		topFrame := topFrame sender].
+
+	^false.! !
+!SSWDBDebugMutex categoriesForMethods!
+defaultDebugClasses!constants!public! !
+shouldBypassMutexForDebug!public!testing! !
+!
+
 !SSWDBProxy methodsFor!
 
 _allReferences
@@ -542,11 +568,16 @@ _proxyClass
 
 _proxyInstVarAt: index
 
-	^super instVarAt: index! !
+	^super instVarAt: index!
+
+basicPrintOn: aStream
+
+	aStream nextPutAll: self debugPrintString! !
 !SSWDBProxy categoriesForMethods!
 _allReferences!non forwarding!public! !
 _proxyClass!accessing:direct!private! !
 _proxyInstVarAt:!accessing:direct!private! !
+basicPrintOn:!accessing:direct!private! !
 !
 
 !SSWDBQueryCondition methodsFor!

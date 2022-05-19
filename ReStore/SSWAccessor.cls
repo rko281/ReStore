@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWAccessor
 	instanceVariableNames: ''
@@ -39,7 +39,8 @@ name
 
 value: valueObject in: targetObject
 
-	"Set the attribute of targetObject which the receiver accesses to valueObject"
+	"Set the attribute of targetObject which the receiver accesses to valueObject.
+	Return the valueObject"
 	
 	self subclassResponsibility!
 
@@ -62,11 +63,13 @@ valueIn: anObject
 	"Extract and return the value of anObject which the receiver accesses"
 	
 	^self subclassResponsibility! !
-!SSWAccessor categoriesFor: #access:in:!initializing!public! !
-!SSWAccessor categoriesFor: #accesses:!public!testing! !
-!SSWAccessor categoriesFor: #isInlined!public!testing! !
-!SSWAccessor categoriesFor: #name!evaluating!public! !
-!SSWAccessor categoriesFor: #value:in:!public!updating! !
-!SSWAccessor categoriesFor: #valueIfChanged:in:!public!updating! !
-!SSWAccessor categoriesFor: #valueIn:!evaluating!public! !
+!SSWAccessor categoriesForMethods!
+access:in:!initializing!public! !
+accesses:!public!testing! !
+isInlined!public!testing! !
+name!evaluating!public! !
+value:in:!public!updating! !
+valueIfChanged:in:!public!updating! !
+valueIn:!evaluating!public! !
+!
 

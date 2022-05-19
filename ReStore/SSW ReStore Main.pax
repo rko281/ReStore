@@ -13,6 +13,7 @@ package classNames
 	add: #SSWDBCollectionProxy;
 	add: #SSWDBCollectionWithContents;
 	add: #SSWDBCollectionWithRelatedContents;
+	add: #SSWDBDebugMutex;
 	add: #SSWDBDumbTransaction;
 	add: #SSWDBGeneralCollectionProxy;
 	add: #SSWDBObjectProxy;
@@ -166,6 +167,11 @@ Object subclass: #SSWReStore
 	classInstanceVariableNames: 'globalDefault activeReStores'!
 Notification subclass: #StoreFailure
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Mutex subclass: #SSWDBDebugMutex
+	instanceVariableNames: 'debugClasses'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

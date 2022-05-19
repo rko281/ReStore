@@ -12,28 +12,6 @@ https://github.com/rko281/ReStore'!
 !SSWDBCachingObjectProxy categoriesForClass!Unclassified! !
 !SSWDBCachingObjectProxy methodsFor!
 
-_aquireCollectionProxiesUsing: collectionSpecs
-
-	"Cache the proxiedObject's collection proxies, and set the backwards owner reference.
-	The CollectionSpecs identifying the collections (equivalent to self _dbTable collectionSpecs) 
-	are passed in as an optimisation"
-
-	"If refreshing an existing object, we may already have the collections"
-	collectionProxies isNil 
-	ifTrue:
-		[collectionProxies := IdentityDictionary new: collectionSpecs size.
-
-		collectionSpecs do:
-			[ :spec |
-			(collectionProxies at: spec put: (spec accessor valueIn: proxiedObject))
-				_owner: self]]
-	ifFalse:
-		[collectionSpecs do:
-			[ :spec |
-			spec accessor value: (collectionProxies at: spec) in: proxiedObject.
-			copyObject notNil ifTrue: 
-				[spec accessor value: (collectionProxies at: spec) in: copyObject]]]!
-
 _aquireCopyObject
 
 	copyObject := self _dbTable copyForProxy: proxiedObject!
@@ -391,6 +369,15 @@ _unstore
 
 	super _unstore!
 
+_updateCollectionProxyUsing: aCollectionSpec
+
+	| collectionProxy |
+
+	collectionProxy := super _updateCollectionProxyUsing: aCollectionSpec.
+	copyObject notNil ifTrue: [aCollectionSpec accessor value: collectionProxy in: copyObject].
+
+	^collectionProxy!
+
 _valuesForAccessor: anInstVarAccessor
 
 	"Return the value(s) in the receiver's proxy object(s) which could be accessed by anInstVarAccessor.
@@ -416,7 +403,6 @@ inspect
 		ifTrue: [nil inspect]
 		ifFalse: [super inspect]! !
 !SSWDBCachingObjectProxy categoriesForMethods!
-_aquireCollectionProxiesUsing:!actions-internal!public! !
 _aquireCopyObject!actions-internal!public! !
 _checkHasChanged!public!testing! !
 _commitChanges!actions-internal!public! !
@@ -448,6 +434,7 @@ _rollbackStore!actions-internal!private! !
 _rollbackUnstore!actions-internal!private! !
 _rollbackUpdates!actions-internal!private! !
 _unstore!actions-internal!public! !
+_updateCollectionProxyUsing:!actions-internal!private! !
 _valuesForAccessor:!accessing!private! !
 inspect!forwarding!public! !
 !
