@@ -453,6 +453,19 @@ isDBProxy
 
 	^true!
 
+isInteger
+
+	"No need to bother the proxiedObject"
+	
+	^false
+!
+
+notNil
+
+	"No need to bother the proxiedObject"
+
+	^true!
+
 onRollback
 
 	"Sent immediately after rollback. Normally sent direct to the rolled-back object, not via the proxy. 
@@ -597,6 +610,8 @@ doesNotUnderstand:!forwarding!public! !
 includedIn:!public!testing! !
 instVarAt:!forwarding!public! !
 isDBProxy!public!testing! !
+isInteger!non forwarding!public! !
+notNil!non forwarding!public! !
 onRollback!actions-internal!public! !
 printOn:!forwarding!public! !
 printString!forwarding!public! !

@@ -276,13 +276,6 @@ hash
 		ifTrue: [self identityHash]
 		ifFalse: [self doesNotUnderstand: (Message selector: #hash)]!
 
-isInteger
-
-	"No need to bother the proxiedObject"
-	
-	^false
-!
-
 isKindOf: aClass
 
 	"No need to bother the proxiedObject (except for inherited objects)"
@@ -414,7 +407,6 @@ class!forwarding!public! !
 currentVersion!accessing:derived!public! !
 debugPrintString!forwarding!public! !
 hash!forwarding!public! !
-isInteger!forwarding!public! !
 isKindOf:!forwarding!public! !
 isSQLNull!non forwarding!public! !
 isValidForPersistence!forwarding!public! !

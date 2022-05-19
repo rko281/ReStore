@@ -36,6 +36,12 @@ package methodNames
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #_proxyInstVarAt:;
 	add: #SSWDBProxy -> #basicPrintOn:;
+	add: #SSWDBProxy -> #ifNil:;
+	add: #SSWDBProxy -> #ifNil:ifNotNil:;
+	add: #SSWDBProxy -> #ifNotNil:;
+	add: #SSWDBProxy -> #ifNotNil:ifNil:;
+	add: #SSWDBProxy -> #isImmediate;
+	add: #SSWDBProxy -> #isNil;
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
@@ -572,12 +578,50 @@ _proxyInstVarAt: index
 
 basicPrintOn: aStream
 
-	aStream nextPutAll: self debugPrintString! !
+	aStream nextPutAll: self debugPrintString!
+
+ifNil: nilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^self!
+
+ifNil: nilBlock ifNotNil: notNilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^notNilBlock cull: self!
+
+ifNotNil: notNilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^notNilBlock cull: self!
+
+ifNotNil: notNilBlock ifNil: nilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^notNilBlock cull: self!
+
+isImmediate
+
+	"No need to bother the proxiedObject"
+
+	^false!
+
+isNil
+
+	"No need to bother the proxiedObject"
+
+	^false! !
 !SSWDBProxy categoriesForMethods!
 _allReferences!non forwarding!public! !
 _proxyClass!accessing:direct!private! !
 _proxyInstVarAt:!accessing:direct!private! !
 basicPrintOn:!accessing:direct!private! !
+ifNil:!non forwarding!public! !
+ifNil:ifNotNil:!non forwarding!public! !
+ifNotNil:!non forwarding!public! !
+ifNotNil:ifNil:!non forwarding!public! !
+isImmediate!non forwarding!private! !
+isNil!non forwarding!public! !
 !
 
 !SSWDBQueryCondition methodsFor!
