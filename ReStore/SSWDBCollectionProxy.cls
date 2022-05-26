@@ -102,9 +102,21 @@ _unrecoveredProxyString
 
 class
 
-	^proxiedObject == nil
-		ifTrue: [collectionSpec collectionClass]
-		ifFalse: [proxiedObject class]!
+	"No need to bother the proxiedObject"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self class]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[proxiedObject isNil
+					ifTrue: [collectionSpec collectionClass]
+					ifFalse: [self _forwardDirectly: (Message selector: #class)]]
+			ifFalse: 
+				[self class]]]!
 
 orRemote
 
@@ -120,6 +132,21 @@ orRemote
 remote
 
 	^collectionSpec dbInstancesFor: self!
+
+size
+
+	"Optimisation for collections - go direct.
+	ASSERT: the proxiedObject's implementation of size is fast and non-modifying"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self size]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+				ifTrue: [self _forwardDirectly: (Message selector: #size)]
+				ifFalse: [self size]]]!
 
 withComponents
 
@@ -150,6 +177,7 @@ _unrecoveredProxyString!accessing!public! !
 class!forwarding!public! !
 orRemote!forwarding!public! !
 remote!accessing!public! !
+size!public! !
 withComponents!accessing!public! !
 withRelatedComponents!accessing!public! !
 !

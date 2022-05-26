@@ -177,6 +177,25 @@ testObjectLookupDuringTransaction
 	self assert: process isTerminated.
 	self deny: wasTransactionInProgress!
 
+testProxyDoesNotUnderstandWhenPreempted
+
+	"Verify no error occurs and the message is still executed if a proxy is swapped by a higher priority process right at the start of processing a doesNotUnderstand:"
+
+	| john dnu result |
+
+	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	
+	"We simulate this situation by evaluating SSWDBProxy>>#doesNotUnderstand: with an unproxied object"
+	john firstName.
+	self deny: john isDBProxy.
+
+	"Make a local copy of the method in the unproxied object'ss class in order to invoke it"
+	dnu := (SSWDBProxy>>#doesNotUnderstand:) copy.
+	dnu methodClass: john class.
+
+	self shouldnt: [result := dnu value: john withArguments: {Message selector: #surname}] raise: Error.
+	self assert: result equals: 'Smith'!
+
 testProxyLookupDuringTransaction
 
 	"Verify proxy lookup in one process is blocked whilst a transaction occurs in another"
@@ -280,6 +299,7 @@ testDebugMode!public!unit tests! !
 testGlobablProxyLookupWhenSuspended!public!unit tests! !
 testGlobablProxyProxyLookup!public!unit tests! !
 testObjectLookupDuringTransaction!public!unit tests! !
+testProxyDoesNotUnderstandWhenPreempted!public!unit tests! !
 testProxyLookupDuringTransaction!public!unit tests! !
 testProxyProxyLookup!public!unit tests! !
 testQueryingDuringTransaction!public!unit tests! !

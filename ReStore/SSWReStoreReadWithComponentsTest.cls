@@ -230,7 +230,7 @@ testProxyCollectionMultipleRead
 
 	"Read and touch the orders"
 	allCustomers := (customers include: #orders) asOrderedCollection.
-	allCustomers do: [ :each | each orders size].
+	allCustomers do: [ :each | each orders _deproxify].
 
 	"Reading again should only take one query for the collection itself"
 	self resetQueryCount.

@@ -92,6 +92,57 @@ test3Update
 
 	self assert: (time < (self sampleSize * 2)) "Fairly arbitrary but keeps an eye on things"!
 
+test3UpdateViaTransactionNoChange
+
+	| people time |
+
+	self sampleSet storeAllIn: reStore.
+
+	reStore simulateReconnect; beginTransaction.
+
+	people := (SimplePerson storedInstancesIn: reStore) asOrderedCollection.
+	people do: [ :person | person firstName].
+
+	Transcript 
+		cr; 
+		show: 'Updating '; print: self sampleSize; show: ' objects via transaction; no change... ';
+		show:  (time := Time millisecondsToRun: [reStore commitTransaction]) displayString;
+		show: ' ms'.
+
+	self assert: (time < (self sampleSize * 2)) "Fairly arbitrary but keeps an eye on things"!
+
+test3UpdateViaTransactionWithChange
+
+	| people time |
+
+	self sampleSet storeAllIn: reStore.
+
+	reStore simulateReconnect; beginTransaction.
+
+	people := (SimplePerson storedInstancesIn: reStore) asOrderedCollection.
+	people do: 
+		[ :person || id |
+		id := person _id.
+		id odd 
+			ifTrue: [person firstName: (person firstName, id displayString)] 
+			ifFalse: [person surname: (person surname, id displayString)]].
+
+	Transcript 
+		cr; 
+		show: 'Updating '; print: self sampleSize; show: ' objects via transaction; with change... ';
+		show:  (time := Time millisecondsToRun: [reStore commitTransaction]) displayString;
+		show: ' ms'.
+
+	reStore simulateReconnect.
+	(SimplePerson storedInstancesIn: reStore) asOrderedCollection do: 
+		[ :person || id |
+		id := person _id.
+		id odd 
+			ifTrue: [self assert: person firstName equals: ('John', id displayString)] 
+			ifFalse: [self assert: person surname equals: ('Smith', id displayString)]].
+
+	self assert: (time < (self sampleSize * 2)) "Fairly arbitrary but keeps an eye on things"!
+
 test4RefreshNoChange
 
 	| people time |
@@ -166,6 +217,8 @@ sampleSize!public!running! !
 test1Write!public!unit tests! !
 test2Read!public!unit tests! !
 test3Update!public!unit tests! !
+test3UpdateViaTransactionNoChange!public!unit tests! !
+test3UpdateViaTransactionWithChange!public!unit tests! !
 test4RefreshNoChange!public!unit tests! !
 test5RefreshWithChange!public!unit tests! !
 test9Delete!public!unit tests! !

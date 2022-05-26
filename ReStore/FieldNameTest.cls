@@ -1,14 +1,20 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #FieldNameTest
-	instanceVariableNames: 'id name'
+	instanceVariableNames: 'id name description'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: 'shouldUseFieldNames'!
+	classInstanceVariableNames: 'shouldUseAlternativeNames'!
 FieldNameTest guid: (GUID fromString: '{3037f10e-778c-4b55-8ff8-773b13afa9b4}')!
 FieldNameTest comment: ''!
 !FieldNameTest categoriesForClass!Kernel-Objects! !
 !FieldNameTest methodsFor!
+
+description
+	^description!
+
+description: anObject
+	description := anObject!
 
 id
 	^id!
@@ -22,6 +28,8 @@ name
 name: anObject
 	name := anObject! !
 !FieldNameTest categoriesForMethods!
+description!accessing!private! !
+description:!accessing!private! !
 id!accessing!private! !
 id:!accessing!private! !
 name!accessing!private! !
@@ -32,8 +40,8 @@ name:!accessing!private! !
 
 reStoreDefinition
 
-	^self shouldUseFieldNames
-		ifTrue: [self reStoreDefinitionWithFieldNames]
+	^self shouldUseAlternativeNames
+		ifTrue: [self reStoreDefinitionWithAlternativeNames]
 		ifFalse: [self reStoreDefinitionStandard]!
 
 reStoreDefinitionStandard
@@ -41,27 +49,29 @@ reStoreDefinitionStandard
 	^super reStoreDefinition
 		defineAsID: #id;
 		define: #name as: (String maxSize: 128);
+		define: #description as: (String maxSize: 255);
 		yourself!
 
-reStoreDefinitionWithFieldNames
+reStoreDefinitionWithAlternativeNames
 
 	^super reStoreDefinition
-		defineAsID: (#id asDatabaseFieldNamed: 'my_id') ;
-		define: (#name asDatabaseFieldNamed: 'my_name') as: (String maxSize: 128);
+		defineAsID: (#id withDatabaseName: 'my_id') ;
+		define: (#name withDatabaseName: 'my_name') as: (String maxSize: 128);
+		define: (#description previouslyNamed: #detailedDescription) as: (String maxSize: 255);
 		yourself!
 
-shouldUseFieldNames
+shouldUseAlternativeNames
 
-	^shouldUseFieldNames ifNil: [false]!
+	^shouldUseAlternativeNames ifNil: [false]!
 
-shouldUseFieldNames: aBoolean
+shouldUseAlternativeNames: aBoolean
 
-	shouldUseFieldNames := aBoolean! !
+	shouldUseAlternativeNames := aBoolean! !
 !FieldNameTest class categoriesForMethods!
 reStoreDefinition!persistency!public! !
 reStoreDefinitionStandard!persistency!public! !
-reStoreDefinitionWithFieldNames!persistency!public! !
-shouldUseFieldNames!accessing!public! !
-shouldUseFieldNames:!accessing!public! !
+reStoreDefinitionWithAlternativeNames!persistency!public! !
+shouldUseAlternativeNames!accessing!public! !
+shouldUseAlternativeNames:!accessing!public! !
 !
 

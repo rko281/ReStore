@@ -51,6 +51,7 @@ package methodNames
 	add: #Object -> #_dbProxyIfNone:;
 	add: #Object -> #_dbProxyIn:;
 	add: #Object -> #_dbProxyIn:ifNone:;
+	add: #Object -> #_dbProxyReStore;
 	add: #Object -> #_ensureActiveIn:;
 	add: #Object -> #_ensurePersistentIn:;
 	add: #Object -> #_forceRefreshIn:;
@@ -480,6 +481,14 @@ _dbProxyIn: aReStore ifNone: aBlock
 	
 	^aReStore activeProxyForObject: self ifNone: aBlock!
 
+_dbProxyReStore
+
+	"If this message is received , a proxy was swapped to its proxied object by a higher-priority process, immediately at the start of its implemention of doesNotUnderstand:.
+	In SSWDBProxy this method would return lookup the proxy's owning reStore, to which it would immediately send transactionCritical: with the proxy swap handler block.
+	Since we are here, the proxy is already swapped therefore no further action is needed. Return nil, which is checked for prior to the transactionCritical:"
+
+	^nil!
+
 _ensureActiveIn: anSSWReStore
 
 	"Ensure that the receiver is 'active' in the given ReStore 
@@ -854,6 +863,7 @@ _dbProxy!private!restore-internal! !
 _dbProxyIfNone:!private!restore-internal! !
 _dbProxyIn:!private!restore-internal! !
 _dbProxyIn:ifNone:!private!restore-internal! !
+_dbProxyReStore!private!restore-internal! !
 _ensureActiveIn:!private!restore-internal! !
 _ensurePersistentIn:!private!restore-internal! !
 _forceRefreshIn:!private!restore-internal! !

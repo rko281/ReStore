@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SimplePerson
 	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased'
@@ -199,51 +199,53 @@ time: anObject
 	"Private - Set the value of the receiver's ''time'' instance variable to the argument, anObject."
 
 	time := anObject! !
-!SimplePerson categoriesFor: #<=!comparing!private! !
-!SimplePerson categoriesFor: #<==!comparing!public! !
-!SimplePerson categoriesFor: #<==>!comparing!private! !
-!SimplePerson categoriesFor: #<=>!comparing!private! !
-!SimplePerson categoriesFor: #address!accessing!private! !
-!SimplePerson categoriesFor: #address:!accessing!private! !
-!SimplePerson categoriesFor: #age!accessing!private! !
-!SimplePerson categoriesFor: #age:!accessing!private! !
-!SimplePerson categoriesFor: #emailAddress!accessing!private! !
-!SimplePerson categoriesFor: #emailAddress:!accessing!private! !
-!SimplePerson categoriesFor: #firstName!accessing!private! !
-!SimplePerson categoriesFor: #firstName:!accessing!private! !
-!SimplePerson categoriesFor: #friend!accessing!private! !
-!SimplePerson categoriesFor: #friend:!accessing!private! !
-!SimplePerson categoriesFor: #friendCompare:!comparing!public! !
-!SimplePerson categoriesFor: #friendCompareWithBlocks:!comparing!public! !
-!SimplePerson categoriesFor: #friendIsNilAndJohn!public!testing! !
-!SimplePerson categoriesFor: #friendIsNilOrJohn!public!testing! !
-!SimplePerson categoriesFor: #friendNotNilAndJim!public!testing! !
-!SimplePerson categoriesFor: #friendNotNilOrJim!public!testing! !
-!SimplePerson categoriesFor: #fullName!accessing!public! !
-!SimplePerson categoriesFor: #fullNameDirect!accessing!public! !
-!SimplePerson categoriesFor: #fullNameWithEvaluationLocation!accessing!public! !
-!SimplePerson categoriesFor: #hasFriend!public!testing! !
-!SimplePerson categoriesFor: #hasNoFriend!public!testing! !
-!SimplePerson categoriesFor: #hasNoTest!public!testing! !
-!SimplePerson categoriesFor: #hasTest!public!testing! !
-!SimplePerson categoriesFor: #hasTestOrFriendHasTestBlock!public!testing! !
-!SimplePerson categoriesFor: #isBrown20!public!testing! !
-!SimplePerson categoriesFor: #isDavidAndTestIsNil!public!testing! !
-!SimplePerson categoriesFor: #isDavidOrTestIsNil!public!testing! !
-!SimplePerson categoriesFor: #isDeceased!accessing!private! !
-!SimplePerson categoriesFor: #isDeceased:!accessing!private! !
-!SimplePerson categoriesFor: #isJohnAndTestIsNil!public!testing! !
-!SimplePerson categoriesFor: #orderCount!accessing!public! !
-!SimplePerson categoriesFor: #orders!accessing!public! !
-!SimplePerson categoriesFor: #orders:!accessing!public! !
-!SimplePerson categoriesFor: #standardCompare:!comparing!private! !
-!SimplePerson categoriesFor: #standardCompareWithBlocks:!comparing!private! !
-!SimplePerson categoriesFor: #surname!accessing!private! !
-!SimplePerson categoriesFor: #surname:!accessing!private! !
-!SimplePerson categoriesFor: #test!accessing!private! !
-!SimplePerson categoriesFor: #test:!accessing!private! !
-!SimplePerson categoriesFor: #time!accessing!private! !
-!SimplePerson categoriesFor: #time:!accessing!private! !
+!SimplePerson categoriesForMethods!
+<=!comparing!private! !
+<==!comparing!public! !
+<==>!comparing!private! !
+<=>!comparing!private! !
+address!accessing!private! !
+address:!accessing!private! !
+age!accessing!private! !
+age:!accessing!private! !
+emailAddress!accessing!private! !
+emailAddress:!accessing!private! !
+firstName!accessing!private! !
+firstName:!accessing!private! !
+friend!accessing!private! !
+friend:!accessing!private! !
+friendCompare:!comparing!public! !
+friendCompareWithBlocks:!comparing!public! !
+friendIsNilAndJohn!public!testing! !
+friendIsNilOrJohn!public!testing! !
+friendNotNilAndJim!public!testing! !
+friendNotNilOrJim!public!testing! !
+fullName!accessing!public! !
+fullNameDirect!accessing!public! !
+fullNameWithEvaluationLocation!accessing!public! !
+hasFriend!public!testing! !
+hasNoFriend!public!testing! !
+hasNoTest!public!testing! !
+hasTest!public!testing! !
+hasTestOrFriendHasTestBlock!public!testing! !
+isBrown20!public!testing! !
+isDavidAndTestIsNil!public!testing! !
+isDavidOrTestIsNil!public!testing! !
+isDeceased!accessing!private! !
+isDeceased:!accessing!private! !
+isJohnAndTestIsNil!public!testing! !
+orderCount!accessing!public! !
+orders!accessing!public! !
+orders:!accessing!public! !
+standardCompare:!comparing!private! !
+standardCompareWithBlocks:!comparing!private! !
+surname!accessing!private! !
+surname:!accessing!private! !
+test!accessing!private! !
+test:!accessing!private! !
+time!accessing!private! !
+time:!accessing!private! !
+!
 
 !SimplePerson class methodsFor!
 
@@ -268,6 +270,8 @@ reStoreDefinition
 		define: #address as: SimpleAddress dependent;
 		define: #isDeceased as: Boolean;
 		yourself! !
-!SimplePerson class categoriesFor: #new!public! !
-!SimplePerson class categoriesFor: #reStoreDefinition!public! !
+!SimplePerson class categoriesForMethods!
+new!public! !
+reStoreDefinition!public! !
+!
 

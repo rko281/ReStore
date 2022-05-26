@@ -451,7 +451,7 @@ test30VerifySpecifiedFieldNames
 	| table instances |
 
 	"Verify standard transformations first"
-	FieldNameTest shouldUseFieldNames: false.
+	FieldNameTest shouldUseAlternativeNames: false.
 	reStore 
 		addClass: FieldNameTest; 
 		destroyAllClasses;
@@ -460,10 +460,11 @@ test30VerifySpecifiedFieldNames
 	table := reStore tableForClass: FieldNameTest.
 	self assert: (table fieldAccessing: #id) name equals: 'id'.
 	self assert: (table fieldAccessing: #name) name equals: 'name'.
-	self assert: ((reStore connection _columnsInTable: table) collect: [ :each | each name]) asSortedCollection asArray equals: #('id' 'name' 'version_').
+	self assert: (table fieldAccessing: #description) name equals: 'description'.
+	self assert: ((reStore connection _columnsInTable: table) collect: [ :each | each name]) asSortedCollection asArray equals: #('description' 'id' 'name' 'version_').
 
 	"Now check specified transformations"
-	FieldNameTest shouldUseFieldNames: true.
+	FieldNameTest shouldUseAlternativeNames: true.
 	reStore 
 		addClass: FieldNameTest; 
 		destroyAllClasses;
@@ -472,15 +473,17 @@ test30VerifySpecifiedFieldNames
 	table := reStore tableForClass: FieldNameTest.
 	self assert: (table fieldAccessing: #id) name equals: 'my_id'.
 	self assert: (table fieldAccessing: #name) name equals: 'my_name'.
-	self assert: ((reStore connection _columnsInTable: table) collect: [ :each | each name]) asSortedCollection asArray equals: #('my_id' 'my_name' 'version_').
+	self assert: (table fieldAccessing: #description) name equals: 'detailed_description'.
+	self assert: ((reStore connection _columnsInTable: table) collect: [ :each | each name]) asSortedCollection asArray equals: #('detailed_description' 'my_id' 'my_name' 'version_').
 
 	"Do some simple database interaction to check everything is OK"
-	#('andy' 'brian' 'colette' 'daisy') keysAndValuesDo: [ :index :name | FieldNameTest new id: index * 10; name: name; storeIn: reStore].
+	#('andy' 'brian' 'colette' 'daisy') keysAndValuesDo: [ :index :name | FieldNameTest new id: index * 10; name: name; description: 'a person named ', name; storeIn: reStore].
 	reStore simulateReconnect.
 	instances := FieldNameTest storedInstancesIn: reStore.
 	self assert: instances size equals: 4.
 	self assert: (instances detect: [ :each | each id = 30]) name equals: 'colette'.
-	self assert: (instances collect: [ :each | each name]) asSortedCollection asArray equals: #('andy' 'brian' 'colette' 'daisy')! !
+	self assert: (instances collect: [ :each | each name]) asSortedCollection asArray equals: #('andy' 'brian' 'colette' 'daisy').
+	self assert: (instances collect: [ :each | each description]) asSortedCollection asArray equals: #('a person named andy' 'a person named brian' 'a person named colette' 'a person named daisy').! !
 !SSWReStoreTableTest categoriesForMethods!
 createTestData!helpers!public! !
 ensureHierarchyColumnsAllPresent!helpers!public! !

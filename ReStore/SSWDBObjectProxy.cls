@@ -233,9 +233,10 @@ _valuesForAccessor: anInstVarAccessor
 = anotherObject
 
 	"No need to fetch the object if #= == #=="
+
 	^(proxiedObject isNil and: [(class lookupMethod: #=) == (Object>>#=)])
 		ifTrue: [self == anotherObject]
-		ifFalse: [self doesNotUnderstand: (Message selector: #= arguments: (Array with: anotherObject))]!
+		ifFalse: [self doesNotUnderstand: (Message selector: #= argument: anotherObject) "equality may be the same as identity so we *must* swap, hence DNU rather than _forwardDirectly:"]!
 
 basicClass
 
@@ -245,12 +246,19 @@ class
 
 	"No need to bother the proxiedObject, except for inherited objects which are needed to determine their class"
 
-	^(self _dbTable class == SSWDBTable) 
-	ifTrue: 
-		[class]
-	ifFalse: 
-		[proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-		proxiedObject class]!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self class]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(proxiedObject isNil and: [self _dbTable class == SSWDBTable])
+					ifTrue: [class]
+					ifFalse: [self _forwardDirectly: (Message selector: #class)]]
+			ifFalse: 
+				[self class]]]!
 
 currentVersion
 
@@ -274,18 +282,25 @@ hash
 
 	^(proxiedObject isNil and: [(class lookupMethod: #hash) == (Object>>#hash)])
 		ifTrue: [self identityHash]
-		ifFalse: [self doesNotUnderstand: (Message selector: #hash)]!
+		ifFalse: [self doesNotUnderstand: (Message selector: #hash) "hash may be the same as identityHash so we *must* swap, hence DNU rather than _forwardDirectly:"]!
 
 isKindOf: aClass
 
 	"No need to bother the proxiedObject (except for inherited objects)"
 
-	^(self _dbTable class == SSWDBTable)
-	ifTrue: 
-		[(class == aClass) or: [class inheritsFrom: aClass]]
-	ifFalse: 
-		[proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-		proxiedObject isKindOf: aClass]!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self class]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(proxiedObject isNil and: [self _dbTable class == SSWDBTable])
+					ifTrue: [(class == aClass) or: [class inheritsFrom: aClass]]
+					ifFalse: [self _forwardDirectly: (Message selector: #isKindOf: argument: aClass)]]
+			ifFalse: 
+				[self class]]]!
 
 isSQLNull
 

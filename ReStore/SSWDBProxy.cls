@@ -89,20 +89,13 @@ _dbProxyIn: aReStore ifNone: aBlock
 		ifTrue: [self]
 		ifFalse: [aBlock value]!
 
-_doesNotUnderstand: aMessage
+_dbProxyReStore
+	"Private - As #_reStore, but do not perform a reverse lookup if sent to a regular object.
+	Used internally by #doesNotUnderstand: to safely retrieve the ReStore in order to enter a critical section.
 
-	"Forward to the proxiedObject"
-	
-	| me |
+	See implementation in Object for more details"
 
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-
-	"Swap references to the receiver and proxiedObject.
-	From hereon, must use me instead of self, and not reference inst vars directly"
-	me := self _swapReferences.
-
-	^[me _proxiedObject perform: aMessage selector withArguments: aMessage arguments]
-		ensure: [me _reStore proxy: me forwarded: aMessage]!
+	^reStore!
 
 _ensureActiveIn: anSSWReStore
 
@@ -152,6 +145,15 @@ _forgetProxiedObject
 	"Dispose of the reference to the receiver's proxiedObject"
 	
 	proxiedObject := nil!
+
+_forwardDirectly: aMessage
+
+	"Private - Forward aMessage to the proxiedObject; do not swap the receiver with the proxied object.
+	Should only be invoked inside a transactionCritical: lock.
+	Privileged use only"
+	
+	proxiedObject isNil ifTrue: [self _recoverProxiedObject].
+	^aMessage value: proxiedObject!
 
 _hasChanged
 
@@ -356,15 +358,7 @@ _shallowCopy
 	variables. This implementation suffices for most objects.
 	The primitive does not fail."
 
-	<primitive: 155>
-	| class copy size |
-1 halt.
-	class := self basicClass.
-	size := self basicSize.
-	copy := class isVariable ifTrue: [class basicNew: size] ifFalse: [class basicNew].
-	size := size + class instSize.
-	1 to: size do: [:i | copy instVarAt: i put: (self instVarAt: i)].
-	^copy!
+	<primitive: 155>!
 
 _swapReferences
 
@@ -418,17 +412,14 @@ doesNotUnderstand: aMessage
 
 	"Forward aMessage to the proxiedObject, subject to the transactionMutex"
 	
-	[(self _proxyInstVarAt: 2) transactionCritical: 
-		["Make sure that some other process has not swapped my references while I was waiting for the mutex."
-		| me |
-		self isDBProxy ifTrue: 
-			[proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-			"Swap references to the receiver and proxiedObject. 
-			From hereon, must use me instead of self to refer to the proxy, and not reference inst vars directly."
-			me := self _swapReferences.
-			me _reStore proxy: me forwarded: aMessage]]] 
-		on: MessageNotUnderstood
-		do: [:ex | ex selector = #_proxyInstVarAt: ifTrue: [ex return] ifFalse: [ex pass]].
+	self _dbProxyReStore ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			["Make sure that some other process has not swapped my references while I was waiting for the mutex."
+			self isDBProxy ifTrue: 
+				[proxiedObject isNil ifTrue: [self _recoverProxiedObject].
+				"Swap references to the receiver and proxiedObject. From hereon, must not reference inst vars directly."
+				proxyReStore proxy: self _swapReferences forwarded: aMessage]]].
 
 	^aMessage value: self!
 
@@ -441,13 +432,17 @@ includedIn: aCollection
 
 instVarAt: anInteger
 
-	"This is a standard message which does not modify the proxiedObject.
-	Hence forward without notification"	
-	
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
+	"Avoid the ProtoObject implementation"	
 
-	^proxiedObject instVarAt: anInteger
-!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self instVarAt: anInteger]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+				ifTrue: [self _forwardDirectly: (Message selector: #instVarAt: argument: anInteger)]
+				ifFalse: [self instVarAt: anInteger]]]!
 
 isDBProxy
 
@@ -472,24 +467,6 @@ onRollback
 	If a proxy receives this message it has been flipped by a previous onRollback, so forward without notification"
 
 	^proxiedObject onRollback!
-
-printOn: aStream
-
-	"For efficiency, recognise this as a non-modifying method.
-	ASSERT: the proxiedObject is not modified when sent this message"
-
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-
-	^proxiedObject printOn: aStream!
-
-printString
-
-	"For efficiency, recognise this as a non-modifying method.
-	ASSERT: the proxiedObject is not modified when sent this message"
-
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-
-	^proxiedObject printString!
 
 refresh
 
@@ -565,13 +542,14 @@ _commitChangesPhase2!actions-internal!public! !
 _commitIn:!actions-internal!public! !
 _dbProxyIn:!accessing:direct!public! !
 _dbProxyIn:ifNone:!accessing:direct!public! !
-_doesNotUnderstand:!forwarding!public! !
+_dbProxyReStore!accessing!private! !
 _ensureActiveIn:!actions-internal!public! !
 _ensurePersistentIn:!actions-internal!public! !
 _forceRefresh!actions-refresh!public! !
 _forceRefreshIn:!actions-refresh!public! !
 _forceRefreshWithContents!actions-refresh!public! !
 _forgetProxiedObject!actions-internal!public! !
+_forwardDirectly:!forwarding!private! !
 _hasChanged!public!testing! !
 _hasChangedFrom:!public!testing! !
 _isDeleted!public!testing! !
@@ -613,8 +591,6 @@ isDBProxy!public!testing! !
 isInteger!non forwarding!public! !
 notNil!non forwarding!public! !
 onRollback!actions-internal!public! !
-printOn:!forwarding!public! !
-printString!forwarding!public! !
 refresh!actions-api!public! !
 rollback!actions-api!public! !
 softRollback!actions-api!public! !

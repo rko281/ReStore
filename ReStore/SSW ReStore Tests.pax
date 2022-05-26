@@ -157,6 +157,7 @@ package classNames
 	yourself.
 
 package methodNames
+	add: #Object -> #_deproxify;
 	add: #SSWMySQLDialect -> #shouldDropTablesForTestCases;
 	add: #SSWPostgreSQLDialect -> #shouldDropTablesForTestCases;
 	add: #SSWReStore -> #simulateReconnect;
@@ -188,10 +189,10 @@ package!
 "Class Definitions"!
 
 Object subclass: #FieldNameTest
-	instanceVariableNames: 'id name'
+	instanceVariableNames: 'id name description'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: 'shouldUseFieldNames'!
+	classInstanceVariableNames: 'shouldUseAlternativeNames'!
 Object subclass: #GenericTest
 	instanceVariableNames: 'name component'
 	classVariableNames: ''
@@ -927,6 +928,15 @@ SSWReStoreTableTest subclass: #SSWReStoreTableWithNamespaceTest
 
 
 "Loose Methods"!
+
+!Object methodsFor!
+
+_deproxify
+
+	"Non-inlined method that can be sent to any object to ensure it's not a ReStore proxy"! !
+!Object categoriesForMethods!
+_deproxify!private!restore-internal! !
+!
 
 !SSWMySQLDialect methodsFor!
 

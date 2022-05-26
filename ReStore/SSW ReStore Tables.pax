@@ -18,6 +18,7 @@ package classNames
 	add: #SSWDBIDAccessor;
 	add: #SSWDBInheritedTable;
 	add: #SSWDBInlinedClass;
+	add: #SSWDBInstVarDefinition;
 	add: #SSWDBInstVarWithFieldName;
 	add: #SSWDBIntermediateTable;
 	add: #SSWDBNonParameterizedStaticField;
@@ -26,6 +27,7 @@ package classNames
 	add: #SSWDBQueryTable;
 	add: #SSWDBQueryTableField;
 	add: #SSWDBRelatedWrapper;
+	add: #SSWDBRenamedInstVar;
 	add: #SSWDBStaticField;
 	add: #SSWDBSubTable;
 	add: #SSWDBSuperTable;
@@ -60,9 +62,10 @@ package methodNames
 	add: #SSWSQLJoinedTableCollection -> #joinFields;
 	add: #SSWSQLJoinedTableCollection -> #lastJoinField;
 	add: #SSWSQLTableCollection -> #occurrencesOfIncludingRepetitions:;
-	add: #Symbol -> #asDatabaseFieldNamed:;
 	add: #Symbol -> #asInstVarName;
 	add: #Symbol -> #databaseFieldNameIn:;
+	add: #Symbol -> #previouslyNamed:;
+	add: #Symbol -> #withDatabaseName:;
 	add: 'Integer class' -> #reStoreNewUnique;
 	add: 'Object class' -> #addClassDefinitionTo:;
 	add: 'Object class' -> #hasPersistentSuperclass;
@@ -114,8 +117,8 @@ Object subclass: #SSWDBDirectlyPersistedObject
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-Object subclass: #SSWDBInstVarWithFieldName
-	instanceVariableNames: 'instVar fieldName'
+Object subclass: #SSWDBInstVarDefinition
+	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -176,6 +179,16 @@ SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
 	classInstanceVariableNames: ''!
 SSWDBClassWithInfo subclass: #SSWDBInlinedClass
 	instanceVariableNames: 'inlinedClass'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBInstVarDefinition subclass: #SSWDBInstVarWithFieldName
+	instanceVariableNames: 'instVar fieldName'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBInstVarDefinition subclass: #SSWDBRenamedInstVar
+	instanceVariableNames: 'previousName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -665,12 +678,6 @@ reStoreInstVarAccessorIn:!persistency!public! !
 
 !Symbol methodsFor!
 
-asDatabaseFieldNamed: aString
-
-	"Return an object representing the instance variable with the receiver's name, which is to be mapped to a database field with the name aString"
-
-	^SSWDBInstVarWithFieldName instVar: self fieldName: aString!
-
 asInstVarName
 
 	^self!
@@ -679,11 +686,28 @@ databaseFieldNameIn: anSSWDBTable
 
 	"Return the corresponding field name of the receiver in anSSWDBTable"
 
-	^anSSWDBTable dbNameFor: self! !
+	^(SSWDBInstVarDefinition name: self) databaseFieldNameIn: anSSWDBTable!
+
+previouslyNamed: aSymbol
+
+	"Return an object representing the instance variable with the receiver's name, which was previously named aSymbol"
+
+	^(SSWDBRenamedInstVar name: self)
+		previousName: aSymbol;
+		yourself!
+
+withDatabaseName: aString
+
+	"Return an object representing the instance variable with the receiver's name, which is to be mapped to a database field with the name aString"
+
+	^(SSWDBInstVarWithFieldName name: self) 
+		fieldName: aString;
+		yourself! !
 !Symbol categoriesForMethods!
-asDatabaseFieldNamed:!converting!public! !
 asInstVarName!converting!public! !
 databaseFieldNameIn:!converting!public! !
+previouslyNamed:!converting!public! !
+withDatabaseName:!converting!public! !
 !
 
 "End of package definition"!
