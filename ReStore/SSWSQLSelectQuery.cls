@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLConditionalQuery subclass: #SSWSQLSelectQuery
 	instanceVariableNames: 'fields fieldAliases'
@@ -56,11 +56,8 @@ fieldNamed: aString
 	"Return the field with the given name (which must be an alias if the receiver has fieldAliases)"
 
 	^self fieldAliases isNil
-	ifTrue: 
-		[self actualFields fieldNamed: aString]
-	ifFalse: 
-		[self fieldAliases keysAndValuesDo: [ :field :alias | alias = aString ifTrue: [^field]].
-		nil]!
+		ifTrue: [self actualFields fieldNamed: aString]
+		ifFalse: [self fieldWithAlias: aString]!
 
 fields
 
@@ -75,6 +72,14 @@ fields: anSSWSQLFieldCollection
 	This is stored as an SSWSQLFieldCollection"
 	
 	fields := anSSWSQLFieldCollection!
+
+fieldWithAlias: aString
+
+	"Return the field with the given name (which must be an alias if the receiver has fieldAliases)"
+
+	self fieldAliases keysAndValuesDo: [ :field :alias | alias = aString ifTrue: [^field]].
+
+	^nil!
 
 hasOrdering
 
@@ -117,18 +122,21 @@ writeSQLOn: aStream
 	self tables writeSQLOn: aStream.
 
 	self writeWhereClauseOn: aStream! !
-!SSWSQLSelectQuery categoriesFor: #actualFields!accessing - derived!public! !
-!SSWSQLSelectQuery categoriesFor: #asAggregatedQuery!converting!public! !
-!SSWSQLSelectQuery categoriesFor: #field:!accessing - derived!public! !
-!SSWSQLSelectQuery categoriesFor: #fieldAliases!accessing!public! !
-!SSWSQLSelectQuery categoriesFor: #fieldAliases:!accessing!public! !
-!SSWSQLSelectQuery categoriesFor: #fieldNamed:!accessing - derived!public! !
-!SSWSQLSelectQuery categoriesFor: #fields!accessing!public! !
-!SSWSQLSelectQuery categoriesFor: #fields:!accessing!public! !
-!SSWSQLSelectQuery categoriesFor: #hasOrdering!public!testing! !
-!SSWSQLSelectQuery categoriesFor: #isReadQuery!public!testing! !
-!SSWSQLSelectQuery categoriesFor: #preExecIn:!operations!public! !
-!SSWSQLSelectQuery categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLSelectQuery categoriesForMethods!
+actualFields!accessing - derived!public! !
+asAggregatedQuery!converting!public! !
+field:!accessing - derived!public! !
+fieldAliases!accessing!public! !
+fieldAliases:!accessing!public! !
+fieldNamed:!accessing - derived!public! !
+fields!accessing!public! !
+fields:!accessing!public! !
+fieldWithAlias:!accessing - derived!private! !
+hasOrdering!public!testing! !
+isReadQuery!public!testing! !
+preExecIn:!operations!public! !
+writeSQLOn:!output!public! !
+!
 
 !SSWSQLSelectQuery class methodsFor!
 
@@ -137,5 +145,7 @@ new
 	^super new
 		fields: SSWSQLFieldCollection new;
 		yourself! !
-!SSWSQLSelectQuery class categoriesFor: #new!instance creation!public! !
+!SSWSQLSelectQuery class categoriesForMethods!
+new!instance creation!public! !
+!
 

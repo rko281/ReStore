@@ -13,7 +13,9 @@ SSWDBSortedOwnedCollectionSpec comment: ''!
 hasCollection: updatedCollection anyAdditionsOrRemovalsFrom: originalCollection
 
 	updatedCollection size = originalCollection size ifFalse: [^true].
-	updatedCollection with: originalCollection do: [ :a :b | a == b ifFalse: [^true]].
+
+	1 to: originalCollection size do: [ :index | (originalCollection at: index) == (updatedCollection at: index) ifFalse: [^true]].
+
 	^false!
 
 queryClass

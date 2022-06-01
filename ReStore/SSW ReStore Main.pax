@@ -628,7 +628,9 @@ hasChanged
 
 	"Return whether the receiver or its related objects have changed in the image since loading from the ReStore instance in which they reside"
 
-	^(self _reStoreIfNone: ["Not (yet) persistent" ^true]) hasChanged: self withRelatedComponents!
+	^(self _reStoreIfNone: [nil]) 
+		ifNil: ["Not (yet) persistent" true]
+		ifNotNil: [ :reStore | reStore hasChanged: self withRelatedComponents]!
 
 isDBDeleted
 

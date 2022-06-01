@@ -797,17 +797,13 @@ fetchObjectsOfClass: aClass withQuery: anSSWSQLQuery into: aCollection
 
 fetchObjectsOfClass: aClass withStatement: aDBPreparedStatement into: aCollection
 
-	| table index |
+	| table |
 		
 	table := self tableForClass: aClass.
-	index := 1.
 
 	self 
 		rowsFromStatement: aDBPreparedStatement 
-		do: 
-			[ :row |
-			aCollection _dbAdd: (self objectFromRow: row table: table) suggestedIndex: index.
-			index := index + 1]!
+		keysAndValuesDo: [ :index :row | aCollection _dbAdd: (self objectFromRow: row table: table) suggestedIndex: index]!
 
 finalize
 
@@ -1451,9 +1447,13 @@ rowsFromStatement: aDBPreparedStatement do: aBlock
 
 	aDBPreparedStatement exec.
 
-	aDBPreparedStatement results do: [ :row | aBlock value: row].
+	[aDBPreparedStatement results do: [ :row | aBlock value: row]] ensure: [aDBPreparedStatement close]!
 
-	aDBPreparedStatement close!
+rowsFromStatement: aDBPreparedStatement keysAndValuesDo: aBlock
+
+	aDBPreparedStatement exec.
+
+	[aDBPreparedStatement results keysAndValuesDo: [ :index :row | aBlock value: index value: row]] ensure: [aDBPreparedStatement close]!
 
 selectChanged: aCollection
 
@@ -1867,6 +1867,7 @@ rollbackTransaction!public!transaction api! !
 rowFromQuery:!public!querying! !
 rowsFromQuery:do:!public!querying! !
 rowsFromStatement:do:!public!querying! !
+rowsFromStatement:keysAndValuesDo:!public!querying! !
 selectChanged:!public!transaction management! !
 setDefaultTransactionMode!initialize/release!private! !
 softDisconnect!connection!private! !
@@ -1983,12 +1984,14 @@ proxyForObject: anObject ifNone: aBlock
 
 	"Locate and return the proxy wrapping anObject in the receiver's activeReStores.
 	If none found, return the result of evaluating aBlock"
-	
-	self activeReStores do:
-		[ :aReStore | 
-		"Only interrogate aReStore if it stores instances of the class of anObject"
-		((aReStore tableCache includesKey: anObject class) or: [anObject isKindOf: Collection]) ifTrue:
-			[(aReStore activeProxyForObject: anObject ifNone: [nil]) ifNotNil: [ :proxy | ^proxy]]].
+
+	"Inline for performance"
+	1 to: self activeReStores basicSize do:
+		[ :index |
+		(activeReStores basicAt: index) ifNotNil: 
+			[ :aReStore |
+			"Only interrogate aReStore if it stores instances of the class of anObject"
+			((aReStore tableCache includesKey: anObject class) or: [anObject isKindOf: Collection]) ifTrue: [(aReStore activeProxyForObject: anObject ifNone: [nil]) ifNotNil: [ :proxy | ^proxy]]]].
 
 	^aBlock value!
 
