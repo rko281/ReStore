@@ -7,6 +7,10 @@ https://github.com/rko281/ReStore'.
 
 
 package classNames
+	add: #AbstractA;
+	add: #AbstractB;
+	add: #ConcreteA;
+	add: #ConcreteB;
 	add: #DetailedPerson;
 	add: #DetailedPerson1;
 	add: #DetailedPerson2;
@@ -113,6 +117,7 @@ package classNames
 	add: #SSWReStoreProcessAffiliationTest;
 	add: #SSWReStoreProcessSafetyTest;
 	add: #SSWReStoreProductOrdersTest;
+	add: #SSWReStoreProxyNonForwardingTest;
 	add: #SSWReStoreQueryByExampleTest;
 	add: #SSWReStoreQueryTest;
 	add: #SSWReStoreReadStreamTest;
@@ -188,6 +193,11 @@ package!
 
 "Class Definitions"!
 
+Object subclass: #AbstractA
+	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 Object subclass: #FieldNameTest
 	instanceVariableNames: 'id name description'
 	classVariableNames: ''
@@ -270,6 +280,21 @@ Object subclass: #Test
 	classInstanceVariableNames: ''!
 Object subclass: #TypeTest
 	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer largeInteger float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean uuid'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+AbstractA subclass: #AbstractB
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+AbstractB subclass: #ConcreteA
+	instanceVariableNames: 'a'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+AbstractB subclass: #ConcreteB
+	instanceVariableNames: 'b'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -650,6 +675,11 @@ SSWReStoreRefreshTest subclass: #SSWReStoreRefreshNoVersTest
 	classInstanceVariableNames: ''!
 SSWReStoreUpdateClashTest subclass: #SSWReStoreTransactionlessUpdateClashTest
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreHierarchyTest subclass: #SSWReStoreProxyNonForwardingTest
+	instanceVariableNames: 'sup mid sub detailed simple simple2 all transactionCriticalAction'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

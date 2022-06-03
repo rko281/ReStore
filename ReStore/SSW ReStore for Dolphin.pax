@@ -35,6 +35,7 @@ package methodNames
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #basicPrintOn:;
+	add: #SSWDBProxy -> #icon;
 	add: #SSWDBProxy -> #ifNil:;
 	add: #SSWDBProxy -> #ifNil:ifNotNil:;
 	add: #SSWDBProxy -> #ifNotNil:;
@@ -575,6 +576,18 @@ basicPrintOn: aStream
 
 	aStream nextPutAll: self debugPrintString!
 
+icon
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self icon]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+				ifTrue: [self _forwardDirectly: ##(Message selector: #icon)]
+				ifFalse: [self icon]]]!
+
 ifNil: nilBlock 
 	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
 
@@ -610,6 +623,7 @@ isNil
 _allReferences!non forwarding!public! !
 _proxyClass!accessing:direct!private! !
 basicPrintOn:!accessing:direct!private! !
+icon!non forwarding!public! !
 ifNil:!non forwarding!public! !
 ifNil:ifNotNil:!non forwarding!public! !
 ifNotNil:!non forwarding!public! !

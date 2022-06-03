@@ -56,8 +56,8 @@ createTestData
 
 	(Array
 		with: (SuperPerson new firstName: 'john')
-		with: (MidPerson new firstName: 'dave'; middleName: 'davison')
-		with: (SubPerson new firstName: 'mike'; middleName: 'michaelson'; age: 22)) storeAllIn: reStore.
+		with: (MidPerson new firstName: 'dave'; middleName: 'davison'; surname: 'davidson')
+		with: (SubPerson new firstName: 'mike'; middleName: 'michaelson'; surname: 'michaels'; age: 22)) storeAllIn: reStore.
 
 	reStore simulateReconnect!
 
@@ -206,7 +206,97 @@ testClassOfProxyOfSubInstance
 
 testClassOfProxyOfSuperInstance
 
-	self _testClassOfProxyOfInstanceOf: SuperPerson! !
+	self _testClassOfProxyOfInstanceOf: SuperPerson!
+
+testInheritanceStructureWithInheritance
+
+	reStore addClassWithSubclasses: AbstractA.
+
+	self assert: (reStore tableForClass: AbstractA) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: AbstractB) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: ConcreteA) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: ConcreteB) name equals: (reStore sqlDialect transformClassName: #AbstractA)!
+
+testInheritanceStructureWithoutInheritanceNonPersistentIntermediate
+
+	[AbstractA class methodDictionary at: #shouldSubclassesInheritPersistency put: (AbstractA class>>#shouldSubclassesInheritPersistencyFalse).
+	AbstractA class flushMethodCache.
+
+	reStore addClassWithSubclasses: AbstractA.
+	self assert: (reStore tableForClass: AbstractA) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: AbstractB) name equals: (reStore sqlDialect transformClassName: #AbstractB).
+	self assert: (reStore tableForClass: ConcreteA) name equals: (reStore sqlDialect transformClassName: #ConcreteA).
+	self assert: (reStore tableForClass: ConcreteB) name equals: (reStore sqlDialect transformClassName: #ConcreteB)] ensure: 
+		[AbstractA class methodDictionary removeKey: #shouldSubclassesInheritPersistency.
+		AbstractA class flushMethodCache]!
+
+testInheritanceStructureWithoutInheritancePersistentIntermediate
+
+	[AbstractA class methodDictionary at: #shouldSubclassesInheritPersistency put: (AbstractA class>>#shouldSubclassesInheritPersistencyFalse).
+	AbstractB class methodDictionary at: #reStoreDefinition put: (AbstractB class>>#reStoreDefinitionEmpty).
+	AbstractA class flushMethodCache.
+	AbstractB class flushMethodCache.
+
+	reStore addClassWithSubclasses: AbstractA.
+	self assert: (reStore tableForClass: AbstractA) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: AbstractB) name equals: (reStore sqlDialect transformClassName: #AbstractB).
+	self assert: (reStore tableForClass: ConcreteA) name equals: (reStore sqlDialect transformClassName: #AbstractB).
+	self assert: (reStore tableForClass: ConcreteB) name equals: (reStore sqlDialect transformClassName: #AbstractB)] ensure: 
+		[AbstractA class methodDictionary removeKey: #shouldSubclassesInheritPersistency.
+		AbstractB  class methodDictionary removeKey: #reStoreDefinition.
+		AbstractA class flushMethodCache.
+		AbstractB class flushMethodCache]!
+
+testInheritanceStructureWithoutInheritancePersistentIntermediateOldFormat
+
+	[AbstractA class methodDictionary at: #shouldSubclassesInheritPersistency put: (AbstractA class>>#shouldSubclassesInheritPersistencyFalse).
+	AbstractB class methodDictionary at: #addClassDefinitionTo: put: (AbstractB class>>#addClassDefinitionToEmpty:).
+	AbstractA class flushMethodCache.
+	AbstractB class flushMethodCache.
+
+	reStore addClassWithSubclasses: AbstractA.
+	self assert: (reStore tableForClass: AbstractA) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: AbstractB) name equals: (reStore sqlDialect transformClassName: #AbstractB).
+	self assert: (reStore tableForClass: ConcreteA) name equals: (reStore sqlDialect transformClassName: #AbstractB).
+	self assert: (reStore tableForClass: ConcreteB) name equals: (reStore sqlDialect transformClassName: #AbstractB)] ensure: 
+		[AbstractA class methodDictionary removeKey: #shouldSubclassesInheritPersistency.
+		AbstractB  class methodDictionary removeKey: #addClassDefinitionTo:.
+		AbstractA class flushMethodCache.
+		AbstractB class flushMethodCache]!
+
+testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediate
+
+	[AbstractB class methodDictionary 
+		at: #shouldSubclassesInheritPersistency put: (AbstractB class>>#shouldSubclassesInheritPersistencyFalse);
+		at: #reStoreDefinition put: (AbstractB class>>#reStoreDefinitionEmpty).
+	AbstractB class flushMethodCache.
+
+	reStore addClassWithSubclasses: AbstractA.
+	self assert: (reStore tableForClass: AbstractA) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: AbstractB) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: ConcreteA) name equals: (reStore sqlDialect transformClassName: #ConcreteA).
+	self assert: (reStore tableForClass: ConcreteB) name equals: (reStore sqlDialect transformClassName: #ConcreteB)] ensure: 
+		[AbstractB class methodDictionary
+			removeKey: #shouldSubclassesInheritPersistency;
+			removeKey: #reStoreDefinition.
+		AbstractB class flushMethodCache]!
+
+testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediateOldFormat
+
+	[AbstractB class methodDictionary 
+		at: #shouldSubclassesInheritPersistency put: (AbstractB class>>#shouldSubclassesInheritPersistencyFalse);
+		at: #addClassDefinitionTo: put: (AbstractB class>>#addClassDefinitionToEmpty:).
+	AbstractB class flushMethodCache.
+
+	reStore addClassWithSubclasses: AbstractA.
+	self assert: (reStore tableForClass: AbstractA) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: AbstractB) name equals: (reStore sqlDialect transformClassName: #AbstractA).
+	self assert: (reStore tableForClass: ConcreteA) name equals: (reStore sqlDialect transformClassName: #ConcreteA).
+	self assert: (reStore tableForClass: ConcreteB) name equals: (reStore sqlDialect transformClassName: #ConcreteB)] ensure: 
+		[AbstractB class methodDictionary
+			removeKey: #shouldSubclassesInheritPersistency;
+			removeKey: #addClassDefinitionTo:.
+		AbstractB class flushMethodCache]! !
 !SSWReStoreHierarchyTest categoriesForMethods!
 _testClassOfProxyOfIndirectInstanceOf:!private!unit tests! !
 _testClassOfProxyOfInstanceOf:!private!unit tests! !
@@ -226,5 +316,11 @@ testClassOfProxyOfInstanceOf:!public!unit tests! !
 testClassOfProxyOfMidInstance!public!unit tests! !
 testClassOfProxyOfSubInstance!public!unit tests! !
 testClassOfProxyOfSuperInstance!public!unit tests! !
+testInheritanceStructureWithInheritance!public!unit tests! !
+testInheritanceStructureWithoutInheritanceNonPersistentIntermediate!public!unit tests! !
+testInheritanceStructureWithoutInheritancePersistentIntermediate!public!unit tests! !
+testInheritanceStructureWithoutInheritancePersistentIntermediateOldFormat!public!unit tests! !
+testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediate!public!unit tests! !
+testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediateOldFormat!public!unit tests! !
 !
 

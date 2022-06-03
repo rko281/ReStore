@@ -80,6 +80,10 @@ _prepareToCommit
 
 	^self!
 
+_proxiedObjectClass
+	
+	^collectionSpec collectionClass!
+
 _recoverProxiedObject
 
 	collectionSpec recoverCollectionForProxy: self!
@@ -95,10 +99,6 @@ _refreshWithContentsIfUpdated
 	^self _isRecovered 
 		ifTrue: [collectionSpec refreshCollectionWithContentsIfUpdatedForProxy: self]
 		ifFalse: [#()]!
-
-_unrecoveredProxyString
-
-	^'<an unrecovered ', collectionSpec templateCollection class name, '>'!
 
 class
 
@@ -170,10 +170,10 @@ _owner:!accessing!public! !
 _ownerID!accessing!public! !
 _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
+_proxiedObjectClass!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshIfUpdated!actions-refresh!public! !
 _refreshWithContentsIfUpdated!actions-refresh!public! !
-_unrecoveredProxyString!accessing!public! !
 class!forwarding!public! !
 orRemote!forwarding!public! !
 remote!accessing!public! !

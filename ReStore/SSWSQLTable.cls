@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWSQLTable
 	instanceVariableNames: 'name'
@@ -64,13 +64,15 @@ writeSQLOn: aStream
 
 	self writeSQLNameOn: aStream
 ! !
-!SSWSQLTable categoriesFor: #=!comparing!public! !
-!SSWSQLTable categoriesFor: #displayOn:!displaying!public! !
-!SSWSQLTable categoriesFor: #hash!comparing!public! !
-!SSWSQLTable categoriesFor: #hasStaticConditions!public!testing! !
-!SSWSQLTable categoriesFor: #name!accessing!public! !
-!SSWSQLTable categoriesFor: #name:!accessing!public! !
-!SSWSQLTable categoriesFor: #printOn:!displaying!public! !
-!SSWSQLTable categoriesFor: #writeSQLNameOn:!output!public! !
-!SSWSQLTable categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLTable categoriesForMethods!
+=!comparing!public! !
+displayOn:!displaying!public! !
+hash!comparing!public! !
+hasStaticConditions!public!testing! !
+name!accessing!public! !
+name:!accessing!public! !
+printOn:!displaying!public! !
+writeSQLNameOn:!output!public! !
+writeSQLOn:!output!public! !
+!
 

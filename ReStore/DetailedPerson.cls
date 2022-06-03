@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SuperPerson subclass: #DetailedPerson
 	instanceVariableNames: 'dob dateOfBirth friend bestFriend'
@@ -12,6 +12,10 @@ https://github.com/rko281/ReStore'!
 !DetailedPerson categoriesForClass!Unclassified! !
 !DetailedPerson methodsFor!
 
+= aDetailedPerson
+
+	^self fullName = aDetailedPerson fullName!
+
 bestFriend
 	^bestFriend!
 
@@ -24,6 +28,10 @@ dateOfBirth
 dateOfBirth: anObject
 	dateOfBirth := anObject!
 
+displayOn: aStream
+
+	aStream display: self firstName; space; display: self surname!
+
 dob
 	^dob!
 
@@ -34,15 +42,33 @@ friend
 	^friend!
 
 friend: anObject
-	friend := anObject! !
-!DetailedPerson categoriesFor: #bestFriend!accessing!private! !
-!DetailedPerson categoriesFor: #bestFriend:!accessing!private! !
-!DetailedPerson categoriesFor: #dateOfBirth!accessing!private! !
-!DetailedPerson categoriesFor: #dateOfBirth:!accessing!private! !
-!DetailedPerson categoriesFor: #dob!accessing!private! !
-!DetailedPerson categoriesFor: #dob:!accessing!private! !
-!DetailedPerson categoriesFor: #friend!accessing!private! !
-!DetailedPerson categoriesFor: #friend:!accessing!private! !
+	friend := anObject!
+
+hash
+
+	^self fullName hash!
+
+printOn: aStream
+	"Answer the name of the receiver as a developer would wish to see it ."
+
+	super printOn: aStream.
+	aStream nextPut: $(.
+	self displayOn: aStream.
+	aStream nextPut: $).! !
+!DetailedPerson categoriesForMethods!
+=!comparing!public! !
+bestFriend!accessing!private! !
+bestFriend:!accessing!private! !
+dateOfBirth!accessing!private! !
+dateOfBirth:!accessing!private! !
+displayOn:!displaying!public! !
+dob!accessing!private! !
+dob:!accessing!private! !
+friend!accessing!private! !
+friend:!accessing!private! !
+hash!comparing!public! !
+printOn:!displaying!public! !
+!
 
 !DetailedPerson class methodsFor!
 
@@ -69,7 +95,9 @@ useBestFriend
 useDateOfBirth
 
 	^DetailedPerson2 useDateOfBirth! !
-!DetailedPerson class categoriesFor: #reStoreDefinition!public! !
-!DetailedPerson class categoriesFor: #useBestFriend!public! !
-!DetailedPerson class categoriesFor: #useDateOfBirth!public! !
+!DetailedPerson class categoriesForMethods!
+reStoreDefinition!public! !
+useBestFriend!public! !
+useDateOfBirth!public! !
+!
 

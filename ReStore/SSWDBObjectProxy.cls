@@ -142,6 +142,14 @@ _prepareToCommit
 
 	self _isDeleted ifFalse: [self _storeNonPersistentComponents]!
 
+_proxiedClassIsDefinitive
+
+	^proxiedObject notNil or: [self _dbTable class == SSWDBTable]!
+
+_proxiedObjectClass
+	
+	^class!
+
 _proxiedObjectMissing
 
 	"The receiver's proxiedObject (as specified by class/id) is missing.
@@ -150,6 +158,10 @@ _proxiedObjectMissing
 	self 
 		_proxiedObject: (SSWDBDeletedObject newForClass: class id: id);
 		_collectionProxies: IdentityDictionary new!
+
+_proxyString
+
+	^'%<<1?an un:a >recovered <2p> id=<3p>%>' expandMacrosWith: proxiedObject isNil with: class with: id!
 
 _recoverProxiedObject
 
@@ -234,9 +246,19 @@ _valuesForAccessor: anInstVarAccessor
 
 	"No need to fetch the object if #= == #=="
 
-	^(proxiedObject isNil and: [(class lookupMethod: #=) == (Object>>#=)])
-		ifTrue: [self == anotherObject]
-		ifFalse: [self doesNotUnderstand: (Message selector: #= argument: anotherObject) "equality may be the same as identity so we *must* swap, hence DNU rather than _forwardDirectly:"]!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self = anotherObject]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(self _proxiedClassIsDefinitive and: [(class lookupMethod: #=) == (Object>>#=)])
+					ifTrue: [self == anotherObject]
+					ifFalse: [self doesNotUnderstand: (Message selector: #= argument: anotherObject) "equality may be the same as identity so we *must* swap, hence DNU rather than _forwardDirectly:"]]
+			ifFalse: 
+				[self = anotherObject]]]!
 
 basicClass
 
@@ -254,7 +276,7 @@ class
 		proxyReStore transactionCritical: 
 			[self isDBProxy 
 			ifTrue: 
-				[(proxiedObject isNil and: [self _dbTable class == SSWDBTable])
+				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
 					ifTrue: [class]
 					ifFalse: [self _forwardDirectly: (Message selector: #class)]]
 			ifFalse: 
@@ -280,9 +302,19 @@ hash
 
 	"No need to fetch the object if hash == identityHash"
 
-	^(proxiedObject isNil and: [(class lookupMethod: #hash) == (Object>>#hash)])
-		ifTrue: [self identityHash]
-		ifFalse: [self doesNotUnderstand: (Message selector: #hash) "hash may be the same as identityHash so we *must* swap, hence DNU rather than _forwardDirectly:"]!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self hash]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(self _proxiedClassIsDefinitive and: [(class lookupMethod: #hash) == (Object>>#hash)])
+					ifTrue: [self identityHash]
+					ifFalse: [self doesNotUnderstand: (Message selector: #hash) "hash may be the same as identityHash so we *must* swap, hence DNU rather than _forwardDirectly:"]]
+			ifFalse: 
+				[self hash]]]!
 
 isKindOf: aClass
 
@@ -296,11 +328,11 @@ isKindOf: aClass
 		proxyReStore transactionCritical: 
 			[self isDBProxy 
 			ifTrue: 
-				[(proxiedObject isNil and: [self _dbTable class == SSWDBTable])
+				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
 					ifTrue: [(class == aClass) or: [class inheritsFrom: aClass]]
 					ifFalse: [self _forwardDirectly: (Message selector: #isKindOf: argument: aClass)]]
 			ifFalse: 
-				[self class]]]!
+				[self isKindOf: aClass]]]!
 
 isSQLNull
 
@@ -316,17 +348,45 @@ printOn: aStream
 
 	"Do not error on printString to a deleted object"
 
-	^self _isDeleted
-		ifTrue: [aStream nextPutAll: self debugPrintString]
-		ifFalse: [super printOn: aStream]!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self printOn: aStream]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[self _isDeleted 
+				ifTrue: 
+					[aStream nextPutAll: self debugPrintString]
+				ifFalse: 
+					[(proxiedObject isNil and: [self _proxiedClassIsDefinitive and: [(class lookupMethod: #printOn:) == (Object>>#printOn:)]])
+						ifTrue: [class basicNew printOn: aStream]
+						ifFalse: [self _forwardDirectly: (Message selector: #printOn: argument: aStream)]]]
+			ifFalse: 
+				[self printOn: aStream]]]!
 
 printString
 
 	"Do not error on printString to a deleted object"
 
-	^self _isDeleted
-		ifTrue: [self debugPrintString]
-		ifFalse: [super printString]!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self printString]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[self _isDeleted 
+				ifTrue: 
+					[self debugPrintString]
+				ifFalse: 
+					[(proxiedObject isNil and: [self _proxiedClassIsDefinitive and: [(class lookupMethod: #printOn:) == (Object>>#printOn:) and: [(class lookupMethod: #printString) == (Object>>#printString)]]])
+						ifTrue: [class basicNew printString]
+						ifFalse: [self _forwardDirectly: (Message selector: #printString)]]]
+			ifFalse: 
+				[self printString]]]!
 
 reStoreValue
 
@@ -408,7 +468,10 @@ _intern!actions-internal!public! !
 _isNew!public!testing! !
 _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
+_proxiedClassIsDefinitive!private!testing! !
+_proxiedObjectClass!accessing!public! !
 _proxiedObjectMissing!actions-internal!public! !
+_proxyString!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshFromRow:table:!actions-internal!public! !
 _storeNonPersistentComponents!actions-internal!private! !

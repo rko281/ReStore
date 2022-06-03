@@ -68,6 +68,7 @@ package methodNames
 	add: #Symbol -> #withDatabaseName:;
 	add: 'Integer class' -> #reStoreNewUnique;
 	add: 'Object class' -> #addClassDefinitionTo:;
+	add: 'Object class' -> #hasOwnReStoreDefinition;
 	add: 'Object class' -> #hasPersistentSuperclass;
 	add: 'Object class' -> #isPersistencyInherited;
 	add: 'Object class' -> #persistencyRootClass;
@@ -357,6 +358,12 @@ addClassDefinitionTo: anSSWDBClassDefinition
 
 	^self!
 
+hasOwnReStoreDefinition
+
+	"Return whether the receiver specifies a reStoreDefinition itself (i.e. not just inherited)"
+
+	^(self class includesSelector: #reStoreDefinition) or: ["Backwards compatibility" self class includesSelector: #addClassDefinitionTo:]!
+
 hasPersistentSuperclass
 
 	"Return whether the receiver has a superclass from which it inherits some elements of persistence"
@@ -367,8 +374,8 @@ hasPersistentSuperclass
 		[ :sup |
 		sup = Object ifTrue: [^false].
 		sup shouldSubclassesInheritPersistency ifFalse: [^false].
-		sup reStoreDefinition isEmpty ifFalse: [^true]].
-		
+		sup hasOwnReStoreDefinition ifTrue: [^true]].
+
 	^false!
 
 isPersistencyInherited
@@ -503,6 +510,7 @@ tableIn: anSSWReStore
 	^self reStoreDefinition asTableIn: anSSWReStore! !
 !Object class categoriesForMethods!
 addClassDefinitionTo:!persistency!public! !
+hasOwnReStoreDefinition!persistency!public! !
 hasPersistentSuperclass!persistency!public! !
 isPersistencyInherited!persistency!public! !
 persistencyRootClass!persistency!public! !

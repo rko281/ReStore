@@ -97,6 +97,14 @@ _dbProxyReStore
 
 	^reStore!
 
+_debugPrintString
+
+	"Do not fault the receiver just for a debugger"
+
+	^proxiedObject == nil
+		ifTrue: [self _unrecoveredProxyString]
+		ifFalse: ['<', proxiedObject debugPrintString, '>']!
+
 _ensureActiveIn: anSSWReStore
 
 	"Ensure that the receiver is 'active' in the given ReStore 
@@ -253,6 +261,12 @@ _proxiedObject: anObject
 	
 	proxiedObject := anObject!
 
+_proxiedObjectClass
+
+	"Answer the class of the proxiedObject (or best guess) without needing to have the proxiedObject itself"
+
+	^self subclassResponsibility!
+
 _recoverProxiedObject
 
 	"Recover the receiver's proxiedObject from the database"
@@ -383,7 +397,7 @@ _swapReferences
 
 _unrecoveredProxyString
 
-	^'<Unrecovered Proxy>'!
+	^'%<an unrecovered <1p>%>' expandMacrosWith: self _proxiedObjectClass!
 
 _unstore
 
@@ -400,11 +414,15 @@ commit
 
 debugPrintString
 
-	"Do not fault the receiver just for a debugger"
-
-	^proxiedObject == nil
-		ifTrue: [self _unrecoveredProxyString]
-		ifFalse: ['<', proxiedObject debugPrintString, '>']!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self debugPrintString]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+				ifTrue: [self _debugPrintString]
+				ifFalse: [self debugPrintString]]]!
 
 doesNotUnderstand: aMessage
 
@@ -467,6 +485,14 @@ onRollback
 	If a proxy receives this message it has been flipped by a previous onRollback, so forward without notification"
 
 	^proxiedObject onRollback!
+
+printOn: aStream
+
+	^aStream nextPutAll: self debugPrintString!
+
+printString
+
+	^self debugPrintString!
 
 refresh
 
@@ -543,6 +569,7 @@ _commitIn:!actions-internal!public! !
 _dbProxyIn:!accessing:direct!public! !
 _dbProxyIn:ifNone:!accessing:direct!public! !
 _dbProxyReStore!accessing!private! !
+_debugPrintString!non forwarding!private! !
 _ensureActiveIn:!actions-internal!public! !
 _ensurePersistentIn:!actions-internal!public! !
 _forceRefresh!actions-refresh!public! !
@@ -565,6 +592,7 @@ _prepareToCommitPhase1!actions-internal!public! !
 _prepareToCommitPhase2!actions-internal!public! !
 _proxiedObject!accessing!public! !
 _proxiedObject:!accessing!public! !
+_proxiedObjectClass!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _referenced!actions-internal!public! !
 _refresh!actions-refresh!public! !
@@ -591,6 +619,8 @@ isDBProxy!public!testing! !
 isInteger!non forwarding!public! !
 notNil!non forwarding!public! !
 onRollback!actions-internal!public! !
+printOn:!non forwarding!public! !
+printString!non forwarding!public! !
 refresh!actions-api!public! !
 rollback!actions-api!public! !
 softRollback!actions-api!public! !

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBAbstractSubTable subclass: #SSWDBSubTable
 	instanceVariableNames: ''
@@ -18,5 +18,7 @@ withAllFields
 	For a subtable (not inherited further) can optimise this back to just the receiver"
 
 	^self! !
-!SSWDBSubTable categoriesFor: #withAllFields!evaluating!public! !
+!SSWDBSubTable categoriesForMethods!
+withAllFields!evaluating!public! !
+!
 
