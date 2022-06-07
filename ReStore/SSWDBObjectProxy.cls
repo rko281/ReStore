@@ -132,6 +132,12 @@ _isNew
 	
 	^self _isPersistent not!
 
+_postRecovered
+
+	"Inform the proxiedObject recovery is done"
+
+	proxiedObject onRecovered!
+
 _postSwapReferences
 
 	"Inform the collectionProxies"
@@ -466,6 +472,7 @@ _idIn:!forwarding!public! !
 _instVarAt:put:!forwarding!public! !
 _intern!actions-internal!public! !
 _isNew!public!testing! !
+_postRecovered!actions-internal!public! !
 _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
 _proxiedClassIsDefinitive!private!testing! !

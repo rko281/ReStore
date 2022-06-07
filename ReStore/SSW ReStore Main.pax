@@ -78,6 +78,7 @@ package methodNames
 	add: #Object -> #mergeUpdate:from:;
 	add: #Object -> #mergeUpdateFrom:newValue:accessor:;
 	add: #Object -> #onAboutToUnstore;
+	add: #Object -> #onRecovered;
 	add: #Object -> #onRefresh;
 	add: #Object -> #onRollback;
 	add: #Object -> #onUnstored;
@@ -687,6 +688,11 @@ onAboutToUnstore
 	Note in the event of a commit failure (e.g. update clash) the unstore may be rolled back.
 	Use onUnstored for definite confirmation of a completed unstore"!
 
+onRecovered
+
+	"Carry out any actions necessary following recovering this Object from the database.
+	Default - do nothing"!
+
 onRefresh
 
 	"Carry out any actions necessary following refreshing this Object from the database.
@@ -892,6 +898,7 @@ isValidForPersistence!private!restore-internal! !
 mergeUpdate:from:!public!restore-update clash handling! !
 mergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
 onAboutToUnstore!public!restore-event handling! !
+onRecovered!public!restore-event handling! !
 onRefresh!public!restore-event handling! !
 onRollback!public!restore-event handling! !
 onUnstored!public!restore-event handling! !

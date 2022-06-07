@@ -74,6 +74,7 @@ package classNames
 	add: #SSWReStoreDependentOwnedSortedCollectionTest;
 	add: #SSWReStoreDependentSortedCollectionTest;
 	add: #SSWReStoreDirectlyPersistedTest;
+	add: #SSWReStoreEventsTest;
 	add: #SSWReStoreFullTableTest;
 	add: #SSWReStoreFunctionTest;
 	add: #SSWReStoreGeneralAffiliationTest;
@@ -156,6 +157,9 @@ package classNames
 	add: #Test;
 	add: #TestBitmask;
 	add: #TestWithBitmask;
+	add: #TestWithEvents;
+	add: #TestWithEventsAbstract;
+	add: #TestWithEventsItem;
 	add: #TypeTest;
 	add: #UUIDOwnedSubTest;
 	add: #UUIDOwnedTest;
@@ -353,6 +357,11 @@ Test subclass: #TestWithBitmask
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+Test subclass: #TestWithEventsAbstract
+	instanceVariableNames: 'recoveryTime'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 GenericOwnedTest subclass: #UUIDOwnedTest
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -365,6 +374,16 @@ UUIDOwnedTest subclass: #StringIDOwnedTest
 	classInstanceVariableNames: ''!
 UUIDOwnedTest subclass: #UUIDOwnedSubTest
 	instanceVariableNames: 'number'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TestWithEventsAbstract subclass: #TestWithEvents
+	instanceVariableNames: 'items count'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+TestWithEventsAbstract subclass: #TestWithEventsItem
+	instanceVariableNames: 'owner'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -415,6 +434,11 @@ SSWReStoreTest subclass: #SSWReStoreTypeTest
 	classInstanceVariableNames: ''!
 SSWReStore2Test subclass: #SSWReStoreDirectlyPersistedTest
 	instanceVariableNames: 'owner'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStore2Test subclass: #SSWReStoreEventsTest
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

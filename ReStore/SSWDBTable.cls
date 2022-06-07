@@ -672,7 +672,9 @@ recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 
 	self controlFields do:
 		[ :field |
-		field applyValueFromRow: aDBRow to: anSSWDBObjectProxy]!
+		field applyValueFromRow: aDBRow to: anSSWDBObjectProxy].
+
+	anSSWDBObjectProxy _postRecovered!
 
 refreshProxy: aProxy fromRow: aDBRow
 
