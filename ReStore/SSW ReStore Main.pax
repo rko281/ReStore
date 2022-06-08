@@ -493,18 +493,16 @@ _dbProxyReStore
 _ensureActiveIn: anSSWReStore
 
 	"Ensure that the receiver is 'active' in the given ReStore 
-	'active' means persistent in anSSWReStore, and present in the current transaction.
+	'active' means persistent in anSSWReStore, and present and active in the current transaction"
 
-	If this message is received by a real object it is either persistent and active, or not yet persistent"
-
-	(self isValidForPersistence or: [anSSWReStore ensureIsActiveInCurrentTransaction: self]) ifFalse: [self storeInAnsweringProxy: anSSWReStore]!
+	^self _ensurePersistentIn: anSSWReStore!
 
 _ensurePersistentIn: anSSWReStore
 
 	"Ensure that the receiver is persistent in the given ReStore.
-	When received by a non-proxy object, the receiver is either non-persistent (store it) or already in the current transaction (do nothing)"
+	When received by a non-proxy object, the receiver is either non-persistent (store it) or already in the current transaction (ensure it is active, otherwise do nothing)"
 
-	(self isValidForPersistence or: [anSSWReStore isInCurrentTransaction: self]) ifFalse: [self storeInAnsweringProxy: anSSWReStore]!
+	(self isValidForPersistence or: [anSSWReStore ensureIsActiveInCurrentTransaction: self]) ifFalse: [self storeInAnsweringProxy: anSSWReStore]!
 
 _forceRefreshIn: aReStore
 

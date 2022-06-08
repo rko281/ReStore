@@ -63,7 +63,12 @@ package methodNames
 	add: #Dictionary -> #of:keyedOn:;
 	add: #Dictionary -> #of:owner:;
 	add: #Dictionary -> #of:owner:keyedOn:;
+	add: #Dictionary -> #ownedCacheDictionarySpecClass;
+	add: #Dictionary -> #ownedMultiValueCacheDictionarySpecClass;
+	add: #Dictionary -> #staticCacheDictionarySpecClass;
 	add: #Dictionary -> #staticCollectionSpecClass;
+	add: #Dictionary -> #staticDictionarySpecClass;
+	add: #Dictionary -> #staticMultiValueCacheDictionarySpecClass;
 	add: #IdentitySet -> #staticCollectionSpecClass;
 	add: #SequenceableCollection -> #isOrdered;
 	add: #SequenceableCollection -> #staticCollectionSpecClass;
@@ -473,7 +478,7 @@ of: targetClass keyClass: keyClass
 	The Dictionary's keys will be of the class keyClass, which should be a valid persistent class.
 	Create and return an appropriate SSWDBCollectionSpec"
 
-	^(self of: targetClass specClass: SSWDBStaticDictionarySpec)
+	^(self of: targetClass specClass: self staticDictionarySpecClass)
 		setKeyClass: keyClass;
 		yourself!
 
@@ -488,10 +493,10 @@ of: targetClass keyedOn: aSymbolOrBlock
 
 	(targetClass isKindOf: SSWDBCollectionSpec)
 	ifTrue: 
-		[spec := self of: targetClass targetClass specClass: SSWDBStaticMultiValueCacheDictionarySpec.
+		[spec := self of: targetClass targetClass specClass: self staticMultiValueCacheDictionarySpecClass.
 		targetClass isValueDependent ifTrue: [spec beValueDependent]]
 	ifFalse: 
-		[spec := self of: targetClass specClass: SSWDBStaticCacheDictionarySpec].
+		[spec := self of: targetClass specClass: self staticCacheDictionarySpecClass].
 
 	^spec
 		keyedOn: aSymbolOrBlock;
@@ -516,15 +521,27 @@ of: targetClass owner: ownerSymbol keyedOn: aSymbol
 
 	(targetClass isKindOf: SSWDBCollectionSpec)
 	ifTrue: 
-		[spec := self of: targetClass targetClass specClass: SSWDBOwnedMultiValueCacheDictionarySpec.
+		[spec := self of: targetClass targetClass specClass: self ownedMultiValueCacheDictionarySpecClass.
 		targetClass isValueDependent ifTrue: [spec beValueDependent]]
 	ifFalse: 
-		[spec := self of: targetClass specClass: SSWDBOwnedCacheDictionarySpec].
+		[spec := self of: targetClass specClass: self ownedCacheDictionarySpecClass].
 
 	^spec
 		owner: ownerSymbol;
 		keyedOn: aSymbol;
 		yourself!
+
+ownedCacheDictionarySpecClass
+
+	^SSWDBOwnedCacheDictionarySpec!
+
+ownedMultiValueCacheDictionarySpecClass
+
+	^SSWDBOwnedMultiValueCacheDictionarySpec!
+
+staticCacheDictionarySpecClass
+
+	^SSWDBStaticCacheDictionarySpec!
 
 staticCollectionSpecClass 
 
@@ -533,7 +550,15 @@ staticCollectionSpecClass
 
 	^self shouldNotImplement
 
-! !
+!
+
+staticDictionarySpecClass
+
+	^SSWDBStaticDictionarySpec!
+
+staticMultiValueCacheDictionarySpecClass
+
+	^SSWDBStaticMultiValueCacheDictionarySpec! !
 !Dictionary categoriesForMethods!
 _dbAdd:suggestedIndex:!adding!private! !
 of:!public!specification! !
@@ -541,7 +566,12 @@ of:keyClass:!private!specification! !
 of:keyedOn:!private!specification! !
 of:owner:!private!specification! !
 of:owner:keyedOn:!private!specification! !
+ownedCacheDictionarySpecClass!private!specification! !
+ownedMultiValueCacheDictionarySpecClass!private!specification! !
+staticCacheDictionarySpecClass!private!specification! !
 staticCollectionSpecClass!constants!private! !
+staticDictionarySpecClass!private!specification! !
+staticMultiValueCacheDictionarySpecClass!private!specification! !
 !
 
 !IdentitySet methodsFor!
