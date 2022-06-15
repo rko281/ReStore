@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedDictionaryTest
 	instanceVariableNames: ''
@@ -14,7 +14,23 @@ https://github.com/rko281/ReStore'!
 
 addToCollection: aCollection
 
-	^aCollection at: self templateComponent put: self templateComponent!
+	^(self addToCollectionAnsweringAssociation: aCollection) value!
+
+addToCollectionAnsweringAssociation
+
+	^self addToCollectionAnsweringAssociation: collection!
+
+addToCollectionAnsweringAssociation: aCollection
+
+	| newKey |
+
+	newKey := self templateComponent.
+	^newKey -> (aCollection at: newKey put: self templateComponent)
+	!
+
+addToCollectionAnsweringKey
+
+	^self addToCollectionAnsweringAssociation key!
 
 componentDefinition
 
@@ -49,7 +65,7 @@ testDependencyDeleteOnRepeatedRemoval
 
 	| component id cls oldKey newKey |
 
-	component := collection anyOne.
+	component := self anyOne.
 	id := component _id.
 	cls := component class.
 
@@ -85,12 +101,13 @@ testDependencyDeleteOnRepeatedRemoval
 
 testIncludesAssociation
 
-	| instances existingAssoc template templateKey matches |
+	| instances existingAssoc newAssoc template templateKey matches |
 
 	instances := GenericTest storedInstancesIn: reStore.
 	existingAssoc := testObject component associations anyOne.
-	template := self addToCollection.
-	templateKey := testObject component keyAtValue: template.
+	newAssoc := self addToCollectionAnsweringAssociation.
+	templateKey := newAssoc key.
+	template := newAssoc value.
 	self assert: (instances anySatisfy: [ :each | each component includesAssociation: existingAssoc]).
 	self deny: (instances anySatisfy: [ :each | each component includesAssociation: (existingAssoc key -> template)]).
 	self deny: (instances anySatisfy: [ :each | each component includesAssociation: (templateKey -> existingAssoc value)]).
@@ -110,12 +127,11 @@ testIncludesAssociation
 
 testIncludesKey
 
-	| instances existingKey template templateKey matches |
+	| instances existingKey templateKey matches |
 
 	instances := GenericTest storedInstancesIn: reStore.
 	existingKey := testObject component keys anyOne.
-	template := self addToCollection.
-	templateKey := testObject component keyAtValue: template.
+	templateKey := self addToCollectionAnsweringKey.
 	self assert: (instances anySatisfy: [ :each | each component includesKey: existingKey]).
 	self deny: (instances anySatisfy: [ :each | each component includesKey: templateKey]).
 
@@ -128,12 +144,17 @@ testIncludesKey
 	matches := instances select: [ :each | each component includesKey: templateKey].
 	self assert: matches size equals: 1.
 	self assert: matches first == testObject! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #addToCollection:!helpers!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #remove:fromCollection:!helpers!private! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #replaceInCollection:!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #testDependencyDeleteOnRepeatedRemoval!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #testIncludesAssociation!public!unit tests! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #testIncludesKey!public!unit tests! !
+!SSWReStoreRelatedDictionaryTest categoriesForMethods!
+addToCollection:!helpers!private! !
+addToCollectionAnsweringAssociation!helpers!private! !
+addToCollectionAnsweringAssociation:!helpers!private! !
+addToCollectionAnsweringKey!helpers!private! !
+componentDefinition!accessing!public! !
+remove:fromCollection:!helpers!private! !
+replaceInCollection:!public! !
+templateCollection!accessing!public! !
+testDependencyDeleteOnRepeatedRemoval!public! !
+testIncludesAssociation!public!unit tests! !
+testIncludesKey!public!unit tests! !
+!
 

@@ -16,6 +16,16 @@ _id
 
 	^self id!
 
+= anObject 
+
+	^self class == anObject class and: [self deletedObjectClass = anObject deletedObjectClass and: [self id = anObject id]]!
+
+copy
+
+	"Do not copy the receiver"
+
+	^self!
+
 deletedObjectClass
 
 	"deletedObjectClass stores the Class of object for which the receiver 
@@ -33,6 +43,10 @@ deletedObjectClass: aClass
 displayOn: aStream
 
 	self id displayOn: aStream!
+
+hash
+
+	^deletedObjectClass hash bitXor: id hash!
 
 id
 
@@ -67,9 +81,12 @@ unstore
 	^self! !
 !SSWDBDeletedObject categoriesForMethods!
 _id!accessing!public! !
+=!comparing!public! !
+copy!copying!public! !
 deletedObjectClass!accessing!public! !
 deletedObjectClass:!accessing!public! !
 displayOn:!printing!public! !
+hash!comparing!public! !
 id!accessing!public! !
 id:!accessing!public! !
 isDBDeleted!public!testing! !

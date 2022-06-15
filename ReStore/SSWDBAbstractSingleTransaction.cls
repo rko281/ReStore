@@ -229,7 +229,7 @@ nextCollectionPhase
 		ifTrue: [self allReferencedObjects: self currentReferencedObjects]
 		ifFalse: [self allReferencedObjects addAll: self currentReferencedObjects].
 
-	self currentReferencedObjects: self newEmptyObjectsSet
+	self currentReferencedObjects: (self newEmptyObjectsSet: self currentReferencedObjects size)
 !
 
 ownerTransaction

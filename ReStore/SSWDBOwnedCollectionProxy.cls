@@ -49,6 +49,11 @@ _copyCollection: aCollection
 	
 	copyCollection := aCollection!
 
+_forgetProxiedObject
+
+	copyCollection := nil.
+	super _forgetProxiedObject!
+
 _isDeleted
 
 	^proxiedObject == nil and: [copyCollection ~~ nil]!
@@ -163,6 +168,7 @@ _commitChangesPhase1!actions-internal!public! !
 _commitChangesPhase2!actions-internal!public! !
 _copyCollection!accessing!public! !
 _copyCollection:!accessing!public! !
+_forgetProxiedObject!actions-internal!public! !
 _isDeleted!public!testing! !
 _isPersistent!public!testing! !
 _postCommitChanges!actions!public! !

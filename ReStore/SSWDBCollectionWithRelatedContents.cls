@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBObjectWithRelatedComponents subclass: #SSWDBCollectionWithRelatedContents
 	instanceVariableNames: 'cachedProxy'
@@ -18,13 +18,29 @@ collection
 		ifNil: [self object] 
 		ifNotNil: [ :proxy | proxy _proxiedObject]!
 
+collectionSpec
+
+	^self originatingComponent ifNil: [self proxy ifNotNil: [ :proxy | proxy _collectionSpec]]!
+
 componentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet
 
-	self isRelated ifFalse: [^self].
+	| spec |
 
-	self collection do:
-		[ :each | 
-		each withRelatedComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]!
+	spec := self collectionSpec.
+	(spec isNil or: [spec isKeyRelated or: [spec isValueRelated]]) ifFalse: [^self].
+
+	(spec isNil or: [spec isValueRelated])
+	ifTrue: 
+		[(spec isNil or: [spec isKeyRelated])
+		ifTrue: 
+			[self collection keysAndValuesDo:
+				[ :key :value | 
+				key withRelatedComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet.
+				value withRelatedComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]]
+		ifFalse: 
+			[self collection do: [ :each | each withRelatedComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]]]
+	ifFalse: 
+		[self collection keysDo: [ :key | key withRelatedComponents withComponentsIn: aReStore do: aBlock visited: visitedSet evaluated: evaluatedSet]]!
 
 isRelated
 
@@ -47,9 +63,12 @@ proxy
 	^cachedProxy isDBProxy 
 		ifTrue: [cachedProxy]
 		ifFalse: [self object _dbProxyIfNone: [nil]]! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #collection!accessing!public! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #componentsIn:do:visited:evaluated:!enumerating!private! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #isRelated!public!testing! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #object:!accessing!public! !
-!SSWDBCollectionWithRelatedContents categoriesFor: #proxy!accessing!public! !
+!SSWDBCollectionWithRelatedContents categoriesForMethods!
+collection!accessing!public! !
+collectionSpec!accessing!public! !
+componentsIn:do:visited:evaluated:!enumerating!private! !
+isRelated!public!testing! !
+object:!accessing!public! !
+proxy!accessing!public! !
+!
 

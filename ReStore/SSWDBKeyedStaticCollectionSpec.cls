@@ -42,12 +42,12 @@ changesTo: aCollection from: aCollectionOfEntries comparisonMap: aDictionary
 		entry := (aDictionary at: (each ifNil: [NilCookie]) ifAbsent: [##(OrderedCollection new)]) removeFirstIfAbsent:
 			"No entry found = element has been added to the receiver" 
 			[(changes add: (SSWDBCollectionAddition added: each at: newKey)) affectedEntry].
-		entry index = newKey ifFalse: 
+		(entry index == newKey or: [self shouldCompareKeysByEquality and: [entry index = newKey]]) ifFalse: 
 			[changes add: (self keyUpdateClass entry: entry newIndex: newKey)]].
 
 	"Any remaining entries indicate elements removed from the receiver"
-	aDictionary keysAndValuesDo:
-		[ :each :entries | 
+	aDictionary do:
+		[ :entries | 
 		entries isEmpty ifFalse:		"Minor optimisation"
 			[entries do: [ :entry | changes add: (self elementRemovalClass newWithEntry: entry)]]].
 
@@ -107,6 +107,10 @@ keyUpdateClass
 
 	^SSWDBCollectionIndexUpdate!
 
+shouldCompareKeysByEquality
+
+	^false!
+
 updateEntry: anSSWDBCollectionEntry withIndex: anInteger in: anSSWReStore 
 
 	| query |
@@ -133,6 +137,7 @@ identityChangesTo:from:!change detection!private! !
 indexField!accessing!public! !
 indexField:!accessing!public! !
 keyUpdateClass!change detection!constants!private! !
+shouldCompareKeysByEquality!change detection!private!testing! !
 updateEntry:withIndex:in:!actions - api!public! !
 !
 

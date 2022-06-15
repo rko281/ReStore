@@ -532,6 +532,10 @@ controlFields
 
 	^SSWSQLFieldCollection new!
 
+isAbstract
+
+	^self == ##(self) or: [super isAbstract]!
+
 modifyUpdatesFor: anSSWDBTable
 
 	"Return any updates that should be applied to rows in anSSWDBTable when carrying out a modify: update.
@@ -543,6 +547,7 @@ modifyUpdatesFor: anSSWDBTable
 _forNewObject:withID:inReStore:!instance creation!public! !
 _forObjectOfClass:withID:inReStore:!instance creation!public! !
 controlFields!constants!public! !
+isAbstract!public!testing! !
 modifyUpdatesFor:!constants!public! !
 !
 

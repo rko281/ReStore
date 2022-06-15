@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreGenericCollectionTest subclass: #SSWReStoreGenericNonRelatedCollectionTest
 	instanceVariableNames: ''
@@ -238,12 +238,12 @@ testRefreshComponentRemoval
 
 	reStore refresh: testObject.
 	self assert: collection size equals: originalSize.
-	self assert: (collection includes: component).
+	self assert: (self includes: component).
 
 	reStore refresh: testObject withComponents.
 	self assert: collection size equals: (originalSize - 1).
-	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
-	self deny: (collection includes: component)!
+	self assert: (self allSatisfy: [ :each | each name ~= removed name]).
+	self deny: (self includes: component)!
 
 testRefreshComponentReplace
 
@@ -335,30 +335,34 @@ testRollbackComponentReplace
 	reStore rollback: testObject withRelatedComponents.
 	self assert: (collection includes: originalAndReplacement key).
 	self deny: (collection includes: originalAndReplacement value)! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentAddition!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentChange!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentRemoval!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCheckHasChangedComponentReplace!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCollectionRefreshComponentChange!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCollectionRefreshComponentChangeIfUpdated!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCommitComponentAddition!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCommitComponentChange!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCommitComponentRemoval!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testCommitComponentReplace!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRefreshComponentAddition!public! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRefreshComponentChange!public! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRefreshComponentChangeIfUpdated!public! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRefreshComponentRemoval!public! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRefreshComponentReplace!public! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRollbackComponentAddition!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRollbackComponentChange!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRollbackComponentRemoval!public!unit tests! !
-!SSWReStoreGenericNonRelatedCollectionTest categoriesFor: #testRollbackComponentReplace!public!unit tests! !
+!SSWReStoreGenericNonRelatedCollectionTest categoriesForMethods!
+testCheckHasChangedComponentAddition!public!unit tests! !
+testCheckHasChangedComponentChange!public!unit tests! !
+testCheckHasChangedComponentRemoval!public!unit tests! !
+testCheckHasChangedComponentReplace!public!unit tests! !
+testCollectionRefreshComponentChange!public!unit tests! !
+testCollectionRefreshComponentChangeIfUpdated!public!unit tests! !
+testCommitComponentAddition!public!unit tests! !
+testCommitComponentChange!public!unit tests! !
+testCommitComponentRemoval!public!unit tests! !
+testCommitComponentReplace!public!unit tests! !
+testRefreshComponentAddition!public! !
+testRefreshComponentChange!public! !
+testRefreshComponentChangeIfUpdated!public! !
+testRefreshComponentRemoval!public! !
+testRefreshComponentReplace!public! !
+testRollbackComponentAddition!public!unit tests! !
+testRollbackComponentChange!public!unit tests! !
+testRollbackComponentRemoval!public!unit tests! !
+testRollbackComponentReplace!public!unit tests! !
+!
 
 !SSWReStoreGenericNonRelatedCollectionTest class methodsFor!
 
 isAbstract
 
 	^self == SSWReStoreGenericNonRelatedCollectionTest! !
-!SSWReStoreGenericNonRelatedCollectionTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreGenericNonRelatedCollectionTest class categoriesForMethods!
+isAbstract!public! !
+!
 

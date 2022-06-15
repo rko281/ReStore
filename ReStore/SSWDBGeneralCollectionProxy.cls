@@ -82,6 +82,11 @@ _commitChanges
 
 	^true!
 
+_forgetProxiedObject
+
+	collectionEntries := nil.
+	super _forgetProxiedObject!
+
 _hasChanged
 
 	"Unlike _checkHasChanged, do not clear out the changes
@@ -186,6 +191,7 @@ _checkHasChanged!public!testing! !
 _collectionEntries!accessing!public! !
 _collectionEntries:!accessing!public! !
 _commitChanges!actions!public! !
+_forgetProxiedObject!actions-internal!public! !
 _hasChanged!public!testing! !
 _isDeleted!accessing!public!testing! !
 _isDeleted:!accessing!public! !

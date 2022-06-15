@@ -12,13 +12,13 @@ SSWDBDebugMutex comment: ''!
 
 critical: aNiladicBlock
 
-	self shouldBypassMutexForDebug
+	^self shouldBypassMutexForDebug
 		ifTrue: [aNiladicBlock value]
 		ifFalse: [super critical: aNiladicBlock]!
 
 critical: aNiladicBlock ifLocked: exceptionHandler
 
-	self shouldBypassMutexForDebug
+	^self shouldBypassMutexForDebug
 		ifTrue: [aNiladicBlock value]
 		ifFalse: [super critical: aNiladicBlock ifLocked: exceptionHandler]!
 

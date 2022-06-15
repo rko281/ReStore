@@ -29,11 +29,39 @@ addToCollection: aCollection
 
 	^aCollection add: self templateComponent!
 
+allSatisfy: aBlock
+
+	^collection allSatisfy: aBlock!
+
+anyOne
+
+	^collection anyOne!
+
+anySatisfy: aBlock
+
+	^collection anySatisfy: aBlock!
+
+componentDefinitionIsDependent 
+
+	^self componentDefinition isValueDependent!
+
+detect: aBlock
+
+	^collection detect: aBlock!
+
+detect: aBlock ifNone: absentBlock
+
+	^collection detect: aBlock ifNone: absentBlock!
+
 fetchTestObjects
 
 	super fetchTestObjects.
 
 	collection := testObject component!
+
+includes: anObject
+
+	^collection includes: anObject!
 
 remove: anObject fromCollection: aCollection
 
@@ -45,7 +73,7 @@ removeFromCollection
 
 removeFromCollection: aCollection
 
-	^self remove: aCollection anyOne fromCollection: aCollection!
+	^self remove: self anyOne fromCollection: aCollection!
 
 replaceInCollection
 
@@ -54,6 +82,10 @@ replaceInCollection
 replaceInCollection: aCollection
 
 	self subclassResponsibility!
+
+select: aBlock
+
+	^collection select: aBlock!
 
 templateCollection
 
@@ -91,13 +123,13 @@ testCollectionRefreshComponentAddition
 
 	collection refresh.
 	self assert: collection size equals: (originalSize + 1).
-	self assert: (collection select: [ :each | each name = added name]) size equals: 1!
+	self assert: (self select: [ :each | each name = added name]) size equals: 1!
 
 testCollectionRefreshComponentRemoval
 
 	| component originalSize removed | 
 
-	component := collection anyOne.
+	component := self anyOne.
 	originalSize := collection size.
 
 	removed := self remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = component name]) fromCollection: testObject2 component.
@@ -106,8 +138,8 @@ testCollectionRefreshComponentRemoval
 
 	collection refresh.
 	self assert: collection size equals: (originalSize - 1).
-	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
-	self deny: (collection includes: component)!
+	self assert: (self allSatisfy: [ :each | each name ~= removed name]).
+	self deny: (self includes: component)!
 
 testCollectionRefreshComponentReplace
 
@@ -124,8 +156,8 @@ testCollectionRefreshComponentReplace
 
 	collection refresh.
 	self assert: collection size equals: originalSize.
-	self assert: (collection select: [ :each | each name = original name]) size equals: 0.
-	self assert: (collection select: [ :each | each name = replacement name]) size equals: 1
+	self assert: (self select: [ :each | each name = original name]) size equals: 0.
+	self assert: (self select: [ :each | each name = replacement name]) size equals: 1
 !
 
 testCollectionUninitializedOnRollback
@@ -148,7 +180,7 @@ testDependencyCascadedDelete
 
 	| component |
 
-	component := collection anyOne.
+	component := self anyOne.
 	testObject unstore.
 
 	"Verify the delete"
@@ -162,7 +194,7 @@ testDependencyDeleteOnRemoval
 
 	| component |
 
-	component := collection anyOne.
+	component := self anyOne.
 	self remove: component fromCollection: collection.
 
 	testObject store.
@@ -215,7 +247,7 @@ testDependencyDeleteOnReplacement
 
 	reStore evaluateAsTransaction: [originalAndReplacement := self replaceInCollection].
 
-	self componentDefinition isValueDependent ifTrue: [self _testComponentExistenceOnDependency: originalAndReplacement key]!
+	self componentDefinitionIsDependent ifTrue: [self _testComponentExistenceOnDependency: originalAndReplacement key]!
 
 testIncludes
 
@@ -256,24 +288,32 @@ testNewEmptyCollectionRollback
 _testComponentExistenceOnDependency:!helpers!private! !
 addToCollection!helpers!public! !
 addToCollection:!helpers!private! !
+allSatisfy:!collection behavior!private! !
+anyOne!collection behavior!private! !
+anySatisfy:!collection behavior!private! !
+componentDefinitionIsDependent!private!testing! !
+detect:!collection behavior!private! !
+detect:ifNone:!collection behavior!private! !
 fetchTestObjects!public! !
+includes:!collection behavior!private! !
 remove:fromCollection:!helpers!private! !
 removeFromCollection!helpers!public! !
 removeFromCollection:!helpers!private! !
 replaceInCollection!helpers!public! !
 replaceInCollection:!public! !
+select:!collection behavior!private! !
 templateCollection!accessing!public! !
 templateTestObject!accessing!public! !
 testCollectionMultiAssignmentFailure!public!unit tests! !
 testCollectionRefreshComponentAddition!public!unit tests! !
 testCollectionRefreshComponentRemoval!public!unit tests! !
-testCollectionRefreshComponentReplace!public! !
+testCollectionRefreshComponentReplace!public!unit tests! !
 testCollectionUninitializedOnRollback!public!unit tests! !
 testDependencyCascadedDelete!public!unit tests! !
 testDependencyDeleteOnRemoval!public!unit tests! !
 testDependencyDeleteOnRepeatedRemoval!public!unit tests! !
 testDependencyDeleteOnReplacement!public!unit tests! !
-testIncludes!public! !
+testIncludes!public!unit tests! !
 testNewEmptyCollectionRollback!public!unit tests! !
 !
 

@@ -288,7 +288,11 @@ setKeyClass: aClass
 	"Double-despatch to the argument"
 	
 	aClass beKeyClassOf: self
-! !
+!
+
+shouldCompareKeysByEquality
+
+	^self keyClass isDirectlyPersisted! !
 !SSWDBStaticDictionarySpec categoriesForMethods!
 beKeyDependent!initializing!public! !
 beKeyRelated!initializing!public! !
@@ -315,5 +319,6 @@ recoverCollectionForProxy:!actions-internal!private! !
 refreshCollectionWithContentsIfUpdatedForProxy:!actions-internal!private! !
 refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
 setKeyClass:!accessing!public! !
+shouldCompareKeysByEquality!change detection!private!testing! !
 !
 

@@ -361,12 +361,6 @@ peekFinalField
 		ifTrue: [self finalFields last]
 		ifFalse: [nil]!
 
-printOn: aStream
-
-	"Overriden due to 'odd' behaviour of #class in the receiver"
-
-	^'a SSWDBBlockEvaluator'!
-
 queryFieldFor: aField
 
 	^SSWDBQueryTableField forField: aField in: self currentTable path: self path!
@@ -482,7 +476,6 @@ not!parsing - implicit true!public! !
 parseError:!parsing - internal!public! !
 parseError:with:!parsing - internal!public! !
 peekFinalField!evaluating!public! !
-printOn:!parsing - internal!public! !
 queryFieldFor:!parsing - internal!public! !
 replaceFrom:to:with:startingAt:!parsing - functions!public! !
 sqlAnd:!parsing - implicit true!public! !
