@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBSingleTransaction subclass: #SSWDBSingleTransactionWithVersioning
 	instanceVariableNames: 'proxyCommitFailures'
@@ -47,7 +47,7 @@ commitTo: aDBConnection
 	failures isEmpty and: [resolved isEmpty not]] whileTrue.
 
 	"currentReferencedObjects usually empty, but could contain objects ref'd during conflict resolution"
-	self currentReferencedObjects do: [ :obj | obj _swapReferences].
+	self currentReferencedObjects do: [ :obj | obj _unswap].
 	self beginObjectCollection.
 
 	self proxyCommitFailures: failures.
@@ -55,7 +55,7 @@ commitTo: aDBConnection
 	ifTrue: 
 		[aDBConnection rollbackTxn.
 		self freeStatements.
-		self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swapReferences])]
+		self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swap])]
 	ifFalse: 
 		[aDBConnection commitTxn.
 		self postCommit].
@@ -104,16 +104,18 @@ rollbackAndRefresh
 	self proxyCommitFailures do: 
 		[ :proxyObj | 
 		self currentReferencedObjects remove: proxyObj.
-		proxyObj _swapReferences _forgetProxiedObject].
+		proxyObj _unswap _forgetProxiedObject].
 
 	self rollback! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #commitFailures!accessing!public! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #commitTo:!actions!public! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #ensureHasFailedCommit!actions!private! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #hasFailedCommit!public!testing! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #postRollback!actions!private! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #proxyCommitFailures!accessing!public! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #proxyCommitFailures:!accessing!public! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #refreshAndRollforward!actions!public! !
-!SSWDBSingleTransactionWithVersioning categoriesFor: #rollbackAndRefresh!actions!public! !
+!SSWDBSingleTransactionWithVersioning categoriesForMethods!
+commitFailures!accessing!public! !
+commitTo:!actions!public! !
+ensureHasFailedCommit!actions!private! !
+hasFailedCommit!public!testing! !
+postRollback!actions!private! !
+proxyCommitFailures!accessing!public! !
+proxyCommitFailures:!accessing!public! !
+refreshAndRollforward!actions!public! !
+rollbackAndRefresh!actions!public! !
+!
 

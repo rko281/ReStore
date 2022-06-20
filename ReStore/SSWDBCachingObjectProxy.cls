@@ -333,7 +333,7 @@ _rollbackStore
 	"Private - The receiver was a newly-persisted object - deregister from the reStore"
 
 	reStore deregisterProxy: self.
-	self _swapReferences!
+	self _unswap!
 
 _rollbackUnstore
 
@@ -354,7 +354,7 @@ _rollbackUpdates
 	me := proxiedObject.
 	him := self.
 
-	self _swapReferences.
+	self _unswap.
 
 	me _checkHasChanged ifTrue: 
 		[me _proxiedObject: me _copyObject shallowCopy. 

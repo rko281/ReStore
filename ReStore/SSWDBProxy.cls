@@ -1,8 +1,8 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
 ProtoObject subclass: #SSWDBProxy
-	instanceVariableNames: 'proxiedObject reStore'
-	classVariableNames: ''
+	instanceVariableNames: 'proxiedObject reStore flags'
+	classVariableNames: 'IsSwappedMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBProxy guid: (GUID fromString: '{5a3e3dd8-3990-11d5-b1df-444553540000}')!
@@ -125,6 +125,14 @@ _ensurePersistentIn: anSSWReStore
 	
 	"Proxies are persistent by default - only need check anSSWReStore"
 	self validateReStore: anSSWReStore!
+
+_flags: aSmallInteger
+
+	flags := aSmallInteger!
+
+_flagSwapped
+
+	flags := flags maskSet: IsSwappedMask!
 
 _forceRefresh
 
@@ -285,7 +293,7 @@ _referenced
 	"Unless the receiver is new, swap references to the receiver and proxiedObject.
 	From hereon, must use me instead of self, and not reference inst vars directly"
 	self _isPersistent
-		ifTrue: [me := self _swapReferences]
+		ifTrue: [me := self _swap]
 		ifFalse: [me := self].
 
 	me __referenced.
@@ -374,9 +382,20 @@ _shallowCopy
 
 	<primitive: 155>!
 
+_swap
+
+	| newFlags |
+
+	newFlags := flags bitOr: IsSwappedMask.
+	newFlags == flags ifTrue: [self error: 'attempt to swap already-swapped proxy'].
+	flags := newFlags.
+
+	^self _swapReferences!
+
 _swapReferences
 
-	"Swap references to the receiver with references to the proxiedObject, returning the receiver.
+	"Private - this method should only be sent from _swap or _unswap.
+	Swap references to the receiver with references to the proxiedObject, returning the receiver.
 	Subclasses should not override this method, but instead use _postSwapReferences"
 
 	| me him |
@@ -404,6 +423,16 @@ _unstore
 	"Mark the receiver in such a way that it will be deleted from the database on commit"
 
 	self subclassResponsibility!
+
+_unswap
+
+	| newFlags |
+
+	newFlags := flags bitAnd: -2 "##(IsSwappedMask bitInvert)".
+	newFlags == flags ifTrue: [(self _isDeleted or: [self _isPersistent not]) ifFalse: [self error: 'attenmpt to unswap proxy which has not been swapped']].
+	flags := newFlags.
+
+	^self _swapReferences!
 
 commit
 
@@ -437,7 +466,7 @@ doesNotUnderstand: aMessage
 			self isDBProxy ifTrue: 
 				[proxiedObject isNil ifTrue: [self _recoverProxiedObject].
 				"Swap references to the receiver and proxiedObject. From hereon, must not reference inst vars directly."
-				proxyReStore proxy: self _swapReferences forwarded: aMessage]]].
+				proxyReStore proxy: self _swap forwarded: aMessage]]].
 
 	^aMessage value: self!
 
@@ -572,6 +601,8 @@ _dbProxyReStore!accessing!private! !
 _debugPrintString!non forwarding!private! !
 _ensureActiveIn:!actions-internal!public! !
 _ensurePersistentIn:!actions-internal!public! !
+_flags:!accessing!public! !
+_flagSwapped!actions-internal!public! !
 _forceRefresh!actions-refresh!public! !
 _forceRefreshIn:!actions-refresh!public! !
 _forceRefreshWithContents!actions-refresh!public! !
@@ -607,9 +638,11 @@ _rollbackChanges!actions-internal!public! !
 _rollbackIn:!actions-internal!public! !
 _setProxiedObject:!accessing!public! !
 _shallowCopy!actions-internal!private! !
-_swapReferences!actions-internal!public! !
+_swap!actions-internal!public! !
+_swapReferences!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
+_unswap!actions-internal!public! !
 commit!actions-api!public! !
 debugPrintString!non forwarding!public! !
 doesNotUnderstand:!forwarding!public! !
@@ -631,5 +664,23 @@ validateReStore:!actions-internal!private! !
 withComponents!accessing!public! !
 withRelatedComponents!accessing!public! !
 yourself!non forwarding!public! !
+!
+
+!SSWDBProxy class methodsFor!
+
+initialize
+
+	super initialize.
+
+	IsSwappedMask := 1!
+
+new
+
+	^super new
+		_flags: 0;
+		yourself! !
+!SSWDBProxy class categoriesForMethods!
+initialize!class initialization!public! !
+new!instance creation!public! !
 !
 

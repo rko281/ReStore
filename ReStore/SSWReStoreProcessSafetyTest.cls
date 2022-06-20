@@ -153,6 +153,53 @@ testGlobablProxyProxyLookup
 	self assert: john isDBProxy.
 	self assert: (SSWReStore proxyForObject: john ifNone: [nil]) identicalTo: john!
 
+testInconsistentProxySwap
+
+	"Verify detection of an invalid proxy swap attempt"
+
+	|  john proxy |
+
+	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	proxy := john _proxiedObject.
+
+	self assert: john isDBProxy.
+	self deny: proxy isDBProxy.
+
+	john firstName.
+
+	"john and proxy should now have swapped to match the variable names"
+	self deny: john isDBProxy.
+	self assert: proxy isDBProxy.
+
+	"Sending a message via the proxy should raise an error since it is already swapped to the object"
+	self should: [proxy firstName] raise: Error.
+
+	reStore rollbackTransaction.
+
+	"Should now be OK"
+	self assert: john isDBProxy.
+	self shouldnt: [john firstName] raise: Error!
+
+testInconsistentProxyUnswap
+
+	"Verify detection of an invalid proxy unswap attempt"
+
+	|  john proxy |
+
+	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+
+	"Should not be able to unswap an unswapped proxy"
+	proxy := john _proxiedObject.
+	self assert: john isDBProxy.
+	self should: [john _unswap] raise: Error.
+
+	john firstName.
+
+	"Swapped - should now be possible"
+	self deny: john isDBProxy.
+	self assert: proxy isDBProxy.
+	self shouldnt: [proxy _unswap] raise: Error!
+
 testObjectLookupDuringTransaction
 
 	"Verify object lookup in one process is blocked whilst a transaction occurs in another"
@@ -298,6 +345,8 @@ testBeginDuringBegin!public!unit tests! !
 testDebugMode!public!unit tests! !
 testGlobablProxyLookupWhenSuspended!public!unit tests! !
 testGlobablProxyProxyLookup!public!unit tests! !
+testInconsistentProxySwap!public!unit tests! !
+testInconsistentProxyUnswap!public!unit tests! !
 testObjectLookupDuringTransaction!public!unit tests! !
 testProxyDoesNotUnderstandWhenPreempted!public!unit tests! !
 testProxyLookupDuringTransaction!public!unit tests! !

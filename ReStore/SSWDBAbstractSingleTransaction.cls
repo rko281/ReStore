@@ -16,7 +16,7 @@ abandon
 
 	"End this transaction, leaving objects in their current state (unlike rollback which returns them to their state prior to the transaction)"
 
-	self currentReferencedObjects do: [ :each | each _swapReferences].
+	self currentReferencedObjects do: [ :each | each _unswap].
 	self endObjectCollection!
 
 activeProxiesMap
@@ -82,10 +82,10 @@ autoRecoverCommitIn: anSSWReStore
 
 	"Any objects referenced during the errored commit will erroneously be in currentReferencedObjects.
 	Swap back and forget"
-	self currentReferencedObjects do: [ :obj | obj _swapReferences].
+	self currentReferencedObjects do: [ :obj | obj _unswap].
 
 	"The receiver's changedObjects should now be the currentReferencedObjects"
-	self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swapReferences]).
+	self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _unswap]).
 	self allReferencedObjects: self newEmptyObjectsSet!
 
 autoRecoverPreCommitIn: anSSWReStore
@@ -272,8 +272,8 @@ prepareToCommit
 					[unchanged add: proxy]]].
 		needingPhase2 do: [ :each | each _prepareToCommitPhase2]].
 	
-	self changedObjects: (changed collect: [ :proxy | proxy _swapReferences]). 
-	unchanged do: [ :each | each isDBProxy ifTrue: [each _swapReferences]].
+	self changedObjects: (changed collect: [ :proxy | proxy _unswap]). 
+	unchanged do: [ :each | each isDBProxy ifTrue: [each _unswap]].
 
 	self endObjectCollection!
 

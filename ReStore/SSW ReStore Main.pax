@@ -223,8 +223,8 @@ SSWDBObjectWithRelatedComponents subclass: #SSWDBCollectionWithRelatedContents
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 ProtoObject subclass: #SSWDBProxy
-	instanceVariableNames: 'proxiedObject reStore'
-	classVariableNames: ''
+	instanceVariableNames: 'proxiedObject reStore flags'
+	classVariableNames: 'IsSwappedMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBProxy subclass: #SSWDBCollectionProxy

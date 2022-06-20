@@ -511,6 +511,7 @@ writeSQLOn:forField:!actions-internal!public! !
 _forNewObject: anObject withID: anInteger inReStore: aReStore
 
 	^(self _forObjectOfClass: anObject class withID: anInteger  inReStore: aReStore)
+		_flagSwapped;
 		_newProxiedObject: anObject;
 		_collectionProxies: IdentityDictionary new;
 		yourself!

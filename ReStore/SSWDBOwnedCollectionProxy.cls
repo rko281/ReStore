@@ -145,7 +145,7 @@ _rollbackChanges
 	me := proxiedObject.
 	him := self.
 	spec := collectionSpec.
-	self _swapReferences.
+	self _unswap.
 
 	wasDeleted ifFalse:
 		[me _proxiedObject: (spec copyCollection: me _copyCollection).

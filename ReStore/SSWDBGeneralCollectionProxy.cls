@@ -146,7 +146,7 @@ _rollbackChanges
 		[rollbackCollection := self	"Will be proxiedObject after the swap"].
 
 	me := proxiedObject.
-	self _swapReferences.
+	self _unswap.
 
 	me _proxiedObject: rollbackCollection!
 

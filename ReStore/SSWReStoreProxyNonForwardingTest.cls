@@ -59,7 +59,7 @@ do: aBlock beforeTransactionCriticalIn: actionBlock
 
 preemptAndSwapProxy: aProxy before: actionBlock
 
-	self do: [aProxy _swapReferences] beforeTransactionCriticalIn: actionBlock!
+	self do: [aProxy _swap] beforeTransactionCriticalIn: actionBlock!
 
 readTestDataWithoutObjects
 
