@@ -149,6 +149,7 @@ newProxydCollectionFor: aProxyObject
 		_reStore: aProxyObject _reStore;
 		_owner: aProxyObject;
 		_collectionSpec: self;
+		_setNewNonPersistent;
 		yourself!
 
 readQuery

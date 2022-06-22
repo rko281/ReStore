@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBCollectionProxy subclass: #SSWDBGeneralCollectionProxy
-	instanceVariableNames: 'collectionEntries changes isDeleted'
+	instanceVariableNames: 'collectionEntries changes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -30,7 +30,7 @@ _checkHasChanged
 
 	| changed |
 
-	self _isDeleted ifTrue: [^true].
+	(self _isDeleted or: [self _isPersistent not]) ifTrue: [^true].
 
 	self _setChanges.
 	changed := changes isEmpty not.
@@ -89,36 +89,21 @@ _forgetProxiedObject
 
 _hasChanged
 
-	"Unlike _checkHasChanged, do not clear out the changes
-	 - prepareToCommit will use them"
+	"Unlike _checkHasChanged, do not clear out the changes - prepareToCommit will use them"
 	
 	self _setChanges.
 
-	^self _isDeleted or: [changes isEmpty not]!
-
-_isDeleted
-
-	"The receiver stores its deleted status as a Boolean"
-
-	^isDeleted!
-
-_isDeleted: aBoolean
-
-	"The receiver stores its deleted status as a Boolean"
-
-	isDeleted := aBoolean!
-
-_isPersistent
-
-	^collectionEntries ~~ nil or: [self _isRecovered not]!
+	^self _isDeleted or: [self _isPersistent not or: [changes isEmpty not]]!
 
 _postCommitChanges
 
 	self _isPersistent 
 		ifTrue: [changes do: [ :change | change applyTo: collectionEntries]]
 		ifFalse: [self _collectionEntries: (changes collect: [ :change | change affectedEntry])].
-	
-	self _resetChanges!
+
+	self 
+		_setPersistent;
+		_resetChanges!
 
 _prepareToCommit
 
@@ -129,26 +114,6 @@ _prepareToCommit
 _resetChanges
 
 	changes := nil!
-
-_rollbackChanges
-
-	"Rollback any changes made by reinstantiating from the collectionEntries.
-	Also transfer any events associated with the collection"
-
-	| rollbackCollection me |
-
-	self _checkHasChanged
-	ifTrue:
-		[rollbackCollection := collectionSpec newCollection.
-		collectionEntries notNil ifTrue: [collectionEntries do: [ :entry | entry addTargetTo: rollbackCollection]].
-		proxiedObject getEvents ifNotNil: [ :events | rollbackCollection setEvents: events]]
-	ifFalse:
-		[rollbackCollection := self	"Will be proxiedObject after the swap"].
-
-	me := proxiedObject.
-	self _unswap.
-
-	me _proxiedObject: rollbackCollection!
 
 _setChanges
 
@@ -161,10 +126,10 @@ _setChanges
 				[collectionEntries do: 
 					[ :each |
 					(collectionSpec isKeyDependent and: [each index isDBProxy]) ifTrue: 
-						[reStore transaction addDeletedObject: each index _proxiedObject.
+						[reStore transaction addDeletedObject: each index.
 						each index unstore].
 					(collectionSpec isValueDependent and: [each target isDBProxy]) ifTrue: 
-						[reStore transaction addDeletedObject: each target _proxiedObject.
+						[reStore transaction addDeletedObject: each target.
 						each target unstore]]]]
 		ifFalse: 
 			[changes := collectionSpec changesTo: proxiedObject from: collectionEntries]]
@@ -179,41 +144,33 @@ _shouldUnstoreValue: anObject
 
 	^self _collectionSpec isValueDependent and: [(self _proxiedObject identityIncludes: anObject) not]!
 
-_unstore
+_unchangedCollection
 
-	self _isPersistent 
-		ifTrue: [isDeleted := true]
-		ifFalse: [reStore removeFromTransaction: self]! !
+	"Answer the receiver's collection prior to any changes. This is used to roll the receiver back to its previous state"
+
+	| unchangedCollection |
+
+	self _checkHasChanged ifFalse: [^proxiedObject].
+
+	unchangedCollection := collectionSpec newCollection.
+	collectionEntries notNil ifTrue: [collectionEntries do: [ :entry | entry addTargetTo: unchangedCollection]].
+	
+	^unchangedCollection! !
 !SSWDBGeneralCollectionProxy categoriesForMethods!
 _changes!accessing!public! !
 _changes:!accessing!public! !
 _checkHasChanged!public!testing! !
 _collectionEntries!accessing!public! !
 _collectionEntries:!accessing!public! !
-_commitChanges!actions!public! !
+_commitChanges!actions-internal!public! !
 _forgetProxiedObject!actions-internal!public! !
 _hasChanged!public!testing! !
-_isDeleted!accessing!public!testing! !
-_isDeleted:!accessing!public! !
-_isPersistent!public!testing! !
-_postCommitChanges!actions!public! !
-_prepareToCommit!actions!public! !
-_resetChanges!actions!public! !
-_rollbackChanges!actions!public! !
-_setChanges!actions!public! !
+_postCommitChanges!actions-internal!public! !
+_prepareToCommit!actions-internal!public! !
+_resetChanges!actions-internal!public! !
+_setChanges!actions-internal!public! !
 _shouldUnstoreKey:!private!testing! !
 _shouldUnstoreValue:!private!testing! !
-_unstore!actions!public! !
-!
-
-!SSWDBGeneralCollectionProxy class methodsFor!
-
-new
-
-	^super new
-		_isDeleted: false;
-		yourself! !
-!SSWDBGeneralCollectionProxy class categoriesForMethods!
-new!instance creation!public! !
+_unchangedCollection!accessing!private! !
 !
 

@@ -28,49 +28,6 @@ _checkHasChanged
 				current := accessor valueIn: proxiedObject.
 				current _hasChangedFrom: (accessor valueIn: copyObject)]]]!
 
-_commitChanges
-
-	"Return a Boolean indicating whether the commit succeeds"
-
-	^self _isPersistent
-	ifTrue:
-		[self _isDeleted
-			ifTrue: [self _commitUnstore]
-			ifFalse: [self _commitUpdates]]
-	ifFalse:
-		[self _commitStore]!
-
-_commitStore
-
-	"Private - Return a Boolean indicating whether the commit succeeds"
-
-	reStore insertProxy: self.
-
-	"Assumed to always succeed"
-	^true!
-
-_commitUnstore
-
-	"Private - Return a Boolean indicating whether the commit succeeds"
-
-	reStore deleteProxy: self. 
-
-	"Assumed to always succeed"
-	^true
-!
-
-_commitUpdates
-
-	"Private - Return a Boolean indicating whether the commit succeeds"
-
-	| updates |
-
-	updates := self _fieldUpdates.
-	
-	^updates isEmpty 
-		ifTrue: [true]
-		ifFalse: [reStore applyUpdates: updates toObject: self]!
-
 _copyObject
 
 	"The receiver automatically detects changes to its proxiedObject by maintaining a shallow copy
@@ -104,59 +61,16 @@ _forgetProxiedObject
 	copyObject := nil.
 	^super _forgetProxiedObject!
 
-_isDeleted
-
-	"Return a Boolean indicating whether the receiver has been marked as deleted.
-	Deleted proxies have a copy of themselves as their copy object - this is the only circumstances under which copyObject holds a proxy"
-	
-	^copyObject isDBProxy!
-
-_isPersistent
-
-	"Return a Boolean indicating whether the receiver is persistent.
-	Persistent proxies always have a copyObject, if they are recovered.
-	Unrecovered proxies are persistent by definition"
-	
-	^copyObject ~~ nil or: [self _isRecovered not]!
-
 _matchStateOf: aProxy
 
 	"Match the internal proxy (non data) state of aProxy"
 
 	^self!
 
-_postCommitChanges
-
-	"The receiver's changes have successfully been committed.
-	Complete follow-on work"
-
-	^self _isPersistent
-	ifTrue:
-		[self _isDeleted
-			ifTrue: [self _postCommitUnstore]
-			ifFalse: [self _postCommitUpdates]]
-	ifFalse:
-		[self _postCommitStore]!
-
 _postCommitStore
 
-	"Private - The receiver has been inserted into the database.
-	Complete follow-on work"
-
-	self _dbTable idDataField ifNotNil: [ :idDataField | idDataField accessor value: id in: proxiedObject].
-	self _aquireCopyObject.
-	self _intern	"Re-register"!
-
-_postCommitUnstore
-
-	"Private - The receiver has been successfully deleted from the database.
-	Complete follow-on work and notify interest parties"
-
-	reStore uncacheObject: self. 
-
-	self _proxiedObject onUnstored.
-
-	copyObject := proxiedObject := SSWDBDeletedObject newForClass: class id: id!
+	super _postCommitStore.
+	self _aquireCopyObject!
 
 _postCommitUpdates
 
@@ -184,13 +98,6 @@ _prepareToCommit
 					[(field accessor valueIn: copyObject) unstore]]]].
 
 	^super _prepareToCommit!
-
-_proxiedObject
-
-	"Inline self _isDeleted"
-	copyObject isDBProxy ifTrue: [^copyObject _proxiedObject].
-
-	^proxiedObject!
 
 _proxiedObject: anObject
 
@@ -318,32 +225,6 @@ _resolveUpdateConflictsWith: currentProxyObject
 
 	^true!
 
-_rollbackChanges
-
-	self _isPersistent
-	ifTrue:
-		[self _isDeleted
-			ifTrue: [self _rollbackUnstore]
-			ifFalse: [self _rollbackUpdates]]
-	ifFalse:
-		[self _rollbackStore]!
-
-_rollbackStore
-
-	"Private - The receiver was a newly-persisted object - deregister from the reStore"
-
-	reStore deregisterProxy: self.
-	self _unswap!
-
-_rollbackUnstore
-
-	"self assert: copyObject isDBProxy"
-
-	proxiedObject := copyObject _proxiedObject.
-	copyObject := copyObject _copyObject.
-
-	self _rollbackUpdates!
-
 _rollbackUpdates
 
 	"Private - Forget any updates by instantiating from the copyObject.
@@ -359,15 +240,6 @@ _rollbackUpdates
 	me _checkHasChanged ifTrue: 
 		[me _proxiedObject: me _copyObject shallowCopy. 
 		him getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]]!
-
-_unstore
-
-	"Intercept this message to cache a copy of the receiver to handle potential rollback"
-
-	self _isDeleted ifTrue: [^self].
-	self _isPersistent ifTrue: [copyObject := self _shallowCopy].	
-
-	super _unstore!
 
 _updateCollectionProxyUsing: aCollectionSpec
 
@@ -386,10 +258,7 @@ _valuesForAccessor: anInstVarAccessor
 	| proxyValue copyValue |
 
 	proxyValue := proxiedObject ifNotNil: [anInstVarAccessor valueIn: proxiedObject].
-
-	self _isDeleted
-		ifTrue: [copyValue := copyObject _copyObject ifNotNil: [ :copy | anInstVarAccessor valueIn: copy]]
-		ifFalse: [copyValue := copyObject ifNotNil: [anInstVarAccessor valueIn: copyObject]].
+	copyValue := copyObject ifNotNil: [anInstVarAccessor valueIn: copyObject].
 
 	^proxyValue == copyValue 
 		ifTrue: [Array with: proxyValue]
@@ -405,23 +274,14 @@ inspect
 !SSWDBCachingObjectProxy categoriesForMethods!
 _aquireCopyObject!actions-internal!public! !
 _checkHasChanged!public!testing! !
-_commitChanges!actions-internal!public! !
-_commitStore!actions-internal!private! !
-_commitUnstore!actions-internal!private! !
-_commitUpdates!actions-internal!private! !
 _copyObject!accessing!public! !
 _copyObject:!accessing!public! !
-_fieldUpdates!evaluating!public! !
+_fieldUpdates!accessing:derived!public! !
 _forgetProxiedObject!actions-internal!public! !
-_isDeleted!public!testing! !
-_isPersistent!public!testing! !
 _matchStateOf:!actions-internal!public! !
-_postCommitChanges!actions-internal!public! !
 _postCommitStore!actions-internal!private! !
-_postCommitUnstore!actions-internal!private! !
 _postCommitUpdates!actions-internal!private! !
 _prepareToCommit!actions-internal!public! !
-_proxiedObject!accessing!public! !
 _proxiedObject:!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshAndRollforward!actions-internal!public! !
@@ -429,11 +289,7 @@ _refreshAndRollforwardFrom:!actions-internal!public! !
 _refreshFromRow:table:!actions-internal!public! !
 _resolveUpdateConflicts!actions-internal!public! !
 _resolveUpdateConflictsWith:!actions-internal!public! !
-_rollbackChanges!actions-internal!public! !
-_rollbackStore!actions-internal!private! !
-_rollbackUnstore!actions-internal!private! !
 _rollbackUpdates!actions-internal!private! !
-_unstore!actions-internal!public! !
 _updateCollectionProxyUsing:!actions-internal!private! !
 _valuesForAccessor:!accessing!private! !
 inspect!forwarding!public! !

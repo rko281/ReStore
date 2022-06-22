@@ -2,7 +2,7 @@
 
 ProtoObject subclass: #SSWDBProxy
 	instanceVariableNames: 'proxiedObject reStore flags'
-	classVariableNames: 'IsSwappedMask'
+	classVariableNames: 'IsDeletedMask IsPersistentMask IsSwappedMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBProxy guid: (GUID fromString: '{5a3e3dd8-3990-11d5-b1df-444553540000}')!
@@ -47,6 +47,12 @@ _checkHasChanged
 _checkHasChangedIn: aReStore
 
 	^self _isRecovered and: [self _hasChanged]!
+
+_clearDeleted
+
+	"Private - Clear deleted status"
+
+	flags := flags maskClear: IsDeletedMask!
 
 _commitChanges
 
@@ -126,13 +132,13 @@ _ensurePersistentIn: anSSWReStore
 	"Proxies are persistent by default - only need check anSSWReStore"
 	self validateReStore: anSSWReStore!
 
+_flags
+
+	^flags!
+
 _flags: aSmallInteger
 
 	flags := aSmallInteger!
-
-_flagSwapped
-
-	flags := flags maskSet: IsSwappedMask!
 
 _forceRefresh
 
@@ -190,18 +196,25 @@ _isDeleted
 
 	"Return a Boolean indicating whether the receiver is marked as deleted"
 	
-	^self subclassResponsibility!
+	^flags anyMask: IsDeletedMask!
 
 _isPersistent
 
 	"Return a Boolean indicating whether the receiver is persistent
 	(has been written to the database yet)"
 	
-	^self subclassResponsibility!
+	^flags anyMask: IsPersistentMask!
 
 _isRecovered
 
 	^proxiedObject ~~ nil!
+
+_isSwapped
+
+	"Return a Boolean indicating whether the receiver has been swapped such that all references point to the proxiedObject.
+	For speed this is usually inlined"
+
+	^flags anyMask: IsSwappedMask!
 
 _lazyRefresh
 
@@ -353,6 +366,10 @@ _reStore: anSSWReStore
 	
 	reStore := anSSWReStore!
 
+_reStoreIfNone: aBlock
+
+	^reStore!
+
 _rollbackChanges
 
 	"Forget changes to the receiver.
@@ -368,6 +385,26 @@ _rollbackIn: aReStore
 
 	self _isRecovered ifTrue: [self _referenced]!
 
+_setDeleted
+
+	"Private - Set the receiver's state to mark it as deleted from the database (assuming the commit completes)"
+
+	flags := flags maskSet: IsDeletedMask!
+
+_setNewNonPersistent
+
+	"Initialize the receiver as a new non-persistent object"
+
+	flags := (flags maskClear: IsPersistentMask) maskSet: IsSwappedMask!
+
+_setNonPersistent
+
+	flags := flags maskClear: IsPersistentMask!
+
+_setPersistent
+
+	flags := flags maskSet: IsPersistentMask!
+
 _setProxiedObject: anObject
 
 	"Set proxiedObject ONLY - no other actions.
@@ -375,12 +412,19 @@ _setProxiedObject: anObject
 	
 	proxiedObject := anObject!
 
-_shallowCopy
-	"Private - Answer a copy of the receiver which shares the receiver's instance 
-	variables. This implementation suffices for most objects.
-	The primitive does not fail."
+_setSwapped
 
-	<primitive: 155>!
+	"Set the receiver to mark that all references are now pointing to the proxied object.
+	For speed this is inlined in _swap"
+
+	flags := flags maskSet: IsSwappedMask!
+
+_setUnswapped
+
+	"Set the receiver to mark that all references are pointing to the receiver rather than the proxied object.
+	For speed this is inlined in _unswap"
+
+	flags := flags maskClear: IsSwappedMask!
 
 _swap
 
@@ -428,8 +472,8 @@ _unswap
 
 	| newFlags |
 
-	newFlags := flags bitAnd: -2 "##(IsSwappedMask bitInvert)".
-	newFlags == flags ifTrue: [(self _isDeleted or: [self _isPersistent not]) ifFalse: [self error: 'attenmpt to unswap proxy which has not been swapped']].
+	newFlags := flags bitAnd: -2 "IsSwappedMask bitInvert".
+	newFlags == flags ifTrue: [self error: 'attempt to unswap proxy which has not been swapped'].
 	flags := newFlags.
 
 	^self _swapReferences!
@@ -591,6 +635,7 @@ __referenced!actions-internal!private! !
 _changedObjectsIn:!accessing!public! !
 _checkHasChanged!public!testing! !
 _checkHasChangedIn:!public!testing! !
+_clearDeleted!actions-internal!flags!private! !
 _commitChanges!actions-internal!public! !
 _commitChangesPhase1!actions-internal!public! !
 _commitChangesPhase2!actions-internal!public! !
@@ -601,8 +646,8 @@ _dbProxyReStore!accessing!private! !
 _debugPrintString!non forwarding!private! !
 _ensureActiveIn:!actions-internal!public! !
 _ensurePersistentIn:!actions-internal!public! !
+_flags!accessing!public! !
 _flags:!accessing!public! !
-_flagSwapped!actions-internal!public! !
 _forceRefresh!actions-refresh!public! !
 _forceRefreshIn:!actions-refresh!public! !
 _forceRefreshWithContents!actions-refresh!public! !
@@ -613,6 +658,7 @@ _hasChangedFrom:!public!testing! !
 _isDeleted!public!testing! !
 _isPersistent!public!testing! !
 _isRecovered!public!testing! !
+_isSwapped!public!testing! !
 _lazyRefresh!actions-refresh!public! !
 _lazyRefreshIn:!actions-refresh!public! !
 _newProxiedObject:!accessing!public! !
@@ -634,10 +680,16 @@ _refreshWithContents!actions-refresh!public! !
 _refreshWithContentsIfUpdated!actions-refresh!public! !
 _reStore!accessing!public! !
 _reStore:!accessing!public! !
+_reStoreIfNone:!accessing:direct!public! !
 _rollbackChanges!actions-internal!public! !
 _rollbackIn:!actions-internal!public! !
+_setDeleted!actions-internal!flags!private! !
+_setNewNonPersistent!actions-internal!flags!private! !
+_setNonPersistent!actions-internal!flags!private! !
+_setPersistent!actions-internal!flags!private! !
 _setProxiedObject:!accessing!public! !
-_shallowCopy!actions-internal!private! !
+_setSwapped!actions-internal!flags!private! !
+_setUnswapped!actions-internal!flags!private! !
 _swap!actions-internal!public! !
 _swapReferences!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
@@ -672,12 +724,17 @@ initialize
 
 	super initialize.
 
-	IsSwappedMask := 1!
+	IsSwappedMask := 1.
+	IsPersistentMask := 2.
+	IsDeletedMask := 4!
 
 new
 
+	"Create and answer a new instance of the receiver.
+	By default we assume the instance will be used for a persistent object; other users should send _setNewNonPersistent after creation"
+
 	^super new
-		_flags: 0;
+		_flags: IsPersistentMask;
 		yourself! !
 !SSWDBProxy class categoriesForMethods!
 initialize!class initialization!public! !

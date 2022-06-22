@@ -12,12 +12,6 @@ https://github.com/rko281/ReStore'!
 !SSWDBCollectionProxy categoriesForClass!Unclassified! !
 !SSWDBCollectionProxy methodsFor!
 
-_checkHasChanged
-
-	"Default - collection proxies do not keep track of their changes"
-
-	^false!
-
 _collectionSpec
 
 	"collectionSpec stores the SSWDBCollectionSpec which, given the receiver's ownerID,
@@ -100,6 +94,39 @@ _refreshWithContentsIfUpdated
 		ifTrue: [collectionSpec refreshCollectionWithContentsIfUpdatedForProxy: self]
 		ifFalse: [#()]!
 
+_rollbackChanges
+
+	"Forget any changes by reinstantiating the unchanged collection.
+	Also transfer over any events registered against the current proxiedObject"
+
+	| unchangedCollection me changedCollection |
+
+	self _clearDeleted.
+
+	unchangedCollection := self _unchangedCollection.
+	unchangedCollection == proxiedObject ifTrue: [^self _unswap].
+
+	me := proxiedObject.
+	changedCollection := self.
+	self _unswap.
+
+	me _proxiedObject: unchangedCollection.
+	changedCollection getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]!
+
+_unchangedCollection
+
+	"Answer the receiver's collection prior to any changes. This is used to roll the receiver back to its previous state"
+
+	^self subclassResponsibility!
+
+_unstore
+
+	self _isDeleted ifTrue: [^self].
+
+	self _isPersistent 
+		ifTrue: [self _setDeleted]
+		ifFalse: [reStore removeFromTransaction: self]!
+
 class
 
 	"No need to bother the proxiedObject"
@@ -160,7 +187,6 @@ withRelatedComponents
 
 	^SSWDBCollectionWithRelatedContents on: self! !
 !SSWDBCollectionProxy categoriesForMethods!
-_checkHasChanged!public!testing! !
 _collectionSpec!accessing!public! !
 _collectionSpec:!accessing!public! !
 _forceRefresh!actions-refresh!public! !
@@ -174,6 +200,9 @@ _proxiedObjectClass!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshIfUpdated!actions-refresh!public! !
 _refreshWithContentsIfUpdated!actions-refresh!public! !
+_rollbackChanges!actions-internal!public! !
+_unchangedCollection!accessing!private! !
+_unstore!actions-internal!public! !
 class!forwarding!public! !
 orRemote!forwarding!public! !
 remote!accessing!public! !

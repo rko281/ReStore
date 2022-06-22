@@ -54,17 +54,11 @@ _forgetProxiedObject
 	copyCollection := nil.
 	super _forgetProxiedObject!
 
-_isDeleted
-
-	^proxiedObject == nil and: [copyCollection ~~ nil]!
-
-_isPersistent
-
-	^copyCollection ~~ nil or: [self _isRecovered not]!
-
 _postCommitChanges
 
-	self _acquireCopyCollection!
+	self 
+		_setPersistent;
+		_acquireCopyCollection!
 
 _prepareToCommitPhase1
 
@@ -111,7 +105,7 @@ _prepareToCommitPhase2
 
 	collectionSpec isValueDependent
 	ifTrue:
-		[self _isDeleted ifTrue: [removed do: [ :each | each isDBProxy ifTrue: [reStore transaction addDeletedObject: each _proxiedObject]]].
+		[self _isDeleted ifTrue: [removed do: [ :each | each isDBProxy ifTrue: [reStore transaction addDeletedObject: each]]].
 		removed do: [ :each | each unstore]]
 	ifFalse:
 		[removed do: 
@@ -126,56 +120,24 @@ _proxiedObject: aCollection
 	super _proxiedObject: aCollection.
 	self _acquireCopyCollection!
 
-_rollbackChanges
+_unchangedCollection
 
-	"Forget any changes by instantiating from the copyCollection.
-	Also transfer over any events registered against the current proxiedObject"
+	"Answer the receiver's collection prior to any changes. This is used to roll the receiver back to its previous state"
 
-	| wasDeleted me him spec |
-
-	"Reinstate the proxiedObject if the receiver was deleted"
-	self _isDeleted 
-	ifTrue: 
-		[proxiedObject := copyCollection.
-		copyCollection := proxiedObject copy.
-		wasDeleted := true]
-	ifFalse:
-		[wasDeleted := false].
-
-	me := proxiedObject.
-	him := self.
-	spec := collectionSpec.
-	self _unswap.
-
-	wasDeleted ifFalse:
-		[me _proxiedObject: (spec copyCollection: me _copyCollection).
-		him getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]]!
-
-_unstore
-
-	"Point references to the proxiedObject to the copyCollection
-	 - this enables identity to be preserved in the event of a rollback"
-
-	self _isPersistent
-		ifTrue: [copyCollection := proxiedObject become: copyCollection]
-		ifFalse: [reStore removeFromTransaction: self].
-
-	proxiedObject := nil! !
+	"Need to return a copy"
+	^collectionSpec copyCollection: copyCollection! !
 !SSWDBOwnedCollectionProxy categoriesForMethods!
-_acquireCopyCollection!actions!private! !
+_acquireCopyCollection!actions-internal!private! !
 _checkHasChanged!public!testing! !
 _commitChangesPhase1!actions-internal!public! !
 _commitChangesPhase2!actions-internal!public! !
 _copyCollection!accessing!public! !
 _copyCollection:!accessing!public! !
 _forgetProxiedObject!actions-internal!public! !
-_isDeleted!public!testing! !
-_isPersistent!public!testing! !
-_postCommitChanges!actions!public! !
+_postCommitChanges!actions-internal!public! !
 _prepareToCommitPhase1!actions-internal!public! !
 _prepareToCommitPhase2!actions-internal!public! !
 _proxiedObject:!accessing!public! !
-_rollbackChanges!actions!public! !
-_unstore!actions!public! !
+_unchangedCollection!accessing!private! !
 !
 

@@ -74,6 +74,49 @@ _collectionProxySwapped: aCollectionProxy
 
 	^collectionProxies at: aCollectionProxy _collectionSpec put: aCollectionProxy!
 
+_commitChanges
+
+	"Return a Boolean indicating whether the commit succeeds"
+
+	^self _isPersistent
+	ifTrue:
+		[self _isDeleted
+			ifTrue: [self _commitUnstore]
+			ifFalse: [self _commitUpdates]]
+	ifFalse:
+		[self _commitStore]!
+
+_commitStore
+
+	"Private - Return a Boolean indicating whether the commit succeeds"
+
+	reStore insertProxy: self.
+
+	"Assumed to always succeed"
+	^true!
+
+_commitUnstore
+
+	"Private - Return a Boolean indicating whether the commit succeeds"
+
+	reStore deleteProxy: self. 
+
+	"Assumed to always succeed"
+	^true
+!
+
+_commitUpdates
+
+	"Private - Return a Boolean indicating whether the commit succeeds"
+
+	| updates |
+
+	updates := self _fieldUpdates.
+	
+	^updates isEmpty 
+		ifTrue: [true]
+		ifFalse: [reStore applyUpdates: updates toObject: self]!
+
 _currentVersion
 
 	"Re-read the receiver's proxiedObject from the database,
@@ -92,6 +135,12 @@ _currentVersion
 _dbTable
 
 	^reStore tableForClass: class!
+
+_fieldUpdates
+
+	"Return a collection of SSWSQLFieldAssignments representing changes made to the receiver"
+
+	^self subclassResponsibility!
 
 _id
 
@@ -131,6 +180,51 @@ _isNew
 	"Return a Boolean indicating whether the receiver does not yet exist in the database"
 	
 	^self _isPersistent not!
+
+_postCommitChanges
+
+	"The receiver's changes have successfully been committed.
+	Complete follow-on work"
+
+	^self _isPersistent
+	ifTrue:
+		[self _isDeleted
+			ifTrue: [self _postCommitUnstore]
+			ifFalse: [self _postCommitUpdates]]
+	ifFalse:
+		[self _postCommitStore]!
+
+_postCommitStore
+
+	"Private - The receiver has been inserted into the database.
+	Complete follow-on work"
+
+	self _dbTable idDataField ifNotNil: [ :idDataField | idDataField accessor value: id in: proxiedObject].
+	self 
+		_setPersistent;
+		_intern	"Re-register"!
+
+_postCommitUnstore
+
+	"Private - The receiver has been successfully deleted from the database.
+	Complete follow-on work and notify interest parties"
+
+	| me object |
+
+	reStore uncacheObject: self. 
+
+	me := proxiedObject.
+	object := self.
+
+	self _swap.
+
+	object onUnstored.
+	me _proxiedObjectMissing!
+
+_postCommitUpdates
+
+	"Private - The receiver has been successfully updated in the database.
+	Complete follow-on work and notify interest parties"!
 
 _postRecovered
 
@@ -184,6 +278,35 @@ _refreshFromRow: aDatabaseRow table: aDBTable
 		ifTrue: [proxiedObject onRefresh. true]
 		ifFalse: [false]!
 
+_rollbackChanges
+
+	self _isPersistent
+	ifTrue:
+		[self _isDeleted
+			ifTrue: [self _rollbackUnstore]
+			ifFalse: [self _rollbackUpdates]]
+	ifFalse:
+		[self _rollbackStore]!
+
+_rollbackStore
+
+	"Private - The receiver was a newly-persisted object - deregister from the reStore"
+
+	reStore deregisterProxy: self.
+	self _unswap!
+
+_rollbackUnstore
+
+	self 
+		_clearDeleted;
+		_rollbackUpdates!
+
+_rollbackUpdates
+
+	"Rollback any changes made to the receiver"
+
+	self subclassResponsibility!
+
 _storeNonPersistentComponents
 
 	"Ensure that each non-persistent component of the proxiedObject exists in the receiver's reStore"
@@ -220,6 +343,9 @@ _unstore
 
 	"Unstore the receiver's proxyObject - set the receiver's state so that the receiver is recognised as unstored and hence will be deleted at the next commit"
 
+	self _isDeleted ifTrue: [^self].
+	self _setDeleted.
+
 	"Notify interested parties"
 	self _dbTable aboutToBeUnstored: self.
 	proxiedObject onAboutToUnstore.
@@ -230,9 +356,7 @@ _unstore
 
 	"Separate loops to cope with potential reference swap"
 	collectionProxies do: [ :each | each __ensureActive].
-	collectionProxies do: [ :each | each _unstore].
-
-	proxiedObject := nil!
+	collectionProxies do: [ :each | each _unstore]!
 
 _updateCollectionProxyUsing: aCollectionSpec
 
@@ -464,14 +588,23 @@ _collectionProxies!accessing!public! !
 _collectionProxies:!accessing!public! !
 _collectionProxyFor:!accessing:derived!public! !
 _collectionProxySwapped:!actions-internal!public! !
+_commitChanges!actions-internal!public! !
+_commitStore!actions-internal!private! !
+_commitUnstore!actions-internal!private! !
+_commitUpdates!actions-internal!private! !
 _currentVersion!accessing:derived!public! !
 _dbTable!accessing:derived!public! !
+_fieldUpdates!accessing:derived!public! !
 _id!accessing!public! !
 _id:!accessing!public! !
 _idIn:!forwarding!public! !
 _instVarAt:put:!forwarding!public! !
 _intern!actions-internal!public! !
 _isNew!public!testing! !
+_postCommitChanges!actions-internal!public! !
+_postCommitStore!actions-internal!private! !
+_postCommitUnstore!actions-internal!private! !
+_postCommitUpdates!actions-internal!private! !
 _postRecovered!actions-internal!public! !
 _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
@@ -481,6 +614,10 @@ _proxiedObjectMissing!actions-internal!public! !
 _proxyString!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshFromRow:table:!actions-internal!public! !
+_rollbackChanges!actions-internal!public! !
+_rollbackStore!actions-internal!private! !
+_rollbackUnstore!actions-internal!private! !
+_rollbackUpdates!actions-internal!private! !
 _storeNonPersistentComponents!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
@@ -511,7 +648,7 @@ writeSQLOn:forField:!actions-internal!public! !
 _forNewObject: anObject withID: anInteger inReStore: aReStore
 
 	^(self _forObjectOfClass: anObject class withID: anInteger  inReStore: aReStore)
-		_flagSwapped;
+		_setNewNonPersistent;
 		_newProxiedObject: anObject;
 		_collectionProxies: IdentityDictionary new;
 		yourself!
