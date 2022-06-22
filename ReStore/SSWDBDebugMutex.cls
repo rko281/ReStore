@@ -31,12 +31,17 @@ debugClasses: anObject
 initialize
 
 	super initialize.
-	debugClasses := IdentitySet withAll: self defaultDebugClasses! !
+	debugClasses := IdentitySet withAll: self defaultDebugClasses!
+
+shouldBypassMutexForDebug
+
+	^self isDebugging! !
 !SSWDBDebugMutex categoriesForMethods!
 critical:!operations!public! !
 critical:ifLocked:!operations!public! !
 debugClasses!accessing!private! !
 debugClasses:!accessing!private! !
 initialize!initialize/release!public! !
+shouldBypassMutexForDebug!public!testing! !
 !
 

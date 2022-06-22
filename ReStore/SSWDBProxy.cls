@@ -514,6 +514,12 @@ doesNotUnderstand: aMessage
 
 	^aMessage value: self!
 
+halt
+
+	"Go via the reStore so we use debug mode"
+
+	reStore isNil ifTrue: [super halt] ifFalse: [reStore halt]!
+
 includedIn: aCollection
 
 	"Reciprocal of Collection>>includes: 
@@ -532,8 +538,12 @@ instVarAt: anInteger
 		[ :proxyReStore |
 		proxyReStore transactionCritical: 
 			[self isDBProxy 
-				ifTrue: [self _forwardDirectly: (Message selector: #instVarAt: argument: anInteger)]
-				ifFalse: [self instVarAt: anInteger]]]!
+			ifTrue: 
+				[reStore isDebugging
+					ifTrue: [super instVarAt: anInteger]
+					ifFalse: [self _forwardDirectly: (Message selector: #instVarAt: argument: anInteger)]]
+			ifFalse: 
+				[self instVarAt: anInteger]]]!
 
 isDBProxy
 
@@ -698,6 +708,7 @@ _unswap!actions-internal!public! !
 commit!actions-api!public! !
 debugPrintString!non forwarding!public! !
 doesNotUnderstand:!forwarding!public! !
+halt!non forwarding!public! !
 includedIn:!public!testing! !
 instVarAt:!forwarding!public! !
 isDBProxy!public!testing! !

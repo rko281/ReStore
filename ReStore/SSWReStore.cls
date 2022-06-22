@@ -364,7 +364,7 @@ commitTransaction
 			[ :exc |
 			self transaction autoRecoverPreCommitIn: self.
 			error := exc.
-			exc return].
+			self isDebugMode ifTrue: [exc pass] ifFalse: [exc return]].
 
 		error isNil ifFalse: [self error: ('An error occured during pre-commit: ', error description)].
 
@@ -376,7 +376,7 @@ commitTransaction
 					[self connection rollbackTxn] on: Error do: [ :txnExc | txnExc return].
 					self transaction autoRecoverCommitIn: self.
 					error := exc.
-					exc return: false].
+					self isDebugMode ifTrue: [exc pass] ifFalse: [exc return: false]].
 		success 
 		ifTrue: 
 			[self transaction: self transaction ownerTransaction]
@@ -841,6 +841,13 @@ fullTableRecordFor: anSSWDBTable
 			ifTrue: [nil]
 			ifFalse: [self nextIDCache at: anSSWDBTable put: record]]!
 
+halt
+
+	"Put the receiver into debug mode first"
+
+	self enterDebugMode.
+	super halt!
+
 hardDisconnect
 
 	"Disconnect from the database and clear all caches"
@@ -920,6 +927,14 @@ isConnected
 	"Pass-thru to the connection"
 
 	^self hasConnection and: [self connection isConnected]!
+
+isDebugging
+
+	^transactionMutex isDebugging!
+
+isDebugMode
+
+	^self transactionMutex class == SSWDBDebugMutex!
 
 isInCurrentTransaction: anObject
 
@@ -1803,6 +1818,7 @@ forceRefresh:!public!transactionless api! !
 forceRefreshAll:!public!transactionless api! !
 forgetClass:!class maintenance!public! !
 fullTableRecordFor:!class maintenance!private! !
+halt!debugging!must strip!public! !
 hardDisconnect!connection!private! !
 hasActiveAffiliation!public!testing! !
 hasAffiliations!public!testing! !
@@ -1816,6 +1832,8 @@ instancesOf:!public!querying! !
 isAffiliatedWith:!public!testing! !
 isClassPersistent:!public!testing! !
 isConnected!public!testing! !
+isDebugging!public!testing! !
+isDebugMode!public!testing! !
 isInCurrentTransaction:!private!transaction management! !
 isSystemClass:!public!testing! !
 isTransactionInProgress!public!transaction api! !

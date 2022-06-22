@@ -85,7 +85,7 @@ autoRecoverCommitIn: anSSWReStore
 	self currentReferencedObjects do: [ :obj | obj _unswap].
 
 	"The receiver's changedObjects should now be the currentReferencedObjects"
-	self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _unswap]).
+	self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swap]).
 	self allReferencedObjects: self newEmptyObjectsSet!
 
 autoRecoverPreCommitIn: anSSWReStore

@@ -44,6 +44,7 @@ package methodNames
 	add: #Collection -> #unstoreAll;
 	add: #Collection -> #withComponents;
 	add: #Collection -> #withRelatedComponents;
+	add: #Mutex -> #isDebugging;
 	add: #Object -> #_changedObjectsIn:;
 	add: #Object -> #_checkHasChangedIn:;
 	add: #Object -> #_commitIn:;
@@ -420,6 +421,15 @@ instanceFromDBValue: aValue in: anSSWReStore
 	^aValue ifNotNil: [ :clsName | self class environment at: clsName asSymbol ifAbsent: [self error: 'Class not in image']]! !
 !Metaclass class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!private! !
+!
+
+!Mutex methodsFor!
+
+isDebugging
+
+	^false! !
+!Mutex categoriesForMethods!
+isDebugging!public!testing! !
 !
 
 !Number class methodsFor!

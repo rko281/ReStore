@@ -31,7 +31,7 @@ package methodNames
 	add: #SSWDBBlockEvaluator -> #perform:with:;
 	add: #SSWDBBlockEvaluator -> #perform:withArguments:;
 	add: #SSWDBDebugMutex -> #defaultDebugClasses;
-	add: #SSWDBDebugMutex -> #shouldBypassMutexForDebug;
+	add: #SSWDBDebugMutex -> #isDebugging;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #basicPrintOn:;
@@ -543,7 +543,7 @@ defaultDebugClasses
 
 	^{Debugger. InspectorAbstract. BasicInspector. InspectorShell. FlipperInspector}!
 
-shouldBypassMutexForDebug
+isDebugging
 
 	| topFrame |
 
@@ -556,7 +556,7 @@ shouldBypassMutexForDebug
 	^false.! !
 !SSWDBDebugMutex categoriesForMethods!
 defaultDebugClasses!constants!public! !
-shouldBypassMutexForDebug!public!testing! !
+isDebugging!public!testing! !
 !
 
 !SSWDBProxy methodsFor!
