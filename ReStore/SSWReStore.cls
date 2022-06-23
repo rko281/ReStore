@@ -1,10 +1,10 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
+	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: 'globalDefault activeReStores'!
+	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
 SSWReStore guid: (GUID fromString: '{5a3e3dd2-3990-11d5-b1df-444553540000}')!
 SSWReStore comment: 'ReStore
 ©2019 John Aspinall
@@ -362,9 +362,10 @@ commitTransaction
 
 		[self transaction prepareToCommit] on: Error do: 
 			[ :exc |
+			self isDebugging ifTrue: [exc pass].
 			self transaction autoRecoverPreCommitIn: self.
 			error := exc.
-			self isDebugMode ifTrue: [exc pass] ifFalse: [exc return]].
+			exc return].
 
 		error isNil ifFalse: [self error: ('An error occured during pre-commit: ', error description)].
 
@@ -373,10 +374,11 @@ commitTransaction
 			self transaction hasFailedCommit not] 
 				on: Error do: 
 					[ :exc |
+					self isDebugging ifTrue: [exc pass].
 					[self connection rollbackTxn] on: Error do: [ :txnExc | txnExc return].
 					self transaction autoRecoverCommitIn: self.
 					error := exc.
-					self isDebugMode ifTrue: [exc pass] ifFalse: [exc return: false]].
+					exc return: false].
 		success 
 		ifTrue: 
 			[self transaction: self transaction ownerTransaction]
@@ -679,9 +681,7 @@ ensureNoActiveTransaction
 
 enterDebugMode
 
-	"Replace the transactionMutex with one which bypasses critical section checks if it determines we're in the debugger"
-
-	self transactionMutex: SSWDBDebugMutex new!
+	self isDebugging: true!
 
 evaluateAsTransaction: aBlock
 
@@ -930,11 +930,25 @@ isConnected
 
 isDebugging
 
-	^transactionMutex isDebugging!
+	"When isDebugging is true the receiver will adjust its behaviour to facilitate easier debugging within ReStore code. 
 
-isDebugMode
+	Principally, when the receiver's transactionMutex is locked, if debugging is enabled the mutex will check the current execution stack when an attempt is made to enter a critical section.
+	If the current execution stack is adjudged to have originated from a Debugger, Inspector or other development tool, the lock will be bypassed.
+	
+	Additionally, proxies adjust their response to instVarAt: to enable their internal state to be shown in the Debugger variables list"
 
-	^self transactionMutex class == SSWDBDebugMutex!
+	^isDebugging!
+
+isDebugging: aBoolean
+
+	"When isDebugging is true the receiver will adjust its behaviour to facilitate easier debugging within ReStore code. 
+
+	Principally, when the receiver's transactionMutex is locked, if debugging is enabled the mutex will check the current execution stack when an attempt is made to enter a critical section.
+	If the current execution stack is adjudged to have originated from a Debugger, Inspector or other development tool, the lock will be bypassed.
+	
+	Additionally, proxies adjust their response to instVarAt: to enable their internal state to be shown in the Debugger variables list"
+
+	isDebugging := aBoolean!
 
 isInCurrentTransaction: anObject
 
@@ -964,9 +978,7 @@ lazyRefreshAll: aCollection
 
 leaveDebugMode
 
-	"Enter the default non-debug mode"
-
-	self transactionMutex: Mutex new!
+	self isDebugging: false!
 
 mustBeConnected
 	
@@ -1111,7 +1123,7 @@ persistentSystemClasses
 postConnect
 
 	"Reinitializate the mutex"
-	self transactionMutex: Mutex new.
+	self transactionMutex: (SSWDBTransactionMutex newFor: self).
 
 	"Must reset system classes after login to use current dialect's name transformation strategy"
 	self persistentSystemClasses do: [ :each | self addClass: each].
@@ -1476,6 +1488,10 @@ selectChanged: aCollection
 
 	^aCollection inject: IdentitySet new into: [ :all :each | all addAll: (each _changedObjectsIn: self)]!
 
+setDefaultDebugMode
+
+	self isDebugging: SSWReStore isDebugging!
+
 setDefaultTransactionMode
 
 	self useTransactionsWithVersioning!
@@ -1832,8 +1848,8 @@ instancesOf:!public!querying! !
 isAffiliatedWith:!public!testing! !
 isClassPersistent:!public!testing! !
 isConnected!public!testing! !
-isDebugging!public!testing! !
-isDebugMode!public!testing! !
+isDebugging!accessing!public! !
+isDebugging:!accessing!public! !
 isInCurrentTransaction:!private!transaction management! !
 isSystemClass:!public!testing! !
 isTransactionInProgress!public!transaction api! !
@@ -1887,6 +1903,7 @@ rowsFromQuery:do:!public!querying! !
 rowsFromStatement:do:!public!querying! !
 rowsFromStatement:keysAndValuesDo:!public!querying! !
 selectChanged:!public!transaction management! !
+setDefaultDebugMode!initialize/release!private! !
 setDefaultTransactionMode!initialize/release!private! !
 softDisconnect!connection!private! !
 softRollback!public!transaction api! !
@@ -1962,8 +1979,11 @@ default
 
 enterDebugMode
 
-	"Put all active instances into debug mode"
-	self activeReStores do: [ :each | each enterDebugMode]!
+	"Activate debugging for all active and future instances"
+
+	self 
+		isDebugging: true;
+		setDebugMode!
 
 globalDefault
 
@@ -1981,10 +2001,27 @@ initializeReStoreGlobal
 
 	self class environment at: #ReStore put: self globalDefault!
 
+isDebugging
+
+	"Default setting for isDebugging status of instances.
+	See instance implementation for further details"
+
+	^isDebugging ifNil: [false]!
+
+isDebugging: aBoolean
+
+	"Default setting for isDebugging status of instances.
+	See instance implementation for further details"
+
+	isDebugging := aBoolean!
+
 leaveDebugMode
 
-	"Take all active instances out of debug mode"
-	self activeReStores do: [ :each | each leaveDebugMode]!
+	"Deactivate debugging for all active and future instances"
+
+	self 
+		isDebugging: false;
+		setDebugMode!
 
 new
 
@@ -1992,6 +2029,7 @@ new
 		clearProxyCache;
 		clearDBTableNames;
 		clearTableCache;
+		setDefaultDebugMode;
 		yourself!
 
 onStartup
@@ -2035,7 +2073,12 @@ reStoreForObject: anObject ifNone: aBlock
 	^(self proxyForObject: anObject ifNone: [nil]) 
 		ifNil: [aBlock value]
 		ifNotNil: [ :proxy | proxy _reStore]
-! !
+!
+
+setDebugMode
+
+	"Private - Put all active instances into the current debug mode"
+	self activeReStores do: [ :each | each setDefaultDebugMode]! !
 !SSWReStore class categoriesForMethods!
 activated:!events!public! !
 activeReStores!accessing!public! !
@@ -2047,6 +2090,8 @@ enterDebugMode!accessing!public! !
 globalDefault!accessing!private! !
 initialize!initialize/release!public! !
 initializeReStoreGlobal!initialize/release!private! !
+isDebugging!accessing!public! !
+isDebugging:!accessing!public! !
 leaveDebugMode!accessing!public! !
 new!instance creation!public! !
 onStartup!events!public! !
@@ -2054,5 +2099,6 @@ proxyForObject:ifNone:!accessing!public! !
 reset!accessing!initialize/release!public! !
 resetActive!initialize/release!private! !
 reStoreForObject:ifNone:!accessing!public! !
+setDebugMode!initialize/release!private! !
 !
 

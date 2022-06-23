@@ -105,7 +105,7 @@ valueIn: targetObject
 
 	"Return the value of the instance variable of targetObject represented by the receiver"
 
-	^targetObject instVarAt: self slot! !
+	^targetObject _instVarAt: self slot! !
 !SSWInstVarAccessor categoriesForMethods!
 =!public!testing! !
 access:in:!initializing!public! !

@@ -48,6 +48,7 @@ package classNames
 	add: #SSWReStoreCommitTests;
 	add: #SSWReStoreDataIDHierarchyTest;
 	add: #SSWReStoreDataIDTest;
+	add: #SSWReStoreDebugTest;
 	add: #SSWReStoreDefaultReadTest;
 	add: #SSWReStoreDefaultTest;
 	add: #SSWReStoreDefaultWriteTest;
@@ -768,6 +769,11 @@ SSWReStorePersonTest subclass: #SSWReStoreSpeedTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStorePersonTest subclass: #SSWReStoreTableTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

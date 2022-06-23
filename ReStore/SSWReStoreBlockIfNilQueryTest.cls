@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreQueryTest subclass: #SSWReStoreBlockIfNilQueryTest
 	instanceVariableNames: ''
@@ -86,17 +86,21 @@ testSelectSimpleObjectWithFunctionIfNil
 
 	self assert: results size = 2.
 	self assert: (results allSatisfy: [ :each | each emailAddress isNil or: [each emailAddress endsWith: '@something']])! !
-!SSWReStoreBlockIfNilQueryTest categoriesFor: #testCollectPersistentObjectIfNil!public!unit tests! !
-!SSWReStoreBlockIfNilQueryTest categoriesFor: #testCollectSimpleObjectIfNil!public!unit tests! !
-!SSWReStoreBlockIfNilQueryTest categoriesFor: #testCollectSimpleObjectWithFunctionIfNil!public!unit tests! !
-!SSWReStoreBlockIfNilQueryTest categoriesFor: #testSelectPersistentObjectIfNil!public!unit tests! !
-!SSWReStoreBlockIfNilQueryTest categoriesFor: #testSelectSimpleObjectIfNil!public!unit tests! !
-!SSWReStoreBlockIfNilQueryTest categoriesFor: #testSelectSimpleObjectWithFunctionIfNil!public!unit tests! !
+!SSWReStoreBlockIfNilQueryTest categoriesForMethods!
+testCollectPersistentObjectIfNil!public!unit tests! !
+testCollectSimpleObjectIfNil!public!unit tests! !
+testCollectSimpleObjectWithFunctionIfNil!public!unit tests! !
+testSelectPersistentObjectIfNil!public!unit tests! !
+testSelectSimpleObjectIfNil!public!unit tests! !
+testSelectSimpleObjectWithFunctionIfNil!public!unit tests! !
+!
 
 !SSWReStoreBlockIfNilQueryTest class methodsFor!
 
 shouldInheritSelectors
 
 	^false! !
-!SSWReStoreBlockIfNilQueryTest class categoriesFor: #shouldInheritSelectors!public! !
+!SSWReStoreBlockIfNilQueryTest class categoriesForMethods!
+shouldInheritSelectors!public! !
+!
 

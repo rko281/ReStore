@@ -162,6 +162,13 @@ _idIn: aReStore
 		ifTrue: [id]
 		ifFalse: [nil error: 'incorrect ReStore parameter']!
 
+_instVarAt: anInteger
+
+	"Sent from internal code to access the proxiedObject directly.
+	ASSERT: the receiver is a recovered proxy"
+	
+	^proxiedObject instVarAt: anInteger!
+
 _instVarAt: anInteger put: anObject
 
 	"Sent from internal code to access the proxiedObject directly.
@@ -598,6 +605,7 @@ _fieldUpdates!accessing:derived!public! !
 _id!accessing!public! !
 _id:!accessing!public! !
 _idIn:!forwarding!public! !
+_instVarAt:!forwarding!public! !
 _instVarAt:put:!forwarding!public! !
 _intern!actions-internal!public! !
 _isNew!public!testing! !

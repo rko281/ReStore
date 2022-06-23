@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreGenericTest subclass: #SSWReStoreCacheDictionaryTest
 	instanceVariableNames: ''
@@ -265,24 +265,26 @@ testStoreReplacementAtExistingKey
 	self assert: (testObject component at: 'b') equals: bill.
 	self deny: (testObject component includes: barry).
 	self assert: ((GenericOwnedTest storedInstancesIn: reStore) select: [ :each | each name = barry name]) isEmpty! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #componentDefinition!public! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #templateTestObject!accessing!public! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testIncludes!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testIncludesAssociation!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testIncludesKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testNamed:!accessing!private! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testReadAllFetch!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testReadAllInclude!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRefreshAdditionOfNewKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRefreshRemovalOfAllKeys!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRefreshRemovalOfKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRefreshReplacementAtExistingKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRollbackAdditionOfNewKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRollbackRemovalOfAllKeys!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRollbackRemovalOfKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testRollbackReplacementAtExistingKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testStoreAdditionOfNewKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testStoreRemovalOfAllKeys!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testStoreRemovalOfKey!public!unit tests! !
-!SSWReStoreCacheDictionaryTest categoriesFor: #testStoreReplacementAtExistingKey!public!unit tests! !
+!SSWReStoreCacheDictionaryTest categoriesForMethods!
+componentDefinition!public! !
+templateTestObject!accessing!public! !
+testIncludes!public!unit tests! !
+testIncludesAssociation!public!unit tests! !
+testIncludesKey!public!unit tests! !
+testNamed:!accessing!private! !
+testReadAllFetch!public!unit tests! !
+testReadAllInclude!public!unit tests! !
+testRefreshAdditionOfNewKey!public!unit tests! !
+testRefreshRemovalOfAllKeys!public!unit tests! !
+testRefreshRemovalOfKey!public!unit tests! !
+testRefreshReplacementAtExistingKey!public!unit tests! !
+testRollbackAdditionOfNewKey!public!unit tests! !
+testRollbackRemovalOfAllKeys!public!unit tests! !
+testRollbackRemovalOfKey!public!unit tests! !
+testRollbackReplacementAtExistingKey!public!unit tests! !
+testStoreAdditionOfNewKey!public!unit tests! !
+testStoreRemovalOfAllKeys!public!unit tests! !
+testStoreRemovalOfKey!public!unit tests! !
+testStoreReplacementAtExistingKey!public!unit tests! !
+!
 

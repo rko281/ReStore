@@ -13,7 +13,6 @@ package classNames
 	add: #SSWDBCollectionProxy;
 	add: #SSWDBCollectionWithContents;
 	add: #SSWDBCollectionWithRelatedContents;
-	add: #SSWDBDebugMutex;
 	add: #SSWDBDumbTransaction;
 	add: #SSWDBGeneralCollectionProxy;
 	add: #SSWDBObjectProxy;
@@ -25,6 +24,7 @@ package classNames
 	add: #SSWDBSingleTransactionWithVersioning;
 	add: #SSWDBTableRecord;
 	add: #SSWDBTransaction;
+	add: #SSWDBTransactionMutex;
 	add: #SSWDBUnstoreWrapper;
 	add: #SSWDBVersionedCachingObjectProxy;
 	add: #SSWReStore;
@@ -164,17 +164,17 @@ Object subclass: #SSWDBTransaction
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
+	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: 'globalDefault activeReStores'!
+	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
 Notification subclass: #StoreFailure
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-Mutex subclass: #SSWDBDebugMutex
-	instanceVariableNames: 'debugClasses'
+Mutex subclass: #SSWDBTransactionMutex
+	instanceVariableNames: 'debugClasses reStore'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

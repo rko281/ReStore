@@ -30,8 +30,6 @@ package methodNames
 	add: #SSWDBBlockEvaluator -> #perform:;
 	add: #SSWDBBlockEvaluator -> #perform:with:;
 	add: #SSWDBBlockEvaluator -> #perform:withArguments:;
-	add: #SSWDBDebugMutex -> #defaultDebugClasses;
-	add: #SSWDBDebugMutex -> #isDebugging;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #basicPrintOn:;
@@ -44,6 +42,8 @@ package methodNames
 	add: #SSWDBProxy -> #isNil;
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
+	add: #SSWDBTransactionMutex -> #defaultDebugClasses;
+	add: #SSWDBTransactionMutex -> #isInDebugCallStack;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
 	add: #SSWMSAccessDialect -> #platformSpecificFunctions;
 	add: #SSWMySQLDialect -> #platformSpecificFunctions;
@@ -537,28 +537,6 @@ platformClass
 platformClass!constants!public! !
 !
 
-!SSWDBDebugMutex methodsFor!
-
-defaultDebugClasses
-
-	^{Debugger. InspectorAbstract. BasicInspector. InspectorShell. FlipperInspector}!
-
-isDebugging
-
-	| topFrame |
-
-	topFrame := Processor activeProcess topFrame sender.
-
-	[topFrame notNil] whileTrue: 
-		[(debugClasses anySatisfy: [:each | topFrame receiver basicClass includesBehavior: each]) ifTrue: [^true].
-		topFrame := topFrame sender].
-
-	^false.! !
-!SSWDBDebugMutex categoriesForMethods!
-defaultDebugClasses!constants!public! !
-isDebugging!public!testing! !
-!
-
 !SSWDBProxy methodsFor!
 
 _allReferences
@@ -654,6 +632,30 @@ mustBeBoolean
 	^self parser handleMustBeBooleanIn: self! !
 !SSWDBQueryConditionCollection categoriesForMethods!
 mustBeBoolean!evaluating!private! !
+!
+
+!SSWDBTransactionMutex methodsFor!
+
+defaultDebugClasses
+
+	^{Debugger. Debugger class. InspectorAbstract. BasicInspector. InspectorShell. FlipperInspector}!
+
+isInDebugCallStack
+
+	| process topFrame |
+
+	process := Processor activeProcess.
+	process isDebuggee ifTrue: [^true].
+
+	topFrame := process topFrame sender.
+	[topFrame notNil] whileTrue: 
+		[(debugClasses anySatisfy: [:each | topFrame receiver basicClass includesBehavior: each]) ifTrue: [^true].
+		topFrame := topFrame sender].
+
+	^false.! !
+!SSWDBTransactionMutex categoriesForMethods!
+defaultDebugClasses!constants!public! !
+isInDebugCallStack!public!testing! !
 !
 
 !SSWMSAccessDialect methodsFor!

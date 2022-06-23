@@ -38,7 +38,7 @@ testBeginDuringBegin
 
 	| john |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 
 	"Start a dumb transaction here"
 	john firstName.
@@ -51,60 +51,6 @@ testBeginDuringBegin
 
 	"Previously gave error 'Nesting of transaction not supported' "
 	self shouldnt: [reStore beginTransaction] raise: Error description: 'Nesting of transaction not supported'!
-
-testDebugMode
-
-	"Verify critial section check is bypassed when a send originates in a specific class, when ReStore is in debug mode"
-
-	| sem proc1 proc2 done |
-
-	sem := Semaphore new.
-	done := false.
-
-	reStore enterDebugMode.
-
-	"Check default behaviour first"
-	proc1 := [reStore transactionCritical: [sem wait]] forkAt: Processor activeProcess priority + 2.
-	self deny: proc1 isTerminated.
-
-	proc2 := [reStore transactionCritical: [done := true]] forkAt: Processor activeProcess priority + 1.
-	self deny: proc1 isTerminated.
-	self deny: done.
-
-	sem signal.
-	self assert: proc1 isTerminated.
-	self assert: proc2 isTerminated.
-	self assert: done.
-
-	"Now make ourselves a debug class and retest"
-	reStore transactionMutex debugClasses add: self class.
-	done := false.
-	proc1 := [reStore transactionCritical: [sem wait]] forkAt: Processor activeProcess priority + 2.
-	self deny: proc1 isTerminated.
-
-	proc2 := [reStore transactionCritical: [done := true]] forkAt: Processor activeProcess priority + 1.
-	self assert: proc2 isTerminated.
-	self assert: done.
-
-	"Allow proc1 to finish"
-	sem signal.
-	self assert: proc1 isTerminated.
-
-	"Finally leave debug mode and verify things back to normal"
-	reStore leaveDebugMode.
-	done := false.
-	proc1 := [reStore transactionCritical: [sem wait]] forkAt: Processor activeProcess priority + 2.
-	self deny: proc1 isTerminated.
-
-	proc2 := [reStore transactionCritical: [done := true]] forkAt: Processor activeProcess priority + 1.
-	self deny: proc1 isTerminated.
-	self deny: done.
-
-	sem signal.
-	self assert: proc1 isTerminated.
-	self assert: proc2 isTerminated.
-	self assert: done.
-!
 
 testGlobablProxyLookupWhenSuspended
 
@@ -126,7 +72,7 @@ testGlobablProxyLookupWhenSuspended
 	[priorReStore transactionCritical: [Processor activeProcess suspend]] forkAt: Processor activeProcess priority + 1.
 	self deny: priorReStore transactionMutex owner isActive.
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 	self assert: john isDBProxy.
 
 	lookupProcess := [proxy :=SSWReStore proxyForObject: john ifNone: [nil]] forkAt: Processor activeProcess priority + 1.
@@ -148,7 +94,7 @@ testGlobablProxyProxyLookup
 
 	| john |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 	
 	self assert: john isDBProxy.
 	self assert: (SSWReStore proxyForObject: john ifNone: [nil]) identicalTo: john!
@@ -159,7 +105,7 @@ testInconsistentProxySwap
 
 	|  john proxy |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 	proxy := john _proxiedObject.
 
 	self assert: john isDBProxy.
@@ -186,7 +132,7 @@ testInconsistentProxyUnswap
 
 	|  john proxy |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 
 	"Should not be able to unswap an unswapped proxy"
 	proxy := john _proxiedObject.
@@ -206,7 +152,7 @@ testObjectLookupDuringTransaction
 
 	| john id process wasTransactionInProgress |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 	id := john _id.
 
 	process := 
@@ -230,7 +176,7 @@ testProxyDoesNotUnderstandWhenPreempted
 
 	| john dnu result |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 	
 	"We simulate this situation by evaluating SSWDBProxy>>#doesNotUnderstand: with an unproxied object"
 	john firstName.
@@ -249,7 +195,7 @@ testProxyLookupDuringTransaction
 
 	| john version process proxy wasTransactionInProgress |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 	version := john _version.
 	
 	process := 
@@ -278,7 +224,7 @@ testProxyProxyLookup
 
 	| john |
 
-	john := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John'].
+	john := self john.
 	
 	self assert: john isDBProxy.
 	self assert: (reStore activeProxyForObject: john ifNone: [nil]) identicalTo: john!
@@ -287,11 +233,10 @@ testQueryingDuringTransaction
 
 	"Verify querying in one process is blocked whilst a transaction occurs in another"
 
-	| storedInstances john id process wasTransactionInProgress |
+	| storedInstances john process wasTransactionInProgress |
 
 	storedInstances := SimplePerson storedInstancesIn: reStore.
-	john := storedInstances detect: [ :each | each firstName = 'John'].
-	id := john _id.
+	john := self john.
 
 	process := 
 		[self deny: reStore isTransactionInProgress.
@@ -342,7 +287,6 @@ firstActiveReStore!accessing!private! !
 setUp!public!running! !
 tearDown!public!running! !
 testBeginDuringBegin!public!unit tests! !
-testDebugMode!public!unit tests! !
 testGlobablProxyLookupWhenSuspended!public!unit tests! !
 testGlobablProxyProxyLookup!public!unit tests! !
 testInconsistentProxySwap!public!unit tests! !
