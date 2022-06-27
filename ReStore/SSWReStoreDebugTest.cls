@@ -10,6 +10,14 @@ SSWReStoreDebugTest comment: ''!
 !SSWReStoreDebugTest categoriesForClass!Unclassified! !
 !SSWReStoreDebugTest methodsFor!
 
+makeIDEClass
+
+	Process methodDictionary
+		at: #isInIDECallStackOrig put: (Process>>#isInIDECallStack);
+		at: #isInIDECallStack put: (Process>>#isInIDECallStackAlwaysTrue).
+
+	Process flushMethodCache!
+
 testDebugModeCommitErrorHandling
 
 	"Verify errors during transaction commit are passed when debug mode is active"
@@ -57,9 +65,9 @@ testDebugModeMutex
 	self assert: proc2 isTerminated.
 	self assert: done.
 
-	"Now make ourselves a debug class and retest"
-	reStore transactionMutex debugClasses add: self class.
-	done := false.
+	"Now make ourselves an IDE class (effectively) and retest"
+	self makeIDEClass.
+	[done := false.
 	proc1 := [reStore transactionCritical: [sem wait]] forkAt: Processor activeProcess priority + 2.
 	self deny: proc1 isTerminated.
 
@@ -84,8 +92,7 @@ testDebugModeMutex
 	sem signal.
 	self assert: proc1 isTerminated.
 	self assert: proc2 isTerminated.
-	self assert: done.
-!
+	self assert: done] ensure: [self unmakeIDEClass]!
 
 testDebugModePreCommitErrorHandling
 
@@ -131,13 +138,21 @@ testDebugModeProxyInstVarAt
 
 	"Debug mode instVarAt: should access the proxy's instance variables"
 	reStore enterDebugMode.
-	self assert: john isDBProxy.
+	self makeIDEClass.
+	[self assert: john isDBProxy.
 	self assert: (john instVarAt: 1 "proxiedObject") identicalTo: john _proxiedObject.
-	self assert: (john _instVarAt: 1 "firstName") equals: 'John'.! !
+	self assert: (john _instVarAt: 1 "firstName") equals: 'John'] ensure: [self unmakeIDEClass]!
+
+unmakeIDEClass
+
+	Process methodDictionary at: #isInIDECallStack put: (Process>>#isInIDECallStackOrig).
+	Process flushMethodCache! !
 !SSWReStoreDebugTest categoriesForMethods!
+makeIDEClass!helpers!private! !
 testDebugModeCommitErrorHandling!public!unit tests! !
 testDebugModeMutex!public!unit tests! !
 testDebugModePreCommitErrorHandling!public!unit tests! !
 testDebugModeProxyInstVarAt!public!unit tests! !
+unmakeIDEClass!helpers!private! !
 !
 

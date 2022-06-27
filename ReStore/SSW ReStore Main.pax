@@ -24,7 +24,6 @@ package classNames
 	add: #SSWDBSingleTransactionWithVersioning;
 	add: #SSWDBTableRecord;
 	add: #SSWDBTransaction;
-	add: #SSWDBTransactionMutex;
 	add: #SSWDBUnstoreWrapper;
 	add: #SSWDBVersionedCachingObjectProxy;
 	add: #SSWReStore;
@@ -170,11 +169,6 @@ Object subclass: #SSWReStore
 	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
 Notification subclass: #StoreFailure
 	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-Mutex subclass: #SSWDBTransactionMutex
-	instanceVariableNames: 'debugClasses reStore'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

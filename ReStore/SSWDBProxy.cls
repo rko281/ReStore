@@ -168,15 +168,6 @@ _forgetProxiedObject
 	
 	proxiedObject := nil!
 
-_forwardDirectly: aMessage
-
-	"Private - Forward aMessage to the proxiedObject; do not swap the receiver with the proxied object.
-	Should only be invoked inside a transactionCritical: lock.
-	Privileged use only"
-	
-	proxiedObject isNil ifTrue: [self _recoverProxiedObject].
-	^aMessage value: proxiedObject!
-
 _hasChanged
 
 	"Return whether the receiver's proxiedObject has been changed
@@ -287,6 +278,13 @@ _proxiedObjectClass
 	"Answer the class of the proxiedObject (or best guess) without needing to have the proxiedObject itself"
 
 	^self subclassResponsibility!
+
+_recoveredProxiedObject
+
+	"Answer the proxiedObject, recovering it from the database if necessary"
+
+	proxiedObject isNil ifTrue: [self _recoverProxiedObject].
+	^proxiedObject!
 
 _recoverProxiedObject
 
@@ -529,7 +527,8 @@ includedIn: aCollection
 
 instVarAt: anInteger
 
-	"Avoid the ProtoObject implementation"	
+	"Avoiding the ProtoObject implementation, selectively forward the message directly to the proxiedObject.
+	If we are in a debugging state and the current call stack originates from the IDE, directly access the inst vars of the receiver"	
 
 	^self _dbProxyReStore 
 	ifNil: 
@@ -539,9 +538,9 @@ instVarAt: anInteger
 		proxyReStore transactionCritical: 
 			[self isDBProxy 
 			ifTrue: 
-				[reStore isDebugging
+				[(reStore isDebugging and: [Processor activeProcess isInIDECallStack])
 					ifTrue: [super instVarAt: anInteger]
-					ifFalse: [self _forwardDirectly: (Message selector: #instVarAt: argument: anInteger)]]
+					ifFalse: [self _recoveredProxiedObject instVarAt: anInteger]]
 			ifFalse: 
 				[self instVarAt: anInteger]]]!
 
@@ -662,7 +661,6 @@ _forceRefresh!actions-refresh!public! !
 _forceRefreshIn:!actions-refresh!public! !
 _forceRefreshWithContents!actions-refresh!public! !
 _forgetProxiedObject!actions-internal!public! !
-_forwardDirectly:!forwarding!private! !
 _hasChanged!public!testing! !
 _hasChangedFrom:!public!testing! !
 _isDeleted!public!testing! !
@@ -680,6 +678,7 @@ _prepareToCommitPhase2!actions-internal!public! !
 _proxiedObject!accessing!public! !
 _proxiedObject:!accessing!public! !
 _proxiedObjectClass!accessing!public! !
+_recoveredProxiedObject!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _referenced!actions-internal!public! !
 _refresh!actions-refresh!public! !

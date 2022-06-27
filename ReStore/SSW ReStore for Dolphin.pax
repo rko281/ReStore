@@ -18,6 +18,7 @@ package methodNames
 	add: #CompiledCode -> #sswWritesInstVar:at:;
 	add: #DateAndTime -> #withResolution:;
 	add: #GUID -> #writeSQLOn:;
+	add: #Process -> #isInIDECallStack;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:from:;
@@ -42,8 +43,6 @@ package methodNames
 	add: #SSWDBProxy -> #isNil;
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
-	add: #SSWDBTransactionMutex -> #defaultDebugClasses;
-	add: #SSWDBTransactionMutex -> #isInDebugCallStack;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
 	add: #SSWMSAccessDialect -> #platformSpecificFunctions;
 	add: #SSWMySQLDialect -> #platformSpecificFunctions;
@@ -220,6 +219,33 @@ instanceFromDBValue:in:!persistency!private! !
 isPersistentBaseClass!persistency!private! !
 reStoreNewUnique!persistency!private! !
 writeSQLTypeOn:using:!persistency!private! !
+!
+
+!Process methodsFor!
+
+isInIDECallStack
+
+	"Answer whether this process is currently in a call stack originating in a message send from well-known IDE classes.
+	Used to adjust behaviour of SSWDBProxys depending on exection context"
+
+	| ideClasses nonIDEClasses frame receiver |
+
+	ideClasses := {Debugger. Debugger class. InspectorAbstract. BasicInspector. InspectorShell. FlipperInspector}.
+	nonIDEClasses := IdentitySet new.
+
+	frame := Processor activeProcess topFrame sender.
+	receiver := frame receiver.
+	[frame notNil] whileTrue: 
+		[| receiverClass |
+		receiverClass := receiver basicClass.
+		(ideClasses anySatisfy: [ :each | receiverClass includesBehavior: each]) ifTrue: [^true].
+		[frame := frame sender.
+		frame notNil and: [(receiver := frame receiver) isNil or: [receiver basicClass == receiverClass or: [nonIDEClasses includes: receiver basicClass]]]] whileTrue.
+		nonIDEClasses add: receiverClass].
+
+	^false.! !
+!Process categoriesForMethods!
+isInIDECallStack!public! !
 !
 
 !SSWDBBlockArgument methodsFor!
@@ -563,7 +589,7 @@ icon
 		[ :proxyReStore |
 		proxyReStore transactionCritical: 
 			[self isDBProxy 
-				ifTrue: [self _forwardDirectly: ##(Message selector: #icon)]
+				ifTrue: [self _recoveredProxiedObject icon]
 				ifFalse: [self icon]]]!
 
 ifNil: nilBlock 
@@ -632,30 +658,6 @@ mustBeBoolean
 	^self parser handleMustBeBooleanIn: self! !
 !SSWDBQueryConditionCollection categoriesForMethods!
 mustBeBoolean!evaluating!private! !
-!
-
-!SSWDBTransactionMutex methodsFor!
-
-defaultDebugClasses
-
-	^{Debugger. Debugger class. InspectorAbstract. BasicInspector. InspectorShell. FlipperInspector}!
-
-isInDebugCallStack
-
-	| process topFrame |
-
-	process := Processor activeProcess.
-	process isDebuggee ifTrue: [^true].
-
-	topFrame := process topFrame sender.
-	[topFrame notNil] whileTrue: 
-		[(debugClasses anySatisfy: [:each | topFrame receiver basicClass includesBehavior: each]) ifTrue: [^true].
-		topFrame := topFrame sender].
-
-	^false.! !
-!SSWDBTransactionMutex categoriesForMethods!
-defaultDebugClasses!constants!public! !
-isInDebugCallStack!public!testing! !
 !
 
 !SSWMSAccessDialect methodsFor!

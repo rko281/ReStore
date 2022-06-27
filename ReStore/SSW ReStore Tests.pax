@@ -168,6 +168,8 @@ package classNames
 
 package methodNames
 	add: #Object -> #_deproxify;
+	add: #Process -> #isInIDECallStackAlwaysTrue;
+	add: #SSWDBProxy -> #_dbProxyReStorePrePreempt;
 	add: #SSWMySQLDialect -> #shouldDropTablesForTestCases;
 	add: #SSWPostgreSQLDialect -> #shouldDropTablesForTestCases;
 	add: #SSWReStore -> #simulateReconnect;
@@ -996,6 +998,25 @@ _deproxify
 	"Non-inlined method that can be sent to any object to ensure it's not a ReStore proxy"! !
 !Object categoriesForMethods!
 _deproxify!private!restore-internal! !
+!
+
+!Process methodsFor!
+
+isInIDECallStackAlwaysTrue
+
+	^true! !
+!Process categoriesForMethods!
+isInIDECallStackAlwaysTrue!private!testing! !
+!
+
+!SSWDBProxy methodsFor!
+
+_dbProxyReStorePrePreempt
+
+	self _swap.
+	^nil! !
+!SSWDBProxy categoriesForMethods!
+_dbProxyReStorePrePreempt!public! !
 !
 
 !SSWMySQLDialect methodsFor!

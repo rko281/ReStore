@@ -61,6 +61,19 @@ preemptAndSwapProxy: aProxy before: actionBlock
 
 	self do: [aProxy _swap] beforeTransactionCriticalIn: actionBlock!
 
+prePreemptDuring: aBlock
+
+	"Private - Arrange for proxy forwarding methods to be pre-preempted right at the start (i.e. swapped before anything happens)"
+
+	SSWDBProxy methodDictionary 
+		at: #_dbProxyReStoreOrig put: (SSWDBProxy>>#_dbProxyReStore);
+		at: #_dbProxyReStore put: (SSWDBProxy>>#_dbProxyReStorePrePreempt).
+	SSWDBProxy flushMethodCache.
+
+	aBlock ensure: 
+		[SSWDBProxy methodDictionary at: #_dbProxyReStore put: (SSWDBProxy methodDictionary removeKey: #_dbProxyReStoreOrig).
+		SSWDBProxy flushMethodCache].!
+
 readTestDataWithoutObjects
 
 	| ids |
@@ -89,6 +102,19 @@ testClassPreempted
 	self preemptAndSwapProxy: mid before: [self assert: mid class equals: MidPerson].
 	self preemptAndSwapProxy: sub before: [self assert: sub class equals: SubPerson].
 	self preemptAndSwapProxy: detailed before: [self assert: detailed class equals: DetailedPerson]!
+
+testClassPrePreempted
+
+	all do: [ :each | self assert: each isDBProxy].
+	all do: [ :each | self assert: each _proxiedObject notNil].
+
+	self prePreemptDuring: 
+		[self assert: simple class equals: SimplePerson.
+		self assert: simple2 class equals: SimplePerson2.
+		self assert: sup class equals: SuperPerson.
+		self assert: mid class equals: MidPerson.
+		self assert: sub class equals: SubPerson.
+		self assert: detailed class equals: DetailedPerson]!
 
 testClassWithObject
 
@@ -144,6 +170,19 @@ testDebugPrintStringPreempted
 	expectedPrintStrings := all collect: [ :each | each _proxiedObject debugPrintString].
 
 	all with: expectedPrintStrings do: [ :each :expected | self preemptAndSwapProxy: each before: [self assert: each debugPrintString equals: expected]].
+
+	all do: [ :each | self deny: each isDBProxy]!
+
+testDebugPrintStringPrePreempted
+
+	| expectedPrintStrings |
+
+	all do: [ :each | self assert: each isDBProxy].
+	all do: [ :each | self assert: each _proxiedObject notNil].
+
+	expectedPrintStrings := all collect: [ :each | each _proxiedObject debugPrintString].
+
+	self prePreemptDuring: [all with: expectedPrintStrings do: [ :each :expected | self assert: each debugPrintString equals: expected]].
 
 	all do: [ :each | self deny: each isDBProxy]!
 
@@ -256,6 +295,27 @@ testHashPreempted
 	self assert: detailed isDBProxy.
 	self preemptAndSwapProxy: detailed before: [self assert: detailed hash equals: expectedHash]!
 
+testHashPrePreempted
+
+	self prePreemptDuring: 
+		[| expectedHash |
+
+		expectedHash := simple identityHash.
+		self assert: simple isDBProxy.
+		self assert: simple hash equals: expectedHash.
+
+		expectedHash := simple2 _proxiedObject fullName hash.
+		self assert: simple2 isDBProxy.
+		self assert: simple2 hash equals: expectedHash.
+
+		expectedHash := sub identityHash.
+		self assert: sub isDBProxy.
+		self assert: sub hash equals: expectedHash.
+
+		expectedHash := detailed _proxiedObject fullName hash.
+		self assert: detailed isDBProxy.
+		self assert: detailed hash equals: expectedHash]!
+
 testHashWithObject
 
 	| expectedHash |
@@ -317,6 +377,15 @@ testIsKindOfPreempted
 
 	self preemptAndSwapProxy: simple before: [self assert: (simple isKindOf: SimplePerson)].
 	(all first: 4) do: [ :each | self preemptAndSwapProxy: each before: [self assert: (each isKindOf: SuperPerson)]]!
+
+testIsKindOfPrePreempted
+
+	all do: [ :each | self assert: each isDBProxy].
+	all do: [ :each | self assert: each _proxiedObject notNil].
+
+	self prePreemptDuring: 
+		[self assert: (simple isKindOf: SimplePerson).
+		(all first: 4) do: [ :each | self assert: (each isKindOf: SuperPerson)]]!
 
 testIsKindOfWithObject
 
@@ -395,6 +464,23 @@ testPrintOnPreempted
 
 	all do: [ :each | self deny: each isDBProxy]!
 
+testPrintOnPrePreempted
+
+	| expectedPrintStrings |
+
+	all do: [ :each | self assert: each isDBProxy].
+	all do: [ :each | self assert: each _proxiedObject notNil].
+
+	expectedPrintStrings := all collect: [ :each | each _proxiedObject printString].
+
+	self prePreemptDuring: 
+		[all with: expectedPrintStrings do: 
+			[ :each :expected || stream | 
+			stream := WriteStream on: String new. 
+			each printOn: stream. self assert: stream contents equals: expected]].
+
+	all do: [ :each | self deny: each isDBProxy]!
+
 testPrintOnWithObject
 
 	all do: [ :each | self assert: each isDBProxy].
@@ -447,6 +533,19 @@ testPrintStringPreempted
 
 	all do: [ :each | self deny: each isDBProxy]!
 
+testPrintStringPrePreempted
+
+	| expectedPrintStrings |
+
+	all do: [ :each | self assert: each isDBProxy].
+	all do: [ :each | self assert: each _proxiedObject notNil].
+
+	expectedPrintStrings := all collect: [ :each | each _proxiedObject printString].
+
+	self prePreemptDuring: [all with: expectedPrintStrings do: [ :each :expected | self assert: each printString equals: expected]].
+
+	all do: [ :each | self deny: each isDBProxy]!
+
 testPrintStringWithObject
 
 	all do: [ :each | self assert: each isDBProxy].
@@ -485,26 +584,33 @@ createTestData!public!running! !
 critical:!helpers!private! !
 do:beforeTransactionCriticalIn:!helpers!private! !
 preemptAndSwapProxy:before:!helpers!private! !
+prePreemptDuring:!helpers!private! !
 readTestDataWithoutObjects!helpers!private! !
 testClassPreempted!public!unit tests! !
+testClassPrePreempted!public!unit tests! !
 testClassWithObject!public!unit tests! !
 testClassWithoutObject!public!unit tests! !
 testDebugPrintStringPreempted!public!unit tests! !
+testDebugPrintStringPrePreempted!public!unit tests! !
 testDebugPrintStringWithObject!public!unit tests! !
 testDebugPrintStringWithoutObject!public!unit tests! !
 testEqualsPreempted!public!unit tests! !
 testEqualsWithObject!public!unit tests! !
 testEqualsWithoutObject!public!unit tests! !
 testHashPreempted!public!unit tests! !
+testHashPrePreempted!public!unit tests! !
 testHashWithObject!public!unit tests! !
 testHashWithoutObject!public!unit tests! !
 testIsKindOfPreempted!public!unit tests! !
+testIsKindOfPrePreempted!public!unit tests! !
 testIsKindOfWithObject!public!unit tests! !
 testIsKindOfWithoutObject!public!unit tests! !
 testPrintOnPreempted!public!unit tests! !
+testPrintOnPrePreempted!public!unit tests! !
 testPrintOnWithObject!public!unit tests! !
 testPrintOnWithoutObject!public!unit tests! !
 testPrintStringPreempted!public!unit tests! !
+testPrintStringPrePreempted!public!unit tests! !
 testPrintStringWithObject!public!unit tests! !
 testPrintStringWithoutObject!public!unit tests! !
 !

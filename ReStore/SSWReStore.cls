@@ -1123,7 +1123,7 @@ persistentSystemClasses
 postConnect
 
 	"Reinitializate the mutex"
-	self transactionMutex: (SSWDBTransactionMutex newFor: self).
+	self transactionMutex: Mutex new.
 
 	"Must reset system classes after login to use current dialect's name transformation strategy"
 	self persistentSystemClasses do: [ :each | self addClass: each].
@@ -1652,7 +1652,12 @@ transactionCritical: aBlock
 
 	"Evaluate aBlock under the guard of the transactionMutex"
 
-	^self transactionMutex critical: aBlock!
+	self isDebugging ifFalse: [^self transactionMutex critical: aBlock].
+
+	^self transactionMutex critical: aBlock ifLocked: 
+		[Processor activeProcess isInIDECallStack
+			ifTrue: [aBlock value]
+			ifFalse: [self transactionMutex critical: aBlock]]!
 
 transactionCritical: aBlock ifLocked: lockedBlock
 

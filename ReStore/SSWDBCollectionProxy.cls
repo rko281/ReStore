@@ -141,7 +141,7 @@ class
 			ifTrue: 
 				[proxiedObject isNil
 					ifTrue: [collectionSpec collectionClass]
-					ifFalse: [self _forwardDirectly: (Message selector: #class)]]
+					ifFalse: [self _recoveredProxiedObject class]]
 			ifFalse: 
 				[self class]]]!
 
@@ -172,7 +172,7 @@ size
 		[ :proxyReStore |
 		proxyReStore transactionCritical: 
 			[self isDBProxy 
-				ifTrue: [self _forwardDirectly: (Message selector: #size)]
+				ifTrue: [self _recoveredProxiedObject size]
 				ifFalse: [self size]]]!
 
 withComponents

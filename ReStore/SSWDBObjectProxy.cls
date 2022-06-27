@@ -393,7 +393,7 @@ _valuesForAccessor: anInstVarAccessor
 			ifTrue: 
 				[(self _proxiedClassIsDefinitive and: [(class lookupMethod: #=) == (Object>>#=)])
 					ifTrue: [self == anotherObject]
-					ifFalse: [self doesNotUnderstand: (Message selector: #= argument: anotherObject) "equality may be the same as identity so we *must* swap, hence DNU rather than _forwardDirectly:"]]
+					ifFalse: [self doesNotUnderstand: (Message selector: #= argument: anotherObject) "equality may be the same as identity so we *must* swap, hence DNU rather than forwarding directly"]]
 			ifFalse: 
 				[self = anotherObject]]]!
 
@@ -415,7 +415,7 @@ class
 			ifTrue: 
 				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
 					ifTrue: [class]
-					ifFalse: [self _forwardDirectly: (Message selector: #class)]]
+					ifFalse: [self _recoveredProxiedObject class]]
 			ifFalse: 
 				[self class]]]!
 
@@ -449,7 +449,7 @@ hash
 			ifTrue: 
 				[(self _proxiedClassIsDefinitive and: [(class lookupMethod: #hash) == (Object>>#hash)])
 					ifTrue: [self identityHash]
-					ifFalse: [self doesNotUnderstand: (Message selector: #hash) "hash may be the same as identityHash so we *must* swap, hence DNU rather than _forwardDirectly:"]]
+					ifFalse: [self doesNotUnderstand: ##(Message selector: #hash) "hash may be the same as identityHash so we *must* swap, hence DNU rather than forwarding directly"]]
 			ifFalse: 
 				[self hash]]]!
 
@@ -459,15 +459,15 @@ isKindOf: aClass
 
 	^self _dbProxyReStore 
 	ifNil: 
-		[self class]
+		[self isKindOf: aClass]
 	ifNotNil: 
 		[ :proxyReStore |
 		proxyReStore transactionCritical: 
 			[self isDBProxy 
 			ifTrue: 
 				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
-					ifTrue: [(class == aClass) or: [class inheritsFrom: aClass]]
-					ifFalse: [self _forwardDirectly: (Message selector: #isKindOf: argument: aClass)]]
+					ifTrue: [class includesBehavior: aClass]
+					ifFalse: [self _recoveredProxiedObject isKindOf: aClass]]
 			ifFalse: 
 				[self isKindOf: aClass]]]!
 
@@ -499,7 +499,7 @@ printOn: aStream
 				ifFalse: 
 					[(proxiedObject isNil and: [self _proxiedClassIsDefinitive and: [(class lookupMethod: #printOn:) == (Object>>#printOn:)]])
 						ifTrue: [class basicNew printOn: aStream]
-						ifFalse: [self _forwardDirectly: (Message selector: #printOn: argument: aStream)]]]
+						ifFalse: [self _recoveredProxiedObject printOn: aStream]]]
 			ifFalse: 
 				[self printOn: aStream]]]!
 
@@ -521,7 +521,7 @@ printString
 				ifFalse: 
 					[(proxiedObject isNil and: [self _proxiedClassIsDefinitive and: [(class lookupMethod: #printOn:) == (Object>>#printOn:) and: [(class lookupMethod: #printString) == (Object>>#printString)]]])
 						ifTrue: [class basicNew printString]
-						ifFalse: [self _forwardDirectly: (Message selector: #printString)]]]
+						ifFalse: [self _recoveredProxiedObject printString]]]
 			ifFalse: 
 				[self printString]]]!
 
