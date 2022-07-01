@@ -17,7 +17,9 @@ addClassesTo: aReStore
 	aReStore
 		addClass: SimplePerson;
 		addClass: SimplePerson2;
-		addClass: DetailedPerson!
+		addClass: DetailedPerson.
+
+	(aReStore tableForClass: SimplePerson) define: #orders as: (OrderedCollection of: Integer).!
 
 createTestData
 
@@ -44,6 +46,12 @@ critical: aBlock
 		transactionCriticalAction := nil].
 
 	^aBlock value!
+
+critical: aBlock ifLocked: lockedBlock
+
+	"Private - I'm pretending to be a Mutex"
+
+	^self critical: aBlock!
 
 do: aBlock beforeTransactionCriticalIn: actionBlock
 
@@ -370,6 +378,26 @@ testHashWithoutObject
 	self assert: detailed hash class = SmallInteger.
 	self deny: detailed isDBProxy.!
 
+testIsKindOfCollectionPreempted
+
+	simple orders size.
+	reStore rollbackTransaction.
+
+	self assert: simple orders isDBProxy.
+	self assert: simple orders _proxiedObject notNil.
+
+	self preemptAndSwapProxy: simple orders before: [self assert: (simple orders isKindOf: Collection)]!
+
+testIsKindOfCollectionPrePreempted
+
+	simple orders size.
+	reStore rollbackTransaction.
+
+	self assert: simple orders isDBProxy.
+	self assert: simple orders _proxiedObject notNil.
+
+	self prePreemptDuring: [self assert: (simple orders isKindOf: Collection)]!
+
 testIsKindOfPreempted
 
 	all do: [ :each | self assert: each isDBProxy].
@@ -386,6 +414,18 @@ testIsKindOfPrePreempted
 	self prePreemptDuring: 
 		[self assert: (simple isKindOf: SimplePerson).
 		(all first: 4) do: [ :each | self assert: (each isKindOf: SuperPerson)]]!
+
+testIsKindOfWithCollection
+
+	simple orders size.
+	reStore rollbackTransaction.
+
+	self assert: simple orders isDBProxy.
+	self assert: simple orders _proxiedObject notNil.
+
+	self assert: (simple orders isKindOf: Collection).
+	self assert: (simple orders isKindOf: OrderedCollection).
+	self deny: (simple orders isKindOf: Array).!
 
 testIsKindOfWithObject
 
@@ -411,6 +451,15 @@ testIsKindOfWithObject
 	self assert: (sub isKindOf: SubPerson).
 
 	all do: [ :each | self assert: each isDBProxy]!
+
+testIsKindOfWithoutCollection
+
+	self assert: simple orders isDBProxy.
+	self assert: simple orders _proxiedObject isNil.
+
+	self assert: (simple orders isKindOf: Collection).
+	self assert: (simple orders isKindOf: OrderedCollection).
+	self deny: (simple orders isKindOf: Array).!
 
 testIsKindOfWithoutObject
 
@@ -582,6 +631,7 @@ testPrintStringWithoutObject
 addClassesTo:!public!running! !
 createTestData!public!running! !
 critical:!helpers!private! !
+critical:ifLocked:!helpers!private! !
 do:beforeTransactionCriticalIn:!helpers!private! !
 preemptAndSwapProxy:before:!helpers!private! !
 prePreemptDuring:!helpers!private! !
@@ -601,9 +651,13 @@ testHashPreempted!public!unit tests! !
 testHashPrePreempted!public!unit tests! !
 testHashWithObject!public!unit tests! !
 testHashWithoutObject!public!unit tests! !
+testIsKindOfCollectionPreempted!public!unit tests! !
+testIsKindOfCollectionPrePreempted!public!unit tests! !
 testIsKindOfPreempted!public!unit tests! !
 testIsKindOfPrePreempted!public!unit tests! !
+testIsKindOfWithCollection!public!unit tests! !
 testIsKindOfWithObject!public!unit tests! !
+testIsKindOfWithoutCollection!public!unit tests! !
 testIsKindOfWithoutObject!public!unit tests! !
 testPrintOnPreempted!public!unit tests! !
 testPrintOnPrePreempted!public!unit tests! !

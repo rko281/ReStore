@@ -253,6 +253,48 @@ testQueryingDuringTransaction
 	self assert: process isTerminated.
 	self deny: wasTransactionInProgress!
 
+testUnstoreWhenPreemptedSwap
+
+	"Verify no error occurs and the unstore still happens if a proxy is swapped by a higher priority process right at the start of processing an unstore"
+
+	| john id unstore |
+
+	john := self john.
+	id := john _id.
+	
+	"We simulate this situation by evaluating SSWDBObjectProxy>>#unstore with an unproxied object"
+	john firstName.
+	self deny: john isDBProxy.
+
+	"Make a local copy of the method in the unproxied object's class in order to invoke it"
+	unstore := (SSWDBObjectProxy>>#unstore) copy.
+	unstore methodClass: john class.
+
+	self shouldnt: [unstore value: john withArguments: #()] raise: Error.
+	self assert: ((SimplePerson storedInstancesIn: reStore) detect: [ :each | each _id = id] ifNone: [nil]) isNil!
+
+testUnstoreWhenPreemptedUnswap
+
+	"Verify no error occurs and the unstore still happens if a real object is unswapped by a higher priority process right at the start of processing an unstore"
+
+	| john id proxy unstore |
+
+	john := self john.
+	id := john _id.
+	
+	"We simulate this situation by evaluating Object>>#unstore with the proxy"
+	john firstName.
+	self deny: john isDBProxy.
+	proxy := john _dbProxyIn: reStore.
+
+	"Make a local copy of the method in the proxy's class in order to invoke it"
+	unstore := (Object>>#unstore) copy.
+	unstore methodClass: SSWDBObjectProxy.
+
+	self assert: proxy isDBProxy.
+	self shouldnt: [unstore value: proxy withArguments: #()] raise: Error.
+	self assert: ((SimplePerson storedInstancesIn: reStore) detect: [ :each | each _id = id] ifNone: [nil]) isNil!
+
 wrappedMethod
 
 	^(##(self)>>#yieldAfterWrappedMethod) literalAt: 1!
@@ -296,6 +338,8 @@ testProxyDoesNotUnderstandWhenPreempted!public!unit tests! !
 testProxyLookupDuringTransaction!public!unit tests! !
 testProxyProxyLookup!public!unit tests! !
 testQueryingDuringTransaction!public!unit tests! !
+testUnstoreWhenPreemptedSwap!public!unit tests! !
+testUnstoreWhenPreemptedUnswap!public!unit tests! !
 wrappedMethod!accessing!public! !
 wrappedMethod:!accessing!public! !
 yieldAfterWrappedMethod!helpers!private! !

@@ -85,6 +85,12 @@ _commitIn: anSSWReStore
 
 	self _isRecovered ifTrue: [self _referenced]!
 
+_dbProxyIfNone: aBlock
+
+	"Private - Received if the receiver has been swapped from a real object back to a proxy"
+
+	^self!
+
 _dbProxyIn: aReStore
 	
 	^self _dbProxyIn: aReStore ifNone: [self error: 'proxy does not belong to aReStore']!
@@ -260,6 +266,12 @@ _prepareToCommitPhase2
 
 	"Subclasses only requiring a single phase should override _prepareToCommit"
 	^self!
+
+_proxiedClassIsDefinitive
+
+	"Private - Is the class of the proxied object definitively known?"
+
+	^true!
 
 _proxiedObject
 
@@ -555,6 +567,24 @@ isInteger
 	^false
 !
 
+isKindOf: aClass
+
+	"No need to bother the proxiedObject if its class is definitively known"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self isKindOf: aClass]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
+					ifTrue: [self _proxiedObjectClass includesBehavior: aClass]
+					ifFalse: [self _recoveredProxiedObject isKindOf: aClass]]
+			ifFalse: 
+				[self isKindOf: aClass]]]!
+
 notNil
 
 	"No need to bother the proxiedObject"
@@ -649,6 +679,7 @@ _commitChanges!actions-internal!public! !
 _commitChangesPhase1!actions-internal!public! !
 _commitChangesPhase2!actions-internal!public! !
 _commitIn:!actions-internal!public! !
+_dbProxyIfNone:!non forwarding!private! !
 _dbProxyIn:!accessing:direct!public! !
 _dbProxyIn:ifNone:!accessing:direct!public! !
 _dbProxyReStore!accessing!private! !
@@ -675,6 +706,7 @@ _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
 _prepareToCommitPhase1!actions-internal!public! !
 _prepareToCommitPhase2!actions-internal!public! !
+_proxiedClassIsDefinitive!private!testing! !
 _proxiedObject!accessing!public! !
 _proxiedObject:!accessing!public! !
 _proxiedObjectClass!accessing!public! !
@@ -712,6 +744,7 @@ includedIn:!public!testing! !
 instVarAt:!forwarding!public! !
 isDBProxy!public!testing! !
 isInteger!non forwarding!public! !
+isKindOf:!forwarding!public! !
 notNil!non forwarding!public! !
 onRollback!actions-internal!public! !
 printOn:!non forwarding!public! !

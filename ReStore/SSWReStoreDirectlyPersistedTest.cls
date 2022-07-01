@@ -267,6 +267,26 @@ testCommit
 
 	self assert: owner bitmask value equals: 99!
 
+testDeletedObjectRecovery
+
+	"Verify recovery of a deleted object containing a mutable directly persisted object (previously caused an error)"
+
+	| person table |
+
+	reStore addClass: SimplePerson.
+	table := reStore tableForClass: SimplePerson.
+	(table fieldAccessing: #friend) targetClass: TestWithBitmask.
+	reStore synchronizeClass: SimplePerson.
+
+	person := SimplePerson new friend: owner.
+	person storeIn: reStore.
+	self shouldnt: [owner unstore] raise: Error.
+
+	reStore simulateReconnect.
+
+	person := (SimplePerson storedInstancesIn: reStore) first.
+	self assert: person friend isDBDeleted.!
+
 testDictionary
 
 	self assert: owner dictionary size equals: 8.
@@ -640,6 +660,7 @@ testCollectQuery!public!unit tests! !
 testCollectQueryOnValue!public!unit tests! !
 testCollectQueryWithMethod!public!unit tests! !
 testCommit!public!unit tests! !
+testDeletedObjectRecovery!public!unit tests! !
 testDictionary!public!unit tests! !
 testDictionaryCommit!public!unit tests! !
 testDictionaryMutationCommit!public!unit tests! !

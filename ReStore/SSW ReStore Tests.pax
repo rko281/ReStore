@@ -356,7 +356,7 @@ Test subclass: #OwnedTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Test subclass: #TestWithBitmask
-	instanceVariableNames: 'bitmask orderedCollection sortedCollection array set dictionary'
+	instanceVariableNames: 'number1 number2 bitmask orderedCollection sortedCollection array set dictionary'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -776,7 +776,7 @@ SSWReStorePersonTest subclass: #SSWReStoreTableTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'wasDebugging'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'wasDebugging'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -17,6 +17,18 @@ makeIDEClass
 		at: #isInIDECallStack put: (Process>>#isInIDECallStackAlwaysTrue).
 
 	Process flushMethodCache!
+
+setUp
+
+	(wasDebugging := SSWReStore isDebugging) ifTrue: [SSWReStore isDebugging: false].
+
+	super setUp!
+
+tearDown
+
+	super tearDown.
+
+	SSWReStore isDebugging: wasDebugging!
 
 testDebugModeCommitErrorHandling
 
@@ -145,10 +157,12 @@ testDebugModeProxyInstVarAt
 
 unmakeIDEClass
 
-	Process methodDictionary at: #isInIDECallStack put: (Process>>#isInIDECallStackOrig).
+	Process methodDictionary at: #isInIDECallStack put: (Process methodDictionary removeKey: #isInIDECallStackOrig).
 	Process flushMethodCache! !
 !SSWReStoreDebugTest categoriesForMethods!
 makeIDEClass!helpers!private! !
+setUp!helpers!public! !
+tearDown!helpers!public! !
 testDebugModeCommitErrorHandling!public!unit tests! !
 testDebugModeMutex!public!unit tests! !
 testDebugModePreCommitErrorHandling!public!unit tests! !

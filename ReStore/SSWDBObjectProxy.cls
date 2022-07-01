@@ -12,7 +12,7 @@ https://github.com/rko281/ReStore'!
 !SSWDBObjectProxy categoriesForClass!Unclassified! !
 !SSWDBObjectProxy methodsFor!
 
-_aquireCollectionProxiesUsing: collectionSpecs
+_acquireCollectionProxiesUsing: collectionSpecs
 
 	"Cache the proxiedObject's collection proxies, and set the backwards owner reference.
 	The CollectionSpecs identifying the collections (equivalent to self _dbTable collectionSpecs) 
@@ -135,6 +135,12 @@ _currentVersion
 _dbTable
 
 	^reStore tableForClass: class!
+
+_debugPrintString
+
+	^self _isDeleted 
+		ifTrue: [self deletedDebugPrintString]
+		ifFalse: [super _debugPrintString]!
 
 _fieldUpdates
 
@@ -397,10 +403,6 @@ _valuesForAccessor: anInstVarAccessor
 			ifFalse: 
 				[self = anotherObject]]]!
 
-basicClass
-
-	^class!
-
 class
 
 	"No need to bother the proxiedObject, except for inherited objects which are needed to determine their class"
@@ -427,13 +429,11 @@ currentVersion
 	
 	^self _currentVersion _proxiedObject!
 
-debugPrintString
+deletedDebugPrintString
 
-	"Override to test for deleted status"
-	
-	^self _isDeleted 
-		ifTrue: [(SSWDBDeletedObject newForClass: class id: id) printString]
-		ifFalse: [super debugPrintString]!
+	"Private - The receiver is a deleted proxy; answer an appropriate debugPrintString"
+
+	^'%<a marked-for-deletion <1p>%>' << class!
 
 hash
 
@@ -452,24 +452,6 @@ hash
 					ifFalse: [self doesNotUnderstand: ##(Message selector: #hash) "hash may be the same as identityHash so we *must* swap, hence DNU rather than forwarding directly"]]
 			ifFalse: 
 				[self hash]]]!
-
-isKindOf: aClass
-
-	"No need to bother the proxiedObject (except for inherited objects)"
-
-	^self _dbProxyReStore 
-	ifNil: 
-		[self isKindOf: aClass]
-	ifNotNil: 
-		[ :proxyReStore |
-		proxyReStore transactionCritical: 
-			[self isDBProxy 
-			ifTrue: 
-				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
-					ifTrue: [class includesBehavior: aClass]
-					ifFalse: [self _recoveredProxiedObject isKindOf: aClass]]
-			ifFalse: 
-				[self isKindOf: aClass]]]!
 
 isSQLNull
 
@@ -495,7 +477,7 @@ printOn: aStream
 			ifTrue: 
 				[self _isDeleted 
 				ifTrue: 
-					[aStream nextPutAll: self debugPrintString]
+					[aStream nextPutAll: self deletedDebugPrintString]
 				ifFalse: 
 					[(proxiedObject isNil and: [self _proxiedClassIsDefinitive and: [(class lookupMethod: #printOn:) == (Object>>#printOn:)]])
 						ifTrue: [class basicNew printOn: aStream]
@@ -517,7 +499,7 @@ printString
 			ifTrue: 
 				[self _isDeleted 
 				ifTrue: 
-					[self debugPrintString]
+					[self deletedDebugPrintString]
 				ifFalse: 
 					[(proxiedObject isNil and: [self _proxiedClassIsDefinitive and: [(class lookupMethod: #printOn:) == (Object>>#printOn:) and: [(class lookupMethod: #printString) == (Object>>#printString)]]])
 						ifTrue: [class basicNew printString]
@@ -543,28 +525,39 @@ sqlStringIn: anSSWSQLDialect
 unstore
 
 	"Unstore the receiver's proxiedObject, returning the proxiedObject.
-	This message (as opposed to the private _unstore) is only sent when the receive has not yet been referenced in the current transaction. Hence reference it here.
+	This method handles the unstore of both unreferenced and referenced proxies (the latter invoked from Object>>unstore).
 
 	NB: This is also a legacy selector whose meaning was 'unstore in the active transaction'.
 	We have repurposed this to also be a direct 'unstore now' message, which begins and completes in its own transaction.
 	Accomodate both new and legacy behavior by checking if there is currently a transaction in progress"
 	
-	| me him |
+	^self _dbProxyReStore
+	ifNil: 
+		[self unstore]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[| me him |
+			self isDBProxy
+			ifTrue: 
+				[self _recoveredProxiedObject isDBDeleted ifTrue: [^self].
 
-	reStore isTransactionInProgress ifFalse: [^self unstored store].
+				"This method handles unstores initiated from the proxied object so check if we've already been swapped"
+				self _isSwapped 
+				ifTrue: 
+					[proxyReStore isTransactionInProgress ifFalse: [^proxiedObject unstored storeIn: proxyReStore].
+					me := self.
+					him := proxiedObject]
+				ifFalse: 
+					[proxyReStore isTransactionInProgress ifFalse: [^self unstored storeIn: proxyReStore].
+					me := proxiedObject.
+					him := self. 
+					self _referenced].
 
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-	proxiedObject isDBDeleted ifTrue: [^self].
-
-	"Set me and him to be correct after the swap (done during _referenced)"
-	me := proxiedObject.
-	him := self.
-
-	self _referenced.
-
-	me _unstore.
-
-	^him!
+				me _unstore.
+				him]
+			ifFalse: 
+				[self unstore]]]!
 
 unstored
 
@@ -588,7 +581,7 @@ writeSQLOn: aStream forField: aField
 
 	id writeSQLOn: aStream forField: aField! !
 !SSWDBObjectProxy categoriesForMethods!
-_aquireCollectionProxiesUsing:!actions-internal!public! !
+_acquireCollectionProxiesUsing:!actions-internal!public! !
 _class!accessing!public! !
 _class:!accessing!public! !
 _collectionProxies!accessing!public! !
@@ -601,6 +594,7 @@ _commitUnstore!actions-internal!private! !
 _commitUpdates!actions-internal!private! !
 _currentVersion!accessing:derived!public! !
 _dbTable!accessing:derived!public! !
+_debugPrintString!non forwarding!private! !
 _fieldUpdates!accessing:derived!public! !
 _id!accessing!public! !
 _id:!accessing!public! !
@@ -632,12 +626,10 @@ _unstore!actions-internal!public! !
 _updateCollectionProxyUsing:!actions-internal!private! !
 _valuesForAccessor:!accessing!private! !
 =!forwarding!public! !
-basicClass!forwarding!public! !
 class!forwarding!public! !
 currentVersion!accessing:derived!public! !
-debugPrintString!forwarding!public! !
+deletedDebugPrintString!non forwarding!private! !
 hash!forwarding!public! !
-isKindOf:!forwarding!public! !
 isSQLNull!non forwarding!public! !
 isValidForPersistence!forwarding!public! !
 printOn:!forwarding!public! !

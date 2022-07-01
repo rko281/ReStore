@@ -16,6 +16,16 @@ _id
 
 	^self id!
 
+_instVarAt: anInteger
+
+	"Encountered when 'recovering' a deleted object; ignore"
+
+	^nil!
+
+_instVarAt: anInteger put: anObject
+
+	"Encountered when 'recovering' a deleted object; ignore"!
+
 = anObject 
 
 	^self class == anObject class and: [self deletedObjectClass = anObject deletedObjectClass and: [self id = anObject id]]!
@@ -81,6 +91,8 @@ unstore
 	^self! !
 !SSWDBDeletedObject categoriesForMethods!
 _id!accessing!public! !
+_instVarAt:!accessing!public! !
+_instVarAt:put:!accessing!public! !
 =!comparing!public! !
 copy!copying!public! !
 deletedObjectClass!accessing!public! !

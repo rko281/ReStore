@@ -12,7 +12,7 @@ https://github.com/rko281/ReStore'!
 !SSWDBCachingObjectProxy categoriesForClass!Unclassified! !
 !SSWDBCachingObjectProxy methodsFor!
 
-_aquireCopyObject
+_acquireCopyObject
 
 	copyObject := self _dbTable copyForProxy: proxiedObject!
 
@@ -70,7 +70,7 @@ _matchStateOf: aProxy
 _postCommitStore
 
 	super _postCommitStore.
-	self _aquireCopyObject!
+	self _acquireCopyObject!
 
 _postCommitUpdates
 
@@ -104,7 +104,7 @@ _proxiedObject: anObject
 	"Overriden to set the copyObject"
 	
 	super _proxiedObject: anObject.
-	self _aquireCopyObject!
+	self _acquireCopyObject!
 
 _recoverProxiedObject
 
@@ -164,7 +164,7 @@ _refreshFromRow: aDatabaseRow table: aDBTable
 	^(super _refreshFromRow: aDatabaseRow table: aDBTable)
 	ifTrue: 
 		["Update the copyObject"
-		self _aquireCopyObject]
+		self _acquireCopyObject]
 	ifFalse:
 		[false]!
 
@@ -272,7 +272,7 @@ inspect
 		ifTrue: [nil inspect]
 		ifFalse: [super inspect]! !
 !SSWDBCachingObjectProxy categoriesForMethods!
-_aquireCopyObject!actions-internal!public! !
+_acquireCopyObject!actions-internal!public! !
 _checkHasChanged!public!testing! !
 _copyObject!accessing!public! !
 _copyObject:!accessing!public! !

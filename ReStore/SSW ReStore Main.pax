@@ -839,13 +839,9 @@ unstore
 	NB: This is also a legacy selector whose meaning was 'unstore in the active transaction'.
 	We have repurposed this to also be a direct 'unstore now' message, which begins and completes in its own transaction.
 
-	Accomodate both new and legacy behavior by checking if there is currently a transaction in progress"
+	Accomodate both new and legacy behavior by checking if there is currently a transaction in progress (this is all now done in SSWDBObjectProxy>>unstore)"
 
-	^(self _dbProxyIfNone: [nil]) ifNotNil: 
-		[ :proxy |
-		proxy _reStore isTransactionInProgress 
-			ifTrue: [proxy _unstore "Legacy"]
-			ifFalse: [self unstored store] "New behavior"]!
+	^(self _dbProxyIfNone: [nil]) ifNotNil: [ :proxy | proxy unstore]!
 
 unstored
 

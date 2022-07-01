@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreGenericTest subclass: #SSWReStoreGenericObjectTest
 	instanceVariableNames: 'component'
@@ -52,16 +52,20 @@ testDependencyDeleteOnReplacement
 	testObject store.
 
 	self _testComponentExistenceOnDependency! !
-!SSWReStoreGenericObjectTest categoriesFor: #_testComponentExistenceOnDependency!helpers!public! !
-!SSWReStoreGenericObjectTest categoriesFor: #fetchTestObjects!public! !
-!SSWReStoreGenericObjectTest categoriesFor: #templateTestObject!accessing!public! !
-!SSWReStoreGenericObjectTest categoriesFor: #testDependencyCascadedDelete!public!unit tests! !
-!SSWReStoreGenericObjectTest categoriesFor: #testDependencyDeleteOnReplacement!public!unit tests! !
+!SSWReStoreGenericObjectTest categoriesForMethods!
+_testComponentExistenceOnDependency!helpers!public! !
+fetchTestObjects!public! !
+templateTestObject!accessing!public! !
+testDependencyCascadedDelete!public!unit tests! !
+testDependencyDeleteOnReplacement!public!unit tests! !
+!
 
 !SSWReStoreGenericObjectTest class methodsFor!
 
 isAbstract
 
 	^self == SSWReStoreGenericObjectTest! !
-!SSWReStoreGenericObjectTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreGenericObjectTest class categoriesForMethods!
+isAbstract!public! !
+!
 

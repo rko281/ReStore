@@ -668,7 +668,7 @@ recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 	
 	anSSWDBObjectProxy 
 		_proxiedObject: (self createInstanceFromRow: aDBRow);
-		_aquireCollectionProxiesUsing: self collectionSpecs.
+		_acquireCollectionProxiesUsing: self collectionSpecs.
 
 	self controlFields do:
 		[ :field |

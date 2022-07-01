@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
 Test subclass: #TestWithBitmask
-	instanceVariableNames: 'bitmask orderedCollection sortedCollection array set dictionary'
+	instanceVariableNames: 'number1 number2 bitmask orderedCollection sortedCollection array set dictionary'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -28,6 +28,18 @@ dictionary
 dictionary: anObject
 	dictionary := anObject!
 
+number1
+	^number1!
+
+number1: anObject
+	number1 := anObject!
+
+number2
+	^number2!
+
+number2: anObject
+	number2 := anObject!
+
 orderedCollection
 	^orderedCollection!
 
@@ -52,6 +64,10 @@ bitmask!accessing!private! !
 bitmask:!accessing!private! !
 dictionary!accessing!private! !
 dictionary:!accessing!private! !
+number1!accessing!private! !
+number1:!accessing!private! !
+number2!accessing!private! !
+number2:!accessing!private! !
 orderedCollection!accessing!private! !
 orderedCollection:!accessing!private! !
 set!accessing!private! !
@@ -76,6 +92,11 @@ new
 reStoreDefinition
 
 	^super reStoreDefinition
+
+		"These two are just here so the bitmask accessor is out of range for SSWDBDeletedObject (see SSWReStoreDirectlyPersistedTest>>testDeletedObjectRecovery)"
+		define: #number1 as: Integer;
+		define: #number2 as: Integer;
+
 		define: #bitmask as: TestBitmask;
 		define: #orderedCollection as: (OrderedCollection of: TestBitmask);
 		define: #sortedCollection as: (SortedCollection of: TestBitmask);

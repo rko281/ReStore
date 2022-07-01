@@ -67,7 +67,7 @@ _refreshIfUpdated
 	self _isRecovered ifTrue: 
 		[(reStore refreshProxyIfUpdated: self) ifTrue:
 			["Update the copyObject"
-			self _aquireCopyObject]]!
+			self _acquireCopyObject]]!
 
 _version
 

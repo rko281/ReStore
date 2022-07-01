@@ -18,6 +18,7 @@ package methodNames
 	add: #CompiledCode -> #sswWritesInstVar:at:;
 	add: #DateAndTime -> #withResolution:;
 	add: #GUID -> #writeSQLOn:;
+	add: #Presenter -> #respondsTo:;
 	add: #Process -> #isInIDECallStack;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
@@ -72,6 +73,7 @@ package methodNames
 	add: #Time -> #withResolution:;
 	add: #TimeStamp -> #withResolution:;
 	add: #TimeStamp -> #writeSQLOn:;
+	add: #View -> #respondsTo:;
 	add: 'GUID class' -> #instanceFromDBValue:in:;
 	add: 'GUID class' -> #isPersistentBaseClass;
 	add: 'GUID class' -> #reStoreNewUnique;
@@ -96,6 +98,7 @@ package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\IDE\Base\Development System'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
 	'SSW ReStore Main'
 	'SSW ReStore ODBC'
 	'SSW ReStore Querying'
@@ -219,6 +222,19 @@ instanceFromDBValue:in:!persistency!private! !
 isPersistentBaseClass!persistency!private! !
 reStoreNewUnique!persistency!private! !
 writeSQLTypeOn:using:!persistency!private! !
+!
+
+!Presenter methodsFor!
+
+respondsTo: selector
+
+	"Prevent ReStore's implementation of #refresh from tricking command routing"
+
+	^selector = #refresh
+		ifTrue: [(self class lookupMethod: #refresh) methodClass ~~ Object]
+		ifFalse: [super respondsTo: selector]! !
+!Presenter categoriesForMethods!
+respondsTo:!public!testing! !
 !
 
 !Process methodsFor!
@@ -958,6 +974,19 @@ writeSQLTypeOn: aStream using: anSQLDialect
 !TimeStamp class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 writeSQLTypeOn:using:!printing!public! !
+!
+
+!View methodsFor!
+
+respondsTo: selector
+
+	"Prevent ReStore's implementation of #refresh from tricking command routing"
+
+	^selector = #refresh
+		ifTrue: [(self class lookupMethod: #refresh) methodClass ~~ Object]
+		ifFalse: [super respondsTo: selector]! !
+!View categoriesForMethods!
+respondsTo:!public!testing! !
 !
 
 "End of package definition"!
