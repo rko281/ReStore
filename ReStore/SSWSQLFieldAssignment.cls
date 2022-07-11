@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLFieldValueConjunction subclass: #SSWSQLFieldAssignment
 	instanceVariableNames: ''
@@ -25,6 +25,16 @@ applyTo: anObject
 	
 	self field accessor value: self value in: anObject!
 
+copyTo: anObject
+
+	"The receiver relates a field (which relates to an instance var) to a value (Smalltalk object).
+	Copy the receiver assignment to anObject by assigning its value to its field's inst var.
+	This may necessiate a copy of anObject, as determined by the accessor.
+	
+	ASSERT: anObject class = self field table instanceClass"
+
+	self field accessor copyValue: self value in: anObject!
+
 writeConjunctionSQLOn: aStream
 
 	"The conjunction for assignment is simply '=' "
@@ -37,8 +47,11 @@ writeFieldSQLOn: aStream
 	
 	self field writeSQLForUpdateOn: aStream
 ! !
-!SSWSQLFieldAssignment categoriesFor: #,!actions!public! !
-!SSWSQLFieldAssignment categoriesFor: #applyTo:!actions!public! !
-!SSWSQLFieldAssignment categoriesFor: #writeConjunctionSQLOn:!output!private! !
-!SSWSQLFieldAssignment categoriesFor: #writeFieldSQLOn:!output!private! !
+!SSWSQLFieldAssignment categoriesForMethods!
+,!actions!public! !
+applyTo:!actions!public! !
+copyTo:!actions!public! !
+writeConjunctionSQLOn:!output!private! !
+writeFieldSQLOn:!output!private! !
+!
 

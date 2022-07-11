@@ -51,10 +51,16 @@ activeProxyForObject: anObject ifNone: aBlock
 	^self 
 		transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]
 		ifLocked:
-			["Prevent lock-ups when in debugger or otherwise suspended"
-			self transactionMutex owner isAlive
-				ifTrue: [self transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]]
-				ifFalse: [self _activeProxyForObject: anObject ifNone: aBlock]]!
+			["Prevent lock-ups when in debugger or otherwise semi-permanently blocked"
+			self transactionMutex owner 
+			ifNil: 
+				["Unlocked - try again"
+				self activeProxyForObject: anObject ifNone: aBlock] 
+			ifNotNil: 
+				[ :process | 
+				process isExpectedToResumePromptly
+					ifTrue: ["Wait" self transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]]
+					ifFalse: ["Bypass" self _activeProxyForObject: anObject ifNone: aBlock]]]!
 
 addClass: aClass
 
@@ -424,8 +430,11 @@ createProxyForNewObject: anObject
 	table := self tableForClass: anObject class.
 	id := table idDataField ifNotNil: [ :idDataField | idDataField accessor valueIn: anObject].
 	id isNil 
-		ifTrue: [proxy _id: (self allocateIDFor: anObject in: table)]
-		ifFalse: [proxy _id: id].
+	ifTrue: 
+		[proxy _id: (self allocateIDFor: anObject in: table)]
+	ifFalse: 
+		[((self classCacheFor: anObject class) includesKey: id) ifTrue: [self error: 'attempt to store object of class <1d> with duplicate ID <2p>' << {anObject class. id}].
+		proxy _id: id].
 
 	proxy _intern.
 

@@ -150,7 +150,7 @@ SSWDBReadStream subclass: #SSWDBForwardOnlyReadStream
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-ProtoObject subclass: #SSWDBBlockEvaluator
+SSWDBProtoObject subclass: #SSWDBBlockEvaluator
 	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''

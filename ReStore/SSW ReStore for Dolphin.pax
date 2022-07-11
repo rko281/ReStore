@@ -19,6 +19,7 @@ package methodNames
 	add: #DateAndTime -> #withResolution:;
 	add: #GUID -> #writeSQLOn:;
 	add: #Presenter -> #respondsTo:;
+	add: #Process -> #isExpectedToResumePromptly;
 	add: #Process -> #isInIDECallStack;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
@@ -29,9 +30,13 @@ package methodNames
 	add: #SSWDBBlockArgument -> #simulateMessageSendToFinalField:;
 	add: #SSWDBBlockArgument -> #simulateMethod:withArguments:;
 	add: #SSWDBBlockArgument -> #stackFrameDetect:;
-	add: #SSWDBBlockEvaluator -> #perform:;
-	add: #SSWDBBlockEvaluator -> #perform:with:;
-	add: #SSWDBBlockEvaluator -> #perform:withArguments:;
+	add: #SSWDBProtoObject -> #perform:;
+	add: #SSWDBProtoObject -> #perform:with:;
+	add: #SSWDBProtoObject -> #perform:with:with:;
+	add: #SSWDBProtoObject -> #perform:with:with:with:;
+	add: #SSWDBProtoObject -> #perform:with:with:with:with:;
+	add: #SSWDBProtoObject -> #perform:withArguments:;
+	add: #SSWDBProtoObject -> #subclassResponsibility;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
 	add: #SSWDBProxy -> #basicPrintOn:;
@@ -95,10 +100,10 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\IDE\Base\Development System'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
+	'SSW ReStore Base Additions'
 	'SSW ReStore Main'
 	'SSW ReStore ODBC'
 	'SSW ReStore Querying'
@@ -239,29 +244,39 @@ respondsTo:!public!testing! !
 
 !Process methodsFor!
 
+isExpectedToResumePromptly
+
+	^self isAlive and: [self topFrame sender receiver class name ~= #WalkbackDialog]!
+
 isInIDECallStack
 
 	"Answer whether this process is currently in a call stack originating in a message send from well-known IDE classes.
-	Used to adjust behaviour of SSWDBProxys depending on exection context"
+	Used to adjust behaviour of SSWDBProxies depending on exection context"
 
-	| ideClasses nonIDEClasses frame receiver |
+	| ideClasses nonIDEReceivers frame receiver |
 
-	ideClasses := {Debugger. Debugger class. InspectorAbstract. BasicInspector. InspectorShell. FlipperInspector}.
-	nonIDEClasses := IdentitySet new.
+	"Done by name to avoid creating a package dependency on the development environment"
+	ideClasses := ##(#(#Debugger 'Debugger' #InspectorAbstract #BasicInspector #InspectorShell #FlipperInspector) collect: [ :each | each isSymbol ifTrue: [self environment at: each] ifFalse: [(self environment at: each asSymbol) class]]).
+	nonIDEReceivers := IdentitySet new.
 
 	frame := Processor activeProcess topFrame sender.
 	receiver := frame receiver.
 	[frame notNil] whileTrue: 
-		[| receiverClass |
+		[| receiverClass topShell nextReceiver |
 		receiverClass := receiver basicClass.
 		(ideClasses anySatisfy: [ :each | receiverClass includesBehavior: each]) ifTrue: [^true].
+		((receiverClass includesBehavior: View) or: [receiverClass includesBehavior: Presenter]) ifTrue: 
+			[topShell := receiver topShell.
+			(ideClasses anySatisfy: [ :each | topShell isKindOf: each]) ifTrue: [^true]].
 		[frame := frame sender.
-		frame notNil and: [(receiver := frame receiver) isNil or: [receiver basicClass == receiverClass or: [nonIDEClasses includes: receiver basicClass]]]] whileTrue.
-		nonIDEClasses add: receiverClass].
+		frame notNil and: [(nextReceiver := frame receiver) isNil or: [nextReceiver == receiver or: [nonIDEReceivers includes: nextReceiver]]]] whileTrue.
+		nonIDEReceivers add: receiver.
+		receiver := nextReceiver].
 
 	^false.! !
 !Process categoriesForMethods!
-isInIDECallStack!public! !
+isExpectedToResumePromptly!public!testing! !
+isInIDECallStack!must strip!public! !
 !
 
 !SSWDBBlockArgument methodsFor!
@@ -517,7 +532,16 @@ simulateMethod:withArguments:!helpers!private! !
 stackFrameDetect:!public! !
 !
 
-!SSWDBBlockEvaluator methodsFor!
+!SSWDBBlockParser class methodsFor!
+
+platformClass
+
+	^SSWDBDolphinBlockParser! !
+!SSWDBBlockParser class categoriesForMethods!
+platformClass!constants!public! !
+!
+
+!SSWDBProtoObject methodsFor!
 
 perform: selector
 	"Send the receiver the unary message indicated by the <selector> argument, answering the result. 
@@ -548,6 +572,52 @@ perform: selector with: argument1
 		for: self
 		withArgs: {argument1}!
 
+perform: selector with: argument1 with: argument2
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument <selector> is the selector of the message. The other arguments <argument1> and <argument2>, are the argument of the message to be sent.
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not two."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {argument1. argument2}!
+
+perform: selector with: argument1 with: argument2 with: argument3
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument selector is the <selector> of the message. The other <Object> arguments argument1, argument2 and argument3 are the arguments of the message to be sent. 
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not three."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {argument1. argument2. argument3}!
+
+perform: selector with: argument1 with: argument2 with: argument3 with: argument4
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument selector is the <selector> of the message. The other <Object> arguments argument1, argument2, argument3, and argument4 are the arguments of the message to be sent. 
+
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not four."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {argument1. argument2. argument3. argument4}!
+
 perform: selector withArguments: arguments
 	"Send the receiver the keyword message indicated by the arguments, answering the result. 
 	The first argument, selector, is the <selector> of the message. The arguments of the message 
@@ -563,20 +633,21 @@ perform: selector withArguments: arguments
 		performFailed: _failureCode
 		of: selector
 		for: self
-		withArgs: arguments! !
-!SSWDBBlockEvaluator categoriesForMethods!
+		withArgs: arguments!
+
+subclassResponsibility
+
+	| method |
+	method := Processor activeProcess topFrame sender method.
+	^Error subclassResponsibility: method selector! !
+!SSWDBProtoObject categoriesForMethods!
 perform:!message sending!public! !
 perform:with:!message sending!public! !
+perform:with:with:!message sending!public! !
+perform:with:with:with:!message sending!public! !
+perform:with:with:with:with:!message sending!public! !
 perform:withArguments:!message sending!public! !
-!
-
-!SSWDBBlockParser class methodsFor!
-
-platformClass
-
-	^SSWDBDolphinBlockParser! !
-!SSWDBBlockParser class categoriesForMethods!
-platformClass!constants!public! !
+subclassResponsibility!non forwarding!public! !
 !
 
 !SSWDBProxy methodsFor!

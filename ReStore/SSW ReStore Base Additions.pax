@@ -13,6 +13,7 @@ package classNames
 	add: #SSWDBDeletedObject;
 	add: #SSWDBFixedStringWithInfo;
 	add: #SSWDBOrderingSpec;
+	add: #SSWDBProtoObject;
 	add: #SSWDBScaledDecimalWithInfo;
 	add: #SSWDBStringWithInfo;
 	add: #SSWDBVariableStringWithInfo;
@@ -104,6 +105,11 @@ SSWDBStringWithInfo subclass: #SSWDBFixedStringWithInfo
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBStringWithInfo subclass: #SSWDBVariableStringWithInfo
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+ProtoObject subclass: #SSWDBProtoObject
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

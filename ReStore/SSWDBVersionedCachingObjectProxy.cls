@@ -57,7 +57,7 @@ _postCommitUpdates
 	updates := self _fieldUpdates.
 	
 	updates isEmpty ifFalse: 
-		[updates applyTo: copyObject. 
+		[updates copyTo: copyObject. 
 		self _incrementVersion]!
 
 _refreshIfUpdated

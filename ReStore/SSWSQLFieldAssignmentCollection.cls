@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLCollection variableSubclass: #SSWSQLFieldAssignmentCollection
 	instanceVariableNames: ''
@@ -16,12 +16,19 @@ applyTo: anObject
 
 	self do: [ :fieldAssignment | fieldAssignment applyTo: anObject]!
 
+copyTo: anObject
+
+	self do: [ :fieldAssignment | fieldAssignment copyTo: anObject]!
+
 sqlConcatenator
 
 	"A comma is used to separate a list of field assignments 
 	in an SQL UPDATE query"
 	
 	^', '! !
-!SSWSQLFieldAssignmentCollection categoriesFor: #applyTo:!actions!public! !
-!SSWSQLFieldAssignmentCollection categoriesFor: #sqlConcatenator!output!public! !
+!SSWSQLFieldAssignmentCollection categoriesForMethods!
+applyTo:!actions!public! !
+copyTo:!actions!public! !
+sqlConcatenator!output!public! !
+!
 

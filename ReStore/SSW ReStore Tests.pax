@@ -776,7 +776,7 @@ SSWReStorePersonTest subclass: #SSWReStoreTableTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
-	instanceVariableNames: 'wasDebugging'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

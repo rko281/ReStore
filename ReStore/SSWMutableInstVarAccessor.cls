@@ -10,12 +10,19 @@ SSWMutableInstVarAccessor comment: ''!
 !SSWMutableInstVarAccessor categoriesForClass!Unclassified! !
 !SSWMutableInstVarAccessor methodsFor!
 
+copyValue: anObject in: targetObject
+
+	"Since the receiver accesses mutable objects we must perform a copy"
+
+	self value: anObject copy in: targetObject!
+
 copyValueIn: sourceObject to: targetObject
 
 	"Since the receiver accesses mutable objects we must perform a copy"
 
-	self value: (self valueIn: sourceObject) copy in: targetObject! !
+	self copyValue: (self valueIn: sourceObject) in: targetObject! !
 !SSWMutableInstVarAccessor categoriesForMethods!
+copyValue:in:!evaluating!public! !
 copyValueIn:to:!evaluating!private! !
 !
 

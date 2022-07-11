@@ -217,7 +217,7 @@ SSWDBObjectWithRelatedComponents subclass: #SSWDBCollectionWithRelatedContents
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-ProtoObject subclass: #SSWDBProxy
+SSWDBProtoObject subclass: #SSWDBProxy
 	instanceVariableNames: 'proxiedObject reStore flags'
 	classVariableNames: 'IsDeletedMask IsPersistentMask IsSwappedMask'
 	poolDictionaries: ''

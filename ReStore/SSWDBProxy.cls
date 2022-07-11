@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
-ProtoObject subclass: #SSWDBProxy
+SSWDBProtoObject subclass: #SSWDBProxy
 	instanceVariableNames: 'proxiedObject reStore flags'
 	classVariableNames: 'IsDeletedMask IsPersistentMask IsSwappedMask'
 	poolDictionaries: ''
@@ -641,12 +641,6 @@ storeIn: aReStore
 
 	^self store!
 
-subclassResponsibility
-
-	"Revector to a well-known object"
-	
-	^nil subclassResponsibility!
-
 validateReStore: aReStore
 
 	(reStore notNil and: [reStore ~~ reStore]) ifTrue: [self error: 'Attempt to move object between ReStores - Invalid']!
@@ -754,7 +748,6 @@ rollback!actions-api!public! !
 softRollback!actions-api!public! !
 store!actions-api!public! !
 storeIn:!actions-api!public! !
-subclassResponsibility!non forwarding!public! !
 validateReStore:!actions-internal!private! !
 withComponents!accessing!public! !
 withRelatedComponents!accessing!public! !

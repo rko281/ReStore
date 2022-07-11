@@ -159,6 +159,29 @@ test7VerifyAssignedID
 	self assert: (newObj storeIn: reStore).
 	self assert: newObj nmbr equals: 101!
 
+test8CheckForKnownDuplicateID
+
+	"Check for an attempt to persist an object with the already-allocated ID of an object known to ReStore (i.e. in the image) - this is most likely to arise from a copy.
+	This should fail with a sensible message prior to DB insertion (i.e. failure shouldn't be from a unique key violation in the database)"
+
+	| obj2 id |
+
+	obj2 := self testInstances detect: [:each | each name = 'dave'].
+	id := (reStore tableForClass: self testClass) idField accessor valueIn: obj2.
+	
+	self assert: ([obj2 copy storeIn: reStore. false] on: Error do: [ :exc | self assert: exc description equals: ('attempt to store object of class <1d> with duplicate ID <2p>' << {obj2 class. id}). exc return: true])!
+
+test9CheckForUnknownDuplicateID
+
+	"Check for an attempt to persist an object with the already-allocated ID of an object not known to ReStore (i.e not in the image).
+	This should fail with a unique key violation in the database"
+
+	| obj2 |
+
+	obj2 := self testClass name: 'dave' nmbr: 2.
+	
+	self should: [obj2 copy storeIn: reStore. false] raise: Error!
+
 testClass
 
 	^ReStoreTestWithID! !
@@ -171,6 +194,8 @@ test4Query!public!unit tests! !
 test5QueryByExample!public!unit tests! !
 test6VerifyIDInCopy!public!unit tests! !
 test7VerifyAssignedID!public!unit tests! !
+test8CheckForKnownDuplicateID!public!unit tests! !
+test9CheckForUnknownDuplicateID!public!unit tests! !
 testClass!constants!public! !
 !
 

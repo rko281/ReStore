@@ -376,7 +376,14 @@ testHasChanged
 
 	owner bitmask bitSet: 1.
 
-	self assert: owner hasChanged!
+	self assert: owner hasChanged.
+	owner store.
+	self deny: owner hasChanged.
+
+	owner bitmask bitSet: 2.
+	self assert: owner hasChanged.
+	owner store.
+	self deny: owner hasChanged!
 
 testMutationCommit
 
@@ -517,7 +524,11 @@ testRefresh
 
 	self assert: owner bitmask value equals: 0.
 	owner refresh.
-	self assert: owner bitmask value equals: 99!
+
+	self assert: owner isDBProxy.
+	self assert: owner _proxiedObject bitmask value equals: 99.
+	self assert: owner _copyObject bitmask value equals: 99.
+!
 
 testRollback
 

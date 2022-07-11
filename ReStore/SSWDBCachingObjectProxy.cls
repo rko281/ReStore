@@ -78,7 +78,7 @@ _postCommitUpdates
 
 	updates := self _fieldUpdates.
 	
-	updates isEmpty ifFalse: [updates applyTo: copyObject]!
+	updates isEmpty ifFalse: [updates copyTo: copyObject]!
 
 _prepareToCommit
 

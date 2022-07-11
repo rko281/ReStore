@@ -40,6 +40,15 @@ accessesDeeply: aSymbol
 
 	^false!
 
+copyValue: valueObject in: targetObject
+
+	"Set the instance variable of targetObject represented by the receiver to valueObject.
+	Compared to value:in: the implication here is that valueObject may need copying to make an independent object.
+
+	Default action - copying is not needed"
+
+	^self value: valueObject in: targetObject!
+
 copyValueIn: sourceObject to: targetObject
 
 	"targetObject is a shallow copy of sourceObject.Perform any additional copying necessary.
@@ -111,6 +120,7 @@ valueIn: targetObject
 access:in:!initializing!public! !
 accesses:!public!testing! !
 accessesDeeply:!public!testing! !
+copyValue:in:!public!updating! !
 copyValueIn:to:!evaluating!private! !
 hash!public!testing! !
 name!accessing!public! !

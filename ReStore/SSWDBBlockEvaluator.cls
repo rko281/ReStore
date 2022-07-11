@@ -1,6 +1,6 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
-ProtoObject subclass: #SSWDBBlockEvaluator
+SSWDBProtoObject subclass: #SSWDBBlockEvaluator
 	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -100,13 +100,7 @@ reStore
 
 	"reStore stores the SSWReStore for which the receiver parses blocks"
 	
-	^self parser reStore!
-
-subclassResponsibility
-
-	"Private - Just here to prevent code warnings"
-
-	^nil subclassResponsibility! !
+	^self parser reStore! !
 !SSWDBBlockEvaluator categoriesForMethods!
 ||!parsing - functions!public! !
 chainPerform:!message sending!public! !
@@ -124,6 +118,5 @@ path!accessing!public! !
 printOn:!parsing - internal!public! !
 printString!parsing - internal!public! !
 reStore!accessing!public! !
-subclassResponsibility!helpers!private! !
 !
 
