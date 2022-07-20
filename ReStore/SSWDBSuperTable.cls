@@ -65,18 +65,6 @@ recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 	
 	anSSWDBObjectProxy _class: anSSWDBObjectProxy _proxiedObject class!
 
-refreshProxy: aProxy fromRow: aDBRow
-
-	"Redirect to the relevant concrete class"
-	
-	| class |
-	
-	class := self instanceClassFromRow: aDBRow.
-
-	class = self instanceClass
-		ifTrue: [super refreshProxy: aProxy fromRow: aDBRow]
-		ifFalse: [(self reStore tableForClass: class) refreshProxy: aProxy fromRow: aDBRow]!
-
 refreshProxy: aProxy whereChangedFromRow: aDBRow
 
 	"Redirect to the relevant concrete class"
@@ -91,7 +79,6 @@ refreshProxy: aProxy whereChangedFromRow: aDBRow
 !SSWDBSuperTable categoriesForMethods!
 forCreation!evaluating!public! !
 recoverInstanceFromRow:into:!instance creation!public! !
-refreshProxy:fromRow:!instance creation!public! !
 refreshProxy:whereChangedFromRow:!instance creation!public! !
 !
 

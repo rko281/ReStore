@@ -676,20 +676,6 @@ recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 
 	anSSWDBObjectProxy _postRecovered!
 
-refreshProxy: aProxy fromRow: aDBRow
-
-	| instance |
-
-	instance := aProxy _proxiedObject.
-
-	self dataFields do:
-		[ :field |
-		field applyValueFromRow: aDBRow to: instance].
-	
-	self controlFields do:
-		[ :field |
-		field applyValueFromRow: aDBRow to: aProxy]!
-
 refreshProxy: aProxy whereChangedFromRow: aDBRow
 
 	"Return whether the proxy was refreshed at all"
@@ -993,7 +979,6 @@ readAllBatchSize!accessing!public! !
 readAllBatchSize:!accessing!public! !
 readStatement!accessing!public! !
 recoverInstanceFromRow:into:!instance creation!public! !
-refreshProxy:fromRow:!instance creation!public! !
 refreshProxy:whereChangedFromRow:!instance creation!public! !
 refreshStatement!accessing!public! !
 registerClass!evaluating!public! !

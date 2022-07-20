@@ -227,6 +227,25 @@ testArrayRollback
 
 	self testArray!
 
+testAutoRefresh
+
+	self assert: owner bitmask value equals: 0.
+
+	(reStore2 instancesOf: TestWithBitmask) first 
+		bitmask: (TestBitmask value: 99);
+		store.
+
+	self refreshDelay.
+
+	"Re-reading after a rollback will perform an auto refresh"
+	reStore rollbackTransaction.
+	(reStore instancesOf: TestWithBitmask) first.
+
+	self assert: owner isDBProxy.
+	self assert: owner _proxiedObject bitmask value equals: 99.
+	self assert: owner _copyObject bitmask value equals: 99.
+!
+
 testCollectQuery
 
 	| instances |
@@ -667,6 +686,7 @@ testArrayMutationRefresh!public!unit tests! !
 testArrayMutationRollback!public!unit tests! !
 testArrayRefresh!public!unit tests! !
 testArrayRollback!public!unit tests! !
+testAutoRefresh!public!unit tests! !
 testCollectQuery!public!unit tests! !
 testCollectQueryOnValue!public!unit tests! !
 testCollectQueryWithMethod!public!unit tests! !

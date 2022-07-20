@@ -127,24 +127,6 @@ _unstore
 		ifTrue: [self _setDeleted]
 		ifFalse: [reStore removeFromTransaction: self]!
 
-class
-
-	"No need to bother the proxiedObject"
-
-	^self _dbProxyReStore 
-	ifNil: 
-		[self class]
-	ifNotNil: 
-		[ :proxyReStore |
-		proxyReStore transactionCritical: 
-			[self isDBProxy 
-			ifTrue: 
-				[proxiedObject isNil
-					ifTrue: [collectionSpec collectionClass]
-					ifFalse: [self _recoveredProxiedObject class]]
-			ifFalse: 
-				[self class]]]!
-
 orRemote
 
 	"Use the proxied collection, if in memory, otherwise the remote collection"
@@ -203,7 +185,6 @@ _refreshWithContentsIfUpdated!actions-refresh!public! !
 _rollbackChanges!actions-internal!public! !
 _unchangedCollection!accessing!private! !
 _unstore!actions-internal!public! !
-class!forwarding!public! !
 orRemote!forwarding!public! !
 remote!accessing!public! !
 size!public! !

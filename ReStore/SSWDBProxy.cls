@@ -488,6 +488,24 @@ _unswap
 
 	^self _swapReferences!
 
+class
+
+	"No need to bother the proxiedObject, except where needed to definitively determine their class"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self class]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
+					ifTrue: [self _proxiedObjectClass]
+					ifFalse: [self _recoveredProxiedObject class]]
+			ifFalse: 
+				[self class]]]!
+
 commit
 
 	"Commit the receiver and its related objects.
@@ -730,6 +748,7 @@ _swapReferences!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
 _unswap!actions-internal!public! !
+class!forwarding!public! !
 commit!actions-api!public! !
 debugPrintString!non forwarding!public! !
 doesNotUnderstand:!forwarding!public! !

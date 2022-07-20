@@ -403,24 +403,6 @@ _valuesForAccessor: anInstVarAccessor
 			ifFalse: 
 				[self = anotherObject]]]!
 
-class
-
-	"No need to bother the proxiedObject, except for inherited objects which are needed to determine their class"
-
-	^self _dbProxyReStore 
-	ifNil: 
-		[self class]
-	ifNotNil: 
-		[ :proxyReStore |
-		proxyReStore transactionCritical: 
-			[self isDBProxy 
-			ifTrue: 
-				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
-					ifTrue: [class]
-					ifFalse: [self _recoveredProxiedObject class]]
-			ifFalse: 
-				[self class]]]!
-
 currentVersion
 
 	"Re-read the receiver's proxiedObject from the database,
@@ -626,7 +608,6 @@ _unstore!actions-internal!public! !
 _updateCollectionProxyUsing:!actions-internal!private! !
 _valuesForAccessor:!accessing!private! !
 =!forwarding!public! !
-class!forwarding!public! !
 currentVersion!accessing:derived!public! !
 deletedDebugPrintString!non forwarding!private! !
 hash!forwarding!public! !
