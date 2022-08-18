@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLConditionalQuery subclass: #SSWSQLDeleteQuery
-	instanceVariableNames: ''
+	instanceVariableNames: 'isMultiTableDelete'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -12,23 +12,59 @@ https://github.com/rko281/ReStore'!
 !SSWSQLDeleteQuery categoriesForClass!Unclassified! !
 !SSWSQLDeleteQuery methodsFor!
 
+isMultiTableDelete
+
+	"Answer true if the receiver should delete from all its tables or false if just from the primary (first) table.
+	Default is false"
+
+	^isMultiTableDelete!
+
+isMultiTableDelete: anObject
+	isMultiTableDelete := anObject!
+
 isWriteQuery
 
 	^true!
 
+writeDeletionTablesOn: aStream
+
+	self isMultiTableDelete
+		ifTrue: [self tables do: [ :table | table writeSQLNameOn: aStream] separatedBy: [aStream nextPut: $,]]
+		ifFalse: [self tables first writeSQLNameOn: aStream]!
+
 writeSQLOn: aStream
 
-	self tables size = 1
-	ifTrue: 
+	self tables size = 1 
+	ifTrue:
 		[aStream nextPutAll: 'DELETE FROM '.
 		self table writeSQLOn: aStream]
 	ifFalse: 
-		[aStream nextPutAll: 'DELETE '.
-		self tables do: [ :table | table writeSQLNameOn: aStream] separatedBy: [aStream nextPut: $,].
-		aStream nextPutAll: ' FROM '.
-		self tables writeSQLOn: aStream].
+		[aStream dialect supportsDeleteWithJoin 
+		ifTrue: 
+			[aStream nextPutAll: 'DELETE '.
+			self writeDeletionTablesOn: aStream.
+			aStream nextPutAll: ' FROM '.
+			self tables writeSQLOn: aStream]
+		ifFalse: 
+			[self error: 'not supported in ', aStream dialect dbmsName]].
 
 	self writeWhereClauseOn: aStream! !
-!SSWSQLDeleteQuery categoriesFor: #isWriteQuery!public!testing! !
-!SSWSQLDeleteQuery categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLDeleteQuery categoriesForMethods!
+isMultiTableDelete!accessing!public!testing! !
+isMultiTableDelete:!accessing!public! !
+isWriteQuery!public!testing! !
+writeDeletionTablesOn:!output!private! !
+writeSQLOn:!output!public! !
+!
+
+!SSWSQLDeleteQuery class methodsFor!
+
+new
+
+	^super new
+		isMultiTableDelete: false;
+		yourself! !
+!SSWSQLDeleteQuery class categoriesForMethods!
+new!instance creation!public! !
+!
 

@@ -30,7 +30,7 @@ changesTo: aCollection from: aCollectionOfEntries comparisonSetClass: aSetClass
 
 	| allValues changes |
 
-	allValues := aCollection inject: (aSetClass new: self size * 4) into: [ :all :values | all addAll: values; yourself].
+	allValues := aCollection inject: (aSetClass new: aCollection size * 4) into: [ :all :values | all addAll: values; yourself].
 	changes := OrderedCollection new.
 
 	aCollectionOfEntries do: 

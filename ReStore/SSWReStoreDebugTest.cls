@@ -27,18 +27,18 @@ testDebugModeCommitErrorHandling
 	john := self john.
 
 	"Standard behaviour - errors are trapped and re-raised at the end"
-	john surname: john.
+	john firstName: '<ERROR ON COMMIT>'.
 	self should: [john storeIn: reStore] raise: Error matching: 
 		[ :exc || reraisePrefix |
 		reraisePrefix := 'An error occured during commit: '.
 		(exc messageText beginsWith: reraisePrefix)
-			ifTrue: [actualErrorText := exc description readStream skip: reraisePrefix size; upToEnd. true]
+			ifTrue: [actualErrorText := exc messageText readStream skip: reraisePrefix size; upToEnd. true]
 			ifFalse: [false]].
 
 	reStore enterDebugMode.
 
 	"Debug mode behaviour - errors are raised immediately they occur (actually trapped and passed)"
-	john surname: john.
+	john firstName: '<ERROR ON COMMIT>'.
 	self should: [john storeIn: reStore] raise: Error matching: [ :exc | exc description = actualErrorText]!
 
 testDebugModeMutex
@@ -107,7 +107,7 @@ testDebugModePreCommitErrorHandling
 		[ :exc || reraisePrefix |
 		reraisePrefix := 'An error occured during pre-commit: '.
 		(exc messageText beginsWith: reraisePrefix)
-			ifTrue: [actualErrorText := exc description readStream skip: reraisePrefix size; upToEnd. true]
+			ifTrue: [actualErrorText := exc messageText readStream skip: reraisePrefix size; upToEnd. true]
 			ifFalse: [false]].
 	reStore transaction currentReferencedObjects remove: self.
 	reStore rollbackTransaction.

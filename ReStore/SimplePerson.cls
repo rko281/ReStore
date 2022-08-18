@@ -12,6 +12,15 @@ https://github.com/rko281/ReStore'!
 !SimplePerson categoriesForClass!Unclassified! !
 !SimplePerson methodsFor!
 
+_instVarAt: anInteger
+
+	anInteger = 1 ifTrue: 
+		[firstName = '<ERROR>' ifTrue: [firstName := '<done>'. self error: firstName].
+		firstName = '<ERROR ON COMMIT 1>' ifTrue: [firstName := '<ERROR>'].
+		firstName = '<ERROR ON COMMIT>' ifTrue: [firstName := '<ERROR ON COMMIT 1>']].
+
+	^super _instVarAt: anInteger!
+
 <= aPerson
 
 	^self surname < aPerson surname | ((self surname = aPerson surname) & (self firstName <= aPerson firstName))!
@@ -200,6 +209,7 @@ time: anObject
 
 	time := anObject! !
 !SimplePerson categoriesForMethods!
+_instVarAt:!accessing!public! !
 <=!comparing!private! !
 <==!comparing!public! !
 <==>!comparing!private! !

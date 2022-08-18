@@ -862,6 +862,7 @@ hardDisconnect
 	"Disconnect from the database and clear all caches"
 	
 	self 
+		preDisconnect;
 		softDisconnect;
 		postDisconnect!
 
@@ -1144,6 +1145,12 @@ postDisconnect
 	self clearAllCaches.
 
 	self class deactivated: self!
+
+preDisconnect
+
+	"Statements may need an active connection in order to be free'd correctly, so this is done pre-disconnect"
+
+	self clearStatementCache!
 
 prepareStatementForQuery: anSSWSQLQuery
 
@@ -1886,6 +1893,7 @@ openConnection!connection!private! !
 persistentSystemClasses!class maintenance!private! !
 postConnect!connection!private! !
 postDisconnect!connection!private! !
+preDisconnect!connection!private! !
 prepareStatementForQuery:!connection!public! !
 proxy:forwarded:!proxy manipulation!public! !
 proxyCache!accessing!public! !

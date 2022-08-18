@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWDBBlockParser
 	instanceVariableNames: 'reStore argumentClass argumentTable referencedTables qualifyingConditions qualifyingTables orderingSpecs groupByFields activeReceiver isCollectingAssociations fieldEncounters'
@@ -545,67 +545,69 @@ unprocessedConditionsCombinedWithArgument: aCondition
 unprocessedConditionsCombinedWithReceiver: aCondition
 
 	^aCondition! !
-!SSWDBBlockParser categoriesFor: #_parse:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #_parseSortBlock:inverted:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #activeReceiver!accessing!public! !
-!SSWDBBlockParser categoriesFor: #activeReceiver:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #allFields!accessing!public! !
-!SSWDBBlockParser categoriesFor: #applyFunction:to:withArguments:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #applyFunction:toResultOf:withArguments:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #argumentClass!accessing!public! !
-!SSWDBBlockParser categoriesFor: #argumentClass:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #argumentTable!accessing!public! !
-!SSWDBBlockParser categoriesFor: #argumentTable:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #beUnsorted!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #collectQueryFrom:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #deleteQueryFrom:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #fieldEncounters!accessing!public! !
-!SSWDBBlockParser categoriesFor: #fieldEncounters:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #fieldEncountersWith:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #groupByFields!accessing!public! !
-!SSWDBBlockParser categoriesFor: #groupByFields:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #hasGrouping!public!testing! !
-!SSWDBBlockParser categoriesFor: #hasOrdering!public!testing! !
-!SSWDBBlockParser categoriesFor: #includedTables!evaluating!public! !
-!SSWDBBlockParser categoriesFor: #invertOrdering!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #isCollectingAssociations!accessing!public! !
-!SSWDBBlockParser categoriesFor: #isCollectingAssociations:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #lastFieldEncounterFor:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #modifyQueryFrom:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #newBlockArgument!evaluating!public! !
-!SSWDBBlockParser categoriesFor: #newCondition!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #newConditionCollection!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #newReceiverFor:from:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #newSelectQuery!evaluating!public! !
-!SSWDBBlockParser categoriesFor: #orderingSpecs!accessing!public! !
-!SSWDBBlockParser categoriesFor: #orderingSpecs:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #orWith:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #parse:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #parseError:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #parseError:with:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #parseForModify:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #parseSortBlock:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #postCopy!copying!public! !
-!SSWDBBlockParser categoriesFor: #projectQueryFrom:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #qualifyingConditions!accessing!public! !
-!SSWDBBlockParser categoriesFor: #qualifyingConditions:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #qualifyingTables!accessing!public! !
-!SSWDBBlockParser categoriesFor: #qualifyingTables:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #qualifyWith:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #referencedTables!accessing!public! !
-!SSWDBBlockParser categoriesFor: #referencedTables:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #rejectQueryFrom:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #removeFieldEncountersWith:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #reset!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #reStore!accessing!public! !
-!SSWDBBlockParser categoriesFor: #reStore:!accessing!public! !
-!SSWDBBlockParser categoriesFor: #selectQueryFrom:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #sortBlock:!parsing - api!public! !
-!SSWDBBlockParser categoriesFor: #tableForClass:!evaluating!public! !
-!SSWDBBlockParser categoriesFor: #targetFieldsFrom:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #unprocessedConditionsCombinedForConcatenation:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #unprocessedConditionsCombinedWithArgument:!parsing - internal!private! !
-!SSWDBBlockParser categoriesFor: #unprocessedConditionsCombinedWithReceiver:!parsing - internal!private! !
+!SSWDBBlockParser categoriesForMethods!
+_parse:!parsing - internal!private! !
+_parseSortBlock:inverted:!parsing - internal!private! !
+activeReceiver!accessing!public! !
+activeReceiver:!accessing!public! !
+allFields!accessing!public! !
+applyFunction:to:withArguments:!parsing - internal!private! !
+applyFunction:toResultOf:withArguments:!parsing - internal!private! !
+argumentClass!accessing!public! !
+argumentClass:!accessing!public! !
+argumentTable!accessing!public! !
+argumentTable:!accessing!public! !
+beUnsorted!parsing - api!public! !
+collectQueryFrom:!parsing - api!public! !
+deleteQueryFrom:!parsing - api!public! !
+fieldEncounters!accessing!public! !
+fieldEncounters:!accessing!public! !
+fieldEncountersWith:!parsing - internal!private! !
+groupByFields!accessing!public! !
+groupByFields:!accessing!public! !
+hasGrouping!public!testing! !
+hasOrdering!public!testing! !
+includedTables!evaluating!public! !
+invertOrdering!parsing - api!public! !
+isCollectingAssociations!accessing!public! !
+isCollectingAssociations:!accessing!public! !
+lastFieldEncounterFor:!parsing - internal!private! !
+modifyQueryFrom:!parsing - api!public! !
+newBlockArgument!evaluating!public! !
+newCondition!parsing - internal!private! !
+newConditionCollection!parsing - internal!private! !
+newReceiverFor:from:!parsing - internal!private! !
+newSelectQuery!evaluating!public! !
+orderingSpecs!accessing!public! !
+orderingSpecs:!accessing!public! !
+orWith:!parsing - api!public! !
+parse:!parsing - internal!private! !
+parseError:!parsing - internal!private! !
+parseError:with:!parsing - internal!private! !
+parseForModify:!parsing - internal!private! !
+parseSortBlock:!parsing - internal!private! !
+postCopy!copying!public! !
+projectQueryFrom:!parsing - api!public! !
+qualifyingConditions!accessing!public! !
+qualifyingConditions:!accessing!public! !
+qualifyingTables!accessing!public! !
+qualifyingTables:!accessing!public! !
+qualifyWith:!parsing - api!public! !
+referencedTables!accessing!public! !
+referencedTables:!accessing!public! !
+rejectQueryFrom:!parsing - api!public! !
+removeFieldEncountersWith:!parsing - internal!private! !
+reset!parsing - internal!private! !
+reStore!accessing!public! !
+reStore:!accessing!public! !
+selectQueryFrom:!parsing - api!public! !
+sortBlock:!parsing - api!public! !
+tableForClass:!evaluating!public! !
+targetFieldsFrom:!parsing - internal!private! !
+unprocessedConditionsCombinedForConcatenation:!parsing - internal!private! !
+unprocessedConditionsCombinedWithArgument:!parsing - internal!private! !
+unprocessedConditionsCombinedWithReceiver:!parsing - internal!private! !
+!
 
 !SSWDBBlockParser class methodsFor!
 
@@ -624,6 +626,8 @@ newForReStore: anSSWReStore argumentClass: aClass
 		reStore: anSSWReStore;
 		argumentClass: aClass;
 		yourself! !
-!SSWDBBlockParser class categoriesFor: #new!instance creation!public! !
-!SSWDBBlockParser class categoriesFor: #newForReStore:argumentClass:!instance creation!public! !
+!SSWDBBlockParser class categoriesForMethods!
+new!instance creation!public! !
+newForReStore:argumentClass:!instance creation!public! !
+!
 

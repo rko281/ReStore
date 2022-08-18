@@ -511,7 +511,9 @@ commit
 	"Commit the receiver and its related objects.
 	Return success"
 
-	^reStore commit: self withRelatedComponents!
+	Notification deprecated. "use store instead"
+
+	^self store!
 
 debugPrintString
 
@@ -645,10 +647,26 @@ softRollback
 
 store
 
-	"Store the receiver and its related objects.
-	Return success"
+	"Store the receiver and its related objects; return success.
 
-	^reStore commit: self withRelatedComponents!
+	NB: This is also a legacy selector whose meaning was 'store in the active transaction'.
+	We have repurposed this to also be a direct 'store now' message, which begins and completes in its own transaction.
+	Accomodate both new and legacy behavior by checking if there is currently a transaction in progress"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self store]
+	ifNotNil: 
+		[ :proxyReStore || wasTransactionInProgress |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[wasTransactionInProgress := reStore isTransactionInProgress.
+				(reStore commit: self withRelatedComponents)
+					ifTrue: [true]
+					ifFalse: [wasTransactionInProgress ifFalse: [StoreFailure signalWith: proxyReStore]. false]]
+			ifFalse: 
+				[self store]]]!
 
 storeIn: aReStore
 
@@ -776,8 +794,6 @@ yourself!non forwarding!public! !
 !SSWDBProxy class methodsFor!
 
 initialize
-
-	super initialize.
 
 	IsSwappedMask := 1.
 	IsPersistentMask := 2.

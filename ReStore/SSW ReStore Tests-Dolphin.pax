@@ -72,6 +72,7 @@ package methodNames
 	add: #SSWReStoreTest -> #debugStream;
 	add: #SSWReStoreTest -> #dsn;
 	add: #SSWReStoreTest -> #initConnectionFor:;
+	add: #SSWReStoreTest -> #isDolphin;
 	add: #SSWReStoreTest -> #nativeConnection;
 	add: #SSWReStoreTest -> #removeSelector:fromClass:;
 	add: #SSWReStoreTypeTest -> #testTimeStamp;
@@ -907,6 +908,10 @@ initConnectionFor: aReStore
 	ifNotNil: 
 		[ :nativeConnection | aReStore connection: nativeConnection]!
 
+isDolphin
+
+	^true!
+
 nativeConnection
 
 	"Return a native (non-ODBC) connection to be tested, or nil to use ODBC"
@@ -925,6 +930,7 @@ addMethod:withSelector:toClass:!public!running! !
 debugStream!public!running! !
 dsn!accessing!public! !
 initConnectionFor:!public!running! !
+isDolphin!public!testing! !
 nativeConnection!public!running! !
 removeSelector:fromClass:!public!running! !
 !

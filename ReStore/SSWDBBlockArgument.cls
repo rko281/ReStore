@@ -375,6 +375,45 @@ replaceFrom: start to: stop with: replacementElements startingAt: startAt
 	
 	^self replaceFrom: start length: length with: (replacementElements copyFrom: startAt to: ((startAt + length) - 1))!
 
+simulateMessageSend: aMessage
+
+	"Attempt to simulate the method named aSymbol in the current class's methodDictionary, turning it into equivalent SQL function(s).
+	Limitations - the method (and any methods it invokes) must NOT directly access inst vars, other than simple getter accessor methods.
+	Also any messages sent my the method must map to SQL functions in the current dialect.
+	If any of these do not hold true a parseError will occur (or possibly something weirder)"
+
+	self hasFinalField ifTrue: [(self simulateMessageSendToFinalField: aMessage) ifNotNil: [ :result | ^result]].
+
+	^(self currentClass lookupMethod: aMessage selector)
+		ifNil: [self parseError: '<1d> does not implement <2p>' << {self currentClass. aMessage selector}]
+		ifNotNil: [ :method | self simulateMethod: method withArguments: aMessage arguments]!
+
+simulateMessageSendToFinalField: aMessage
+
+	"Private - Attempt to simulate sending aMessage to the targetClass of the receiver's finalField.
+	Only simulate messages implemented by and in directly-persisted non-base classes (e.g. implementations in Object are ignored).
+	Return nil if no method is simulated, otherwise the result of the simulated send"
+
+	| field targetClass reStoreValueMethod messages method |
+
+	field := self peekFinalField.
+	targetClass := field targetClass.
+	targetClass isDirectlyPersistedNonBaseClass ifFalse: [^nil].
+
+	method := targetClass lookupMethod: aMessage selector.
+	(method isNil or: [method methodClass isDirectlyPersistedNonBaseClass not]) ifTrue: [^nil].
+
+	"Check if aMessage is the sole message sent by the implementation of #reStoreValue - shortcut this to reStoreValue"
+	reStoreValueMethod  := targetClass lookupMethod: #reStoreValue.
+	reStoreValueMethod isNil ifTrue: [self parseError: '<1d> does not implement #reStoreValue' << targetClass].
+
+	messages := reStoreValueMethod messages.
+	(messages size = 1 and: [messages anyOne = aMessage selector]) ifTrue: 
+		[field targetClass: targetClass reStoreValueClass.
+		^self].
+
+	^self simulateMethod: method withArguments: aMessage arguments!
+
 sqlAnd: anSQLCondition
 
 	"Only sent in case of an implicit '= true' expression (or an error)"
@@ -478,6 +517,8 @@ parseError:with:!parsing - internal!public! !
 peekFinalField!evaluating!public! !
 queryFieldFor:!parsing - internal!public! !
 replaceFrom:to:with:startingAt:!parsing - functions!public! !
+simulateMessageSend:!helpers!public! !
+simulateMessageSendToFinalField:!helpers!private! !
 sqlAnd:!parsing - implicit true!public! !
 sqlAndWithCondition:!parsing - implicit true!public! !
 sqlConditionFor:!parsing - internal!public! !

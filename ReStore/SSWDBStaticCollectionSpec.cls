@@ -75,7 +75,10 @@ deleteQueryWithJoin
 		table: self collectionTable;
 		conditions: (SSWSQLCondition field: self sourceField equalTo: SSWSQLQueryParameter).
 
-	self isValueDependent ifTrue: [query addTable: self targetTable withAllFields joinedWithField: self targetField].
+	self isValueDependent ifTrue: 
+		[query 
+			isMultiTableDelete: true;
+			addTable: self targetTable withAllFields joinedWithField: self targetField].
 
 	^query!
 
