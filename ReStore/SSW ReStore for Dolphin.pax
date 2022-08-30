@@ -251,27 +251,25 @@ isInIDECallStack
 	"Answer whether this process is currently in a call stack originating in a message send from well-known IDE classes.
 	Used to adjust behaviour of SSWDBProxies depending on exection context"
 
-	| ideClasses nonIDEReceivers frame receiver |
+	| ideShellClasses frame receiver nonVPClasses |
 
 	"Done by name to avoid creating a package dependency on the development environment"
-	ideClasses := ##(#(#Debugger 'Debugger' #InspectorAbstract #BasicInspector #InspectorShell #FlipperInspector) collect: [ :each | each isSymbol ifTrue: [self environment at: each] ifFalse: [(self environment at: each asSymbol) class]]).
-	nonIDEReceivers := IdentitySet new.
+	ideShellClasses := ##(#(#SmalltalkToolShell #SmalltalkWorkspaceDocument) collect: [ :each | self environment at: each]).
+	nonVPClasses := IdentitySet new.
 
 	frame := Processor activeProcess topFrame sender.
 	receiver := frame receiver.
 	[frame notNil] whileTrue: 
-		[| receiverClass topShell nextReceiver |
+		[| receiverClass nextReceiver |
 		receiverClass := receiver basicClass.
-		(ideClasses anySatisfy: [ :each | receiverClass includesBehavior: each]) ifTrue: [^true].
-		((receiverClass includesBehavior: View) or: [receiverClass includesBehavior: Presenter]) ifTrue: 
-			[topShell := receiver topShell.
-			(ideClasses anySatisfy: [ :each | topShell isKindOf: each]) ifTrue: [^true]].
+		((receiverClass includesBehavior: View) or: [receiverClass includesBehavior: Presenter])
+			ifTrue: [receiver topShell ifNotNil: [ :topShell | topShell ~~ DeafObject current ifTrue: [^(ideShellClasses anySatisfy: [ :each | topShell isKindOf: each])]]]
+			ifFalse: [nonVPClasses add: receiverClass].
 		[frame := frame sender.
-		frame notNil and: [(nextReceiver := frame receiver) isNil or: [nextReceiver == receiver or: [nonIDEReceivers includes: nextReceiver]]]] whileTrue.
-		nonIDEReceivers add: receiver.
+		frame notNil and: [(nextReceiver := frame receiver) isNil or: [nextReceiver == receiver or: [nonVPClasses includes: nextReceiver class]]]] whileTrue.
 		receiver := nextReceiver].
 
-	^false.! !
+	^false! !
 !Process categoriesForMethods!
 isExpectedToResumePromptly!public!testing! !
 isInIDECallStack!must strip!public! !
