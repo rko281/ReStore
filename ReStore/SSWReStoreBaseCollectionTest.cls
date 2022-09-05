@@ -160,3 +160,12 @@ testRollback!public!unit tests! !
 testVerifySetup!public!unit tests! !
 !
 
+!SSWReStoreBaseCollectionTest class methodsFor!
+
+allTestSelectors
+
+	^super allTestSelectors reject: [ :each | #(#testReadAllStatementNilled) includes: each]! !
+!SSWReStoreBaseCollectionTest class categoriesForMethods!
+allTestSelectors!public! !
+!
+

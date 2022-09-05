@@ -86,13 +86,13 @@ deleteStatement
 
 freePreparedStatements
 
+	super freePreparedStatements.
+
 	readStatement notNil ifTrue: [readStatement free].
-	readAllStatement notNil ifTrue: [readAllStatement free].
 	refreshStatement notNil ifTrue: [refreshStatement free].
 	refreshWithContentsIfUpdatedStatement notNil ifTrue: [refreshWithContentsIfUpdatedStatement free].
 
 	readStatement := nil.
-	readAllStatement := nil.
 	refreshStatement := nil.
 	refreshWithContentsIfUpdatedStatement := nil!
 

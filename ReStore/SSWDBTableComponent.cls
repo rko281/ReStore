@@ -42,6 +42,12 @@ componentsOf: anObject do: aBlock
 
 	aBlock value: (self accessor valueIn: anObject)!
 
+freePreparedStatements
+
+	readAllStatement notNil ifTrue: 
+		[readAllStatement free.
+		readAllStatement := nil]!
+
 newReadAllParameters
 
 	^Array new: self table readAllBatchSize!
@@ -91,6 +97,7 @@ aboutToBeUnstored:!actions!public! !
 accessor!accessing!public! !
 accessor:!accessing!public! !
 componentsOf:do:!evaluating!public! !
+freePreparedStatements!initialize/release!public! !
 newReadAllParameters!accessing-queries!private! !
 printOn:!printing!public! !
 readAllFor:!actions!public! !

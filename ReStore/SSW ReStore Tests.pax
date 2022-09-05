@@ -170,6 +170,7 @@ package methodNames
 	add: #Object -> #_deproxify;
 	add: #Process -> #isInIDECallStackAlwaysTrue;
 	add: #SSWDBProxy -> #_dbProxyReStorePrePreempt;
+	add: #SSWDBTableComponent -> #_readAllStatement;
 	add: #SSWMySQLDialect -> #shouldDropTablesForTestCases;
 	add: #SSWPostgreSQLDialect -> #shouldDropTablesForTestCases;
 	add: #SSWReStore -> #simulateReconnect;
@@ -1017,6 +1018,15 @@ _dbProxyReStorePrePreempt
 	^nil! !
 !SSWDBProxy categoriesForMethods!
 _dbProxyReStorePrePreempt!public! !
+!
+
+!SSWDBTableComponent methodsFor!
+
+_readAllStatement
+
+	^readAllStatement! !
+!SSWDBTableComponent categoriesForMethods!
+_readAllStatement!accessing!public! !
 !
 
 !SSWMySQLDialect methodsFor!

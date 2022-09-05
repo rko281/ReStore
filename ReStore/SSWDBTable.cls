@@ -458,7 +458,7 @@ freePreparedStatements
 	refreshStatement := nil.
 	deleteStatement := nil.
 
-	self collectionSpecs do: [ :each | each freePreparedStatements].!
+	self componentsDo: [ :each | each freePreparedStatements].!
 
 fullName
 

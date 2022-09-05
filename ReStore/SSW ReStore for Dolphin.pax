@@ -251,22 +251,21 @@ isInIDECallStack
 	"Answer whether this process is currently in a call stack originating in a message send from well-known IDE classes.
 	Used to adjust behaviour of SSWDBProxies depending on exection context"
 
-	| ideShellClasses frame receiver nonVPClasses |
+	| ideShellClasses frame receiver |
 
 	"Done by name to avoid creating a package dependency on the development environment"
-	ideShellClasses := ##(#(#SmalltalkToolShell #SmalltalkWorkspaceDocument) collect: [ :each | self environment at: each]).
-	nonVPClasses := IdentitySet new.
+	ideShellClasses := ##(#(#Debugger #InspectorShell #FlipperInspector) collect: [ :each | self environment at: each]).
 
 	frame := Processor activeProcess topFrame sender.
 	receiver := frame receiver.
 	[frame notNil] whileTrue: 
-		[| receiverClass nextReceiver |
-		receiverClass := receiver basicClass.
-		((receiverClass includesBehavior: View) or: [receiverClass includesBehavior: Presenter])
-			ifTrue: [receiver topShell ifNotNil: [ :topShell | topShell ~~ DeafObject current ifTrue: [^(ideShellClasses anySatisfy: [ :each | topShell isKindOf: each])]]]
-			ifFalse: [nonVPClasses add: receiverClass].
+		[| nextReceiver |
+		(receiver basicClass canUnderstand: #topShell) ifTrue: 
+			[receiver topShell ifNotNil: 
+				[ :topShell | 
+				topShell ~~ DeafObject current ifTrue: [^(ideShellClasses anySatisfy: [ :each | topShell isKindOf: each])]]].
 		[frame := frame sender.
-		frame notNil and: [(nextReceiver := frame receiver) isNil or: [nextReceiver == receiver or: [nonVPClasses includes: nextReceiver class]]]] whileTrue.
+		frame notNil and: [(nextReceiver := frame receiver) isNil or: [nextReceiver == receiver]]] whileTrue.
 		receiver := nextReceiver].
 
 	^false! !
