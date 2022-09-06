@@ -21,6 +21,7 @@ package methodNames
 	add: #Presenter -> #respondsTo:;
 	add: #Process -> #isExpectedToResumePromptly;
 	add: #Process -> #isInIDECallStack;
+	add: #SessionManager -> #onUnhandledTransactionError:;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:from:;
@@ -47,6 +48,7 @@ package methodNames
 	add: #SSWDBProxy -> #isNil;
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
+	add: #SSWDBTransactionError -> #sessionManager;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
 	add: #SSWMSAccessDialect -> #platformSpecificFunctions;
 	add: #SSWMySQLDialect -> #platformSpecificFunctions;
@@ -272,6 +274,16 @@ isInIDECallStack
 !Process categoriesForMethods!
 isExpectedToResumePromptly!public!testing! !
 isInIDECallStack!must strip!public! !
+!
+
+!SessionManager methodsFor!
+
+onUnhandledTransactionError: anSSWDBTransactionError
+
+	anSSWDBTransactionError autoRecover.
+	self unhandledException: anSSWDBTransactionError! !
+!SessionManager categoriesForMethods!
+onUnhandledTransactionError:!event handling!private! !
 !
 
 !SSWDBBlockArgument methodsFor!
@@ -699,6 +711,15 @@ mustBeBoolean
 	^self parser handleMustBeBooleanIn: self! !
 !SSWDBQueryConditionCollection categoriesForMethods!
 mustBeBoolean!evaluating!private! !
+!
+
+!SSWDBTransactionError methodsFor!
+
+sessionManager
+
+	^SessionManager current! !
+!SSWDBTransactionError categoriesForMethods!
+sessionManager!accessing!private! !
 !
 
 !SSWMSAccessDialect methodsFor!

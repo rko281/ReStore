@@ -10,6 +10,11 @@ SSWReStoreDebugTest comment: ''!
 !SSWReStoreDebugTest categoriesForClass!Unclassified! !
 !SSWReStoreDebugTest methodsFor!
 
+_rollbackChanges
+	"I pretend to be a proxy for some tests"
+
+	!
+
 makeIDEClass
 
 	Process methodDictionary
@@ -17,6 +22,46 @@ makeIDEClass
 		at: #isInIDECallStack put: (Process>>#isInIDECallStackAlwaysTrue).
 
 	Process flushMethodCache!
+
+testCommitErrorCleanup
+
+	"Verify errors during transaction commit clean up the transaction"
+
+	| error actualErrorClass |
+
+	"Standard behaviour - errors are trapped and re-raised as a transaction error. The default session handling for this invokes cleanup before proceeding further"
+	reStore beginTransaction.
+	self john firstName: '<ERROR ON COMMIT>'.
+	error := [reStore commitTransaction] on: SSWDBTransactionCommitError do:  
+		[ :exc | 
+		"Verify not yet cleaned up"
+		self deny: exc isRecovered.
+		self assert: reStore transaction allReferencedObjects isNil.
+		exc return: exc].
+
+	"Verify cleaned up"
+	self assert: error isRecovered.
+	self assert: reStore transaction allReferencedObjects isEmpty.
+
+	actualErrorClass := error tag class.
+	reStore rollbackTransaction.
+	reStore enterDebugMode.
+
+	"Debug mode behaviour - errors are passed but the transaction should still be cleaned up"
+	reStore beginTransaction.
+	self john firstName: '<ERROR ON COMMIT>'.
+	error := [reStore commitTransaction] on: actualErrorClass do: 
+		[ :exc | 
+		"Verify not yet cleaned up"
+		self assert: reStore transaction allReferencedObjects isNil. 
+		exc return: exc].
+	self assert: error notNil.
+	self assert: error class equals: actualErrorClass.
+
+	"Verify cleaned up"
+	self assert: reStore transaction allReferencedObjects isEmpty.
+
+	reStore rollbackTransaction!
 
 testDebugModeCommitErrorHandling
 
@@ -26,18 +71,18 @@ testDebugModeCommitErrorHandling
 
 	john := self john.
 
-	"Standard behaviour - errors are trapped and re-raised at the end"
+	"Standard behaviour - errors are trapped and re-raised as a transaction error"
 	john firstName: '<ERROR ON COMMIT>'.
-	self should: [john storeIn: reStore] raise: Error matching: 
+	self should: [john storeIn: reStore] raise: SSWDBTransactionCommitError matching: 
 		[ :exc || reraisePrefix |
-		reraisePrefix := 'An error occured during commit: '.
+		reraisePrefix := 'An error occurred during commit: '.
 		(exc messageText beginsWith: reraisePrefix)
 			ifTrue: [actualErrorText := exc messageText readStream skip: reraisePrefix size; upToEnd. true]
 			ifFalse: [false]].
 
 	reStore enterDebugMode.
 
-	"Debug mode behaviour - errors are raised immediately they occur (actually trapped and passed)"
+	"Debug mode behaviour - errors are passed"
 	john firstName: '<ERROR ON COMMIT>'.
 	self should: [john storeIn: reStore] raise: Error matching: [ :exc | exc description = actualErrorText]!
 
@@ -100,12 +145,12 @@ testDebugModePreCommitErrorHandling
 
 	| actualErrorText |
 
-	"Standard behaviour - errors are trapped and re-raised at the end"
+	"Standard behaviour - errors are trapped and re-raised as a transaction error"
 	reStore beginTransaction.
 	reStore transaction currentReferencedObjects add: self.
-	self should: [reStore commitTransaction] raise: Error matching: 
+	self should: [reStore commitTransaction] raise: SSWDBTransactionPreCommitError matching: 
 		[ :exc || reraisePrefix |
-		reraisePrefix := 'An error occured during pre-commit: '.
+		reraisePrefix := 'An error occurred during pre-commit: '.
 		(exc messageText beginsWith: reraisePrefix)
 			ifTrue: [actualErrorText := exc messageText readStream skip: reraisePrefix size; upToEnd. true]
 			ifFalse: [false]].
@@ -118,7 +163,7 @@ testDebugModePreCommitErrorHandling
 	reStore beginTransaction.
 	reStore transaction currentReferencedObjects add: self.
 	self should: [reStore commitTransaction] raise: Error matching: [ :exc | exc description = actualErrorText].
-	reStore transaction allReferencedObjects remove: self.
+	reStore transaction currentReferencedObjects remove: self.
 	reStore rollbackTransaction!
 
 testDebugModeProxyInstVarAt
@@ -143,16 +188,59 @@ testDebugModeProxyInstVarAt
 	self assert: (john instVarAt: 1 "proxiedObject") identicalTo: john _proxiedObject.
 	self assert: (john _instVarAt: 1 "firstName") equals: 'John'] ensure: [self unmakeIDEClass]!
 
+testPreCommitErrorCleanup
+
+	"Verify errors during transaction pre-commit clean up the transaction"
+
+	| error actualErrorClass |
+
+	"Standard behaviour - errors are trapped and re-raised as a transaction error. The default session handling for this invokes cleanup before proceeding further"
+	reStore beginTransaction.
+	reStore transaction currentReferencedObjects add: self.
+	error := [reStore commitTransaction] on: SSWDBTransactionPreCommitError do:  
+		[ :exc | 
+		"Verify not yet cleaned up"
+		self deny: exc isRecovered.
+		self assert: reStore transaction allReferencedObjects isEmpty not.
+		exc return: exc].
+
+	"Verify cleaned up"
+	self assert: error isRecovered.
+	self assert: reStore transaction allReferencedObjects isEmpty.
+
+	actualErrorClass := error tag class.
+	reStore rollbackTransaction.
+	reStore enterDebugMode.
+
+	"Debug mode behaviour - errors are passed but the transaction should still be cleaned up"
+	reStore beginTransaction.
+	reStore transaction currentReferencedObjects add: self.
+	error := [reStore commitTransaction] on: actualErrorClass do: 
+		[ :exc | 
+		"Verify not yet cleaned up"
+		self assert: reStore transaction allReferencedObjects isEmpty not.
+		exc return: exc].
+	self assert: error notNil.
+	self assert: error class equals: actualErrorClass.
+
+	"Verify cleaned up"
+	self assert: reStore transaction allReferencedObjects isEmpty.
+
+	reStore rollbackTransaction!
+
 unmakeIDEClass
 
 	Process methodDictionary at: #isInIDECallStack put: (Process methodDictionary removeKey: #isInIDECallStackOrig).
 	Process flushMethodCache! !
 !SSWReStoreDebugTest categoriesForMethods!
+_rollbackChanges!helpers!public! !
 makeIDEClass!helpers!private! !
+testCommitErrorCleanup!public!unit tests! !
 testDebugModeCommitErrorHandling!public!unit tests! !
 testDebugModeMutex!public!unit tests! !
 testDebugModePreCommitErrorHandling!public!unit tests! !
 testDebugModeProxyInstVarAt!public!unit tests! !
+testPreCommitErrorCleanup!public!unit tests! !
 unmakeIDEClass!helpers!private! !
 !
 

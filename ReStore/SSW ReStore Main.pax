@@ -24,6 +24,9 @@ package classNames
 	add: #SSWDBSingleTransactionWithVersioning;
 	add: #SSWDBTableRecord;
 	add: #SSWDBTransaction;
+	add: #SSWDBTransactionCommitError;
+	add: #SSWDBTransactionError;
+	add: #SSWDBTransactionPreCommitError;
 	add: #SSWDBUnstoreWrapper;
 	add: #SSWDBVersionedCachingObjectProxy;
 	add: #SSWReStore;
@@ -167,6 +170,21 @@ Object subclass: #SSWReStore
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
+Error subclass: #SSWDBTransactionError
+	instanceVariableNames: 'reStore isRecovered'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBTransactionError subclass: #SSWDBTransactionCommitError
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBTransactionError subclass: #SSWDBTransactionPreCommitError
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 Notification subclass: #StoreFailure
 	instanceVariableNames: ''
 	classVariableNames: ''
