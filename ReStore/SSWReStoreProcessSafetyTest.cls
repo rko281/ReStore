@@ -10,6 +10,25 @@ SSWReStoreProcessSafetyTest comment: ''!
 !SSWReStoreProcessSafetyTest categoriesForClass!Unclassified! !
 !SSWReStoreProcessSafetyTest methodsFor!
 
+_testProxySwappedDuringDoesNotUnderstand: aDBProxy
+
+	"Private - Verify no error occurs and the message is still executed if a proxy is swapped by another process during processing a doesNotUnderstand:"
+
+	| john backgroundResult |
+
+	john := self john.
+	self assert: john isDBProxy.
+
+	[reStore transactionCritical: 
+		[semaphore signal.
+		backgroundResult := john firstName]] forkAt: Processor userBackgroundPriority.
+
+	"Let the background process acquire the reStore mutex."
+	semaphore wait.
+	"Background process has the mutex, but hasn't swapped the proxy. Main process will now enter SSWDBProxy>>doesNotUnderstand: and block. Background process will recover the proxiedObject and release the mutex. Main process then gets the mutex and finds the proxy already swapped"
+	self assert: john firstName = 'John'.
+	self assert: backgroundResult = 'John'!
+
 firstActiveReStore
 
 	^SSWReStore activeReStores do: [ :each | ^each]!
@@ -229,6 +248,28 @@ testProxyProxyLookup
 	self assert: john isDBProxy.
 	self assert: (reStore activeProxyForObject: john ifNone: [nil]) identicalTo: john!
 
+testProxyRecoveredDuringDoesNotUnderstand
+
+	"Verify no error occurs and the message is still executed if a proxy is recovered and swapped by another process during processing a doesNotUnderstand:"
+
+	| john |
+
+	john := self john.
+	self assert: john isDBProxy.
+	john _forgetProxiedObject.
+
+	self _testProxySwappedDuringDoesNotUnderstand: john!
+
+testProxySwappedDuringDoesNotUnderstand
+
+	"Verify no error occurs and the message is still executed if a proxy is swapped by another process during processing a doesNotUnderstand:"
+
+	| john |
+
+	john := self john.
+	self assert: john isDBProxy.
+	self _testProxySwappedDuringDoesNotUnderstand: john!
+
 testQueryingDuringTransaction
 
 	"Verify querying in one process is blocked whilst a transaction occurs in another"
@@ -325,6 +366,7 @@ yieldAfterWrappedMethod
 
 	^result! !
 !SSWReStoreProcessSafetyTest categoriesForMethods!
+_testProxySwappedDuringDoesNotUnderstand:!private!unit tests! !
 firstActiveReStore!accessing!private! !
 setUp!public!running! !
 tearDown!public!running! !
@@ -337,6 +379,8 @@ testObjectLookupDuringTransaction!public!unit tests! !
 testProxyDoesNotUnderstandWhenPreempted!public!unit tests! !
 testProxyLookupDuringTransaction!public!unit tests! !
 testProxyProxyLookup!public!unit tests! !
+testProxyRecoveredDuringDoesNotUnderstand!public!unit tests! !
+testProxySwappedDuringDoesNotUnderstand!public!unit tests! !
 testQueryingDuringTransaction!public!unit tests! !
 testUnstoreWhenPreemptedSwap!public!unit tests! !
 testUnstoreWhenPreemptedUnswap!public!unit tests! !
