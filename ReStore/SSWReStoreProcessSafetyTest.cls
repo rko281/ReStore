@@ -29,9 +29,27 @@ _testProxySwappedDuringDoesNotUnderstand: aDBProxy
 	self assert: john firstName = 'John'.
 	self assert: backgroundResult = 'John'!
 
+critical: aBlock
+
+	"For when the receiver is pretending to be a locked Mutex with a nil owner"
+
+	^aBlock value!
+
+critical: aBlock ifLocked: lockedBlock
+
+	"For when the receiver is pretending to be a locked Mutex with a nil owner"
+
+	^lockedBlock value!
+
 firstActiveReStore
 
 	^SSWReStore activeReStores do: [ :each | ^each]!
+
+owner
+
+	"For when the receiver is pretending to be a locked Mutex with a nil owner"
+
+	^nil!
 
 setUp
 
@@ -236,6 +254,28 @@ testProxyLookupDuringTransaction
 	self deny: wasTransactionInProgress.
 	self assert: proxy _version equals: (version + 1).!
 
+testProxyLookupWhenLockedWithoutOwner
+
+	"Verify proxy lookup works (in particular, does not enter an infinite loop) when the transaction mutex owner is nil"
+
+	| john mutex process proxy wasTerminated |
+
+	john := self john.
+	john firstName.
+	self deny: john isDBProxy.
+
+	mutex := reStore transactionMutex.
+	reStore transactionMutex: self.
+	[process := [proxy := john _dbProxyIn: reStore ifNone: [nil]] forkAt: Processor activeProcess priority - 1.
+	(Delay forMilliseconds: 10) wait.
+
+	wasTerminated := process isTerminated.
+	wasTerminated ifFalse: [process terminate]] ensure: [reStore transactionMutex: mutex].
+
+	self assert: wasTerminated.
+	self assert: proxy isDBProxy.
+	self assert: proxy _proxiedObject identicalTo: john!
+
 testProxyProxyLookup
 
 	"Verify  proxy lookup works when passed a proxy rather than an object (the normal case).
@@ -367,7 +407,10 @@ yieldAfterWrappedMethod
 	^result! !
 !SSWReStoreProcessSafetyTest categoriesForMethods!
 _testProxySwappedDuringDoesNotUnderstand:!private!unit tests! !
+critical:!helpers!public! !
+critical:ifLocked:!helpers!public! !
 firstActiveReStore!accessing!private! !
+owner!helpers!public! !
 setUp!public!running! !
 tearDown!public!running! !
 testBeginDuringBegin!public!unit tests! !
@@ -378,6 +421,7 @@ testInconsistentProxyUnswap!public!unit tests! !
 testObjectLookupDuringTransaction!public!unit tests! !
 testProxyDoesNotUnderstandWhenPreempted!public!unit tests! !
 testProxyLookupDuringTransaction!public!unit tests! !
+testProxyLookupWhenLockedWithoutOwner!public!unit tests! !
 testProxyProxyLookup!public!unit tests! !
 testProxyRecoveredDuringDoesNotUnderstand!public!unit tests! !
 testProxySwappedDuringDoesNotUnderstand!public!unit tests! !

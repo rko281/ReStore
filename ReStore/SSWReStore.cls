@@ -52,15 +52,9 @@ activeProxyForObject: anObject ifNone: aBlock
 		transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]
 		ifLocked:
 			["Prevent lock-ups when in debugger or otherwise semi-permanently blocked"
-			self transactionMutex owner 
-			ifNil: 
-				["Unlocked - try again"
-				self activeProxyForObject: anObject ifNone: aBlock] 
-			ifNotNil: 
-				[ :process | 
-				process isExpectedToResumePromptly
-					ifTrue: ["Wait" self transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]]
-					ifFalse: ["Bypass" self _activeProxyForObject: anObject ifNone: aBlock]]]!
+			(self transactionMutex owner ifNil: [true] ifNotNil: [ :process | process isExpectedToResumePromptly])
+				ifTrue: ["Wait" self transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]]
+				ifFalse: ["Bypass" self _activeProxyForObject: anObject ifNone: aBlock]]!
 
 addClass: aClass
 
