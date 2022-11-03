@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBProtoObject subclass: #SSWDBProxy
 	instanceVariableNames: 'proxiedObject reStore flags'
@@ -23,6 +23,12 @@ __ensureActive
 	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
 
 	(reStore transaction includesProxy: self) ifFalse: [self _referenced]!
+
+__proxiedObject: anObject
+
+	"Private - Guaranteed direct assignment with no additional functionality - do not override"
+	
+	proxiedObject := anObject!
 
 __referenced
 
@@ -700,6 +706,7 @@ yourself
 	^self! !
 !SSWDBProxy categoriesForMethods!
 __ensureActive!actions-internal!public! !
+__proxiedObject:!accessing!private! !
 __referenced!actions-internal!private! !
 _changedObjectsIn:!accessing!public! !
 _checkHasChanged!public!testing! !
