@@ -24,12 +24,6 @@ __ensureActive
 
 	(reStore transaction includesProxy: self) ifFalse: [self _referenced]!
 
-__proxiedObject: anObject
-
-	"Private - Guaranteed direct assignment with no additional functionality - do not override"
-	
-	proxiedObject := anObject!
-
 __referenced
 
 	reStore proxy: self forwarded: ##(Message selector: #_referenced)!
@@ -706,7 +700,6 @@ yourself
 	^self! !
 !SSWDBProxy categoriesForMethods!
 __ensureActive!actions-internal!public! !
-__proxiedObject:!accessing!private! !
 __referenced!actions-internal!private! !
 _changedObjectsIn:!accessing!public! !
 _checkHasChanged!public!testing! !

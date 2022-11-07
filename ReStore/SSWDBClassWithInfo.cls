@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBClassWithInfo
 	instanceVariableNames: ''
@@ -45,6 +45,10 @@ isDirectlyPersistedNonBaseClass
 
 	^self infoClass isDirectlyPersistedNonBaseClass!
 
+isMutableDirectlyPersistedNonBaseClass
+
+	^self infoClass isMutableDirectlyPersistedNonBaseClass!
+
 isPersistentBaseClass
 
 	^self infoClass isPersistentBaseClass
@@ -68,6 +72,7 @@ includesBehavior:!public!testing! !
 infoClass!constants!public! !
 isDirectlyPersisted!public!testing! !
 isDirectlyPersistedNonBaseClass!public!testing! !
+isMutableDirectlyPersistedNonBaseClass!public!testing! !
 isPersistentBaseClass!public!testing! !
 lookupMethod:!methods-accessing!public! !
 new!instance creation!public! !

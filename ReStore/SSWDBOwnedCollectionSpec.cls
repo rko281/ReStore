@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCollectionSpec subclass: #SSWDBOwnedCollectionSpec
 	instanceVariableNames: 'targetClass ownerField ownerAccessor orderingSpecs'
@@ -291,7 +291,7 @@ targetTable
 	^self reStore tableForClass: self targetClass! !
 !SSWDBOwnedCollectionSpec categoriesForMethods!
 allElementsIn:!accessing!private! !
-copyCollection:!actions!private! !
+copyCollection:!actions!public! !
 dbInstancesFor:!accessing!public! !
 deleteQuery!accessing-queries!public! !
 elementsIn:notIn:!accessing!private! !

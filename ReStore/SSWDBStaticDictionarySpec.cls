@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
 	instanceVariableNames: 'keyClass isKeyDependent isKeyRelated keyTableForRead keyTableForRefresh deleteKeysStatement'
@@ -81,6 +81,10 @@ elementRemovalClass
 	"Return the class of change object representing the removal of an element for the type of collection modelled by the receiver"
 
 	^SSWDBCollectionRemovalWithKey!
+
+hasMutableElements
+
+	^super hasMutableElements or: [self keyClass isMutableDirectlyPersistedNonBaseClass]!
 
 initialize
 
@@ -306,6 +310,7 @@ deleteKeysQueryWithSubQuery!accessing-queries!private! !
 deleteKeysStatement!accessing!public! !
 deleteQueryWithJoin!accessing-queries!private! !
 elementRemovalClass!change detection!constants!private! !
+hasMutableElements!public!testing! !
 initialize!initialize/release!public! !
 isKeyDependent!public!testing! !
 isKeyRelated!public!testing! !

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBProxy subclass: #SSWDBCollectionProxy
 	instanceVariableNames: 'collectionSpec owner'
@@ -110,7 +110,7 @@ _rollbackChanges
 	changedCollection := self.
 	self _unswap.
 
-	me _proxiedObject: unchangedCollection.
+	me _setProxiedObject: unchangedCollection.
 	changedCollection getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]!
 
 _unchangedCollection

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCollectionSpec subclass: #SSWDBGeneralCollectionSpec
 	instanceVariableNames: 'sourceField targetField collectionTable'
@@ -80,6 +80,10 @@ equalityChangesTo: aCollection from: aCollectionOfEntries
 
 	^self subclassResponsibility!
 
+hasMutableElements
+
+	^self targetClass isMutableDirectlyPersistedNonBaseClass!
+
 identityChangesTo: aCollection from: aCollectionOfEntries
 
 	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via identity (==)"
@@ -150,6 +154,7 @@ createCollectionTable!initializing!public! !
 deleteEntry:!actions - api!public! !
 entryClass!constants!public! !
 equalityChangesTo:from:!change detection!private! !
+hasMutableElements!public!testing! !
 identityChangesTo:from:!change detection!private! !
 insertEntry:!actions - api!public! !
 queryClass!constants!public! !

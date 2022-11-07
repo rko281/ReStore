@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBDirectlyPersistedObject
 	instanceVariableNames: ''
@@ -69,12 +69,6 @@ isDirectlyPersisted
 
 	^true!
 
-reStoreInstVarAccessor
-
-	^self hasMutablePersistentInstances
-		ifTrue: [SSWMutableInstVarAccessor new]
-		ifFalse: [super reStoreInstVarAccessor]!
-
 reStoreValueClass
 
 	"Return the class of object of which instances of the receiver are persisted in the database, i.e. the class of an instance's reStoreValue"
@@ -89,7 +83,6 @@ fromReStoreValue:!instance creation!public! !
 hasMutablePersistentInstances!public!testing! !
 instanceFromDBValue:in:!instance creation!public! !
 isDirectlyPersisted!public!testing! !
-reStoreInstVarAccessor!persistency!public! !
 reStoreValueClass!accessing!public! !
 writeSQLTypeOn:using:!printing!public! !
 !

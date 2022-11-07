@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCollectionEntry subclass: #SSWDBKeyedCollectionEntry
 	instanceVariableNames: 'index'
@@ -15,6 +15,20 @@ https://github.com/rko281/ReStore'!
 addTargetTo: aCollection
 
 	aCollection _dbAdd: self target suggestedIndex: self index!
+
+copyTargetTo: aCollection
+
+	self hasMutableIndex 
+	ifTrue: 
+		[self hasMutableTarget
+			ifTrue: [aCollection _dbAdd: self target copy suggestedIndex: self index copy]
+			ifFalse: [aCollection _dbAdd: self target suggestedIndex: self index copy]]
+	ifFalse:
+		[aCollection _dbAdd: self target copy suggestedIndex: self index]!
+
+hasMutableIndex
+
+	^self index class isMutableDirectlyPersistedNonBaseClass!
 
 index
 
@@ -34,6 +48,8 @@ prepareToCommitFor: anSSWDBCachingCollectionProxy
 ! !
 !SSWDBKeyedCollectionEntry categoriesForMethods!
 addTargetTo:!actions!public! !
+copyTargetTo:!actions!public! !
+hasMutableIndex!public!testing! !
 index!accessing!public! !
 index:!accessing!public! !
 prepareToCommitFor:!actions!public! !

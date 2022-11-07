@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBCollectionEntry
 	instanceVariableNames: 'table entryID sourceID target'
@@ -44,6 +44,10 @@ addTo: aCollectionOfEntries
 
 	aCollectionOfEntries add: self!
 
+copyTargetTo: aCollection
+
+	aCollection _dbAdd: self target copy!
+
 entryID
 
 	"entryID stores the unique ID of this particular entry object"
@@ -55,6 +59,10 @@ entryID: anInteger
 	"entryID stores the unique ID of this particular entry object"
 	
 	entryID := anInteger!
+
+hasMutableTarget
+
+	^self target class isMutableDirectlyPersistedNonBaseClass!
 
 isPersistent
 
@@ -110,8 +118,10 @@ _id:!evaluating!public! !
 _proxiedObject!evaluating!public! !
 addTargetTo:!actions!public! !
 addTo:!actions!public! !
+copyTargetTo:!actions!public! !
 entryID!accessing!public! !
 entryID:!accessing!public! !
+hasMutableTarget!public!testing! !
 isPersistent!public!testing! !
 prepareToCommitFor:!actions!public! !
 removeFrom:!actions!public! !

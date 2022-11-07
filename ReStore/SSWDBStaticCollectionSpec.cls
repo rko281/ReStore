@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
 	instanceVariableNames: 'targetClass deleteEntriesStatement'
@@ -111,10 +111,6 @@ equalityChangesTo: aCollection from: aCollectionOfEntries
 
 	^changes!
 
-hasMutableTargetInstances
-
-	^self targetClass isDirectlyPersisted and: [self targetClass isPersistentBaseClass not and: [self targetClass hasMutablePersistentInstances]]!
-
 identityChangesTo: aCollection from: aCollectionOfEntries
 
 	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via identity (==)"
@@ -133,7 +129,7 @@ preserveCollectionEntries: aCollection
 
 	"Private - If the collection stored mutatable directly-persisted objects then we must use a shallowCopy of these for change detection"
 
-	self hasMutableTargetInstances ifTrue: [aCollection do: [ :each | each target: each target shallowCopy]]!
+	self targetClass isMutableDirectlyPersistedNonBaseClass ifTrue: [aCollection do: [ :each | each target: each target shallowCopy]]!
 
 readAllEntriesFor: ids
 
@@ -390,7 +386,6 @@ deleteQuery!accessing-queries!public! !
 deleteQueryWithJoin!accessing-queries!private! !
 deleteQueryWithSubQuery!accessing-queries!private! !
 equalityChangesTo:from:!change detection!private! !
-hasMutableTargetInstances!public!testing! !
 identityChangesTo:from:!change detection!private! !
 preserveCollectionEntries:!actions-internal!private! !
 readAllEntriesFor:!actions!private! !
