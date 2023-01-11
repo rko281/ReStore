@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBStaticCollectionSpec subclass: #SSWDBKeyedStaticCollectionSpec
-	instanceVariableNames: 'indexField updateIndexStatement'
+	instanceVariableNames: 'indexField updateTargetStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -24,32 +24,33 @@ allAdditionsTo: aCollection
 
 	^additions!
 
-changesTo: aCollection from: aCollectionOfEntries comparisonMap: aDictionary
+changesTo: aCollection from: aCollectionOfEntries
 
-	"Private - Return the changes made to aCollection compared to aCollectionOf(Collection)Entries.
-	For keyed changes, must consider additions, removals and changes of key"
+	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries"
 
-	| changes |
+	| changes map |
 
 	changes := OrderedCollection new: (aCollection size // 10).
 
-	"Make a map of each element (as was) to its entry(s)"
-	aCollectionOfEntries do: [ :each | (aDictionary at: (each target ifNil: [NilCookie]) ifAbsentPut: [OrderedCollection new: 1]) addLast: each].
+	"Make a map of each index (as was) to its entry"
+	self shouldCompareKeysByEquality
+		ifTrue: [map := Dictionary new: aCollectionOfEntries size]
+		ifFalse: [map := IdentityDictionary new: aCollectionOfEntries size].
+	aCollectionOfEntries do: [ :each | map at: each index put: each].
 
 	"Locate and remove entry for each member of the receiver and check for key change"
 	aCollection keysAndValuesDo:
-		[ :newKey :each || entry |
-		entry := (aDictionary at: (each ifNil: [NilCookie]) ifAbsent: [##(OrderedCollection new)]) removeFirstIfAbsent:
-			"No entry found = element has been added to the receiver" 
-			[(changes add: (SSWDBCollectionAddition added: each at: newKey)) affectedEntry].
-		(entry index == newKey or: [self shouldCompareKeysByEquality and: [entry index = newKey]]) ifFalse: 
-			[changes add: (self keyUpdateClass entry: entry newIndex: newKey)]].
+		[ :key :value || entry |
+		entry := map removeKey: key ifAbsent: [NilCookie].
+		entry == NilCookie
+		ifTrue:
+			["No entry found = element has been added to the receiver" 
+			(changes add: (SSWDBCollectionAddition added: value at: key)) affectedEntry]
+		ifFalse: 
+			[(entry target == value or: [self shouldCompareChangesByEquality and: [entry target = value]]) ifFalse: [changes add: (SSWDBCollectionUpdate entry: entry newTarget: value)]]].
 
 	"Any remaining entries indicate elements removed from the receiver"
-	aDictionary do:
-		[ :entries | 
-		entries isEmpty ifFalse:		"Minor optimisation"
-			[entries do: [ :entry | changes add: (self elementRemovalClass newWithEntry: entry)]]].
+	map do: [ :entry | changes add: (self elementRemovalClass newWithEntry: entry)].
 
 	^changes!
 
@@ -65,25 +66,13 @@ entryClass
 	
 	^SSWDBKeyedCollectionEntry!
 
-equalityChangesTo: aCollection from: aCollectionOfEntries
-
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via equality (=)"
-
-	^self changesTo: aCollection from: aCollectionOfEntries comparisonMap: (Dictionary new: aCollectionOfEntries size)!
-
 freePreparedStatements
 
-	updateIndexStatement notNil ifTrue: 
-		[updateIndexStatement free.
-		updateIndexStatement := nil].
+	updateTargetStatement notNil ifTrue: 
+		[updateTargetStatement free.
+		updateTargetStatement := nil].
 
 	super freePreparedStatements!
-
-identityChangesTo: aCollection from: aCollectionOfEntries
-
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via identity (==)"
-
-	^self changesTo: aCollection from: aCollectionOfEntries comparisonMap: (IdentityDictionary new: aCollectionOfEntries size)!
 
 indexField
 
@@ -101,17 +90,11 @@ indexField: anSSWDBField
 	
 	indexField := anSSWDBField!
 
-keyUpdateClass
-
-	"Return the class of change object representing a key update for the type of collection modelled by the receiver"
-
-	^SSWDBCollectionIndexUpdate!
-
 shouldCompareKeysByEquality
 
 	^false!
 
-updateEntry: anSSWDBCollectionEntry withIndex: anInteger in: anSSWReStore 
+updateEntry: anSSWDBCollectionEntry withTarget: aProxy in: anSSWReStore 
 
 	| query |
 
@@ -120,24 +103,21 @@ updateEntry: anSSWDBCollectionEntry withIndex: anInteger in: anSSWReStore
 			withUpdates: 
 				(SSWSQLFieldAssignmentCollection with:
 					(SSWSQLFieldAssignment 
-						field: self indexField
-						value: anInteger)).
+						field: self targetField
+						value: aProxy)).
 
-	(updateIndexStatement ifNil: [updateIndexStatement := anSSWReStore prepareStatementForQuery: query])
+	(updateTargetStatement ifNil: [updateTargetStatement := anSSWReStore prepareStatementForQuery: query])
 		values: query values;
 		exec! !
 !SSWDBKeyedStaticCollectionSpec categoriesForMethods!
 allAdditionsTo:!change detection!public! !
-changesTo:from:comparisonMap:!change detection!private! !
+changesTo:from:!change detection!public! !
 elementRemovalClass!change detection!constants!private! !
 entryClass!constants!public! !
-equalityChangesTo:from:!change detection!private! !
 freePreparedStatements!initialize/release!public! !
-identityChangesTo:from:!change detection!private! !
 indexField!accessing!public! !
 indexField:!accessing!public! !
-keyUpdateClass!change detection!constants!private! !
 shouldCompareKeysByEquality!change detection!private!testing! !
-updateEntry:withIndex:in:!actions - api!public! !
+updateEntry:withTarget:in:!actions - api!public! !
 !
 

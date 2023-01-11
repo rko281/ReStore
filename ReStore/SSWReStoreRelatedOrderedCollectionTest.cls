@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedOrderedCollectionTest
 	instanceVariableNames: ''
@@ -15,6 +15,10 @@ https://github.com/rko281/ReStore'!
 componentDefinition
 
 	^OrderedCollection of: GenericOwnedTest related!
+
+duplicateInCollection: aCollection
+
+	^aCollection at: 1 put: aCollection last!
 
 replaceInCollection: aCollection
 
@@ -72,6 +76,16 @@ testCommitComponentSwap
 	self assert: (collection last name = first name).
 !
 
+testDuplicateEntries
+
+	"Ensure duplicate entries are handled correctly"
+
+	self duplicateInCollection.
+
+	"This should just involve an update of the value of the entry to which the duplicate has been assigned.
+	Previously this would update the duplicated entry's key, add a new entry for the original and delete the original entry"
+	self assert: (self countQueriesDuring: [testObject store]) equals: (1 "for the update" + (self componentDefinition isValueDependent ifTrue: [1] ifFalse: [0]) "1 for the deletion of the overwritten item (if dependent)")!
+
 testRollbackComponentSwap
 
 	"Only relevant to non-owned"
@@ -91,10 +105,14 @@ testRollbackComponentSwap
 	reStore rollback: testObject withRelatedComponents.
 	self assert: (collection first == first).
 	self assert: (collection last == last)! !
-!SSWReStoreRelatedOrderedCollectionTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreRelatedOrderedCollectionTest categoriesFor: #replaceInCollection:!public! !
-!SSWReStoreRelatedOrderedCollectionTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreRelatedOrderedCollectionTest categoriesFor: #testCheckHasChangedComponentSwap!public!unit tests! !
-!SSWReStoreRelatedOrderedCollectionTest categoriesFor: #testCommitComponentSwap!public!unit tests! !
-!SSWReStoreRelatedOrderedCollectionTest categoriesFor: #testRollbackComponentSwap!public!unit tests! !
+!SSWReStoreRelatedOrderedCollectionTest categoriesForMethods!
+componentDefinition!accessing!public! !
+duplicateInCollection:!private! !
+replaceInCollection:!public! !
+templateCollection!accessing!public! !
+testCheckHasChangedComponentSwap!public!unit tests! !
+testCommitComponentSwap!public!unit tests! !
+testDuplicateEntries!public!unit tests! !
+testRollbackComponentSwap!public!unit tests! !
+!
 

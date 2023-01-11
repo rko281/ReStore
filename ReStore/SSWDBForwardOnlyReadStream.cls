@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBReadStream subclass: #SSWDBForwardOnlyReadStream
 	instanceVariableNames: ''
@@ -9,6 +9,13 @@ SSWDBForwardOnlyReadStream guid: (GUID fromString: '{b1562d82-aa7b-4fc6-a62d-a25
 SSWDBForwardOnlyReadStream comment: ''!
 !SSWDBForwardOnlyReadStream categoriesForClass!Unclassified! !
 !SSWDBForwardOnlyReadStream methodsFor!
+
+evaluatePostReadActionsFor: aCollection
+
+	"We can't back-up so if we're at the end free things up"
+	self atEnd ifTrue: [self close].
+
+	^super evaluatePostReadActionsFor: aCollection!
 
 position: anInteger
 
@@ -22,6 +29,7 @@ resetResultsSet
 	collection isNil ifFalse: [collection free].
 	self reinitialize! !
 !SSWDBForwardOnlyReadStream categoriesForMethods!
+evaluatePostReadActionsFor:!evaluating!private! !
 position:!positioning!public! !
 resetResultsSet!positioning!public! !
 !

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 DBConnection subclass: #SSWODBCConnection
 	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions queryCount'

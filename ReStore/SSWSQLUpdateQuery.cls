@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLConditionalQuery subclass: #SSWSQLUpdateQuery
 	instanceVariableNames: 'fieldUpdates'
@@ -26,6 +26,10 @@ fieldUpdates: anSSWSQLFieldCollection
 	
 	fieldUpdates := anSSWSQLFieldCollection !
 
+isWriteQuery
+
+	^true!
+
 parameterisedFields
 
 	| parameterisedFields |
@@ -47,8 +51,11 @@ writeSQLOn: aStream
 	self fieldUpdates writeSQLOn: aStream.
 	
 	self writeWhereClauseOn: aStream! !
-!SSWSQLUpdateQuery categoriesFor: #fieldUpdates!accessing!public! !
-!SSWSQLUpdateQuery categoriesFor: #fieldUpdates:!accessing!public! !
-!SSWSQLUpdateQuery categoriesFor: #parameterisedFields!evaluating!public! !
-!SSWSQLUpdateQuery categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLUpdateQuery categoriesForMethods!
+fieldUpdates!accessing!public! !
+fieldUpdates:!accessing!public! !
+isWriteQuery!public!testing! !
+parameterisedFields!evaluating!public! !
+writeSQLOn:!output!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreRelatedOrderedCollectionTest subclass: #SSWReStoreDependentOrderedCollectionTest
 	instanceVariableNames: ''
@@ -24,6 +24,8 @@ _testComponentExistenceOnDependency: component
 componentDefinition
 
 	^OrderedCollection of: GenericOwnedTest dependent! !
-!SSWReStoreDependentOrderedCollectionTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!private! !
-!SSWReStoreDependentOrderedCollectionTest categoriesFor: #componentDefinition!accessing!public! !
+!SSWReStoreDependentOrderedCollectionTest categoriesForMethods!
+_testComponentExistenceOnDependency:!helpers!private! !
+componentDefinition!accessing!public! !
+!
 

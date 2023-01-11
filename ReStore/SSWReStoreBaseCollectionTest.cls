@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreGenericTest subclass: #SSWReStoreBaseCollectionTest
 	instanceVariableNames: ''
@@ -85,6 +85,16 @@ testCommit
 
 	self _testCommit: testObject!
 
+testDuplicateEntries
+
+	"Ensure duplicate entries are handled correctly"
+
+	testObject component at: 1 put: (testObject component at: 3).
+
+	"This should just involve an update of the value of the first entry.
+	Previously this would update the third entry's key to 1, add a new third entry and delete the original third entry"
+	self assert: (self countQueriesDuring: [testObject store]) equals: 1!
+
 testHasChanged
 
 	| key |
@@ -154,6 +164,7 @@ removeFromCollection:!helpers!private!unit tests! !
 removeFromCollection:at:!helpers!private!unit tests! !
 templateTestObject!accessing!public! !
 testCommit!public!unit tests! !
+testDuplicateEntries!public!unit tests! !
 testHasChanged!public!unit tests! !
 testRefresh!public!unit tests! !
 testRollback!public!unit tests! !

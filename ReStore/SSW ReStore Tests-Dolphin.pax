@@ -23,6 +23,7 @@ package methodNames
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern3a;
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern3b;
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern4;
+	add: #SSWODBCStatement -> #freeIgnoringFinalizer;
 	add: #SSWReStoreBlockAndOrQueryTest -> #note;
 	add: #SSWReStoreDebugTest -> #evaluateIsInIDECallStackIn:;
 	add: #SSWReStoreDebugTest -> #testBasicInspectorIsInIDECallStack;
@@ -72,6 +73,8 @@ package methodNames
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3b;
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern4;
 	add: #SSWReStoreQueryTest -> #testQueryWithIfTrueMethodFollowedByOr;
+	add: #SSWReStoreResourcesTest -> #_testStatementFinalizedAfter:;
+	add: #SSWReStoreResourcesTest -> #_testStatementFreedAfter:;
 	add: #SSWReStoreTableTest -> #test21VerifyLegacyNameTransformationMode;
 	add: #SSWReStoreTest -> #addMethod:withSelector:toClass:;
 	add: #SSWReStoreTest -> #debugStream;
@@ -102,6 +105,8 @@ package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
 	'..\Core\Object Arts\Dolphin\MVP\Models\Value\Dolphin Value Models'
 	'SSW ReStore Main'
+	'SSW ReStore ODBC'
+	'SSW ReStore SQL Queries'
 	'SSW ReStore Tests').
 
 package!
@@ -203,6 +208,15 @@ testNotNilJumpBytecodePattern2!public!testing! !
 testNotNilJumpBytecodePattern3a!public!testing! !
 testNotNilJumpBytecodePattern3b!public!testing! !
 testNotNilJumpBytecodePattern4!public!testing! !
+!
+
+!SSWODBCStatement methodsFor!
+
+freeIgnoringFinalizer
+
+	Processor activeProcess == MemoryManager current finalizer ifFalse: [super free]! !
+!SSWODBCStatement categoriesForMethods!
+freeIgnoringFinalizer!operations!public! !
 !
 
 !SSWReStoreBlockAndOrQueryTest methodsFor!
@@ -897,6 +911,40 @@ testQueryWithIfTrueMethodFollowedByOr
 	self assert: ((smiths collect: [ :each | each firstName]) asSortedCollection asArray) equals: #('John' 'Zoe')! !
 !SSWReStoreQueryTest categoriesForMethods!
 testQueryWithIfTrueMethodFollowedByOr!public!unit tests! !
+!
+
+!SSWReStoreResourcesTest methodsFor!
+
+_testStatementFinalizedAfter: aBlock
+
+	| templateStatement prevStatements newStatements |
+
+	templateStatement := reStore prepareStatementForQuery: (SSWSQLSelectQuery new table: (reStore tableForClass: SimplePerson); conditions: #(); yourself).
+	prevStatements := templateStatement class allInstances.
+
+	aBlock value.
+	MemoryManager current collectGarbage; collectGarbage; administerLastRites.
+	newStatements := templateStatement class allInstances difference: prevStatements.
+	self assert: (newStatements allSatisfy: [ :each | each handle isNull]).
+
+	templateStatement free!
+
+_testStatementFreedAfter: aBlock
+
+	| templateStatement prevStatements newStatements |
+
+	templateStatement := reStore prepareStatementForQuery: (SSWSQLSelectQuery new table: (reStore tableForClass: SimplePerson); conditions: #(); yourself).
+	prevStatements := templateStatement class allInstances.
+
+	self addMethod: (SSWODBCStatement>>#freeIgnoringFinalizer) withSelector: #free toClass: SSWODBCStatement.
+	[aBlock value.
+	newStatements := templateStatement class allInstances difference: prevStatements.
+	self assert: (newStatements allSatisfy: [ :each | each handle isNull])] ensure: [self removeSelector: #free fromClass: SSWODBCStatement].
+
+	templateStatement free! !
+!SSWReStoreResourcesTest categoriesForMethods!
+_testStatementFinalizedAfter:!helpers!private! !
+_testStatementFreedAfter:!helpers!private! !
 !
 
 !SSWReStoreTableTest methodsFor!

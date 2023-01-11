@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 PositionableStream subclass: #SSWDBReadStream
 	instanceVariableNames: 'instancesCollection peeked'
@@ -23,10 +23,10 @@ basicNext
 
 close
 
-	"Close the DBResultSet (and hence the DBStatement).
+	"Free the DBResultSet (and hence the DBStatement).
 	Not essential as finalization will do this, but it is good practice"
 	
-	collection close!
+	collection free!
 
 collectionNext
 

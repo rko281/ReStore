@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedDictionaryTest
 	instanceVariableNames: ''
@@ -35,6 +35,13 @@ addToCollectionAnsweringKey
 componentDefinition
 
 	^(Dictionary of: GenericOwnedTest -> GenericOwnedTest related)!
+
+duplicateInCollection: aCollection
+
+	| keys |
+
+	keys := aCollection keys asArray.
+	^aCollection at: keys first put: (aCollection at: keys last)!
 
 remove: anObject fromCollection: aCollection
 
@@ -99,6 +106,16 @@ testDependencyDeleteOnRepeatedRemoval
 
 	self _testComponentExistenceOnDependency: component!
 
+testDuplicateEntries
+
+	"Ensure duplicate entries are handled correctly"
+
+	self duplicateInCollection.
+
+	"This should just involve an update of the value of the entry to which the duplicate has been assigned.
+	Previously this would update the duplicated entry's key, add a new entry for the original and delete the original entry"
+	self assert: (self countQueriesDuring: [testObject store]) equals: (1 "for the update" + (self componentDefinition isValueDependent ifTrue: [1] ifFalse: [0]) "1 for the deletion of the overwritten item (if dependent)")!
+
 testIncludesAssociation
 
 	| instances existingAssoc newAssoc template templateKey matches |
@@ -150,11 +167,22 @@ addToCollectionAnsweringAssociation!helpers!private! !
 addToCollectionAnsweringAssociation:!helpers!private! !
 addToCollectionAnsweringKey!helpers!private! !
 componentDefinition!accessing!public! !
+duplicateInCollection:!private! !
 remove:fromCollection:!helpers!private! !
 replaceInCollection:!public! !
 templateCollection!accessing!public! !
 testDependencyDeleteOnRepeatedRemoval!public! !
+testDuplicateEntries!public!unit tests! !
 testIncludesAssociation!public!unit tests! !
 testIncludesKey!public!unit tests! !
+!
+
+!SSWReStoreRelatedDictionaryTest class methodsFor!
+
+multipleOccurrenceTestSelectors
+
+	^super multipleOccurrenceTestSelectors, #(#testDuplicateEntries)! !
+!SSWReStoreRelatedDictionaryTest class categoriesForMethods!
+multipleOccurrenceTestSelectors!public! !
 !
 

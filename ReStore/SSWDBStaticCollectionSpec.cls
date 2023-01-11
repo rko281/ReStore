@@ -97,34 +97,6 @@ deleteQueryWithSubQuery
 		conditions: (SSWSQLCondition field: self targetTable idField is: (SSWSQLOperator messageSelector: #includedIn:) to: subquery asSubQuery);
 		yourself!
 
-equalityChangesTo: aCollection from: aCollectionOfEntries
-
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via equality (=)"
-
-	| changes previous |
-
-	changes := OrderedCollection new.
-	previous := aCollectionOfEntries collect: [ :entry | entry target].
-
-	aCollection do: [ :each | (previous includes: each) ifFalse: [changes add: (SSWDBCollectionAddition added: each)]].
-	aCollectionOfEntries do: [ :entry | (aCollection includes: entry target) ifFalse: [changes add: (SSWDBCollectionRemoval newWithEntry: entry)]].
-
-	^changes!
-
-identityChangesTo: aCollection from: aCollectionOfEntries
-
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via identity (==)"
-
-	| changes previous |
-
-	changes := OrderedCollection new.
-	previous := aCollectionOfEntries collect: [ :entry | entry target].
-
-	aCollection do: [ :each | (previous identityIncludes: each) ifFalse: [changes add: (SSWDBCollectionAddition added: each)]].
-	aCollectionOfEntries do: [ :entry | (aCollection identityIncludes: entry target) ifFalse: [changes add: (SSWDBCollectionRemoval newWithEntry: entry)]].
-
-	^changes!
-
 preserveCollectionEntries: aCollection
 
 	"Private - If the collection stored mutatable directly-persisted objects then we must use a shallowCopy of these for change detection"
@@ -385,8 +357,6 @@ deleteEntriesStatement!accessing!public! !
 deleteQuery!accessing-queries!public! !
 deleteQueryWithJoin!accessing-queries!private! !
 deleteQueryWithSubQuery!accessing-queries!private! !
-equalityChangesTo:from:!change detection!private! !
-identityChangesTo:from:!change detection!private! !
 preserveCollectionEntries:!actions-internal!private! !
 readAllEntriesFor:!actions!private! !
 readAllFor:!actions!public! !

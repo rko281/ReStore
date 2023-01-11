@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBOrderedStaticCollectionSpec subclass: #SSWDBArrayedStaticCollectionSpec
 	instanceVariableNames: ''
@@ -10,9 +10,9 @@ SSWDBArrayedStaticCollectionSpec comment: ''!
 !SSWDBArrayedStaticCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBArrayedStaticCollectionSpec methodsFor!
 
-equalityChangesTo: aCollection from: aCollectionOfEntries
+changesTo: aCollection from: aCollectionOfEntries
 
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via equality (=).
+	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries.
 	For an array, there are no additions or removals - just updates"
 
 	| entriesSize changes |
@@ -27,32 +27,10 @@ equalityChangesTo: aCollection from: aCollectionOfEntries
 			[each isNil ifFalse: [changes add: (SSWDBCollectionAddition added: each at: index)]]
 		ifFalse:
 			[entry := aCollectionOfEntries at: index.
-			entry target = each ifFalse: [changes add: (SSWDBCollectionUpdate entry: entry newTarget: each)]]].
-
-	^changes!
-
-identityChangesTo: aCollection from: aCollectionOfEntries
-
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via identity (==).
-	For an array, there are no additions or removals - just updates"
-
-	| entriesSize changes |
-
-	entriesSize := aCollectionOfEntries size. 
-	changes := OrderedCollection new: (aCollection size // 10).
-
-	aCollection keysAndValuesDo:
-		[ :index :each || entry |
-		index > entriesSize
-		ifTrue:
-			[each isNil ifFalse: [changes add: (SSWDBCollectionAddition added: each at: index)]]
-		ifFalse:
-			[entry := aCollectionOfEntries at: index.
-			entry target == each ifFalse: [changes add: (SSWDBCollectionUpdate entry: entry newTarget: each)]]].
+			(entry target == each or: [self shouldCompareChangesByEquality and: [entry target = each]]) ifFalse: [changes add: (SSWDBCollectionUpdate entry: entry newTarget: each)]]].
 
 	^changes! !
 !SSWDBArrayedStaticCollectionSpec categoriesForMethods!
-equalityChangesTo:from:!change detection!private! !
-identityChangesTo:from:!change detection!private! !
+changesTo:from:!change detection!public! !
 !
 

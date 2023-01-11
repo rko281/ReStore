@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBKeyedStaticCollectionSpec subclass: #SSWDBOrderedStaticCollectionSpec
-	instanceVariableNames: 'updateTargetStatement'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -23,14 +23,6 @@ dbInstancesFor: aCollectionProxy
 
 	^instances!
 
-freePreparedStatements
-
-	updateTargetStatement notNil ifTrue: 
-		[updateTargetStatement free.
-		updateTargetStatement := nil].
-
-	super freePreparedStatements!
-
 queryClass
 
 	"Return the class of select query appropriate for the receiver"
@@ -43,26 +35,10 @@ selectQueryIn: anSSWReStore
 	
 	^(super selectQueryIn: anSSWReStore)
 		orderAscendingBy: (self collectionTable fieldAccessing: #index);
-		yourself!
-
-updateEntry: anSSWDBCollectionEntry withTarget: aProxy in: anSSWReStore 
-
-	| query |
-
-	query := SSWSQLUpdateObjectQuery 
-			forObject: anSSWDBCollectionEntry
-			withUpdates: 
-				(SSWSQLFieldAssignmentCollection with:
-					(SSWSQLFieldAssignment 
-						field: self targetField
-						value: aProxy)).
-
-	(updateTargetStatement ifNil: [updateTargetStatement := anSSWReStore prepareStatementForQuery: query])
-		values: query values;
-		exec! !
-!SSWDBOrderedStaticCollectionSpec categoriesFor: #dbInstancesFor:!accessing:derived!public! !
-!SSWDBOrderedStaticCollectionSpec categoriesFor: #freePreparedStatements!initialize/release!public! !
-!SSWDBOrderedStaticCollectionSpec categoriesFor: #queryClass!constants!public! !
-!SSWDBOrderedStaticCollectionSpec categoriesFor: #selectQueryIn:!accessing:derived!public! !
-!SSWDBOrderedStaticCollectionSpec categoriesFor: #updateEntry:withTarget:in:!actions - api!public! !
+		yourself! !
+!SSWDBOrderedStaticCollectionSpec categoriesForMethods!
+dbInstancesFor:!accessing:derived!public! !
+queryClass!constants!public! !
+selectQueryIn:!accessing:derived!public! !
+!
 

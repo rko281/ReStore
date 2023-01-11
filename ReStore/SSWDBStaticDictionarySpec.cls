@@ -131,12 +131,6 @@ keyTableForRefresh
 
 	^keyTableForRefresh!
 
-keyUpdateClass
-
-	"Return the class of change object representing a key update for the type of collection modelled by the receiver"
-
-	^SSWDBCollectionKeyUpdate!
-
 readAllEntriesFor: ids
 
 	| stream allEntries statement targetTable keyTable |
@@ -319,7 +313,6 @@ keyClass:!accessing!public! !
 keyTable!accessing!public! !
 keyTableForRead!accessing!public! !
 keyTableForRefresh!accessing!public! !
-keyUpdateClass!change detection!constants!private! !
 readAllEntriesFor:!actions-internal!private! !
 readAllFor:!actions-internal!private! !
 readQuery!accessing-queries!public! !

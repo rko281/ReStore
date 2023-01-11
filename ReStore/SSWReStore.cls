@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWReStore
 	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging'
@@ -736,7 +736,7 @@ executeQuery: anSSWSQLQuery cursoredFetch: aBoolean
 		statement := self connection executeQuery: anSSWSQLQuery cursoredFetch: aBoolean.
 		anSSWSQLQuery isReadQuery
 			ifTrue: [statement results]
-			ifFalse: [statement rowsAffected]]!
+			ifFalse: [[statement rowsAffected] ensure: [statement free]]]!
 
 executeSQL: aString
 
@@ -1447,7 +1447,7 @@ rowFromQuery: anSSWSQLQuery
 
 	row := results first.
 		
-	results close.
+	results free.
 	
 	^row!
 
@@ -1459,7 +1459,7 @@ rowsFromQuery: anSSWSQLQuery do: aBlock
 
 	 results 
 		do: [ :row | aBlock value: row];
-		close!
+		free!
 
 rowsFromStatement: aDBPreparedStatement do: aBlock
 

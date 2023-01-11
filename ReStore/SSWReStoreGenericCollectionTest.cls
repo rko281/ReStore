@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreGenericTest subclass: #SSWReStoreGenericCollectionTest
 	instanceVariableNames: 'collection'
@@ -52,6 +52,14 @@ detect: aBlock
 detect: aBlock ifNone: absentBlock
 
 	^collection detect: aBlock ifNone: absentBlock!
+
+duplicateInCollection
+
+	^self duplicateInCollection: collection!
+
+duplicateInCollection: aCollection
+
+	"optional - implement where necessary" !
 
 fetchTestObjects
 
@@ -294,6 +302,8 @@ anySatisfy:!collection behavior!private! !
 componentDefinitionIsDependent!private!testing! !
 detect:!collection behavior!private! !
 detect:ifNone:!collection behavior!private! !
+duplicateInCollection!helpers!public! !
+duplicateInCollection:!private! !
 fetchTestObjects!public! !
 includes:!collection behavior!private! !
 remove:fromCollection:!helpers!private! !

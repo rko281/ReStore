@@ -1,6 +1,6 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
-SSWDBStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
+SSWDBHashedStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
 	classVariableNames: ''
 	poolDictionaries: ''

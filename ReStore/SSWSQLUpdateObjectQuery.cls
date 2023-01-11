@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLObjectQuery subclass: #SSWSQLUpdateObjectQuery
 	instanceVariableNames: 'fieldUpdates'
@@ -32,7 +32,7 @@ parameterisedFields
 
 	^self updatedFields
 		add: self table idField;
-		addAll: self table controlFields;
+		addAll: (self table controlFields reject: [ :each | (each accessor valueIn: self object) isNil]);
 		yourself!
 
 updatedFields
@@ -64,7 +64,7 @@ values
 	parameterisedValues := self updatedValues.
 
 	parameterisedValues add: self object _id.
-	self objectControlConditions do: [ :each | parameterisedValues add: each value].
+	self objectControlConditions do: [ :each | each value ifNotNil: [ :value | parameterisedValues add: value]].
 
 	^parameterisedValues!
 
@@ -78,13 +78,15 @@ writeSQLOn: aStream
 	
 	aStream nextPutAll: ' WHERE '.
 	(self objectIDCondition sqlAnd: self objectControlConditions) writeSQLOn: aStream! !
-!SSWSQLUpdateObjectQuery categoriesFor: #fieldUpdates!accessing!public! !
-!SSWSQLUpdateObjectQuery categoriesFor: #fieldUpdates:!accessing!public! !
-!SSWSQLUpdateObjectQuery categoriesFor: #parameterisedFields!accessing!public! !
-!SSWSQLUpdateObjectQuery categoriesFor: #updatedFields!accessing!public! !
-!SSWSQLUpdateObjectQuery categoriesFor: #updatedValues!accessing!public! !
-!SSWSQLUpdateObjectQuery categoriesFor: #values!accessing!public! !
-!SSWSQLUpdateObjectQuery categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLUpdateObjectQuery categoriesForMethods!
+fieldUpdates!accessing!public! !
+fieldUpdates:!accessing!public! !
+parameterisedFields!accessing!public! !
+updatedFields!accessing!public! !
+updatedValues!accessing!public! !
+values!accessing!public! !
+writeSQLOn:!output!public! !
+!
 
 !SSWSQLUpdateObjectQuery class methodsFor!
 
@@ -93,5 +95,7 @@ forObject: aProxydObject withUpdates: anSSWSQLCollection
 	^(super forObject: aProxydObject)
 		fieldUpdates: anSSWSQLCollection;
 		yourself! !
-!SSWSQLUpdateObjectQuery class categoriesFor: #forObject:withUpdates:!instance creation!public! !
+!SSWSQLUpdateObjectQuery class categoriesForMethods!
+forObject:withUpdates:!instance creation!public! !
+!
 

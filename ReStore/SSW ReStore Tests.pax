@@ -136,6 +136,7 @@ package classNames
 	add: #SSWReStoreRelatedOwnedSortedCollectionTest;
 	add: #SSWReStoreRelatedSortedCollectionTest;
 	add: #SSWReStoreRemoteTest;
+	add: #SSWReStoreResourcesTest;
 	add: #SSWReStoreSortTest;
 	add: #SSWReStoreSpeedTest;
 	add: #SSWReStoreSQLInjectionTest;
@@ -191,6 +192,7 @@ package setPrerequisites: #(
 	'SSW ReStore MVP'
 	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities'
+	'SSW ReStore SQL Queries'
 	'SSW ReStore Tables'
 	'..\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
 
@@ -797,6 +799,11 @@ SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryByExampleTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreResourcesTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

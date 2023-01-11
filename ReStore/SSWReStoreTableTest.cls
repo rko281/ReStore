@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreTableTest
 	instanceVariableNames: ''
@@ -446,6 +446,18 @@ test20QueryRelatedHierarchy
 	self assert: (((DetailedPerson1 storedInstancesIn: reStore) select: [ :e | 'Jon*' match: e friend2 surname]) size = 1).
 	self assert: (((DetailedPerson1 storedInstancesIn: reStore) detect: [ :e | 'Jon*' match: e friend2 surname]) firstName = 'John')!
 
+test22VerifyUnderscoreFormat
+
+	"General testing of sswInUnderscoreFormat"
+
+	self assert: #basic sswInUnderscoreFormat equals: 'basic'.
+	self assert: #basicOne sswInUnderscoreFormat equals: 'basic_one'.
+	self assert: #basicOneTwo sswInUnderscoreFormat equals: 'basic_one_two'.
+
+	self assert: #basic1 sswInUnderscoreFormat equals: 'basic1'.
+	self assert: #basic1two sswInUnderscoreFormat equals: 'basic1two'.
+	self assert: #basic1Two sswInUnderscoreFormat equals: 'basic1_two'!
+
 test30VerifySpecifiedFieldNames
 
 	| table instances |
@@ -508,6 +520,7 @@ test16ChangeInstVarClassHierarchy!public!unit tests! !
 test17AlterInstVarHierarchy!public!unit tests! !
 test19DestroyTable!public!unit tests! !
 test20QueryRelatedHierarchy!public!unit tests! !
+test22VerifyUnderscoreFormat!public! !
 test30VerifySpecifiedFieldNames!public! !
 !
 

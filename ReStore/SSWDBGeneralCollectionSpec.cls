@@ -23,9 +23,7 @@ changesTo: aCollection from: aCollectionOfEntries
 
 	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries"
 
-	^self shouldCompareChangesByEquality
-		ifTrue: [self equalityChangesTo: aCollection from: aCollectionOfEntries]
-		ifFalse: [self identityChangesTo: aCollection from: aCollectionOfEntries]!
+	^self subclassResponsibility!
 
 collectionTable
 
@@ -74,21 +72,9 @@ entryClass
 	
 	^SSWDBCollectionEntry!
 
-equalityChangesTo: aCollection from: aCollectionOfEntries
-
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via equality (=)"
-
-	^self subclassResponsibility!
-
 hasMutableElements
 
 	^self targetClass isMutableDirectlyPersistedNonBaseClass!
-
-identityChangesTo: aCollection from: aCollectionOfEntries
-
-	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries, comparing via identity (==)"
-
-	^self subclassResponsibility!
 
 insertEntry: anSSWDBCollectionEntry
 
@@ -153,9 +139,7 @@ containedTables!evaluating!public! !
 createCollectionTable!initializing!public! !
 deleteEntry:!actions - api!public! !
 entryClass!constants!public! !
-equalityChangesTo:from:!change detection!private! !
 hasMutableElements!public!testing! !
-identityChangesTo:from:!change detection!private! !
 insertEntry:!actions - api!public! !
 queryClass!constants!public! !
 shouldCompareChangesByEquality!change detection!private!testing! !
