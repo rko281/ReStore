@@ -32,7 +32,6 @@ package classNames
 	add: #SSWDBStaticCacheDictionarySpec;
 	add: #SSWDBStaticCollectionSpec;
 	add: #SSWDBStaticDictionarySpec;
-	add: #SSWDBStaticIdentitySetSpec;
 	add: #SSWDBStaticMultiValueCacheDictionarySpec;
 	yourself.
 
@@ -68,7 +67,6 @@ package methodNames
 	add: #Dictionary -> #staticCollectionSpecClass;
 	add: #Dictionary -> #staticDictionarySpecClass;
 	add: #Dictionary -> #staticMultiValueCacheDictionarySpecClass;
-	add: #IdentitySet -> #staticCollectionSpecClass;
 	add: #SequenceableCollection -> #isOrdered;
 	add: #SequenceableCollection -> #staticCollectionSpecClass;
 	add: #Set -> #staticCollectionSpecClass;
@@ -195,11 +193,6 @@ SSWDBStaticCollectionSpec subclass: #SSWDBSortedStaticCollectionSpec
 	classInstanceVariableNames: ''!
 SSWDBHashedStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWDBHashedStaticCollectionSpec subclass: #SSWDBStaticIdentitySetSpec
-	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -565,15 +558,6 @@ staticCacheDictionarySpecClass!private!specification! !
 staticCollectionSpecClass!constants!private! !
 staticDictionarySpecClass!private!specification! !
 staticMultiValueCacheDictionarySpecClass!private!specification! !
-!
-
-!IdentitySet methodsFor!
-
-staticCollectionSpecClass 
-
-	^SSWDBStaticIdentitySetSpec! !
-!IdentitySet categoriesForMethods!
-staticCollectionSpecClass!constants!private! !
 !
 
 !SequenceableCollection methodsFor!
