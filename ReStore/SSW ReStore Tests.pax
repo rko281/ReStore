@@ -14,6 +14,7 @@ package classNames
 	add: #DetailedPerson;
 	add: #DetailedPerson1;
 	add: #DetailedPerson2;
+	add: #EncryptedPerson;
 	add: #FieldNameTest;
 	add: #GenericOwnedTest;
 	add: #GenericTest;
@@ -75,6 +76,7 @@ package classNames
 	add: #SSWReStoreDependentOwnedSortedCollectionTest;
 	add: #SSWReStoreDependentSortedCollectionTest;
 	add: #SSWReStoreDirectlyPersistedTest;
+	add: #SSWReStoreEncryptionTest;
 	add: #SSWReStoreEventsTest;
 	add: #SSWReStoreFullTableTest;
 	add: #SSWReStoreFunctionTest;
@@ -194,7 +196,8 @@ package setPrerequisites: #(
 	'SSW ReStore SQL Entities'
 	'SSW ReStore SQL Queries'
 	'SSW ReStore Tables'
-	'..\Core\Contributions\Camp Smalltalk\SUnit\SUnit').
+	'..\Core\Contributions\Camp Smalltalk\SUnit\SUnit'
+	'..\Core\Object Arts\Dolphin\System\Win32\Windows Data Protection API').
 
 package setManualPrerequisites: #(
 	'SSW ReStore MVP').
@@ -205,6 +208,11 @@ package!
 
 Object subclass: #AbstractA
 	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+Object subclass: #EncryptedPerson
+	instanceVariableNames: 'name dateOfBirth identifier isEncrypted'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -400,6 +408,11 @@ TestCase subclass: #SSWReStoreTest
 	classInstanceVariableNames: 'queryCount'!
 SSWReStoreTest subclass: #SSWReStore2Test
 	instanceVariableNames: 'reStore2'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWReStoreTest subclass: #SSWReStoreEncryptionTest
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

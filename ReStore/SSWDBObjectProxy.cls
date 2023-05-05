@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBProxy subclass: #SSWDBObjectProxy
 	instanceVariableNames: 'class id collectionProxies'
@@ -253,7 +253,9 @@ _postSwapReferences
 
 _prepareToCommit
 
-	self _isDeleted ifFalse: [self _storeNonPersistentComponents]!
+	self _isDeleted ifFalse: 
+		[self _storeNonPersistentComponents.
+		proxiedObject onAboutToStore]!
 
 _proxiedClassIsDefinitive
 

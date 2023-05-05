@@ -80,6 +80,7 @@ package methodNames
 	add: #Object -> #isValidForPersistence;
 	add: #Object -> #mergeUpdate:from:;
 	add: #Object -> #mergeUpdateFrom:newValue:accessor:;
+	add: #Object -> #onAboutToStore;
 	add: #Object -> #onAboutToUnstore;
 	add: #Object -> #onRecovered;
 	add: #Object -> #onRefresh;
@@ -702,6 +703,10 @@ mergeUpdateFrom: newVersion newValue: newValue accessor: anInstVarAccessor
 		anInstVarAccessor value: newValue in: self.
 		true]!
 
+onAboutToStore
+
+	"The receiver is about to be stored in the database - either inserted or updated, but not unstored"!
+
 onAboutToUnstore
 
 	"The receiver is about to be unstored from its ReStore container - carry out any necessary actions.
@@ -913,6 +918,7 @@ isPersistent!public!restore-api!testing! !
 isValidForPersistence!private!restore-internal! !
 mergeUpdate:from:!public!restore-update clash handling! !
 mergeUpdateFrom:newValue:accessor:!private!restore-update clash handling! !
+onAboutToStore!public!restore-event handling! !
 onAboutToUnstore!public!restore-event handling! !
 onRecovered!public!restore-event handling! !
 onRefresh!public!restore-event handling! !

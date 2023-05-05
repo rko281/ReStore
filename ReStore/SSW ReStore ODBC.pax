@@ -25,6 +25,7 @@ package methodNames
 	add: #DBErrorDetails -> #isInvalidCursorPosition;
 	add: #DBErrorDetails -> #isInvalidTransactionState;
 	add: #ODBCLibrary -> #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:;
+	add: #SSWDBClassWithTransformation -> #dbMaxFieldSize;
 	add: #SSWDBField -> #asParameterColumn:for:;
 	add: #SSWDBField -> #columnIn:;
 	add: #SSWDBFunctionField -> #asParameterColumn:for:;
@@ -215,6 +216,15 @@ sqlDescribeParam: anExternalHandle parameterNumber: columnInteger dataTypePtr: t
 	^self invalidCall: _failureCode! !
 !ODBCLibrary categoriesForMethods!
 sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:!public!win32 functions-odbc library! !
+!
+
+!SSWDBClassWithTransformation methodsFor!
+
+dbMaxFieldSize
+
+	^self databaseClass dbMaxFieldSize! !
+!SSWDBClassWithTransformation categoriesForMethods!
+dbMaxFieldSize!printing!public! !
 !
 
 !SSWDBField methodsFor!

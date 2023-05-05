@@ -11,6 +11,8 @@ package classNames
 	add: #SSWDBAbstractSubTable;
 	add: #SSWDBClassAccessor;
 	add: #SSWDBClassDefinition;
+	add: #SSWDBClassWithTransformation;
+	add: #SSWDBClassWithTransformationInstVarAccessor;
 	add: #SSWDBDependentWrapper;
 	add: #SSWDBDirectlyPersistedObject;
 	add: #SSWDBField;
@@ -163,6 +165,11 @@ SSWDBPrivateAccessor subclass: #SSWDBVersionAccessor
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWInstVarAccessor subclass: #SSWDBClassWithTransformationInstVarAccessor
+	instanceVariableNames: 'classWithTransformation'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWInstVarAccessor subclass: #SSWInlinedInstVarAccessor
 	instanceVariableNames: 'inlinedAccessor inlinedClass'
 	classVariableNames: ''
@@ -175,6 +182,11 @@ SSWInstVarAccessor subclass: #SSWMutableInstVarAccessor
 	classInstanceVariableNames: ''!
 SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
 	instanceVariableNames: 'transformation'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBClassWithInfo subclass: #SSWDBClassWithTransformation
+	instanceVariableNames: 'databaseClass toDatabaseTransformation toImageTransformation hasValueChangedBlock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

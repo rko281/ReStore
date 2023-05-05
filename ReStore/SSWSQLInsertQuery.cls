@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLObjectQuery subclass: #SSWSQLInsertQuery
 	instanceVariableNames: ''
@@ -28,7 +28,7 @@ values
 
 	"Return the values to be inserted by the receiver, as an SSWSQLFieldCollection"	
 
-	^self fields collect: [ :field | field accessor valueIn: self object]!
+	^self fields collect: [ :field | field accessor dbValueIn: self object]!
 
 writeSQLOn: aStream
 
@@ -44,8 +44,10 @@ writeSQLOn: aStream
 		position: (aStream position - 2); 
 		nextPut: $)
 ! !
-!SSWSQLInsertQuery categoriesFor: #fields!output!public! !
-!SSWSQLInsertQuery categoriesFor: #parameterisedFields!output!public! !
-!SSWSQLInsertQuery categoriesFor: #values!output!public! !
-!SSWSQLInsertQuery categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLInsertQuery categoriesForMethods!
+fields!output!public! !
+parameterisedFields!output!public! !
+values!output!public! !
+writeSQLOn:!output!public! !
+!
 

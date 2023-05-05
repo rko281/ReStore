@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWAccessor
 	instanceVariableNames: ''
@@ -24,6 +24,24 @@ accesses: aSymbol
 	named aSymbol"
 	
 	^self subclassResponsibility!
+
+dbValue: valueObject in: targetObject
+
+	"Set the attribute of targetObject which the receiver accesses to valueObject, as returned from the database (but after initial conversions).
+	Return the valueObject"
+	
+	^self value: valueObject in: targetObject!
+
+dbValueIn: anObject
+
+	"Extract and return the value of anObject which the receiver accesses, as it should be stored in aReStore.
+	Default - same as normal valueIn: "
+	
+	^self valueIn: anObject!
+
+hasValueChangedIn: anObject fromValueIn: anotherObject
+
+	^(self valueIn: anObject) _hasChangedFrom: (self valueIn: anotherObject)!
 
 isInlined
 
@@ -66,6 +84,9 @@ valueIn: anObject
 !SSWAccessor categoriesForMethods!
 access:in:!initializing!public! !
 accesses:!public!testing! !
+dbValue:in:!public!updating! !
+dbValueIn:!evaluating!public! !
+hasValueChangedIn:fromValueIn:!public!testing! !
 isInlined!public!testing! !
 name!evaluating!public! !
 value:in:!public!updating! !

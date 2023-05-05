@@ -47,11 +47,9 @@ _fieldUpdates
 	"Use the copy object to determine these"
 	
 	^self _dbTable dataFields inject: SSWSQLFieldAssignmentCollection new into: 
-		[ :updates :field || accessor current |
-		accessor := field accessor.
-		current := accessor valueIn: proxiedObject.
-		(current _hasChangedFrom: (accessor valueIn: copyObject)) ifTrue: 
-			[updates add: (SSWSQLFieldAssignment field: field value: current)].
+		[ :updates :field |
+		(field accessor hasValueChangedIn: proxiedObject fromValueIn: copyObject) ifTrue: 
+			[updates add: (SSWSQLFieldAssignment field: field value: (field accessor dbValueIn: proxiedObject))].
 		updates]!
 
 _forgetProxiedObject
