@@ -16,21 +16,6 @@ databaseClass
 databaseClass: anObject
 	databaseClass := anObject!
 
-defineAs: aSymbol in: aDBTable
-
-	| field |
-
-	field := aDBTable define: aSymbol asInstVarHolding: self.
-	field accessor: 
-		(SSWDBClassWithTransformationInstVarAccessor new
-			ownerClass: field accessor ownerClass;
-			slot: field accessor slot;
-			name: field accessor name;
-			classWithTransformation: self;
-			yourself).
-
-	^field!
-
 hasValueChangedBlock
 	^hasValueChangedBlock!
 
@@ -59,7 +44,6 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 !SSWDBClassWithTransformation categoriesForMethods!
 databaseClass!accessing!private! !
 databaseClass:!accessing!private! !
-defineAs:in:!accessing!public! !
 hasValueChangedBlock!accessing!private! !
 hasValueChangedBlock:!accessing!private! !
 infoClass!accessing!public! !

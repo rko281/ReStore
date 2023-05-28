@@ -48,8 +48,8 @@ _fieldUpdates
 	
 	^self _dbTable dataFields inject: SSWSQLFieldAssignmentCollection new into: 
 		[ :updates :field |
-		(field accessor hasValueChangedIn: proxiedObject fromValueIn: copyObject) ifTrue: 
-			[updates add: (SSWSQLFieldAssignment field: field value: (field accessor dbValueIn: proxiedObject))].
+		(field hasValueChangedIn: proxiedObject fromValueIn: copyObject) ifTrue: 
+			[updates add: (SSWSQLFieldAssignment field: field value: (field dbValueIn: proxiedObject))].
 		updates]!
 
 _forgetProxiedObject

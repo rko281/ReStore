@@ -28,7 +28,7 @@ values
 
 	"Return the values to be inserted by the receiver, as an SSWSQLFieldCollection"	
 
-	^self fields collect: [ :field | field accessor dbValueIn: self object]!
+	^self fields collect: [ :field | field dbValueIn: self object]!
 
 writeSQLOn: aStream
 

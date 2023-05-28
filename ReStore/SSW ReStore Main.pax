@@ -104,7 +104,13 @@ package methodNames
 	add: #Object -> #writeSQLOn:;
 	add: #Process -> #reStore;
 	add: #Process -> #reStore:;
+	add: #SSWDBClassWithInfo -> #_has:of:changedFrom:of:;
+	add: #SSWDBClassWithInfo -> #instanceFromDBValue:for:in:;
 	add: #SSWDBClassWithInfo -> #instanceFromDBValue:in:;
+	add: #SSWDBClassWithInfo -> #objectToStoreFor:in:;
+	add: #SSWDBClassWithTransformation -> #_has:of:changedFrom:of:;
+	add: #SSWDBClassWithTransformation -> #instanceFromDBValue:for:in:;
+	add: #SSWDBClassWithTransformation -> #objectToStoreFor:in:;
 	add: #SSWDBDateAndTimeWithResolution -> #instanceFromDBValue:in:;
 	add: #SSWDBGeneralCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBOwnedCollectionSpec -> #collectionProxyClass;
@@ -123,7 +129,10 @@ package methodNames
 	add: 'DateAndTime class' -> #instanceFromDBValue:in:;
 	add: 'Metaclass class' -> #instanceFromDBValue:in:;
 	add: 'Number class' -> #instanceFromDBValue:in:;
+	add: 'Object class' -> #_has:of:changedFrom:of:;
+	add: 'Object class' -> #instanceFromDBValue:for:in:;
 	add: 'Object class' -> #instanceFromDBValue:in:;
+	add: 'Object class' -> #objectToStoreFor:in:;
 	add: 'Object class' -> #preferredObjectProxyClass;
 	add: 'Object class' -> #storedInstances;
 	add: 'Object class' -> #storedInstancesIn:;
@@ -944,6 +953,24 @@ writeSQLOn:!public!restore-internal! !
 
 !Object class methodsFor!
 
+_has: anObject of: aPersistentObject changedFrom: anotherObject of: anotherPersistentObject
+
+	"Answer whether anObject (an instance variable of aPersistentObject, which is an instance of the receiver) 
+	has changed from anotherObject (an equivalent instance variable of anotherPeristentObject, of which aPersistentObject is generally a possibly-modified copy).
+	Implementations here should use knowlege of the receiver class and the persistentObjects.
+
+	Answer nil to defer to anObject to determine if it has changed from anotherObject (the default, usually some kind of equality test)"
+
+	^nil!
+
+instanceFromDBValue: aValue for: anObject in: anSSWReStore
+
+	"Return an instance of the receiver class that is specified by the given value/ReStore combination.
+	Implicit here is that the returned instance will be assigned as an inst var of aPersistentObject.
+	Default implementation - anObject is irrelevant"
+	
+	^self instanceFromDBValue: aValue in: anSSWReStore!
+
 instanceFromDBValue: aValue in: anSSWReStore
 
 	"Return an instance of the receiver class that is specified by the given value/ReStore combination.
@@ -953,6 +980,15 @@ instanceFromDBValue: aValue in: anSSWReStore
 	^aValue isNil
 		ifTrue: [nil]
 		ifFalse: [anSSWReStore deferredObjectOfClass: self withID: aValue]!
+
+objectToStoreFor: anObject in: aPersistentObject
+
+	"Answer the object to store to represent anObject, which is an instance variable of aPersistentObject (an instance of this class).
+	Note this is distinct from #reStoreValue which is sent to the result of this method and should answer the database value used to store an object.
+
+	Default - anObject itself"
+
+	^anObject!
 
 preferredObjectProxyClass 
 
@@ -972,7 +1008,10 @@ storedInstancesIn: aReStore
 
 	^aReStore instancesOf: self! !
 !Object class categoriesForMethods!
+_has:of:changedFrom:of:!instance creation!public! !
+instanceFromDBValue:for:in:!instance creation!public! !
 instanceFromDBValue:in:!instance creation!public! !
+objectToStoreFor:in:!persistency!public! !
 preferredObjectProxyClass!persistency!public! !
 storedInstances!persistency!public! !
 storedInstancesIn:!persistency!public! !
@@ -1002,11 +1041,45 @@ reStore:!accessing!public! !
 
 !SSWDBClassWithInfo methodsFor!
 
+_has: anObject of: aPersistentObject changedFrom: anotherObject of: anotherPersistentObject
+
+	^self infoClass _has: anObject of: aPersistentObject changedFrom: anotherObject of: anotherPersistentObject!
+
+instanceFromDBValue: aValue for: aPersistentObject in: aReStore
+
+	^self instanceFromDBValue: aValue in: aReStore!
+
 instanceFromDBValue: aValue in: aReStore
 
-	^self infoClass instanceFromDBValue: aValue in: aReStore! !
+	^self infoClass instanceFromDBValue: aValue in: aReStore!
+
+objectToStoreFor: anObject in: aPersistentObject
+
+	^self infoClass objectToStoreFor: anObject in: aPersistentObject! !
 !SSWDBClassWithInfo categoriesForMethods!
+_has:of:changedFrom:of:!public!testing! !
+instanceFromDBValue:for:in:!instance creation!public! !
 instanceFromDBValue:in:!instance creation!public! !
+objectToStoreFor:in:!instance creation!public! !
+!
+
+!SSWDBClassWithTransformation methodsFor!
+
+_has: anObject of: aPersistentObject changedFrom: anotherObject of: anotherPersistentObject
+
+	^(self hasValueChangedBlock ifNotNil: [ :block | block value: aPersistentObject value: anotherPersistentObject]) ifNil: [super _has: anObject of: aPersistentObject changedFrom: anotherObject of: anotherPersistentObject]!
+
+instanceFromDBValue: aValue for: aPersistentObject in: aReStore
+
+	^self instanceFromDBValue: (self toImageTransformation cull: aValue cull: aPersistentObject) in: aReStore!
+
+objectToStoreFor: anObject in: aPersistentObject
+
+	^self toDatabaseTransformation cull: anObject cull: aPersistentObject! !
+!SSWDBClassWithTransformation categoriesForMethods!
+_has:of:changedFrom:of:!public!testing! !
+instanceFromDBValue:for:in:!instance creation!public! !
+objectToStoreFor:in:!instance creation!public! !
 !
 
 !SSWDBDateAndTimeWithResolution methodsFor!

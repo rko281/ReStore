@@ -14,13 +14,13 @@ https://github.com/rko281/ReStore'!
 
 applyValueFromRow: aDBRow to: anObject
 
-	self accessor dbValue: (self convertValue: (aDBRow lookupField: self)) in: anObject!
+	self accessor value: (self convertValue: (aDBRow lookupField: self) for: anObject) in: anObject!
 
 applyValueIfChangedFromRow: aDBRow to: anObject
 
 	"Return whether a change was applied"
 
-	^self accessor valueIfChanged: (self convertValue: (aDBRow lookupField: self)) in: anObject!
+	^self accessor valueIfChanged: (self convertValue: (aDBRow lookupField: self) for: anObject) in: anObject!
 
 convertValue: aValue
 
@@ -28,6 +28,27 @@ convertValue: aValue
 	Return the converted object"
 	
 	^self targetClass instanceFromDBValue: aValue in: self reStore!
+
+convertValue: aValue for: aPersistentObject
+
+	"Convert the given DB value object to the receiver's targetClass.
+	Implicit here is that the converted object will be assigned as an inst var of aPersistenObject.
+	Return the converted object"
+	
+	^self targetClass instanceFromDBValue: aValue for: aPersistentObject in: self reStore!
+
+dbValueIn: anObject
+
+	^self targetClass objectToStoreFor: (accessor valueIn: anObject) in: anObject!
+
+hasValueChangedIn: anObject fromValueIn: anotherObject
+
+	| object1 object2 |
+
+	object1 := self accessor valueIn: anObject.
+	object2 := self accessor valueIn: anotherObject.
+
+	^(self targetClass _has: object1 of: anObject changedFrom: object2 of: anotherObject) ifNil: [object1 _hasChangedFrom: object2]!
 
 isValidForPersistence
 
@@ -89,6 +110,9 @@ writeSQLDefinitionOn: aStream
 applyValueFromRow:to:!actions!public! !
 applyValueIfChangedFromRow:to:!actions!public! !
 convertValue:!actions!public! !
+convertValue:for:!actions!public! !
+dbValueIn:!accessing!public! !
+hasValueChangedIn:fromValueIn:!actions!public! !
 isValidForPersistence!public! !
 readAllFor:!actions!public! !
 readAllQuery!accessing!public! !
