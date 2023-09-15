@@ -174,6 +174,14 @@ _forgetProxiedObject
 	
 	proxiedObject := nil!
 
+_frontFace
+	"Private - Answer the 'front face' identity associated with the receiver--the identity that should be referenced by other persisted objects.
+	When the receiver is swapped, this is the proxiedObject.
+	
+	N.B. Must be called in a critical section."
+
+	^self _isSwapped ifTrue: [self _proxiedObject] ifFalse: [self].!
+
 _hasChanged
 
 	"Return whether the receiver's proxiedObject has been changed
@@ -722,6 +730,7 @@ _forceRefresh!actions-refresh!public! !
 _forceRefreshIn:!actions-refresh!public! !
 _forceRefreshWithContents!actions-refresh!public! !
 _forgetProxiedObject!actions-internal!public! !
+_frontFace!accessing!private! !
 _hasChanged!public!testing! !
 _hasChangedFrom:!public!testing! !
 _isDeleted!public!testing! !
