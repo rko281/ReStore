@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBInheritedTable subclass: #SSWDBSuperTable
 	instanceVariableNames: ''
@@ -49,22 +49,6 @@ forCreation
 	
 	^tableForCreation!
 
-recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
-	
-	"Redirect to the relevant concrete class. Also set the class of the proxy to the actual class of object.
-	(since this may be one of the receiver's instanceClass' subclasses)"
-	
-	| class |
-	
-	class := self instanceClassFromRow: aDBRow.
-
-	class = self instanceClass
-		ifTrue: [super recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy]
-		ifFalse: [(self reStore tableForClass: class) 
-				recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy].
-	
-	anSSWDBObjectProxy _class: anSSWDBObjectProxy _proxiedObject class!
-
 refreshProxy: aProxy whereChangedFromRow: aDBRow
 
 	"Redirect to the relevant concrete class"
@@ -78,7 +62,6 @@ refreshProxy: aProxy whereChangedFromRow: aDBRow
 		ifFalse: [(self reStore tableForClass: class) refreshProxy: aProxy whereChangedFromRow: aDBRow]! !
 !SSWDBSuperTable categoriesForMethods!
 forCreation!evaluating!public! !
-recoverInstanceFromRow:into:!instance creation!public! !
 refreshProxy:whereChangedFromRow:!instance creation!public! !
 !
 

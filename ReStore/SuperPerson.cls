@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 Object subclass: #SuperPerson
-	instanceVariableNames: 'surname firstName'
+	instanceVariableNames: 'surname firstName superFlags'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -24,6 +24,13 @@ fullName
 
 	^self firstName, ' ', self surname!
 
+initialize
+	super initialize.
+	superFlags := TestBitmask new.!
+
+superFlags
+	^superFlags.!
+
 surname
 
 	^surname!
@@ -31,19 +38,33 @@ surname
 surname: a
 
 	surname := a! !
-!SuperPerson categoriesFor: #firstName!public! !
-!SuperPerson categoriesFor: #firstName:!public! !
-!SuperPerson categoriesFor: #fullName!public! !
-!SuperPerson categoriesFor: #surname!public! !
-!SuperPerson categoriesFor: #surname:!public! !
+!SuperPerson categoriesForMethods!
+firstName!accessing!public! !
+firstName:!accessing!public! !
+fullName!accessing!public! !
+initialize!initializing!private! !
+superFlags!accessing!public! !
+surname!accessing!public! !
+surname:!accessing!public! !
+!
 
 !SuperPerson class methodsFor!
 
-reStoreDefinition
+mutableAspects
+	^#(#superFlags).!
 
+new
+	^self basicNew initialize.!
+
+reStoreDefinition
 	^super reStoreDefinition
 		define: #surname as: (String maxSize: 255);
 		define: #firstName as: (String maxSize: 255);
-		yourself! !
-!SuperPerson class categoriesFor: #reStoreDefinition!public! !
+		define: #superFlags as: TestBitmask;
+		yourself.! !
+!SuperPerson class categoriesForMethods!
+mutableAspects!constants!public! !
+new!instance creation!public! !
+reStoreDefinition!public! !
+!
 

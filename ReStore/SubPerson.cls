@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 MidPerson subclass: #SubPerson
-	instanceVariableNames: 'age'
+	instanceVariableNames: 'age subFlags'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -16,16 +16,33 @@ age
 	^age!
 
 age: anObject
-	age := anObject! !
-!SubPerson categoriesFor: #age!accessing!private! !
-!SubPerson categoriesFor: #age:!accessing!private! !
+	age := anObject!
+
+initialize
+	super initialize.
+	subFlags := TestBitmask new.!
+
+subFlags
+	^subFlags.! !
+!SubPerson categoriesForMethods!
+age!accessing!private! !
+age:!accessing!private! !
+initialize!initializing!private! !
+subFlags!accessing!private! !
+!
 
 !SubPerson class methodsFor!
 
-reStoreDefinition
+mutableAspects
+	^super mutableAspects copyWith: #subFlags.!
 
+reStoreDefinition
 	^super reStoreDefinition
 		define: #age as: Integer;
-		yourself! !
-!SubPerson class categoriesFor: #reStoreDefinition!public! !
+		define: #subFlags as: TestBitmask;
+		yourself.! !
+!SubPerson class categoriesForMethods!
+mutableAspects!constants!public! !
+reStoreDefinition!public! !
+!
 

@@ -279,7 +279,7 @@ Object subclass: #SimpleProductOrder
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SuperPerson
-	instanceVariableNames: 'surname firstName'
+	instanceVariableNames: 'surname firstName superFlags'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -339,12 +339,12 @@ SuperPerson subclass: #DetailedPerson2
 	poolDictionaries: ''
 	classInstanceVariableNames: 'useDateOfBirth useBestFriend useLongNotes'!
 SuperPerson subclass: #MidPerson
-	instanceVariableNames: 'middleName midFriend'
+	instanceVariableNames: 'middleName midFriend midFlags'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 MidPerson subclass: #SubPerson
-	instanceVariableNames: 'age'
+	instanceVariableNames: 'age subFlags'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

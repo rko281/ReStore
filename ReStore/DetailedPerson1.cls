@@ -17,8 +17,10 @@ friend2
 
 friend2: anObject
 	friend2 := anObject! !
-!DetailedPerson1 categoriesFor: #friend2!accessing!private! !
-!DetailedPerson1 categoriesFor: #friend2:!accessing!private! !
+!DetailedPerson1 categoriesForMethods!
+friend2!accessing!private! !
+friend2:!accessing!private! !
+!
 
 !DetailedPerson1 class methodsFor!
 
@@ -27,5 +29,7 @@ reStoreDefinition
 	^super reStoreDefinition
 		define: #friend2 as: DetailedPerson2;
 		yourself! !
-!DetailedPerson1 class categoriesFor: #reStoreDefinition!public! !
+!DetailedPerson1 class categoriesForMethods!
+reStoreDefinition!public! !
+!
 

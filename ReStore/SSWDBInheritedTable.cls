@@ -51,6 +51,30 @@ instanceClassFromRow: aDBRow
 	
 	^self classField convertValue: (aDBRow lookupField: self classField)!
 
+recoverExactClassInstanceFromRow: aDBRow into: anSSWDBObjectProxy
+	"Private - Recover assuming that aDBRow represents an object of exactly our instanceClass.
+	Class has already been set on the proxy (see #recoverInstanceFromRow:into:"
+
+	super recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy.!
+
+recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
+	"Redirect to the relevant concrete class, ensuring the proxy is informed of the actual class of the object.
+	We must do this before setting the proxiedObject to ensure that the correct list of fields is used when
+	initializing the copyObject.
+
+	N.B. This should always be our instanceClass or a subclass thereof, never higher in the hierarchy.
+	For leaf tables this means it should always be exactly our instanceClass, but this shared implementation is simpler."
+
+	| class |
+	class := self instanceClassFromRow: aDBRow.
+	self assert: (class includesBehavior: self instanceClass)
+		description: 
+			['Proxy for ' , self instanceClass name , ' retrieved a ' , class name , ' from the database.'].
+	anSSWDBObjectProxy _class: class.
+	(class = self instanceClass ifTrue: [self] ifFalse: [self reStore tableForClass: class])
+		recoverExactClassInstanceFromRow: aDBRow
+		into: anSSWDBObjectProxy.!
+
 setDefaultClassField
 	
 	self controlFields add: (self initializeClassField: SSWDBStaticField new).
@@ -75,11 +99,15 @@ withAllFields
 				[withAllFields dataFields add: field]]].
 	
 	^withAllFields! !
-!SSWDBInheritedTable categoriesFor: #classField!accessing!public! !
-!SSWDBInheritedTable categoriesFor: #classField:!accessing!public! !
-!SSWDBInheritedTable categoriesFor: #initializeClassField:!defining!private! !
-!SSWDBInheritedTable categoriesFor: #initializeIn:!initializing!public! !
-!SSWDBInheritedTable categoriesFor: #instanceClassFromRow:!instance creation!private! !
-!SSWDBInheritedTable categoriesFor: #setDefaultClassField!defining!public! !
-!SSWDBInheritedTable categoriesFor: #withAllFields!evaluating!public! !
+!SSWDBInheritedTable categoriesForMethods!
+classField!accessing!public! !
+classField:!accessing!public! !
+initializeClassField:!defining!private! !
+initializeIn:!initializing!public! !
+instanceClassFromRow:!instance creation!private! !
+recoverExactClassInstanceFromRow:into:!private! !
+recoverInstanceFromRow:into:!public! !
+setDefaultClassField!defining!public! !
+withAllFields!evaluating!public! !
+!
 
