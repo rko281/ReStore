@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBInheritedTable subclass: #SSWDBAbstractSubTable
 	instanceVariableNames: 'rootClass classCondition'
@@ -43,14 +43,6 @@ hasStaticConditions
 isRootTable
 
 	^false!
-
-recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
-	
-	"Set the class of the proxy to the actual class of object, since this may be one of the receiver's instanceClass' subclasses"
-	
-	super recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy.
-	
-	anSSWDBObjectProxy _class: anSSWDBObjectProxy _proxiedObject class!
 
 registerClass
 
@@ -97,7 +89,6 @@ defaultName!evaluating!public! !
 forCreation!evaluating!public! !
 hasStaticConditions!public!testing! !
 isRootTable!public!testing! !
-recoverInstanceFromRow:into:!instance creation!public! !
 registerClass!evaluating!public! !
 rootClass!accessing!public! !
 rootClass:!accessing!public! !

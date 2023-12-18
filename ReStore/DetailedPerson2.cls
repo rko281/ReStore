@@ -41,16 +41,18 @@ notes
 
 notes: anObject
 	notes := anObject! !
-!DetailedPerson2 categoriesFor: #bestFriend!accessing!private! !
-!DetailedPerson2 categoriesFor: #bestFriend:!accessing!private! !
-!DetailedPerson2 categoriesFor: #dateOfBirth!accessing!private! !
-!DetailedPerson2 categoriesFor: #dateOfBirth:!accessing!private! !
-!DetailedPerson2 categoriesFor: #dob!accessing!private! !
-!DetailedPerson2 categoriesFor: #dob:!accessing!private! !
-!DetailedPerson2 categoriesFor: #friend!accessing!private! !
-!DetailedPerson2 categoriesFor: #friend:!accessing!private! !
-!DetailedPerson2 categoriesFor: #notes!accessing!private! !
-!DetailedPerson2 categoriesFor: #notes:!accessing!private! !
+!DetailedPerson2 categoriesForMethods!
+bestFriend!accessing!private! !
+bestFriend:!accessing!private! !
+dateOfBirth!accessing!private! !
+dateOfBirth:!accessing!private! !
+dob!accessing!private! !
+dob:!accessing!private! !
+friend!accessing!private! !
+friend:!accessing!private! !
+notes!accessing!private! !
+notes:!accessing!private! !
+!
 
 !DetailedPerson2 class methodsFor!
 
@@ -97,12 +99,14 @@ useLongNotes
 
 useLongNotes: anObject
 	useLongNotes := anObject! !
-!DetailedPerson2 class categoriesFor: #notesSize!accessing!private! !
-!DetailedPerson2 class categoriesFor: #reStoreDefinition!public! !
-!DetailedPerson2 class categoriesFor: #useBestFriend!public! !
-!DetailedPerson2 class categoriesFor: #useBestFriend:!public! !
-!DetailedPerson2 class categoriesFor: #useDateOfBirth!accessing!private! !
-!DetailedPerson2 class categoriesFor: #useDateOfBirth:!accessing!private! !
-!DetailedPerson2 class categoriesFor: #useLongNotes!accessing!private! !
-!DetailedPerson2 class categoriesFor: #useLongNotes:!accessing!private! !
+!DetailedPerson2 class categoriesForMethods!
+notesSize!accessing!private! !
+reStoreDefinition!public! !
+useBestFriend!public! !
+useBestFriend:!public! !
+useDateOfBirth!accessing!private! !
+useDateOfBirth:!accessing!private! !
+useLongNotes!accessing!private! !
+useLongNotes:!accessing!private! !
+!
 

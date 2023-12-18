@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk 7"!
 
 SSWDBAbstractSubTable subclass: #SSWDBIntermediateTable
 	instanceVariableNames: ''
@@ -25,18 +25,6 @@ _classCondition
 
 	^conditions!
 
-recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
-	
-	"Redirect to the relevant concrete class"
-	
-	| class |
-	
-	class := self instanceClassFromRow: aDBRow.
-
-	class = self instanceClass
-		ifTrue: [super recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy]
-		ifFalse: [(self reStore tableForClass: class) recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy]!
-
 subclasses
 
 	"Return those classes which inherit persistency from the receiver"
@@ -46,7 +34,6 @@ subclasses
 		(self reStore tableForClass: each) ifNil: [false] ifNotNil: [ :table | table rootClass = self rootClass]]! !
 !SSWDBIntermediateTable categoriesForMethods!
 _classCondition!evaluating!private! !
-recoverInstanceFromRow:into:!instance creation!public! !
 subclasses!evaluating!public! !
 !
 
