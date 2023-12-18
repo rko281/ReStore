@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreTest subclass: #SSWReStoreHierarchyTest
 	instanceVariableNames: ''
@@ -49,8 +49,8 @@ _testClassOfProxyOfInstanceOf: aClass recoveredBy: aBlock
 	self assert: proxy _class equals: aClass.
 
 	"Check that all declared mutable properties have been properly copied"
-	aClass mutableAspects withIndexDo: 
-			[:sym :i |
+	aClass mutableAspects keysAndValuesDo: 
+			[:i :sym |
 			self deny: (proxy _proxiedObject perform: sym) == (proxy _copyObject perform: sym).
 			self deny: ((owner midFriend perform: sym) isBitSet: i).	"Sanity check, bitmask initializes with 0"
 			(owner midFriend perform: sym) bitSet: i].
@@ -58,7 +58,7 @@ _testClassOfProxyOfInstanceOf: aClass recoveredBy: aBlock
 	reStore simulateReconnect.
 	owner := (MidPerson storedInstancesIn: reStore) detect: [:each | each firstName = 'owner'].
 	aClass mutableAspects
-		withIndexDo: [:sym :i | self assert: ((owner midFriend perform: sym) isBitSet: i)].!
+		keysAndValuesDo: [:i :sym | self assert: ((owner midFriend perform: sym) isBitSet: i)].!
 
 addClassesTo: aReStore
 
