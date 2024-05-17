@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCollectionSpec subclass: #SSWDBGeneralCollectionSpec
 	instanceVariableNames: 'sourceField targetField collectionTable'
@@ -11,6 +11,19 @@ SSWDBGeneralCollectionSpec comment: 'ReStore
 https://github.com/rko281/ReStore'!
 !SSWDBGeneralCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBGeneralCollectionSpec methodsFor!
+
+allAdditionsTo: aCollection
+
+	"Return an OrderedCollection of SSWDBCollectionAdditions representing the addition of all aCollection's elements to itself, starting when empty"
+
+	"Must return an OrderedCollection, so don't use collect:"
+	^aCollection inject: (OrderedCollection new: aCollection size) into: [ :all :each | all add: (SSWDBCollectionAddition added: each); yourself]!
+
+changesTo: aCollection from: aCollectionOfEntries
+
+	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries"
+
+	^self subclassResponsibility!
 
 collectionTable
 
@@ -59,6 +72,10 @@ entryClass
 	
 	^SSWDBCollectionEntry!
 
+hasMutableElements
+
+	^self targetClass isMutableDirectlyPersistedNonBaseClass!
+
 insertEntry: anSSWDBCollectionEntry
 
 	| query statement |
@@ -74,6 +91,13 @@ queryClass
 	"Return the class of select query appropriate for the receiver"
 	
 	^SSWSQLSelectQuery!
+
+shouldCompareChangesByEquality
+
+	"Generally, directly-persisted objects are compared by equality, and persistent object stored in their own table are compared by identity.
+	The former could be slightly optimised for e.g. collections of Symbols"
+
+	^self targetClass isDirectlyPersisted!
 
 sourceField
 
@@ -106,16 +130,22 @@ targetField: anSSWDBField
 	that points to the objects that belong in the collection"
 	
 	targetField := anSSWDBField! !
-!SSWDBGeneralCollectionSpec categoriesFor: #collectionTable!accessing!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #collectionTable:!accessing!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #containedTables!evaluating!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #createCollectionTable!initializing!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #deleteEntry:!actions - api!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #entryClass!constants!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #insertEntry:!actions - api!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #queryClass!constants!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #sourceField!accessing!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #sourceField:!accessing!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #targetField!accessing!public! !
-!SSWDBGeneralCollectionSpec categoriesFor: #targetField:!accessing!public! !
+!SSWDBGeneralCollectionSpec categoriesForMethods!
+allAdditionsTo:!change detection!public! !
+changesTo:from:!change detection!public! !
+collectionTable!accessing!public! !
+collectionTable:!accessing!public! !
+containedTables!evaluating!public! !
+createCollectionTable!initializing!public! !
+deleteEntry:!actions - api!public! !
+entryClass!constants!public! !
+hasMutableElements!public!testing! !
+insertEntry:!actions - api!public! !
+queryClass!constants!public! !
+shouldCompareChangesByEquality!change detection!private!testing! !
+sourceField!accessing!public! !
+sourceField:!accessing!public! !
+targetField!accessing!public! !
+targetField:!accessing!public! !
+!
 

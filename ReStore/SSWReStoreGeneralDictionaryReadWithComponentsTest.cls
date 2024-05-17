@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreReadWithComponentsTest subclass: #SSWReStoreGeneralDictionaryReadWithComponentsTest
 	instanceVariableNames: ''
@@ -13,7 +13,7 @@ SSWReStoreGeneralDictionaryReadWithComponentsTest comment: ''!
 addOrderFor: aProduct to: aCustomer quantity: anInteger
 
 	"Need to convert orders to Dictionary if not already done - ensure unproxied before transformation"
-	aCustomer orders size.
+	aCustomer orders _deproxify.
 	(aCustomer orders isKindOf: Dictionary) ifFalse: [aCustomer orders become: Dictionary new].
 
 	^aCustomer orders at: (SimpleAddress new postcode: (aProduct description, anInteger displayString); yourself) put: 
@@ -113,24 +113,28 @@ validateKeysAlreadyFetched
 	self resetQueryCount.
 	customer4 orders keysAndValuesDo: [ :address :order | self assert: address postcode equals: '<1s><2p>' << {order product description. order quantity}].
 	self assert: self queryCount equals: 0! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #addOrderFor:to:quantity:!helpers!private! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #ordersCollectionDefinition!constants!public! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testCollection!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testEmptyCollection!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testProxyCollection!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testProxyCollectionMultipleRead!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testProxySingleObject!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testProxySingleObjectMultipleRead!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testRefreshCollection!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testRefreshCollectionKey!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testRefreshProxyCollection!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #testRefreshSingleObject!public!unit tests! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesFor: #validateKeysAlreadyFetched!helpers!private! !
+!SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesForMethods!
+addOrderFor:to:quantity:!helpers!private! !
+ordersCollectionDefinition!constants!public! !
+testCollection!public!unit tests! !
+testEmptyCollection!public!unit tests! !
+testProxyCollection!public!unit tests! !
+testProxyCollectionMultipleRead!public!unit tests! !
+testProxySingleObject!public!unit tests! !
+testProxySingleObjectMultipleRead!public!unit tests! !
+testRefreshCollection!public!unit tests! !
+testRefreshCollectionKey!public!unit tests! !
+testRefreshProxyCollection!public!unit tests! !
+testRefreshSingleObject!public!unit tests! !
+validateKeysAlreadyFetched!helpers!private! !
+!
 
 !SSWReStoreGeneralDictionaryReadWithComponentsTest class methodsFor!
 
 testSelectors
 
 	^self myTestSelectors, #(#testRefreshCollectionKey)! !
-!SSWReStoreGeneralDictionaryReadWithComponentsTest class categoriesFor: #testSelectors!public! !
+!SSWReStoreGeneralDictionaryReadWithComponentsTest class categoriesForMethods!
+testSelectors!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreCommitTests
 	instanceVariableNames: ''
@@ -98,10 +98,21 @@ test04MultiStoreSameObjectViaRelationships
 	self assert: (tests first == obj1 single2).
 	self assert: (obj1 single2 == obj1 single3).
 	self assert: (tests first == obj2 single2).
-	self assert: (obj2 single2 == obj2 single3)! !
-!SSWReStoreCommitTests categoriesFor: #addClassesTo:!public!Running! !
-!SSWReStoreCommitTests categoriesFor: #test01SelfReference!public! !
-!SSWReStoreCommitTests categoriesFor: #test02MultiCommitSameObject!public! !
-!SSWReStoreCommitTests categoriesFor: #test03MultiStoreSameObject!public! !
-!SSWReStoreCommitTests categoriesFor: #test04MultiStoreSameObjectViaRelationships!public! !
+	self assert: (obj2 single2 == obj2 single3)!
+
+test05CommitDeletedObject
+
+	reStore beginTransaction.
+	self assert: (reStore deferredObjectOfClass: OwnerTest withID: 77) isDBDeleted.
+	"At this point it used to be the case that the DeletedObject above was marked as touched,
+	and ReStore would crash when committing, even though it's not actually *referenced* from anywhere"
+	self shouldnt: [reStore commitTransaction] raise: Error! !
+!SSWReStoreCommitTests categoriesForMethods!
+addClassesTo:!public!Running! !
+test01SelfReference!public! !
+test02MultiCommitSameObject!public! !
+test03MultiStoreSameObject!public! !
+test04MultiStoreSameObjectViaRelationships!public! !
+test05CommitDeletedObject!public! !
+!
 

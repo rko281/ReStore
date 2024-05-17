@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBBlockArgument subclass: #SSWDBInlinedBlockReceiver
 	instanceVariableNames: 'inlinedInstVar inlinedFields'
@@ -71,6 +71,12 @@ inlinedInstVar
 inlinedInstVar: anObject
 	inlinedInstVar := anObject!
 
+peekFinalField
+
+	^self hasFinalField
+		ifTrue: [self inlinedFields first]
+		ifFalse: [nil]!
+
 reset
 
 	self inlinedFields: nil!
@@ -78,15 +84,18 @@ reset
 rootClass
 
 	^super currentClass! !
-!SSWDBInlinedBlockReceiver categoriesFor: #_doesNotUnderstand:!parsing!public! !
-!SSWDBInlinedBlockReceiver categoriesFor: #currentClass!accessing!public! !
-!SSWDBInlinedBlockReceiver categoriesFor: #finalField!accessing!public! !
-!SSWDBInlinedBlockReceiver categoriesFor: #hasFinalField!public!testing! !
-!SSWDBInlinedBlockReceiver categoriesFor: #inlinedFields!accessing!private! !
-!SSWDBInlinedBlockReceiver categoriesFor: #inlinedFields:!accessing!private! !
-!SSWDBInlinedBlockReceiver categoriesFor: #inlinedFieldsAccessing:!parsing!private! !
-!SSWDBInlinedBlockReceiver categoriesFor: #inlinedInstVar!accessing!private! !
-!SSWDBInlinedBlockReceiver categoriesFor: #inlinedInstVar:!accessing!private! !
-!SSWDBInlinedBlockReceiver categoriesFor: #reset!parsing!private! !
-!SSWDBInlinedBlockReceiver categoriesFor: #rootClass!accessing!private! !
+!SSWDBInlinedBlockReceiver categoriesForMethods!
+_doesNotUnderstand:!parsing!public! !
+currentClass!accessing!public! !
+finalField!accessing!public! !
+hasFinalField!public!testing! !
+inlinedFields!accessing!private! !
+inlinedFields:!accessing!private! !
+inlinedFieldsAccessing:!parsing!private! !
+inlinedInstVar!accessing!private! !
+inlinedInstVar:!accessing!private! !
+peekFinalField!accessing!public! !
+reset!parsing!private! !
+rootClass!accessing!private! !
+!
 

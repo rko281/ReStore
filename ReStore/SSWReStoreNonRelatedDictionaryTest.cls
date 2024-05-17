@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreGenericNonRelatedCollectionTest subclass: #SSWReStoreNonRelatedDictionaryTest
 	instanceVariableNames: ''
@@ -19,6 +19,13 @@ addToCollection: aCollection
 componentDefinition
 
 	^(Dictionary of: GenericOwnedTest -> GenericOwnedTest)!
+
+duplicateInCollection: aCollection
+
+	| keys |
+
+	keys := aCollection keys asArray.
+	^aCollection at: keys first put: (aCollection at: keys last)!
 
 remove: anObject fromCollection: aCollection
 
@@ -87,6 +94,16 @@ testDependencyDeleteOnRepeatedRemoval
 
 	self _testComponentExistenceOnDependency: component!
 
+testDuplicateEntries
+
+	"Ensure duplicate entries are handled correctly"
+
+	self duplicateInCollection.
+
+	"This should just involve an update of the value of the entry to which the duplicate has been assigned.
+	Previously this would update the duplicated entry's key, add a new entry for the original and delete the original entry"
+	self assert: (self countQueriesDuring: [testObject store]) equals: (1 "for the update" + (self componentDefinition isValueDependent ifTrue: [1] ifFalse: [0]) "1 for the deletion of the overwritten item (if dependent)")!
+
 testIncludesAssociation
 
 	| instances existingAssoc template templateKey matches |
@@ -132,13 +149,26 @@ testIncludesKey
 	matches := instances select: [ :each | each component includesKey: templateKey].
 	self assert: matches size equals: 1.
 	self assert: matches first == testObject! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #addToCollection:!helpers!public! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #remove:fromCollection:!helpers!private! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #removeFromCollection:!helpers!private! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #replaceInCollection:!public! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #testDependencyDeleteOnRepeatedRemoval!public! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #testIncludesAssociation!public!unit tests! !
-!SSWReStoreNonRelatedDictionaryTest categoriesFor: #testIncludesKey!public!unit tests! !
+!SSWReStoreNonRelatedDictionaryTest categoriesForMethods!
+addToCollection:!helpers!public! !
+componentDefinition!accessing!public! !
+duplicateInCollection:!private! !
+remove:fromCollection:!helpers!private! !
+removeFromCollection:!helpers!private! !
+replaceInCollection:!public! !
+templateCollection!accessing!public! !
+testDependencyDeleteOnRepeatedRemoval!public! !
+testDuplicateEntries!public!unit tests! !
+testIncludesAssociation!public!unit tests! !
+testIncludesKey!public!unit tests! !
+!
+
+!SSWReStoreNonRelatedDictionaryTest class methodsFor!
+
+multipleOccurrenceTestSelectors
+
+	^super multipleOccurrenceTestSelectors, #(#testDuplicateEntries)! !
+!SSWReStoreNonRelatedDictionaryTest class categoriesForMethods!
+multipleOccurrenceTestSelectors!public! !
+!
 

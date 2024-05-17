@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStore2Test subclass: #SSWReStoreRefreshTest
 	instanceVariableNames: ''
@@ -584,6 +584,27 @@ testOwnedCollectionRefreshQueryCount
 	self assert: queryCount equals: 1.
 	self assert: inst1 ownedOrdered first name equals: 'testB1'!
 
+testRefreshOfCopyObject
+
+	| inst1 inst2 |
+
+	inst1 := (OwnerTest storedInstancesIn: reStore) asOrderedCollection first.
+	inst2 := (OwnerTest storedInstancesIn: reStore2) asOrderedCollection first.
+
+	"Update in one session"
+	self assert: (reStore evaluateAsTransaction: [inst1 number: 11]).
+
+	self assert: inst1 number equals: 11.
+	self assert: inst2 number equals: 123.
+	self refreshDelay.
+
+	inst2 refresh.
+
+	self assert: inst2 isDBProxy.
+	self assert: inst2 _proxiedObject number equals: 11.
+	self assert: inst2 _copyObject number equals: 11.
+!
+
 testRefreshWithOnRollback
 
 	"Test previously-failing case where refreshing an object with an onRollback implementation which references an also-refreshed linked persistent object caused incorrect proxy swapping"
@@ -613,28 +634,53 @@ testRefreshWithOnRollback
 			removeSelector: #onRollback fromClass: OwnedTest;
 			removeSelector: #onRollback fromClass: OwnerTest]!
 
+testSwapCollectionProxyBeforeFaultInParentAfterRefresh
+	| owner coll |
+	owner := (OwnerTest storedInstancesIn: reStore) first.
+	coll := owner ownedOrdered.
+	"Sanity checks:"
+	self deny: owner isDBProxy.
+	self assert: coll isDBProxy.
+	"Must be a lazy refresh as a force refresh will link everything up before any proxies can be swapped"
+	reStore lazyRefresh: owner.
+	self assert: owner isDBProxy.
+	self deny: owner _isRecovered.
+	"Swap the collection proxy before triggering fault-in of the owner. In practice this can happen due to process contention, where the collection is on the stack of another process, rather than someone explicitly holding a reference to the collection."
+	coll first.
+	self deny: coll isDBProxy.
+	self assert: owner isDBProxy.
+	self deny: owner _isRecovered.
+	"Now trigger fault-in of the owner. If the 'back face' identity is mistakenly assigned this will fail"
+	self assert: coll identicalTo: owner ownedOrdered.
+	"Or, more practically, we should not get a 'Trying to swap already-swapped proxy' error here:"
+	self shouldnt: [owner ownedOrdered first] raise: Error.!
+
 usesVersioning
 
 	^true! !
-!SSWReStoreRefreshTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreRefreshTest categoriesFor: #test01!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test02!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test03!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test04!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test20!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test21!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test23!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test24!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test25!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test26!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test31!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test32!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test33!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test34!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test35!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #test40QueryingShouldRefresh!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #testGeneralCollectionRefreshQueryCount!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #testOwnedCollectionRefreshQueryCount!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #testRefreshWithOnRollback!public!unit tests! !
-!SSWReStoreRefreshTest categoriesFor: #usesVersioning!public!running! !
+!SSWReStoreRefreshTest categoriesForMethods!
+createTestData!public!running! !
+test01!public!unit tests! !
+test02!public!unit tests! !
+test03!public!unit tests! !
+test04!public!unit tests! !
+test20!public!unit tests! !
+test21!public!unit tests! !
+test23!public!unit tests! !
+test24!public!unit tests! !
+test25!public!unit tests! !
+test26!public!unit tests! !
+test31!public!unit tests! !
+test32!public!unit tests! !
+test33!public!unit tests! !
+test34!public!unit tests! !
+test35!public!unit tests! !
+test40QueryingShouldRefresh!public!unit tests! !
+testGeneralCollectionRefreshQueryCount!public!unit tests! !
+testOwnedCollectionRefreshQueryCount!public!unit tests! !
+testRefreshOfCopyObject!public!unit tests! !
+testRefreshWithOnRollback!public!unit tests! !
+testSwapCollectionProxyBeforeFaultInParentAfterRefresh!public!unit tests! !
+usesVersioning!public!running! !
+!
 

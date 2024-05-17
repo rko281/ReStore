@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreQueryTest subclass: #SSWReStoreFunctionTest
 	instanceVariableNames: ''
@@ -94,6 +94,18 @@ testOversizeStringAsFunctionCriteria
 	daves := (SimplePerson storedInstancesIn: reStore) select: [ :each | (each firstName, each firstName) = 'DavidDavid'].
 	self assert: (daves collect: [ :each | each firstName]) asArray equals: #('David')!
 
+testScaledDecimalArgument
+
+	"Test a query where the argument to a function is a ScaledDecimal - previously caused an error"
+
+	| results |
+
+	SimpleProduct new description: 'scaled decimal test'; retailPrice: 1.23s2; storeIn: reStore.
+
+	results := (SimpleProduct storedInstancesIn: reStore) collect: [ :each | each retailPrice + 4.56s2].
+	self assert: results size equals: 1.
+	self assert: results first equals: 5.79s2!
+
 testStaticValueAsFunctionResult
 
 	"Test where the result of a function is a fixed value, not a field"
@@ -113,20 +125,25 @@ testTargetFieldFromArgument
 	results := (SimplePerson storedInstancesIn: reStore) collect: [ :each | each || ((each age > 20) then: each else: each friend)].
 
 	self assert: (results allSatisfy: [ :each | each first age > 20 ifTrue: [each last == each first] ifFalse: [each last == each first friend]])! !
-!SSWReStoreFunctionTest categoriesFor: #addClassesTo:!public!Running! !
-!SSWReStoreFunctionTest categoriesFor: #testConditionAsFunctionReceiver!public!unit tests! !
-!SSWReStoreFunctionTest categoriesFor: #testDifferentClassAsFunctionCriteriaDateYear!public!unit tests! !
-!SSWReStoreFunctionTest categoriesFor: #testDifferentClassAsFunctionCriteriaStringSize!public!unit tests! !
-!SSWReStoreFunctionTest categoriesFor: #testModelClassAsFunctionReceiver!public!unit tests! !
-!SSWReStoreFunctionTest categoriesFor: #testModelClassAsFunctionReceiverWithJoin!public!unit tests! !
-!SSWReStoreFunctionTest categoriesFor: #testOversizeStringAsFunctionCriteria!public!unit tests! !
-!SSWReStoreFunctionTest categoriesFor: #testStaticValueAsFunctionResult!public!unit tests! !
-!SSWReStoreFunctionTest categoriesFor: #testTargetFieldFromArgument!public!unit tests! !
+!SSWReStoreFunctionTest categoriesForMethods!
+addClassesTo:!public!Running! !
+testConditionAsFunctionReceiver!public!unit tests! !
+testDifferentClassAsFunctionCriteriaDateYear!public!unit tests! !
+testDifferentClassAsFunctionCriteriaStringSize!public!unit tests! !
+testModelClassAsFunctionReceiver!public!unit tests! !
+testModelClassAsFunctionReceiverWithJoin!public!unit tests! !
+testOversizeStringAsFunctionCriteria!public!unit tests! !
+testScaledDecimalArgument!public!unit tests! !
+testStaticValueAsFunctionResult!public!unit tests! !
+testTargetFieldFromArgument!public!unit tests! !
+!
 
 !SSWReStoreFunctionTest class methodsFor!
 
 shouldInheritSelectors
 
 	^false! !
-!SSWReStoreFunctionTest class categoriesFor: #shouldInheritSelectors!public! !
+!SSWReStoreFunctionTest class categoriesForMethods!
+shouldInheritSelectors!public! !
+!
 

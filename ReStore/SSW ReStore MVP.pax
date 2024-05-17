@@ -7,11 +7,8 @@ https://github.com/rko281/ReStore'.
 
 
 package methodNames
-	add: #ListModel -> #_changesFrom:;
-	add: #ListModel -> #_collectionAdditions;
 	add: #ListModel -> #_dbAdd:;
 	add: #ListModel -> #_dbAdd:suggestedIndex:;
-	add: #ListModel -> #isSortedCollection;
 	add: #ListModel -> #onRefresh;
 	add: #ListModel -> #onRollback;
 	add: #ListModel -> #ownedCollectionSpecClass;
@@ -43,19 +40,6 @@ package!
 
 !ListModel methodsFor!
 
-_changesFrom: anOrderedCollection
-
-	"Ask the contained collection"
-
-	^list _changesFrom: anOrderedCollection!
-
-_collectionAdditions
-
-	"Ask the contained collection"
-
-	^list _collectionAdditions
-!
-
 _dbAdd: anObject
 
 	"Forward to the list (avoiding event triggering)"
@@ -68,11 +52,6 @@ _dbAdd: anObject suggestedIndex: anInteger
 	"Forward to the list (avoiding event triggering)"
 
 	^self list _dbAdd: anObject
-!
-
-isSortedCollection
-
-	^self list isSortedCollection
 !
 
 onRefresh
@@ -102,15 +81,14 @@ staticCollectionSpecClass
 	^self list staticCollectionSpecClass
 
 ! !
-!ListModel categoriesFor: #_changesFrom:!comparing!private! !
-!ListModel categoriesFor: #_collectionAdditions!comparing!private! !
-!ListModel categoriesFor: #_dbAdd:!adding!private! !
-!ListModel categoriesFor: #_dbAdd:suggestedIndex:!adding!private! !
-!ListModel categoriesFor: #isSortedCollection!public!testing! !
-!ListModel categoriesFor: #onRefresh!event handling!public! !
-!ListModel categoriesFor: #onRollback!event handling!public! !
-!ListModel categoriesFor: #ownedCollectionSpecClass!constants!private! !
-!ListModel categoriesFor: #staticCollectionSpecClass!constants!private! !
+!ListModel categoriesForMethods!
+_dbAdd:!adding!private! !
+_dbAdd:suggestedIndex:!adding!private! !
+onRefresh!event handling!public! !
+onRollback!event handling!public! !
+ownedCollectionSpecClass!constants!private! !
+staticCollectionSpecClass!constants!private! !
+!
 
 "End of package definition"!
 

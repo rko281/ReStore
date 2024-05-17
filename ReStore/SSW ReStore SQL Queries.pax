@@ -78,7 +78,7 @@ SSWSQLTableQuery subclass: #SSWSQLConditionalQuery
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLConditionalQuery subclass: #SSWSQLDeleteQuery
-	instanceVariableNames: ''
+	instanceVariableNames: 'isMultiTableDelete'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBPrivateAccessor subclass: #SSWDBIDAccessor
 	instanceVariableNames: 'instanceAccessor'
@@ -56,7 +56,8 @@ value: valueObject in: targetObject
 	Instead, it's instanceAccessor may set the ID within the persistent object itself"
 	
 	self instanceAccessor ~~ nil ifTrue: 
-		[self instanceAccessor value: valueObject in: targetObject _proxiedObject]!
+		[self instanceAccessor value: valueObject in: targetObject _proxiedObject].
+	^valueObject!
 
 valueIn: anObject
 
@@ -64,11 +65,13 @@ valueIn: anObject
 	anObject should be DBproxy-wrapped"
 	
 	^anObject _id! !
-!SSWDBIDAccessor categoriesFor: #accesses:!public!testing! !
-!SSWDBIDAccessor categoriesFor: #instanceAccessor!accessing!public! !
-!SSWDBIDAccessor categoriesFor: #instanceAccessor:!accessing!public! !
-!SSWDBIDAccessor categoriesFor: #nameInDB!constants!public! !
-!SSWDBIDAccessor categoriesFor: #specialSymbol!constants!public! !
-!SSWDBIDAccessor categoriesFor: #value:in:!public!updating! !
-!SSWDBIDAccessor categoriesFor: #valueIn:!evaluating!public! !
+!SSWDBIDAccessor categoriesForMethods!
+accesses:!public!testing! !
+instanceAccessor!accessing!public! !
+instanceAccessor:!accessing!public! !
+nameInDB!constants!public! !
+specialSymbol!constants!public! !
+value:in:!public!updating! !
+valueIn:!evaluating!public! !
+!
 

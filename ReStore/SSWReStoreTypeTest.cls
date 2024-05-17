@@ -116,13 +116,17 @@ testDateQuery
 
 testDateTime
 
-	self assert: (typeTest datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution))!
+	reStore sqlDialect defaultDateTimeResolution = 0
+		ifTrue: [self assert: (typeTest datetime - datetime) abs <= 1 seconds "Allow for rounding"]
+		ifFalse: [self assert: (typeTest datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution))]!
 
 testDateTimeQuery
 
 	| t |
 
-	t := (TypeTest storedInstancesIn: reStore) detect: [ :each | each datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution)] ifNone: [nil].
+	reStore sqlDialect defaultDateTimeResolution = 0
+		ifTrue: [t := (TypeTest storedInstancesIn: reStore) detect: [ :each | (each datetime > (datetime - 1 seconds)) & (each datetime < (datetime + 1 seconds))] ifNone: [nil] "Allow for rounding"]
+		ifFalse: [t := (TypeTest storedInstancesIn: reStore) detect: [ :each | each datetime = (datetime withResolution: reStore sqlDialect defaultDateTimeResolution)] ifNone: [nil]].
 	
 	self assert: t notNil!
 
@@ -142,7 +146,7 @@ testExtendedANSI
 	"Test a String containing an extended ANSI character"
 
 	"SQLite Native in Dolphin deals purely in UTF8"
-	reStore sqlDialect class name = #SSWSQLiteNativeDialect ifTrue: [self skip].
+	(self isDolphin and: [reStore sqlDialect class name = #SSWSQLiteNativeDialect]) ifTrue: [self skip].
 
 	self testStrings: #[99 97 102 233] asAnsiString "café"!
 
@@ -156,6 +160,7 @@ testGeneral
 	self assert: typeTest integer equals: 123.
 	self assert: typeTest largeInteger equals: 1234567890.
 	self assert: typeTest float equals: 123.456.
+	self assert: typeTest trueBoolean equals: true.
 	self assert: typeTest falseBoolean equals: false!
 
 testIntegerRange
@@ -177,6 +182,33 @@ testLargeIntegerRange
 	typeTest largeInteger: reStore sqlDialect largeIntegerMinimum; store.
 	self readTypeTest.
 	self assert: typeTest largeInteger = reStore sqlDialect largeIntegerMinimum.!
+
+testNullBoolean
+
+	"Verify a NULL returned in a Boolean field gives the configured nullBoolean object"
+
+	"Verify true and false are unaffected by the nullBoolean setting"
+	reStore sqlDialect nullBoolean: nil.
+	self readTypeTest.
+	self assert: typeTest trueBoolean equals: true.
+	self assert: typeTest falseBoolean equals: false.
+
+	reStore sqlDialect nullBoolean: false.
+	self readTypeTest.
+	self assert: typeTest trueBoolean equals: true.
+	self assert: typeTest falseBoolean equals: false.
+
+	typeTest trueBoolean: nil; store.
+
+	"Current behaviour - nils may be returned from Boolean columns"
+	reStore sqlDialect nullBoolean: nil.
+	self readTypeTest.
+	self assert: typeTest trueBoolean equals: nil.
+
+	"Legacy behaviour - nil coerced to false"
+	reStore sqlDialect nullBoolean: false.
+	self readTypeTest.
+	self assert: typeTest trueBoolean equals: false!
 
 testStrings: aString
 
@@ -282,6 +314,7 @@ testExtendedANSI!public!unit tests! !
 testGeneral!public!unit tests! !
 testIntegerRange!public!unit tests! !
 testLargeIntegerRange!public!unit tests! !
+testNullBoolean!public!unit tests! !
 testStrings:!private!running! !
 testTime!public!unit tests! !
 testTimeQuery!public!unit tests! !

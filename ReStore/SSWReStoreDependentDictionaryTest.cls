@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreRelatedDictionaryTest subclass: #SSWReStoreDependentDictionaryTest
 	instanceVariableNames: ''
@@ -24,6 +24,8 @@ _testComponentExistenceOnDependency: component
 componentDefinition
 
 	^(Dictionary of: GenericOwnedTest -> GenericOwnedTest dependent)! !
-!SSWReStoreDependentDictionaryTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!private! !
-!SSWReStoreDependentDictionaryTest categoriesFor: #componentDefinition!accessing!public! !
+!SSWReStoreDependentDictionaryTest categoriesForMethods!
+_testComponentExistenceOnDependency:!helpers!private! !
+componentDefinition!accessing!public! !
+!
 

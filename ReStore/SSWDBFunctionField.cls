@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBQueryField subclass: #SSWDBFunctionField
 	instanceVariableNames: 'function arguments'
@@ -104,17 +104,19 @@ writeSQLOn: aStream
 			argIndex = 0
 				ifTrue: [self field writeSQLOn: aStream]
 				ifFalse: [(self arguments at: argIndex) writeSQLOn: aStream]]]! !
-!SSWDBFunctionField categoriesFor: #anySatisfy:!public!testing! !
-!SSWDBFunctionField categoriesFor: #arguments!accessing!public! !
-!SSWDBFunctionField categoriesFor: #arguments:!accessing!public! !
-!SSWDBFunctionField categoriesFor: #convertValue:!helpers!public! !
-!SSWDBFunctionField categoriesFor: #fieldAtIndex:!accessing!public! !
-!SSWDBFunctionField categoriesFor: #function!accessing!public! !
-!SSWDBFunctionField categoriesFor: #function:!accessing!public! !
-!SSWDBFunctionField categoriesFor: #hasAggregateFunction!public!testing! !
-!SSWDBFunctionField categoriesFor: #isEmpty!public!testing! !
-!SSWDBFunctionField categoriesFor: #requiresAliasing!public!testing! !
-!SSWDBFunctionField categoriesFor: #targetClass!helpers!public! !
-!SSWDBFunctionField categoriesFor: #writeAliasedSQLOn:!output!public! !
-!SSWDBFunctionField categoriesFor: #writeSQLOn:!output!public! !
+!SSWDBFunctionField categoriesForMethods!
+anySatisfy:!public!testing! !
+arguments!accessing!public! !
+arguments:!accessing!public! !
+convertValue:!helpers!public! !
+fieldAtIndex:!accessing!public! !
+function!accessing!public! !
+function:!accessing!public! !
+hasAggregateFunction!public!testing! !
+isEmpty!public!testing! !
+requiresAliasing!public!testing! !
+targetClass!helpers!public! !
+writeAliasedSQLOn:!output!public! !
+writeSQLOn:!output!public! !
+!
 

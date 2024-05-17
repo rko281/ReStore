@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBPrivateAccessor subclass: #SSWDBVersionAccessor
 	instanceVariableNames: ''
@@ -27,7 +27,8 @@ value: valueObject in: targetObject
 	"The receiver accesses the version number of objects.
 	targetObject should be DBproxy-wrapped"
 	
-	targetObject _version: valueObject!
+	targetObject _version: valueObject.
+	^valueObject!
 
 valueIn: anObject
 
@@ -35,8 +36,10 @@ valueIn: anObject
 	anObject should be DBproxy-wrapped"
 	
 	^anObject _version! !
-!SSWDBVersionAccessor categoriesFor: #nameInDB!constants!public! !
-!SSWDBVersionAccessor categoriesFor: #specialSymbol!constants!public! !
-!SSWDBVersionAccessor categoriesFor: #value:in:!public!updating! !
-!SSWDBVersionAccessor categoriesFor: #valueIn:!evaluating!public! !
+!SSWDBVersionAccessor categoriesForMethods!
+nameInDB!constants!public! !
+specialSymbol!constants!public! !
+value:in:!public!updating! !
+valueIn:!evaluating!public! !
+!
 

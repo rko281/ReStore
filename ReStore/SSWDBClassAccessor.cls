@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBPrivateAccessor subclass: #SSWDBClassAccessor
 	instanceVariableNames: ''
@@ -24,7 +24,7 @@ value: valueObject in: targetObject
 
 	"The receiver 'accesses' the class of objects - cannot be changed"
 	
-	^self!
+	^valueObject!
 
 valueIn: anObject
 
@@ -32,8 +32,10 @@ valueIn: anObject
 	anObject should be DBproxy-wrapped"
 	
 	^anObject class! !
-!SSWDBClassAccessor categoriesFor: #nameInDB!constants!public! !
-!SSWDBClassAccessor categoriesFor: #specialSymbol!constants!public! !
-!SSWDBClassAccessor categoriesFor: #value:in:!public!updating! !
-!SSWDBClassAccessor categoriesFor: #valueIn:!evaluating!public! !
+!SSWDBClassAccessor categoriesForMethods!
+nameInDB!constants!public! !
+specialSymbol!constants!public! !
+value:in:!public!updating! !
+valueIn:!evaluating!public! !
+!
 

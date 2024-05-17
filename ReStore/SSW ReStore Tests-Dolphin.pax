@@ -23,7 +23,13 @@ package methodNames
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern3a;
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern3b;
 	add: #SimplePerson -> #testNotNilJumpBytecodePattern4;
+	add: #SSWODBCStatement -> #freeIgnoringFinalizer;
 	add: #SSWReStoreBlockAndOrQueryTest -> #note;
+	add: #SSWReStoreDebugTest -> #evaluateIsInIDECallStackIn:;
+	add: #SSWReStoreDebugTest -> #testBasicInspectorIsInIDECallStack;
+	add: #SSWReStoreDebugTest -> #testDebuggerIsInIDECallStack;
+	add: #SSWReStoreDebugTest -> #testFlipperInspectorIsInIDECallStack;
+	add: #SSWReStoreDebugTest -> #testWorkspaceIsInIDECallStack;
 	add: #SSWReStoreFullTableTest -> #test21VerifyLegacyNameTransformationMode;
 	add: #SSWReStoreFunctionTest -> #testPlatformSpecificFunction;
 	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern1:;
@@ -67,11 +73,14 @@ package methodNames
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3b;
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern4;
 	add: #SSWReStoreQueryTest -> #testQueryWithIfTrueMethodFollowedByOr;
+	add: #SSWReStoreResourcesTest -> #_testStatementFinalizedAfter:;
+	add: #SSWReStoreResourcesTest -> #_testStatementFreedAfter:;
 	add: #SSWReStoreTableTest -> #test21VerifyLegacyNameTransformationMode;
 	add: #SSWReStoreTest -> #addMethod:withSelector:toClass:;
 	add: #SSWReStoreTest -> #debugStream;
 	add: #SSWReStoreTest -> #dsn;
 	add: #SSWReStoreTest -> #initConnectionFor:;
+	add: #SSWReStoreTest -> #isDolphin;
 	add: #SSWReStoreTest -> #nativeConnection;
 	add: #SSWReStoreTest -> #removeSelector:fromClass:;
 	add: #SSWReStoreTypeTest -> #testTimeStamp;
@@ -90,10 +99,14 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\IDE\Base\Development System'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\Core\Object Arts\Dolphin\MVP\Models\List\Dolphin List Models'
+	'..\Core\Object Arts\Dolphin\MVP\Models\Value\Dolphin Value Models'
 	'SSW ReStore Main'
+	'SSW ReStore ODBC'
+	'SSW ReStore SQL Queries'
 	'SSW ReStore Tests').
 
 package!
@@ -197,6 +210,15 @@ testNotNilJumpBytecodePattern3b!public!testing! !
 testNotNilJumpBytecodePattern4!public!testing! !
 !
 
+!SSWODBCStatement methodsFor!
+
+freeIgnoringFinalizer
+
+	Processor activeProcess == MemoryManager current finalizer ifFalse: [super free]! !
+!SSWODBCStatement categoriesForMethods!
+freeIgnoringFinalizer!operations!public! !
+!
+
 !SSWReStoreBlockAndOrQueryTest methodsFor!
 
 note
@@ -211,6 +233,57 @@ note
 	(0 to: 255) allSatisfy: [ :b2 | ((ByteArray with: b1 with: b2) swordAtOffset: 0) = (ByteCodeDispatcher decodeLongJump: b1 byte2: b2)]]"! !
 !SSWReStoreBlockAndOrQueryTest categoriesForMethods!
 note!public!Running! !
+!
+
+!SSWReStoreDebugTest methodsFor!
+
+evaluateIsInIDECallStackIn: aWorkspace
+
+	^aWorkspace noEventsDo: 
+		[aWorkspace 
+			text: 'Processor activeProcess isInIDECallStack';
+			evaluateIt]!
+
+testBasicInspectorIsInIDECallStack
+
+	| shell |
+
+	shell := InspectorShell create.
+	[| inspector |
+	inspector := BasicInspector createIn: shell on: (ValueHolder with: 'test').
+	self assert: (self evaluateIsInIDECallStackIn: (inspector presenterNamed: 'source'))] ensure: [shell exit]!
+
+testDebuggerIsInIDECallStack
+
+	| debugger |
+
+	debugger := Debugger create.
+	[self assert: (self evaluateIsInIDECallStackIn: (debugger presenterNamed: 'inspector'))] ensure: [debugger exit]!
+
+testFlipperInspectorIsInIDECallStack
+
+	| inspector |
+
+	inspector := FlipperInspector create.
+	[| cards list |
+	inspector value: 'test'.
+	cards := (inspector presenterNamed: 'cards') view cards first subViews.
+	list := cards first.
+	list selection: list roots first.
+	self assert: (self evaluateIsInIDECallStackIn: cards last cards last presenter)] ensure: [inspector exit]!
+
+testWorkspaceIsInIDECallStack
+
+	| workspaceDocument |
+
+	workspaceDocument := SmalltalkWorkspaceDocument create.
+	[self deny: (self evaluateIsInIDECallStackIn: workspaceDocument workspace)] ensure: [workspaceDocument exit]! !
+!SSWReStoreDebugTest categoriesForMethods!
+evaluateIsInIDECallStackIn:!helpers!private! !
+testBasicInspectorIsInIDECallStack!public!unit tests! !
+testDebuggerIsInIDECallStack!public!unit tests! !
+testFlipperInspectorIsInIDECallStack!public!unit tests! !
+testWorkspaceIsInIDECallStack!public!unit tests! !
 !
 
 !SSWReStoreFullTableTest methodsFor!
@@ -840,6 +913,40 @@ testQueryWithIfTrueMethodFollowedByOr
 testQueryWithIfTrueMethodFollowedByOr!public!unit tests! !
 !
 
+!SSWReStoreResourcesTest methodsFor!
+
+_testStatementFinalizedAfter: aBlock
+
+	| templateStatement prevStatements newStatements |
+
+	templateStatement := reStore prepareStatementForQuery: (SSWSQLSelectQuery new table: (reStore tableForClass: SimplePerson); conditions: #(); yourself).
+	prevStatements := templateStatement class allInstances.
+
+	aBlock value.
+	MemoryManager current collectGarbage; collectGarbage; administerLastRites.
+	newStatements := templateStatement class allInstances difference: prevStatements.
+	self assert: (newStatements allSatisfy: [ :each | each handle isNull]).
+
+	templateStatement free!
+
+_testStatementFreedAfter: aBlock
+
+	| templateStatement prevStatements newStatements |
+
+	templateStatement := reStore prepareStatementForQuery: (SSWSQLSelectQuery new table: (reStore tableForClass: SimplePerson); conditions: #(); yourself).
+	prevStatements := templateStatement class allInstances.
+
+	self addMethod: (SSWODBCStatement>>#freeIgnoringFinalizer) withSelector: #free toClass: SSWODBCStatement.
+	[aBlock value.
+	newStatements := templateStatement class allInstances difference: prevStatements.
+	self assert: (newStatements allSatisfy: [ :each | each handle isNull])] ensure: [self removeSelector: #free fromClass: SSWODBCStatement].
+
+	templateStatement free! !
+!SSWReStoreResourcesTest categoriesForMethods!
+_testStatementFinalizedAfter:!helpers!private! !
+_testStatementFreedAfter:!helpers!private! !
+!
+
 !SSWReStoreTableTest methodsFor!
 
 test21VerifyLegacyNameTransformationMode
@@ -907,6 +1014,10 @@ initConnectionFor: aReStore
 	ifNotNil: 
 		[ :nativeConnection | aReStore connection: nativeConnection]!
 
+isDolphin
+
+	^true!
+
 nativeConnection
 
 	"Return a native (non-ODBC) connection to be tested, or nil to use ODBC"
@@ -925,6 +1036,7 @@ addMethod:withSelector:toClass:!public!running! !
 debugStream!public!running! !
 dsn!accessing!public! !
 initConnectionFor:!public!running! !
+isDolphin!public!testing! !
 nativeConnection!public!running! !
 removeSelector:fromClass:!public!running! !
 !

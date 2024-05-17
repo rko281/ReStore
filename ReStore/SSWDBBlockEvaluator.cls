@@ -1,6 +1,6 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
-ProtoObject subclass: #SSWDBBlockEvaluator
+SSWDBProtoObject subclass: #SSWDBBlockEvaluator
 	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -88,30 +88,35 @@ path
 
 	^#()!
 
+printOn: aStream
+
+	aStream nextPutAll: 'an '; print: self basicClass!
+
+printString
+
+	^'an ', self basicClass name!
+
 reStore
 
 	"reStore stores the SSWReStore for which the receiver parses blocks"
 	
-	^self parser reStore!
-
-subclassResponsibility
-
-	"Private - Just here to prevent code warnings"
-
-	^nil subclassResponsibility! !
-!SSWDBBlockEvaluator categoriesFor: #||!parsing - functions!public! !
-!SSWDBBlockEvaluator categoriesFor: #chainPerform:!message sending!public! !
-!SSWDBBlockEvaluator categoriesFor: #concatenatedWith:!parsing - functions!public! !
-!SSWDBBlockEvaluator categoriesFor: #currentTable!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #finalField!public!testing! !
-!SSWDBBlockEvaluator categoriesFor: #forConcatenation!converting!public! !
-!SSWDBBlockEvaluator categoriesFor: #hasFinalField!public!testing! !
-!SSWDBBlockEvaluator categoriesFor: #imageDo:databaseDo:!helpers!public! !
-!SSWDBBlockEvaluator categoriesFor: #isSimilarTo:!public!testing! !
-!SSWDBBlockEvaluator categoriesFor: #newCondition!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #parser!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #parser:!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #path!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #reStore!accessing!public! !
-!SSWDBBlockEvaluator categoriesFor: #subclassResponsibility!helpers!private! !
+	^self parser reStore! !
+!SSWDBBlockEvaluator categoriesForMethods!
+||!parsing - functions!public! !
+chainPerform:!message sending!public! !
+concatenatedWith:!parsing - functions!public! !
+currentTable!accessing!public! !
+finalField!public!testing! !
+forConcatenation!converting!public! !
+hasFinalField!public!testing! !
+imageDo:databaseDo:!helpers!public! !
+isSimilarTo:!public!testing! !
+newCondition!accessing!public! !
+parser!accessing!public! !
+parser:!accessing!public! !
+path!accessing!public! !
+printOn:!parsing - internal!public! !
+printString!parsing - internal!public! !
+reStore!accessing!public! !
+!
 

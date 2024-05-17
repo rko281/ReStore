@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLTableComponent subclass: #SSWDBTableComponent
 	instanceVariableNames: 'accessor readAllStatement'
@@ -12,9 +12,9 @@ https://github.com/rko281/ReStore'!
 !SSWDBTableComponent categoriesForClass!Unclassified! !
 !SSWDBTableComponent methodsFor!
 
-aboutToBeUnstored: anObject
+aboutToBeUnstored: anSSWDBProxy
 
-	"anObject (which originated in the receiver's table) is about to be removed from the DB.
+	"anSSWDBProxy (which originated in the receiver's table) is about to be removed from the DB.
 	Carry out any necessary actions"
 
 	"Default - no action"
@@ -41,6 +41,12 @@ componentsOf: anObject do: aBlock
 	"For each component of anObject represented by the receiver, evaluate aBlock"
 
 	aBlock value: (self accessor valueIn: anObject)!
+
+freePreparedStatements
+
+	readAllStatement notNil ifTrue: 
+		[readAllStatement free.
+		readAllStatement := nil]!
 
 newReadAllParameters
 
@@ -86,23 +92,28 @@ reStore
 sqlDialect
 
 	^self table sqlDialect! !
-!SSWDBTableComponent categoriesFor: #aboutToBeUnstored:!actions!public! !
-!SSWDBTableComponent categoriesFor: #accessor!accessing!public! !
-!SSWDBTableComponent categoriesFor: #accessor:!accessing!public! !
-!SSWDBTableComponent categoriesFor: #componentsOf:do:!evaluating!public! !
-!SSWDBTableComponent categoriesFor: #newReadAllParameters!accessing-queries!private! !
-!SSWDBTableComponent categoriesFor: #printOn:!printing!public! !
-!SSWDBTableComponent categoriesFor: #readAllFor:!actions!public! !
-!SSWDBTableComponent categoriesFor: #readAllQuery!accessing-queries!public! !
-!SSWDBTableComponent categoriesFor: #readAllStatement!accessing!public! !
-!SSWDBTableComponent categoriesFor: #relatedComponentsOf:do:!evaluating!public! !
-!SSWDBTableComponent categoriesFor: #reStore!accessing!public! !
-!SSWDBTableComponent categoriesFor: #sqlDialect!accessing!public! !
+!SSWDBTableComponent categoriesForMethods!
+aboutToBeUnstored:!actions!public! !
+accessor!accessing!public! !
+accessor:!accessing!public! !
+componentsOf:do:!evaluating!public! !
+freePreparedStatements!initialize/release!public! !
+newReadAllParameters!accessing-queries!private! !
+printOn:!printing!public! !
+readAllFor:!actions!public! !
+readAllQuery!accessing-queries!public! !
+readAllStatement!accessing!public! !
+relatedComponentsOf:do:!evaluating!public! !
+reStore!accessing!public! !
+sqlDialect!accessing!public! !
+!
 
 !SSWDBTableComponent class methodsFor!
 
 new
 
 	^super new initialize! !
-!SSWDBTableComponent class categoriesFor: #new!instance creation!public! !
+!SSWDBTableComponent class categoriesForMethods!
+new!instance creation!public! !
+!
 

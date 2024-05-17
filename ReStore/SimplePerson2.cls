@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SimplePerson2
 	instanceVariableNames: 'firstName forename surname emailAddress time friend bestFriend notes'
@@ -12,11 +12,19 @@ https://github.com/rko281/ReStore'!
 !SimplePerson2 categoriesForClass!Unclassified! !
 !SimplePerson2 methodsFor!
 
+= aDetailedPerson
+
+	^self fullName = aDetailedPerson fullName!
+
 bestFriend
 	^bestFriend!
 
 bestFriend: anObject
 	bestFriend := anObject!
+
+displayOn: aStream
+
+	aStream display: self firstName; space; display: self surname!
 
 emailAddress
 	"Private - Answer the value of the receiver's ''emailAddress'' instance variable."
@@ -54,11 +62,29 @@ friend
 friend: anObject
 	friend := anObject!
 
+fullName
+
+	^##(self) useForename 
+		ifTrue: [self forename, ' ', self surname]
+		ifFalse: [self firstName, ' ', self surname]!
+
+hash
+
+	^self fullName hash!
+
 notes
 	^notes!
 
 notes: anObject
 	notes := anObject!
+
+printOn: aStream
+	"Answer the name of the receiver as a developer would wish to see it ."
+
+	super printOn: aStream.
+	aStream nextPut: $(.
+	self displayOn: aStream.
+	aStream nextPut: $).!
 
 surname
 	"Private - Answer the value of the receiver's ''surname'' instance variable."
@@ -79,22 +105,29 @@ time: anObject
 	"Private - Set the value of the receiver's ''time'' instance variable to the argument, anObject."
 
 	time := anObject! !
-!SimplePerson2 categoriesFor: #bestFriend!accessing!private! !
-!SimplePerson2 categoriesFor: #bestFriend:!accessing!private! !
-!SimplePerson2 categoriesFor: #emailAddress!accessing!private! !
-!SimplePerson2 categoriesFor: #emailAddress:!accessing!private! !
-!SimplePerson2 categoriesFor: #firstName!accessing!private! !
-!SimplePerson2 categoriesFor: #firstName:!accessing!private! !
-!SimplePerson2 categoriesFor: #forename!accessing!private! !
-!SimplePerson2 categoriesFor: #forename:!accessing!private! !
-!SimplePerson2 categoriesFor: #friend!accessing!private! !
-!SimplePerson2 categoriesFor: #friend:!accessing!private! !
-!SimplePerson2 categoriesFor: #notes!accessing!private! !
-!SimplePerson2 categoriesFor: #notes:!accessing!private! !
-!SimplePerson2 categoriesFor: #surname!accessing!private! !
-!SimplePerson2 categoriesFor: #surname:!accessing!private! !
-!SimplePerson2 categoriesFor: #time!accessing!private! !
-!SimplePerson2 categoriesFor: #time:!accessing!private! !
+!SimplePerson2 categoriesForMethods!
+=!comparing!public! !
+bestFriend!accessing!private! !
+bestFriend:!accessing!private! !
+displayOn:!displaying!public! !
+emailAddress!accessing!private! !
+emailAddress:!accessing!private! !
+firstName!accessing!private! !
+firstName:!accessing!private! !
+forename!accessing!private! !
+forename:!accessing!private! !
+friend!accessing!private! !
+friend:!accessing!private! !
+fullName!accessing!public! !
+hash!comparing!public! !
+notes!accessing!private! !
+notes:!accessing!private! !
+printOn:!displaying!public! !
+surname!accessing!private! !
+surname:!accessing!private! !
+time!accessing!private! !
+time:!accessing!private! !
+!
 
 !SimplePerson2 class methodsFor!
 
@@ -164,15 +197,17 @@ useNotes
 useNotes: aBoolean
 
 	useNotes := aBoolean! !
-!SimplePerson2 class categoriesFor: #new!public! !
-!SimplePerson2 class categoriesFor: #notesSize!accessing!private! !
-!SimplePerson2 class categoriesFor: #reStoreDefinition!public! !
-!SimplePerson2 class categoriesFor: #useBestFriend!public! !
-!SimplePerson2 class categoriesFor: #useBestFriend:!public! !
-!SimplePerson2 class categoriesFor: #useForename!public! !
-!SimplePerson2 class categoriesFor: #useForename:!public! !
-!SimplePerson2 class categoriesFor: #useLongNotes!accessing!private! !
-!SimplePerson2 class categoriesFor: #useLongNotes:!accessing!private! !
-!SimplePerson2 class categoriesFor: #useNotes!public! !
-!SimplePerson2 class categoriesFor: #useNotes:!public! !
+!SimplePerson2 class categoriesForMethods!
+new!public! !
+notesSize!accessing!private! !
+reStoreDefinition!public! !
+useBestFriend!public! !
+useBestFriend:!public! !
+useForename!public! !
+useForename:!public! !
+useLongNotes!accessing!private! !
+useLongNotes:!accessing!private! !
+useNotes!public! !
+useNotes:!public! !
+!
 

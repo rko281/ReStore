@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWSQLQuery
 	instanceVariableNames: ''
@@ -35,9 +35,11 @@ preExecIn: anSSWReStore!
 sqlCanBeParameterized
 
 	^false! !
-!SSWSQLQuery categoriesFor: #asSubQuery!converting!public! !
-!SSWSQLQuery categoriesFor: #isReadQuery!public!testing! !
-!SSWSQLQuery categoriesFor: #isWriteQuery!public!testing! !
-!SSWSQLQuery categoriesFor: #preExecIn:!operations!public! !
-!SSWSQLQuery categoriesFor: #sqlCanBeParameterized!public!testing! !
+!SSWSQLQuery categoriesForMethods!
+asSubQuery!converting!public! !
+isReadQuery!public!testing! !
+isWriteQuery!public!testing! !
+preExecIn:!operations!public! !
+sqlCanBeParameterized!public!testing! !
+!
 

@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smallalk"!
 
 Object subclass: #SSWSQLDialect
-	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace'
+	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace nullBoolean'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -128,7 +128,10 @@ commonFunctions
 		at: #between:and: put: '%1 BETWEEN %2 AND %3' asSQLFunctionBooleanResult;
 		at: #abs put: 'ABS(%1)' asSQLFunction;
 		at: #rounded put: 'ROUND(%1)' asSQLFunctionIntegerResult;
-
+		"Integer bit manipulation functions (the logical role of these is handled directly)"
+		at: #& put: '(%1 & %2)' asSQLFunction;
+		at: #| put: '(%1 | %2)' asSQLFunction;
+		
 		"String functions"
 		at: #size put: 'LEN(%1)' asSQLFunctionIntegerResult;
 		at: #, put: '(%1 || %2)' asSQLFunction;
@@ -252,6 +255,10 @@ defaultMaxTableNameLength
 	"Return an appropriate/known value for when the connection is unable to determine"
 	^self subclassResponsibility!
 
+defaultNullBoolean
+
+	^nil!
+
 defaultSQLFunctions
 
 	| allDefaults |
@@ -339,6 +346,7 @@ initialize
 
 	self
 		sqlFunctions: self defaultSQLFunctions;
+		nullBoolean: self defaultNullBoolean;
 		classNameTransformation: self defaultClassNameTransformation;
 		instVarNameTransformation: self defaultInstVarNameTransformation!
 
@@ -467,6 +475,22 @@ maxTimeResolution
 maxVarchar
 
 	^self maxCharacter!
+
+nullBoolean
+
+	"nullBoolean stores the object used when a NULL value is returned from a Boolean field.
+	Historically, ReStore coerced any non-true value (including NULL) to false, however the current behaviour is to return nil instead.
+	To use the legacy behaviour, set nullBoolean to false"
+
+	^nullBoolean!
+
+nullBoolean: anObject
+
+	"nullBoolean stores the object used when a NULL value is returned from a Boolean field.
+	Historically, ReStore coerced any non-true value (including NULL) to false, however the current behaviour is to return nil instead.
+	To use the legacy behaviour, set nullBoolean to false"
+
+	nullBoolean := anObject!
 
 platformSpecificFunctions
 
@@ -756,6 +780,7 @@ defaultInstVarNameTransformation!constants!public! !
 defaultMaxColumnBytes!constants!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
+defaultNullBoolean!constants!public! !
 defaultSQLFunctions!constants!public! !
 defaultStandardNamespace!constants!public! !
 defaultTimeResolution!public! !
@@ -791,6 +816,8 @@ maxTableNameLength!accessing!public! !
 maxTableNameLength:!accessing!public! !
 maxTimeResolution!public! !
 maxVarchar!constants!public! !
+nullBoolean!accessing!public! !
+nullBoolean:!accessing!public! !
 platformSpecificFunctions!constants!public! !
 postLoginScript!constants!public! !
 printParameterPlaceholder:on:!helpers!public! !

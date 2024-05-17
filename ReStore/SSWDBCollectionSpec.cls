@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBTableComponent subclass: #SSWDBCollectionSpec
 	instanceVariableNames: 'templateCollection isValueDependent isValueRelated readStatement refreshStatement refreshWithContentsIfUpdatedStatement deleteStatement'
@@ -86,13 +86,13 @@ deleteStatement
 
 freePreparedStatements
 
+	super freePreparedStatements.
+
 	readStatement notNil ifTrue: [readStatement free].
-	readAllStatement notNil ifTrue: [readAllStatement free].
 	refreshStatement notNil ifTrue: [refreshStatement free].
 	refreshWithContentsIfUpdatedStatement notNil ifTrue: [refreshWithContentsIfUpdatedStatement free].
 
 	readStatement := nil.
-	readAllStatement := nil.
 	refreshStatement := nil.
 	refreshWithContentsIfUpdatedStatement := nil!
 
@@ -149,6 +149,7 @@ newProxydCollectionFor: aProxyObject
 		_reStore: aProxyObject _reStore;
 		_owner: aProxyObject;
 		_collectionSpec: self;
+		_setNewNonPersistent;
 		yourself!
 
 readQuery
@@ -247,39 +248,41 @@ templateCollection: aCollection
 	for collections created by this class (i.e. a copy of templateCollection is used)"
 	
 	templateCollection := aCollection! !
-!SSWDBCollectionSpec categoriesFor: #applyTo:withID:in:!actions!public! !
-!SSWDBCollectionSpec categoriesFor: #beValueDependent!defining!public! !
-!SSWDBCollectionSpec categoriesFor: #beValueRelated!defining!public! !
-!SSWDBCollectionSpec categoriesFor: #beValueUnrelated!defining!public! !
-!SSWDBCollectionSpec categoriesFor: #collectionClass!evaluating!public! !
-!SSWDBCollectionSpec categoriesFor: #collectionProxyClass!constants!public! !
-!SSWDBCollectionSpec categoriesFor: #containedTables!evaluating!public! !
-!SSWDBCollectionSpec categoriesFor: #dbInstancesFor:!evaluating!public! !
-!SSWDBCollectionSpec categoriesFor: #defineAs:in:!defining!public! !
-!SSWDBCollectionSpec categoriesFor: #deleteQuery!accessing-queries!public! !
-!SSWDBCollectionSpec categoriesFor: #deleteStatement!accessing!public! !
-!SSWDBCollectionSpec categoriesFor: #freePreparedStatements!initialize/release!public! !
-!SSWDBCollectionSpec categoriesFor: #initialize!initialize/release!public! !
-!SSWDBCollectionSpec categoriesFor: #isKeyDependent!public!testing! !
-!SSWDBCollectionSpec categoriesFor: #isKeyRelated!public!testing! !
-!SSWDBCollectionSpec categoriesFor: #isRelated!public!testing! !
-!SSWDBCollectionSpec categoriesFor: #isValueDependent!public!testing! !
-!SSWDBCollectionSpec categoriesFor: #isValueRelated!public!testing! !
-!SSWDBCollectionSpec categoriesFor: #newCollection!evaluating!public! !
-!SSWDBCollectionSpec categoriesFor: #newProxydCollectionFor:!evaluating!public! !
-!SSWDBCollectionSpec categoriesFor: #readQuery!accessing-queries!public! !
-!SSWDBCollectionSpec categoriesFor: #readStatement!accessing!public! !
-!SSWDBCollectionSpec categoriesFor: #recoverCollectionForProxy:!actions!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshCollectionForProxy:!actions!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshCollectionIfUpdatedForProxy:!actions!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshCollectionWithContentsForProxy:!actions!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshCollectionWithContentsIfUpdatedForProxy:!actions!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshQuery!accessing-queries!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshStatement!accessing!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
-!SSWDBCollectionSpec categoriesFor: #refreshWithContentsIfUpdatedStatement!accessing!public! !
-!SSWDBCollectionSpec categoriesFor: #relatedComponentsOf:do:!evaluating!public! !
-!SSWDBCollectionSpec categoriesFor: #targetClass!accessing!public! !
-!SSWDBCollectionSpec categoriesFor: #templateCollection!accessing!public! !
-!SSWDBCollectionSpec categoriesFor: #templateCollection:!accessing!public! !
+!SSWDBCollectionSpec categoriesForMethods!
+applyTo:withID:in:!actions!public! !
+beValueDependent!defining!public! !
+beValueRelated!defining!public! !
+beValueUnrelated!defining!public! !
+collectionClass!evaluating!public! !
+collectionProxyClass!constants!public! !
+containedTables!evaluating!public! !
+dbInstancesFor:!evaluating!public! !
+defineAs:in:!defining!public! !
+deleteQuery!accessing-queries!public! !
+deleteStatement!accessing!public! !
+freePreparedStatements!initialize/release!public! !
+initialize!initialize/release!public! !
+isKeyDependent!public!testing! !
+isKeyRelated!public!testing! !
+isRelated!public!testing! !
+isValueDependent!public!testing! !
+isValueRelated!public!testing! !
+newCollection!evaluating!public! !
+newProxydCollectionFor:!evaluating!public! !
+readQuery!accessing-queries!public! !
+readStatement!accessing!public! !
+recoverCollectionForProxy:!actions!public! !
+refreshCollectionForProxy:!actions!public! !
+refreshCollectionIfUpdatedForProxy:!actions!public! !
+refreshCollectionWithContentsForProxy:!actions!public! !
+refreshCollectionWithContentsIfUpdatedForProxy:!actions!public! !
+refreshQuery!accessing-queries!public! !
+refreshStatement!accessing!public! !
+refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
+refreshWithContentsIfUpdatedStatement!accessing!public! !
+relatedComponentsOf:do:!evaluating!public! !
+targetClass!accessing!public! !
+templateCollection!accessing!public! !
+templateCollection:!accessing!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreReadWithComponentsTest subclass: #SSWReStoreDeleteCollectionTest
 	instanceVariableNames: ''
@@ -54,27 +54,31 @@ testDeleteProxiedCollectionQueryCount
 
 testDeleteUnproxiedCollectionQueryCount
 
-	customer1 orders size.
+	customer1 orders _deproxify.
 	self deny: customer1 isDBProxy.
 	self deny: customer1 orders isDBProxy.
 
 	self resetQueryCount.
 	self assert: customer1 unstore.
 	self assert: self queryCount equals: self deleteCustomer1QueriesCount! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #_testDeleteAll!public!unit tests! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #deleteCustomer1QueriesCount!constants!public! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #deleteCustomer2QueriesCount!constants!public! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #deleteProxiedCollectionQueryCount!constants!public! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #deleteQueriesCount!constants!public! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #deproxyQueryCount!constants!public! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #otherCustomersSize!constants!public! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #testDeleteProxiedCollectionQueryCount!public!unit tests! !
-!SSWReStoreDeleteCollectionTest categoriesFor: #testDeleteUnproxiedCollectionQueryCount!public!unit tests! !
+!SSWReStoreDeleteCollectionTest categoriesForMethods!
+_testDeleteAll!public!unit tests! !
+deleteCustomer1QueriesCount!constants!public! !
+deleteCustomer2QueriesCount!constants!public! !
+deleteProxiedCollectionQueryCount!constants!public! !
+deleteQueriesCount!constants!public! !
+deproxyQueryCount!constants!public! !
+otherCustomersSize!constants!public! !
+testDeleteProxiedCollectionQueryCount!public!unit tests! !
+testDeleteUnproxiedCollectionQueryCount!public!unit tests! !
+!
 
 !SSWReStoreDeleteCollectionTest class methodsFor!
 
 isAbstract
 
 	^self = SSWReStoreDeleteCollectionTest! !
-!SSWReStoreDeleteCollectionTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreDeleteCollectionTest class categoriesForMethods!
+isAbstract!public! !
+!
 

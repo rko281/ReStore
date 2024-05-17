@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
 	instanceVariableNames: 'allReferencedObjects currentReferencedObjects activeProxiesMap changedObjects allocatedIDs deletedObjects'
@@ -16,7 +16,7 @@ abandon
 
 	"End this transaction, leaving objects in their current state (unlike rollback which returns them to their state prior to the transaction)"
 
-	self currentReferencedObjects do: [ :each | each _swapReferences].
+	self currentReferencedObjects do: [ :each | each _unswap].
 	self endObjectCollection!
 
 activeProxiesMap
@@ -82,10 +82,10 @@ autoRecoverCommitIn: anSSWReStore
 
 	"Any objects referenced during the errored commit will erroneously be in currentReferencedObjects.
 	Swap back and forget"
-	self currentReferencedObjects do: [ :obj | obj _swapReferences].
+	self currentReferencedObjects do: [ :obj | obj _unswap].
 
 	"The receiver's changedObjects should now be the currentReferencedObjects"
-	self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swapReferences]).
+	self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swap]).
 	self allReferencedObjects: self newEmptyObjectsSet!
 
 autoRecoverPreCommitIn: anSSWReStore
@@ -215,7 +215,7 @@ newEmptyObjectsSet
 
 	"Return an empty Set of a default size that can be used for holding proxies"
 
-	^self newEmptyObjectsSet: 20!
+	^self newEmptyObjectsSet: 128!
 
 newEmptyObjectsSet: anInteger
 
@@ -229,7 +229,7 @@ nextCollectionPhase
 		ifTrue: [self allReferencedObjects: self currentReferencedObjects]
 		ifFalse: [self allReferencedObjects addAll: self currentReferencedObjects].
 
-	self currentReferencedObjects: self newEmptyObjectsSet
+	self currentReferencedObjects: (self newEmptyObjectsSet: self currentReferencedObjects size)
 !
 
 ownerTransaction
@@ -272,8 +272,8 @@ prepareToCommit
 					[unchanged add: proxy]]].
 		needingPhase2 do: [ :each | each _prepareToCommitPhase2]].
 	
-	self changedObjects: (changed collect: [ :proxy | proxy _swapReferences]). 
-	unchanged do: [ :each | each isDBProxy ifTrue: [each _swapReferences]].
+	self changedObjects: (changed collect: [ :proxy | proxy _unswap]). 
+	unchanged do: [ :each | each isDBProxy ifTrue: [each _unswap]].
 
 	self endObjectCollection!
 
@@ -298,40 +298,42 @@ removeProxy: aProxydObject
 resetChangedObjects
 
 	self changedObjects: nil! !
-!SSWDBAbstractSingleTransaction categoriesFor: #abandon!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #activeProxiesMap!accessing!private! !
-!SSWDBAbstractSingleTransaction categoriesFor: #activeProxiesMap:!accessing!private! !
-!SSWDBAbstractSingleTransaction categoriesFor: #addDeletedObject:!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #allocatedIDs:!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #allocateIDFor:tableRecord:!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #allReferencedObjects!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #allReferencedObjects:!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #autoRecoverCommitIn:!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #autoRecoverPreCommitIn:!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #begin!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #beginObjectCollection!initializing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #beginWithin:!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #changedObjects!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #changedObjects:!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #commitAllocatedIDs!actions!private! !
-!SSWDBAbstractSingleTransaction categoriesFor: #currentReferencedObjects!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #currentReferencedObjects:!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #deletedObjects!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #deletedObjects:!accessing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #endObjectCollection!initializing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #ensureIsActive:!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #includesProxiedObject:!public!testing! !
-!SSWDBAbstractSingleTransaction categoriesFor: #includesProxy:!public!testing! !
-!SSWDBAbstractSingleTransaction categoriesFor: #isAlreadyDeleted:!public!testing! !
-!SSWDBAbstractSingleTransaction categoriesFor: #newEmptyObjectsSet!evaluating!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #newEmptyObjectsSet:!evaluating!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #nextCollectionPhase!initializing!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #ownerTransaction!evaluating!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #postCommitAllocatedIDs!actions!private! !
-!SSWDBAbstractSingleTransaction categoriesFor: #prepareToCommit!actions!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #proxy:forwarded:!proxy tracking!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #proxyForObject:ifNone:!proxy tracking!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #removeProxy:!proxy tracking!public! !
-!SSWDBAbstractSingleTransaction categoriesFor: #resetChangedObjects!initializing!public! !
+!SSWDBAbstractSingleTransaction categoriesForMethods!
+abandon!actions!public! !
+activeProxiesMap!accessing!private! !
+activeProxiesMap:!accessing!private! !
+addDeletedObject:!actions!public! !
+allocatedIDs!accessing!public! !
+allocatedIDs:!accessing!public! !
+allocateIDFor:tableRecord:!actions!public! !
+allReferencedObjects!accessing!public! !
+allReferencedObjects:!accessing!public! !
+autoRecoverCommitIn:!actions!public! !
+autoRecoverPreCommitIn:!actions!public! !
+begin!actions!public! !
+beginObjectCollection!initializing!public! !
+beginWithin:!actions!public! !
+changedObjects!accessing!public! !
+changedObjects:!accessing!public! !
+commitAllocatedIDs!actions!private! !
+currentReferencedObjects!accessing!public! !
+currentReferencedObjects:!accessing!public! !
+deletedObjects!accessing!public! !
+deletedObjects:!accessing!public! !
+endObjectCollection!initializing!public! !
+ensureIsActive:!actions!public! !
+includesProxiedObject:!public!testing! !
+includesProxy:!public!testing! !
+isAlreadyDeleted:!public!testing! !
+newEmptyObjectsSet!evaluating!public! !
+newEmptyObjectsSet:!evaluating!public! !
+nextCollectionPhase!initializing!public! !
+ownerTransaction!evaluating!public! !
+postCommitAllocatedIDs!actions!private! !
+prepareToCommit!actions!public! !
+proxy:forwarded:!proxy tracking!public! !
+proxyForObject:ifNone:!proxy tracking!public! !
+removeProxy:!proxy tracking!public! !
+resetChangedObjects!initializing!public! !
+!
 

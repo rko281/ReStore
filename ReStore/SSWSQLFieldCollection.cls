@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLCollection variableSubclass: #SSWSQLFieldCollection
 	instanceVariableNames: ''
@@ -16,10 +16,7 @@ fieldNamed: aString
 
 	"Return the individual field with the given name"
 
-	self do: 
-		[ :field || match |
-		match := field fieldNamed: aString.
-		match notNil ifTrue: [^match]].
+	1 to: self size do: [ :index | ((self at: index) fieldNamed: aString) ifNotNil: [ :match | ^match]].
 
 	^nil!
 
@@ -73,12 +70,14 @@ writeSQLOn: aStream
 	^self isAll
 		ifTrue: [aStream nextPut: $*]
 		ifFalse: [super writeSQLOn: aStream]! !
-!SSWSQLFieldCollection categoriesFor: #fieldNamed:!accessing!public! !
-!SSWSQLFieldCollection categoriesFor: #isAll!public!testing! !
-!SSWSQLFieldCollection categoriesFor: #isAllInTable!public!testing! !
-!SSWSQLFieldCollection categoriesFor: #isFieldCollection!public!testing! !
-!SSWSQLFieldCollection categoriesFor: #requiresAliasing!public!testing! !
-!SSWSQLFieldCollection categoriesFor: #sqlConcatenator!output!public! !
-!SSWSQLFieldCollection categoriesFor: #writeAliasedSQLOn:!output!public! !
-!SSWSQLFieldCollection categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLFieldCollection categoriesForMethods!
+fieldNamed:!accessing!public! !
+isAll!public!testing! !
+isAllInTable!public!testing! !
+isFieldCollection!public!testing! !
+requiresAliasing!public!testing! !
+sqlConcatenator!output!public! !
+writeAliasedSQLOn:!output!public! !
+writeSQLOn:!output!public! !
+!
 

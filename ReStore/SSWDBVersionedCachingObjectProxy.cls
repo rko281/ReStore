@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
 	instanceVariableNames: 'version'
@@ -57,7 +57,7 @@ _postCommitUpdates
 	updates := self _fieldUpdates.
 	
 	updates isEmpty ifFalse: 
-		[updates applyTo: copyObject. 
+		[updates copyTo: copyObject. 
 		self _incrementVersion]!
 
 _refreshIfUpdated
@@ -67,7 +67,7 @@ _refreshIfUpdated
 	self _isRecovered ifTrue: 
 		[(reStore refreshProxyIfUpdated: self) ifTrue:
 			["Update the copyObject"
-			self _aquireCopyObject]]!
+			self _acquireCopyObject]]!
 
 _version
 
@@ -86,14 +86,16 @@ _version: anInteger
 	This number is incremented each time the object is changed in the DB"
 	
 	version := anInteger! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_commitUpdates!actions-internal!public! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_incrementVersion!actions-internal!public! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_incrementVersionUpdate!accessing:derived!public! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_matchStateOf:!actions-internal!public! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_postCommitUpdates!actions-internal!public! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_refreshIfUpdated!actions-refresh!public! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_version!accessing!public! !
-!SSWDBVersionedCachingObjectProxy categoriesFor: #_version:!accessing!public! !
+!SSWDBVersionedCachingObjectProxy categoriesForMethods!
+_commitUpdates!actions-internal!public! !
+_incrementVersion!actions-internal!public! !
+_incrementVersionUpdate!accessing:derived!public! !
+_matchStateOf:!actions-internal!public! !
+_postCommitUpdates!actions-internal!public! !
+_refreshIfUpdated!actions-refresh!public! !
+_version!accessing!public! !
+_version:!accessing!public! !
+!
 
 !SSWDBVersionedCachingObjectProxy class methodsFor!
 
@@ -135,9 +137,11 @@ versionControlField
 		targetClass: Integer;
 		yourself
 	! !
-!SSWDBVersionedCachingObjectProxy class categoriesFor: #_forNewObject:withID:inReStore:!instance creation!public! !
-!SSWDBVersionedCachingObjectProxy class categoriesFor: #controlFields!constants!public! !
-!SSWDBVersionedCachingObjectProxy class categoriesFor: #modifyUpdatesFor:!constants!public! !
-!SSWDBVersionedCachingObjectProxy class categoriesFor: #new!instance creation!public! !
-!SSWDBVersionedCachingObjectProxy class categoriesFor: #versionControlField!constants!public! !
+!SSWDBVersionedCachingObjectProxy class categoriesForMethods!
+_forNewObject:withID:inReStore:!instance creation!public! !
+controlFields!constants!public! !
+modifyUpdatesFor:!constants!public! !
+new!instance creation!public! !
+versionControlField!constants!public! !
+!
 

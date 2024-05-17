@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWAccessor subclass: #SSWInstVarAccessor
 	instanceVariableNames: 'ownerClass slot name'
@@ -20,16 +20,17 @@ access: aSymbol in: aClass
 
 	"Configure the receiver to access the inst var of aClass which is named aSymbol"
 	
-	| instVarSlot |
+	| instVarName instVarSlot |
 
 	"Veirfy a valid inst var slot"
-	instVarSlot := aClass allInstVarNames indexOf: aSymbol asString.
+	instVarName := aSymbol asInstVarName. "in case aSymbol is something else (e.g. SSWDBInstVarWithFieldName)"
+	instVarSlot := aClass allInstVarNames indexOf: instVarName asString.
 	instVarSlot < 1 ifTrue: [self error: ('Undefined instance variable ', aSymbol)].
 
 	self 
 		ownerClass: aClass;
 		slot: instVarSlot;
-		name: aSymbol!
+		name: instVarName!
 
 accesses: aSymbol
 
@@ -38,6 +39,15 @@ accesses: aSymbol
 accessesDeeply: aSymbol
 
 	^false!
+
+copyValue: valueObject in: targetObject
+
+	"Set the instance variable of targetObject represented by the receiver to valueObject.
+	Compared to value:in: the implication here is that valueObject may need copying to make an independent object.
+
+	Default action - copying is not needed"
+
+	^self value: valueObject in: targetObject!
 
 copyValueIn: sourceObject to: targetObject
 
@@ -98,28 +108,31 @@ value: valueObject in: targetObject
 
 	"Set the instance variable of targetObject represented by the receiver to valueObject"
 
-	targetObject _instVarAt: self slot put: valueObject!
+	^targetObject _instVarAt: self slot put: valueObject!
 
 valueIn: targetObject
 
 	"Return the value of the instance variable of targetObject represented by the receiver"
 
-	^targetObject instVarAt: self slot! !
-!SSWInstVarAccessor categoriesFor: #=!public!testing! !
-!SSWInstVarAccessor categoriesFor: #access:in:!initializing!public! !
-!SSWInstVarAccessor categoriesFor: #accesses:!public!testing! !
-!SSWInstVarAccessor categoriesFor: #accessesDeeply:!public!testing! !
-!SSWInstVarAccessor categoriesFor: #copyValueIn:to:!evaluating!private! !
-!SSWInstVarAccessor categoriesFor: #hash!public!testing! !
-!SSWInstVarAccessor categoriesFor: #name!accessing!public! !
-!SSWInstVarAccessor categoriesFor: #name:!accessing!public! !
-!SSWInstVarAccessor categoriesFor: #ownerClass!accessing!public! !
-!SSWInstVarAccessor categoriesFor: #ownerClass:!accessing!public! !
-!SSWInstVarAccessor categoriesFor: #slot!accessing!public! !
-!SSWInstVarAccessor categoriesFor: #slot:!accessing!public! !
-!SSWInstVarAccessor categoriesFor: #value:!evaluating!public! !
-!SSWInstVarAccessor categoriesFor: #value:in:!public!updating! !
-!SSWInstVarAccessor categoriesFor: #valueIn:!evaluating!public! !
+	^targetObject _instVarAt: self slot! !
+!SSWInstVarAccessor categoriesForMethods!
+=!public!testing! !
+access:in:!initializing!public! !
+accesses:!public!testing! !
+accessesDeeply:!public!testing! !
+copyValue:in:!public!updating! !
+copyValueIn:to:!evaluating!private! !
+hash!public!testing! !
+name!accessing!public! !
+name:!accessing!public! !
+ownerClass!accessing!public! !
+ownerClass:!accessing!public! !
+slot!accessing!public! !
+slot:!accessing!public! !
+value:!evaluating!public! !
+value:in:!public!updating! !
+valueIn:!evaluating!public! !
+!
 
 !SSWInstVarAccessor class methodsFor!
 
@@ -128,5 +141,7 @@ toAccess: anInstVarName in: aClass
 	^self new
 		access: anInstVarName in: aClass;
 		yourself! !
-!SSWInstVarAccessor class categoriesFor: #toAccess:in:!instance creation!public! !
+!SSWInstVarAccessor class categoriesForMethods!
+toAccess:in:!instance creation!public! !
+!
 

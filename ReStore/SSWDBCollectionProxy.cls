@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBProxy subclass: #SSWDBCollectionProxy
 	instanceVariableNames: 'collectionSpec owner'
@@ -11,12 +11,6 @@ SSWDBCollectionProxy comment: 'ReStore
 https://github.com/rko281/ReStore'!
 !SSWDBCollectionProxy categoriesForClass!Unclassified! !
 !SSWDBCollectionProxy methodsFor!
-
-_checkHasChanged
-
-	"Default - collection proxies do not keep track of their changes"
-
-	^false!
 
 _collectionSpec
 
@@ -80,6 +74,10 @@ _prepareToCommit
 
 	^self!
 
+_proxiedObjectClass
+	
+	^collectionSpec collectionClass!
+
 _recoverProxiedObject
 
 	collectionSpec recoverCollectionForProxy: self!
@@ -96,15 +94,38 @@ _refreshWithContentsIfUpdated
 		ifTrue: [collectionSpec refreshCollectionWithContentsIfUpdatedForProxy: self]
 		ifFalse: [#()]!
 
-_unrecoveredProxyString
+_rollbackChanges
 
-	^'<an unrecovered ', collectionSpec templateCollection class name, '>'!
+	"Forget any changes by reinstantiating the unchanged collection.
+	Also transfer over any events registered against the current proxiedObject"
 
-class
+	| unchangedCollection me changedCollection |
 
-	^proxiedObject == nil
-		ifTrue: [collectionSpec collectionClass]
-		ifFalse: [proxiedObject class]!
+	self _clearDeleted.
+
+	unchangedCollection := self _unchangedCollection.
+	unchangedCollection == proxiedObject ifTrue: [^self _unswap].
+
+	me := proxiedObject.
+	changedCollection := self.
+	self _unswap.
+
+	me _setProxiedObject: unchangedCollection.
+	changedCollection getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]!
+
+_unchangedCollection
+
+	"Answer the receiver's collection prior to any changes. This is used to roll the receiver back to its previous state"
+
+	^self subclassResponsibility!
+
+_unstore
+
+	self _isDeleted ifTrue: [^self].
+
+	self _isPersistent 
+		ifTrue: [self _setDeleted]
+		ifFalse: [reStore removeFromTransaction: self]!
 
 orRemote
 
@@ -121,6 +142,21 @@ remote
 
 	^collectionSpec dbInstancesFor: self!
 
+size
+
+	"Optimisation for collections - go direct.
+	ASSERT: the proxiedObject's implementation of size is fast and non-modifying"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self size]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+				ifTrue: [self _recoveredProxiedObject size]
+				ifFalse: [self size]]]!
+
 withComponents
 
 	"Avoid faulting in the proxied object"
@@ -133,7 +169,6 @@ withRelatedComponents
 
 	^SSWDBCollectionWithRelatedContents on: self! !
 !SSWDBCollectionProxy categoriesForMethods!
-_checkHasChanged!public!testing! !
 _collectionSpec!accessing!public! !
 _collectionSpec:!accessing!public! !
 _forceRefresh!actions-refresh!public! !
@@ -143,13 +178,16 @@ _owner:!accessing!public! !
 _ownerID!accessing!public! !
 _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
+_proxiedObjectClass!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshIfUpdated!actions-refresh!public! !
 _refreshWithContentsIfUpdated!actions-refresh!public! !
-_unrecoveredProxyString!accessing!public! !
-class!forwarding!public! !
+_rollbackChanges!actions-internal!public! !
+_unchangedCollection!accessing!private! !
+_unstore!actions-internal!public! !
 orRemote!forwarding!public! !
 remote!accessing!public! !
+size!public! !
 withComponents!accessing!public! !
 withRelatedComponents!accessing!public! !
 !

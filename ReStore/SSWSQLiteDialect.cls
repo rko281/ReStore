@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLDialect subclass: #SSWSQLiteDialect
 	instanceVariableNames: ''
@@ -99,19 +99,23 @@ shouldExpandNamespacedAllFields
 	"SQLite gives error with namespace.table_name.* in SELECT query"
 
 	^true! !
-!SSWSQLiteDialect categoriesFor: #alterField:table:in:!maintenance!public! !
-!SSWSQLiteDialect categoriesFor: #decimal!datatypes!public! !
-!SSWSQLiteDialect categoriesFor: #defaultDateTimeResolution!constants!public! !
-!SSWSQLiteDialect categoriesFor: #defaultMaxColumnNameLength!constants!public! !
-!SSWSQLiteDialect categoriesFor: #defaultMaxTableNameLength!constants!public! !
-!SSWSQLiteDialect categoriesFor: #dialectSpecificFunctions!constants!public! !
-!SSWSQLiteDialect categoriesFor: #dropColumnNamed:fromTable:in:!maintenance!public! !
-!SSWSQLiteDialect categoriesFor: #shouldExpandNamespacedAllFields!public!testing! !
+!SSWSQLiteDialect categoriesForMethods!
+alterField:table:in:!maintenance!public! !
+decimal!datatypes!public! !
+defaultDateTimeResolution!constants!public! !
+defaultMaxColumnNameLength!constants!public! !
+defaultMaxTableNameLength!constants!public! !
+dialectSpecificFunctions!constants!public! !
+dropColumnNamed:fromTable:in:!maintenance!public! !
+shouldExpandNamespacedAllFields!public!testing! !
+!
 
 !SSWSQLiteDialect class methodsFor!
 
 dbmsName
 
 	^'SQLITE'! !
-!SSWSQLiteDialect class categoriesFor: #dbmsName!constants!public! !
+!SSWSQLiteDialect class categoriesForMethods!
+dbmsName!constants!public! !
+!
 

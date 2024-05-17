@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBClassWithInfo
 	instanceVariableNames: ''
@@ -37,20 +37,44 @@ infoClass
 
 	^self subclassResponsibility!
 
+isDirectlyPersisted
+
+	^self infoClass isDirectlyPersisted!
+
+isDirectlyPersistedNonBaseClass
+
+	^self infoClass isDirectlyPersistedNonBaseClass!
+
+isMutableDirectlyPersistedNonBaseClass
+
+	^self infoClass isMutableDirectlyPersistedNonBaseClass!
+
 isPersistentBaseClass
 
 	^self infoClass isPersistentBaseClass
 !
+
+lookupMethod: aSymbol
+
+	"Required class-like behavior"
+
+	^self infoClass lookupMethod: aSymbol!
 
 new
 
 	"Create and return an instance of the receiver's infoClass"
 
 	^self infoClass new! !
-!SSWDBClassWithInfo categoriesFor: #beKeyClassOf:!defining!public! !
-!SSWDBClassWithInfo categoriesFor: #beTargetClassOf:!defining!public! !
-!SSWDBClassWithInfo categoriesFor: #includesBehavior:!public!testing! !
-!SSWDBClassWithInfo categoriesFor: #infoClass!constants!public! !
-!SSWDBClassWithInfo categoriesFor: #isPersistentBaseClass!public!testing! !
-!SSWDBClassWithInfo categoriesFor: #new!instance creation!public! !
+!SSWDBClassWithInfo categoriesForMethods!
+beKeyClassOf:!defining!public! !
+beTargetClassOf:!defining!public! !
+includesBehavior:!public!testing! !
+infoClass!constants!public! !
+isDirectlyPersisted!public!testing! !
+isDirectlyPersistedNonBaseClass!public!testing! !
+isMutableDirectlyPersistedNonBaseClass!public!testing! !
+isPersistentBaseClass!public!testing! !
+lookupMethod:!methods-accessing!public! !
+new!instance creation!public! !
+!
 

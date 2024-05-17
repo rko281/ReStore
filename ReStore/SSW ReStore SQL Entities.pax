@@ -54,6 +54,7 @@ package methodNames
 	add: #Object -> #sqlStringIn:;
 	add: #Object -> #writeSQLOn:forCondition:;
 	add: #Object -> #writeSQLOn:forField:;
+	add: #ScaledDecimal -> #writeSQLOn:;
 	add: #SSWDBByteArrayWithInfo -> #writeSQLTypeOn:using:;
 	add: #SSWDBDateAndTimeWithResolution -> #writeSQLTypeOn:using:;
 	add: #SSWDBFixedStringWithInfo -> #writeSQLTypeOn:using:;
@@ -101,7 +102,7 @@ package!
 "Class Definitions"!
 
 Object subclass: #SSWSQLDialect
-	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace'
+	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace nullBoolean'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -486,6 +487,17 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	self reStoreIDClass writeSQLTypeOn: aStream using: anSQLDialect! !
 !Object class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
+!
+
+!ScaledDecimal methodsFor!
+
+writeSQLOn: aStream
+
+	"We don't want the s postfix"
+
+	self displayOn: aStream! !
+!ScaledDecimal categoriesForMethods!
+writeSQLOn:!printing!public! !
 !
 
 !SSWDBByteArrayWithInfo methodsFor!

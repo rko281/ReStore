@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 DeafObject subclass: #SSWDBDeletedObject
 	instanceVariableNames: 'deletedObjectClass id'
@@ -15,6 +15,26 @@ https://github.com/rko281/ReStore'!
 _id
 
 	^self id!
+
+_instVarAt: anInteger
+
+	"Encountered when 'recovering' a deleted object; ignore"
+
+	^nil!
+
+_instVarAt: anInteger put: anObject
+
+	"Encountered when 'recovering' a deleted object; ignore"!
+
+= anObject 
+
+	^self class == anObject class and: [self deletedObjectClass = anObject deletedObjectClass and: [self id = anObject id]]!
+
+copy
+
+	"Do not copy the receiver"
+
+	^self!
 
 deletedObjectClass
 
@@ -33,6 +53,10 @@ deletedObjectClass: aClass
 displayOn: aStream
 
 	self id displayOn: aStream!
+
+hash
+
+	^deletedObjectClass hash bitXor: id hash!
 
 id
 
@@ -60,28 +84,27 @@ printOn: aStream
 		nextPutAll: '; ID: ';
 		nextPutAll: self id printString!
 
-shallowCopy
-
-	"Do not copy the receiver"
-
-	^self
-!
-
 unstore
 
 	"Do nothing - the receiver is already deleted"
 
 	^self! !
-!SSWDBDeletedObject categoriesFor: #_id!accessing!public! !
-!SSWDBDeletedObject categoriesFor: #deletedObjectClass!accessing!public! !
-!SSWDBDeletedObject categoriesFor: #deletedObjectClass:!accessing!public! !
-!SSWDBDeletedObject categoriesFor: #displayOn:!printing!public! !
-!SSWDBDeletedObject categoriesFor: #id!accessing!public! !
-!SSWDBDeletedObject categoriesFor: #id:!accessing!public! !
-!SSWDBDeletedObject categoriesFor: #isDBDeleted!public!testing! !
-!SSWDBDeletedObject categoriesFor: #printOn:!printing!public! !
-!SSWDBDeletedObject categoriesFor: #shallowCopy!copying!public! !
-!SSWDBDeletedObject categoriesFor: #unstore!public!testing! !
+!SSWDBDeletedObject categoriesForMethods!
+_id!accessing!public! !
+_instVarAt:!accessing!public! !
+_instVarAt:put:!accessing!public! !
+=!comparing!public! !
+copy!copying!public! !
+deletedObjectClass!accessing!public! !
+deletedObjectClass:!accessing!public! !
+displayOn:!printing!public! !
+hash!comparing!public! !
+id!accessing!public! !
+id:!accessing!public! !
+isDBDeleted!public!testing! !
+printOn:!printing!public! !
+unstore!public!testing! !
+!
 
 !SSWDBDeletedObject class methodsFor!
 
@@ -91,5 +114,7 @@ newForClass: aClass id: anInteger
 		deletedObjectClass: aClass;
 		id: anInteger;
 		yourself! !
-!SSWDBDeletedObject class categoriesFor: #newForClass:id:!instance creation!public! !
+!SSWDBDeletedObject class categoriesForMethods!
+newForClass:id:!instance creation!public! !
+!
 

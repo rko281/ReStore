@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreAbstractQueryTest
 	instanceVariableNames: ''
@@ -47,16 +47,25 @@ createTestData
 
 		john friend: david]!
 
+john
+
+	^(SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John']!
+
 sortedPersonFullNames
 
 	^#('David Smythe' 'Jim Brown' 'John Smith' 'Zoe Brown')! !
-!SSWReStoreAbstractQueryTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreAbstractQueryTest categoriesFor: #sortedPersonFullNames!constants!public! !
+!SSWReStoreAbstractQueryTest categoriesForMethods!
+createTestData!public!running! !
+john!accessing!public! !
+sortedPersonFullNames!constants!public! !
+!
 
 !SSWReStoreAbstractQueryTest class methodsFor!
 
 isAbstract
 
 	^self == SSWReStoreAbstractQueryTest! !
-!SSWReStoreAbstractQueryTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreAbstractQueryTest class categoriesForMethods!
+isAbstract!public! !
+!
 

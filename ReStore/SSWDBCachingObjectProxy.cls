@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBObjectProxy subclass: #SSWDBCachingObjectProxy
 	instanceVariableNames: 'copyObject'
@@ -12,29 +12,7 @@ https://github.com/rko281/ReStore'!
 !SSWDBCachingObjectProxy categoriesForClass!Unclassified! !
 !SSWDBCachingObjectProxy methodsFor!
 
-_aquireCollectionProxiesUsing: collectionSpecs
-
-	"Cache the proxiedObject's collection proxies, and set the backwards owner reference.
-	The CollectionSpecs identifying the collections (equivalent to self _dbTable collectionSpecs) 
-	are passed in as an optimisation"
-
-	"If refreshing an existing object, we may already have the collections"
-	collectionProxies isNil 
-	ifTrue:
-		[collectionProxies := IdentityDictionary new: collectionSpecs size.
-
-		collectionSpecs do:
-			[ :spec |
-			(collectionProxies at: spec put: (spec accessor valueIn: proxiedObject))
-				_owner: self]]
-	ifFalse:
-		[collectionSpecs do:
-			[ :spec |
-			spec accessor value: (collectionProxies at: spec) in: proxiedObject.
-			copyObject notNil ifTrue: 
-				[spec accessor value: (collectionProxies at: spec) in: copyObject]]]!
-
-_aquireCopyObject
+_acquireCopyObject
 
 	copyObject := self _dbTable copyForProxy: proxiedObject!
 
@@ -49,49 +27,6 @@ _checkHasChanged
 				accessor := field accessor.
 				current := accessor valueIn: proxiedObject.
 				current _hasChangedFrom: (accessor valueIn: copyObject)]]]!
-
-_commitChanges
-
-	"Return a Boolean indicating whether the commit succeeds"
-
-	^self _isPersistent
-	ifTrue:
-		[self _isDeleted
-			ifTrue: [self _commitUnstore]
-			ifFalse: [self _commitUpdates]]
-	ifFalse:
-		[self _commitStore]!
-
-_commitStore
-
-	"Private - Return a Boolean indicating whether the commit succeeds"
-
-	reStore insertProxy: self.
-
-	"Assumed to always succeed"
-	^true!
-
-_commitUnstore
-
-	"Private - Return a Boolean indicating whether the commit succeeds"
-
-	reStore deleteProxy: self. 
-
-	"Assumed to always succeed"
-	^true
-!
-
-_commitUpdates
-
-	"Private - Return a Boolean indicating whether the commit succeeds"
-
-	| updates |
-
-	updates := self _fieldUpdates.
-	
-	^updates isEmpty 
-		ifTrue: [true]
-		ifFalse: [reStore applyUpdates: updates toObject: self]!
 
 _copyObject
 
@@ -126,59 +61,16 @@ _forgetProxiedObject
 	copyObject := nil.
 	^super _forgetProxiedObject!
 
-_isDeleted
-
-	"Return a Boolean indicating whether the receiver has been marked as deleted..
-	Deleted proxies have a copyObject, but no proxiedObject"
-	
-	^copyObject ~~ nil and: [proxiedObject == nil]!
-
-_isPersistent
-
-	"Return a Boolean indicating whether the receiver is persistent.
-	Persistent proxies always have a copyObject, if they are recovered.
-	Unrecovered proxies are persistent by definition"
-	
-	^copyObject ~~ nil or: [self _isRecovered not]!
-
 _matchStateOf: aProxy
 
 	"Match the internal proxy (non data) state of aProxy"
 
 	^self!
 
-_postCommitChanges
-
-	"The receiver's changes have successfully been committed.
-	Complete follow-on work"
-
-	^self _isPersistent
-	ifTrue:
-		[self _isDeleted
-			ifTrue: [self _postCommitUnstore]
-			ifFalse: [self _postCommitUpdates]]
-	ifFalse:
-		[self _postCommitStore]!
-
 _postCommitStore
 
-	"Private - The receiver has been inserted into the database.
-	Complete follow-on work"
-
-	self _dbTable idDataField ifNotNil: [ :idDataField | idDataField accessor value: id in: proxiedObject].
-	self _aquireCopyObject.
-	self _intern	"Re-register"!
-
-_postCommitUnstore
-
-	"Private - The receiver has been successfully deleted from the database.
-	Complete follow-on work and notify interest parties"
-
-	reStore uncacheObject: self. 
-
-	proxiedObject onUnstored.
-
-	copyObject := proxiedObject := SSWDBDeletedObject newForClass: class id: id!
+	super _postCommitStore.
+	self _acquireCopyObject!
 
 _postCommitUpdates
 
@@ -186,7 +78,7 @@ _postCommitUpdates
 
 	updates := self _fieldUpdates.
 	
-	updates isEmpty ifFalse: [updates applyTo: copyObject]!
+	updates isEmpty ifFalse: [updates copyTo: copyObject]!
 
 _prepareToCommit
 
@@ -212,7 +104,7 @@ _proxiedObject: anObject
 	"Overriden to set the copyObject"
 	
 	super _proxiedObject: anObject.
-	self _aquireCopyObject!
+	self _acquireCopyObject!
 
 _recoverProxiedObject
 
@@ -272,7 +164,7 @@ _refreshFromRow: aDatabaseRow table: aDBTable
 	^(super _refreshFromRow: aDatabaseRow table: aDBTable)
 	ifTrue: 
 		["Update the copyObject"
-		self _aquireCopyObject]
+		self _acquireCopyObject]
 	ifFalse:
 		[false]!
 
@@ -333,29 +225,6 @@ _resolveUpdateConflictsWith: currentProxyObject
 
 	^true!
 
-_rollbackChanges
-
-	self _isPersistent
-	ifTrue:
-		[self _isDeleted
-			ifTrue: [self _rollbackUnstore]
-			ifFalse: [self _rollbackUpdates]]
-	ifFalse:
-		[self _rollbackStore]!
-
-_rollbackStore
-
-	"Private - The receiver was a newly-persisted object - deregister from the reStore"
-
-	reStore deregisterProxy: self.
-	self _swapReferences!
-
-_rollbackUnstore
-
-	self 
-		_proxiedObject: copyObject;
-		_swapReferences!
-
 _rollbackUpdates
 
 	"Private - Forget any updates by instantiating from the copyObject.
@@ -366,27 +235,34 @@ _rollbackUpdates
 	me := proxiedObject.
 	him := self.
 
-	self _swapReferences.
+	self _unswap.
 
 	me _checkHasChanged ifTrue: 
-		[me _proxiedObject: me _copyObject shallowCopy. 
+		[me _setProxiedObject: (me _dbTable copyForProxy: me _copyObject).
 		him getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]]!
 
-_unstore
+_updateCollectionProxyUsing: aCollectionSpec
 
-	"Intercept this message in order to point references to the proxiedObject
-	to the copyObject - this enables identity to be preserved in the event of a rollback"
+	| collectionProxy |
 
-	| object |
+	collectionProxy := super _updateCollectionProxyUsing: aCollectionSpec.
+	copyObject notNil ifTrue: [aCollectionSpec accessor value: collectionProxy in: copyObject].
 
-	self _isPersistent ifTrue: [object := proxiedObject].	
-	super _unstore.
+	^collectionProxy!
 
-	object isNil ifFalse:
-		["Temporarily reset the proxiedObject to swap refs"
-		proxiedObject := object.
-		copyObject := proxiedObject become: copyObject.
-		proxiedObject := nil]!
+_valuesForAccessor: anInstVarAccessor
+
+	"Return the value(s) in the receiver's proxy object(s) which could be accessed by anInstVarAccessor.
+	Also need to consider the copyObject"
+
+	| proxyValue copyValue |
+
+	proxyValue := proxiedObject ifNotNil: [anInstVarAccessor valueIn: proxiedObject].
+	copyValue := copyObject ifNotNil: [anInstVarAccessor valueIn: copyObject].
+
+	^proxyValue == copyValue 
+		ifTrue: [Array with: proxyValue]
+		ifFalse: [Array with: proxyValue with: copyValue]!
 
 inspect
 
@@ -395,36 +271,27 @@ inspect
 	^self _isDeleted
 		ifTrue: [nil inspect]
 		ifFalse: [super inspect]! !
-!SSWDBCachingObjectProxy categoriesFor: #_aquireCollectionProxiesUsing:!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_aquireCopyObject!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_checkHasChanged!public!testing! !
-!SSWDBCachingObjectProxy categoriesFor: #_commitChanges!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_commitStore!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_commitUnstore!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_commitUpdates!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_copyObject!accessing!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_copyObject:!accessing!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_fieldUpdates!evaluating!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_forgetProxiedObject!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_isDeleted!public!testing! !
-!SSWDBCachingObjectProxy categoriesFor: #_isPersistent!public!testing! !
-!SSWDBCachingObjectProxy categoriesFor: #_matchStateOf:!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_postCommitChanges!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_postCommitStore!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_postCommitUnstore!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_postCommitUpdates!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_prepareToCommit!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_proxiedObject:!accessing!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_recoverProxiedObject!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_refreshAndRollforward!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_refreshAndRollforwardFrom:!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_refreshFromRow:table:!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_resolveUpdateConflicts!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_resolveUpdateConflictsWith:!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_rollbackChanges!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #_rollbackStore!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_rollbackUnstore!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_rollbackUpdates!actions-internal!private! !
-!SSWDBCachingObjectProxy categoriesFor: #_unstore!actions-internal!public! !
-!SSWDBCachingObjectProxy categoriesFor: #inspect!forwarding!public! !
+!SSWDBCachingObjectProxy categoriesForMethods!
+_acquireCopyObject!actions-internal!public! !
+_checkHasChanged!public!testing! !
+_copyObject!accessing!public! !
+_copyObject:!accessing!public! !
+_fieldUpdates!accessing:derived!public! !
+_forgetProxiedObject!actions-internal!public! !
+_matchStateOf:!actions-internal!public! !
+_postCommitStore!actions-internal!private! !
+_postCommitUpdates!actions-internal!private! !
+_prepareToCommit!actions-internal!public! !
+_proxiedObject:!accessing!public! !
+_recoverProxiedObject!actions-internal!public! !
+_refreshAndRollforward!actions-internal!public! !
+_refreshAndRollforwardFrom:!actions-internal!public! !
+_refreshFromRow:table:!actions-internal!public! !
+_resolveUpdateConflicts!actions-internal!public! !
+_resolveUpdateConflictsWith:!actions-internal!public! !
+_rollbackUpdates!actions-internal!private! !
+_updateCollectionProxyUsing:!actions-internal!private! !
+_valuesForAccessor:!accessing!private! !
+inspect!forwarding!public! !
+!
 

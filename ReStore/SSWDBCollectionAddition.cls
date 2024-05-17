@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBCollectionChange subclass: #SSWDBCollectionAddition
 	instanceVariableNames: ''
@@ -38,9 +38,11 @@ prepareToCommitFor: aCollectionProxy
 		table: table;
 		sourceID: aCollectionProxy _ownerID;
 		entryID: (aCollectionProxy _reStore allocateIDFor: self affectedEntry in: table)! !
-!SSWDBCollectionAddition categoriesFor: #applyTo:!actions!public! !
-!SSWDBCollectionAddition categoriesFor: #commitFor:!actions!public! !
-!SSWDBCollectionAddition categoriesFor: #prepareToCommitFor:!actions!public! !
+!SSWDBCollectionAddition categoriesForMethods!
+applyTo:!actions!public! !
+commitFor:!actions!public! !
+prepareToCommitFor:!actions!public! !
+!
 
 !SSWDBCollectionAddition class methodsFor!
 
@@ -51,5 +53,7 @@ added: anObject at: keyObject
 			target: anObject;
 			index: keyObject;
 			yourself)! !
-!SSWDBCollectionAddition class categoriesFor: #added:at:!instance creation!public! !
+!SSWDBCollectionAddition class categoriesForMethods!
+added:at:!instance creation!public! !
+!
 

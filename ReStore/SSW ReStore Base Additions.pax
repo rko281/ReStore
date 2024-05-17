@@ -13,6 +13,7 @@ package classNames
 	add: #SSWDBDeletedObject;
 	add: #SSWDBFixedStringWithInfo;
 	add: #SSWDBOrderingSpec;
+	add: #SSWDBProtoObject;
 	add: #SSWDBScaledDecimalWithInfo;
 	add: #SSWDBStringWithInfo;
 	add: #SSWDBVariableStringWithInfo;
@@ -21,6 +22,7 @@ package classNames
 
 package methodNames
 	add: #False -> #asInteger;
+	add: #Object -> #_instVarAt:;
 	add: #Object -> #_instVarAt:put:;
 	add: #Object -> #chainPerform:;
 	add: #Object -> #includedIn:;
@@ -33,6 +35,10 @@ package methodNames
 	add: 'DateAndTime class' -> #withMillisecondResolution;
 	add: 'Magnitude class' -> #isPersistentBaseClass;
 	add: 'Metaclass class' -> #isPersistentBaseClass;
+	add: 'Object class' -> #hasMutablePersistentInstances;
+	add: 'Object class' -> #isDirectlyPersisted;
+	add: 'Object class' -> #isDirectlyPersistedNonBaseClass;
+	add: 'Object class' -> #isMutableDirectlyPersistedNonBaseClass;
 	add: 'Object class' -> #isPersistentBaseClass;
 	add: 'ScaledDecimal class' -> #withPrecision:scale:;
 	add: 'ScaledDecimal class' -> #withScale:;
@@ -105,6 +111,11 @@ SSWDBStringWithInfo subclass: #SSWDBVariableStringWithInfo
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+ProtoObject subclass: #SSWDBProtoObject
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 
 "Global Aliases"!
 
@@ -116,7 +127,9 @@ SSWDBStringWithInfo subclass: #SSWDBVariableStringWithInfo
 isPersistentBaseClass
 
 	^true! !
-!Boolean class categoriesFor: #isPersistentBaseClass!public!testing! !
+!Boolean class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 !ByteArray class methodsFor!
 
@@ -125,7 +138,9 @@ maxSize: anInteger
 	^SSWDBByteArrayWithInfo new
 		fieldSize: anInteger;
 		yourself! !
-!ByteArray class categoriesFor: #maxSize:!public!specification! !
+!ByteArray class categoriesForMethods!
+maxSize:!public!specification! !
+!
 
 !DateAndTime class methodsFor!
 
@@ -134,7 +149,9 @@ withMillisecondResolution
 	^SSWDBDateAndTimeWithResolution new
 		beMillisecondResolution
 		yourself! !
-!DateAndTime class categoriesFor: #withMillisecondResolution!accessing!public! !
+!DateAndTime class categoriesForMethods!
+withMillisecondResolution!accessing!public! !
+!
 
 !False methodsFor!
 
@@ -143,7 +160,9 @@ asInteger
 	"For DB support"
 
 	^0! !
-!False categoriesFor: #asInteger!converting!public! !
+!False categoriesForMethods!
+asInteger!converting!public! !
+!
 
 !Magnitude class methodsFor!
 
@@ -152,16 +171,26 @@ isPersistentBaseClass
 	"NB not all subclasses are valid, but this is not important"
 
 	^true! !
-!Magnitude class categoriesFor: #isPersistentBaseClass!public!testing! !
+!Magnitude class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 !Metaclass class methodsFor!
 
 isPersistentBaseClass
 
 	^true! !
-!Metaclass class categoriesFor: #isPersistentBaseClass!public!testing! !
+!Metaclass class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 !Object methodsFor!
+
+_instVarAt: anInteger
+
+	"Make the receiver polymorphic with proxies"
+	
+	^self instVarAt: anInteger!
 
 _instVarAt: anInteger put: anObject
 
@@ -182,11 +211,45 @@ includedIn: aCollection
 	"Reciprocal of Collection>>includes: "
 
 	^aCollection includes: self! !
-!Object categoriesFor: #_instVarAt:put:!accessing!private! !
-!Object categoriesFor: #chainPerform:!actions!public! !
-!Object categoriesFor: #includedIn:!public!testing! !
+!Object categoriesForMethods!
+_instVarAt:!accessing!private! !
+_instVarAt:put:!accessing!private! !
+chainPerform:!actions!public! !
+includedIn:!public!testing! !
+!
 
 !Object class methodsFor!
+
+hasMutablePersistentInstances
+
+	"Are instances of this class mutable (at least from the database's point of view), i.e. can have their internal state changed.
+	false by default; subclasses who have this behaviour should override
+
+	ASSERT: self isDirectlyPersistedNonBaseClass - not relevant to normal persistent application classes (those having reStoreDefinition)"
+
+	^false!
+
+isDirectlyPersisted
+
+	"Return whether the receiver class is directly persisted in the database, i.e. has a representation that it stored in a single database column.
+	Default - the persistent base classes. 
+
+	Other classes which can provide such a representation of themselves can return true but must also implement certain other methods
+	- see SSWDBDirectlyPersistedObject which may be used as a superclass for such classes"
+
+	^self isPersistentBaseClass!
+
+isDirectlyPersistedNonBaseClass
+
+	"Return whether the receiver class is directly persisted in the database, i.e. has a representation that it stored in a single database column BUT is not one of the persistent base classes"
+
+	^self isPersistentBaseClass not and: [self isDirectlyPersisted]!
+
+isMutableDirectlyPersistedNonBaseClass
+
+	"Return whether the receiver class is directly persisted in the database, i.e. has a representation that it stored in a single database column BUT is not one of the persistent base classes AND can be mutated (have its internal state changed)"
+
+	^self isDirectlyPersistedNonBaseClass and: [self hasMutablePersistentInstances]!
 
 isPersistentBaseClass
 
@@ -196,7 +259,13 @@ isPersistentBaseClass
 	false by default, subclasses which are so valid may override"
 
 	^false! !
-!Object class categoriesFor: #isPersistentBaseClass!persistency!public! !
+!Object class categoriesForMethods!
+hasMutablePersistentInstances!persistency!public! !
+isDirectlyPersisted!persistency!public! !
+isDirectlyPersistedNonBaseClass!persistency!public! !
+isMutableDirectlyPersistedNonBaseClass!persistency!public! !
+isPersistentBaseClass!persistency!public! !
+!
 
 !ScaledDecimal class methodsFor!
 
@@ -215,8 +284,10 @@ withScale: scaleInteger
 	^SSWDBScaledDecimalWithInfo new
 		scale: scaleInteger;
 		yourself! !
-!ScaledDecimal class categoriesFor: #withPrecision:scale:!public!specification! !
-!ScaledDecimal class categoriesFor: #withScale:!public!specification! !
+!ScaledDecimal class categoriesForMethods!
+withPrecision:scale:!public!specification! !
+withScale:!public!specification! !
+!
 
 !String methodsFor!
 
@@ -225,7 +296,9 @@ orNilIfEmpty
 	^self isEmpty
 		ifTrue: [nil]
 		ifFalse: [self]! !
-!String categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !
+!String categoriesForMethods!
+orNilIfEmpty!accessing!must not strip!public! !
+!
 
 !String class methodsFor!
 
@@ -248,9 +321,11 @@ maxSize: anInteger
 	^SSWDBVariableStringWithInfo new
 		fieldSize: anInteger;
 		yourself! !
-!String class categoriesFor: #fixedSize:!public!specification! !
-!String class categoriesFor: #isPersistentBaseClass!public!testing! !
-!String class categoriesFor: #maxSize:!public!specification! !
+!String class categoriesForMethods!
+fixedSize:!public!specification! !
+isPersistentBaseClass!public!testing! !
+maxSize:!public!specification! !
+!
 
 !Symbol methodsFor!
 
@@ -260,23 +335,22 @@ sswInUnderscoreFormat
 	e.g. the underscore form of the symbol #dateOfBirth would be 'date_of_birth'.
 
 	NB - previously this method returned all-uppercase strings; it now returns all-lowercase"
-	
-	| readStream writeStream wasLowercase |
-	
-	readStream := ReadStream on: self.
-	writeStream := WriteStream on: (String new: self size).
-	wasLowercase := false.
 
-	[readStream atEnd] whileFalse: 
-		[| char |
-		char := readStream next.
-		(char isUppercase and: [wasLowercase])
-			ifTrue: [writeStream nextPut: $_; nextPut: char asLowercase]
-			ifFalse: [writeStream nextPut: char asLowercase].
-		wasLowercase := char isLowercase].
-			
+	| writeStream last |
+
+	"Leave some room for underscores to avoid growing the stream.
+	We'll make a copy in #contents regardless, so overshooting isn't a problem."
+	writeStream := String writeStream: self size + 3.
+	last := self first.
+	self do: 
+		[ :char |
+		(char isUppercase and: [last isUppercase not]) ifTrue: [writeStream nextPut: $_].
+		writeStream nextPut: char asLowercase.
+		last := char].
 	^writeStream contents! !
-!Symbol categoriesFor: #sswInUnderscoreFormat!converting!evaluating!public! !
+!Symbol categoriesForMethods!
+sswInUnderscoreFormat!converting!evaluating!public! !
+!
 
 !True methodsFor!
 
@@ -285,21 +359,27 @@ asInteger
 	"For DB support"
 
 	^1! !
-!True categoriesFor: #asInteger!converting!public! !
+!True categoriesForMethods!
+asInteger!converting!public! !
+!
 
 !UndefinedObject methodsFor!
 
 orNilIfEmpty
 
 	^nil! !
-!UndefinedObject categoriesFor: #orNilIfEmpty!accessing!must not strip!public! !
+!UndefinedObject categoriesForMethods!
+orNilIfEmpty!accessing!must not strip!public! !
+!
 
 !UndefinedObject class methodsFor!
 
 isPersistentBaseClass
 
 	^true! !
-!UndefinedObject class categoriesFor: #isPersistentBaseClass!public!testing! !
+!UndefinedObject class categoriesForMethods!
+isPersistentBaseClass!public!testing! !
+!
 
 "End of package definition"!
 

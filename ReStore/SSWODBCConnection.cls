@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 DBConnection subclass: #SSWODBCConnection
 	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions queryCount'
@@ -347,7 +347,7 @@ reservedWords
 
 	^defaults
 		"Add the words defined by the current connection"
-		addAll: ((self getLongInfoString: SQL_KEYWORDS) asUppercase subStrings: $,);
+		addAll: (((self getLongInfoString: SQL_KEYWORDS) asUppercase subStrings: $,) collect: [ :each | each trimNulls asUtf8String]);
 		yourself!
 
 reset

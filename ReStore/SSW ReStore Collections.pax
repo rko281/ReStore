@@ -7,18 +7,18 @@ https://github.com/rko281/ReStore'.
 
 
 package classNames
+	add: #SSWDBArrayedStaticCollectionSpec;
 	add: #SSWDBCacheDictionaryEntry;
 	add: #SSWDBCacheDictionaryWrapper;
 	add: #SSWDBCollectionAddition;
 	add: #SSWDBCollectionChange;
 	add: #SSWDBCollectionEntry;
-	add: #SSWDBCollectionIndexUpdate;
-	add: #SSWDBCollectionKeyUpdate;
 	add: #SSWDBCollectionRemoval;
 	add: #SSWDBCollectionRemovalWithKey;
 	add: #SSWDBCollectionSpec;
 	add: #SSWDBCollectionUpdate;
 	add: #SSWDBGeneralCollectionSpec;
+	add: #SSWDBHashedStaticCollectionSpec;
 	add: #SSWDBKeyedCollectionEntry;
 	add: #SSWDBKeyedStaticCollectionSpec;
 	add: #SSWDBMultiValueCacheDictionaryEntry;
@@ -27,6 +27,7 @@ package classNames
 	add: #SSWDBOwnedCacheDictionarySpec;
 	add: #SSWDBOwnedCollectionSpec;
 	add: #SSWDBOwnedMultiValueCacheDictionarySpec;
+	add: #SSWDBSortedOwnedCollectionSpec;
 	add: #SSWDBSortedStaticCollectionSpec;
 	add: #SSWDBStaticCacheDictionarySpec;
 	add: #SSWDBStaticCollectionSpec;
@@ -35,26 +36,17 @@ package classNames
 	yourself.
 
 package methodNames
-	add: #ArrayedCollection -> #_changesFrom:;
 	add: #ArrayedCollection -> #_dbAdd:suggestedIndex:;
+	add: #ArrayedCollection -> #staticCollectionSpecClass;
 	add: #Class -> #beKeyClassOf:;
 	add: #Class -> #beTargetClassOf:;
-	add: #Collection -> #_changesFrom:;
-	add: #Collection -> #_collectionAdditions;
 	add: #Collection -> #_dbAdd:;
 	add: #Collection -> #_dbAdd:suggestedIndex:;
-	add: #Collection -> #_dbKeyUpdateClass;
-	add: #Collection -> #_dbRemovalClass;
 	add: #Collection -> #_fetchAll:;
-	add: #Collection -> #_keyedChangesFrom:;
-	add: #Collection -> #_keyedCollectionAdditions;
-	add: #Collection -> #_nonKeyedCollectionAdditions;
 	add: #Collection -> #_proxifyIn:;
-	add: #Collection -> #_valuesRemovedBy:;
 	add: #Collection -> #fetch:;
 	add: #Collection -> #fetchAll:;
 	add: #Collection -> #isOrdered;
-	add: #Collection -> #isSortedCollection;
 	add: #Collection -> #isValidForPersistence;
 	add: #Collection -> #of:;
 	add: #Collection -> #of:owner:;
@@ -63,33 +55,24 @@ package methodNames
 	add: #Collection -> #ownedCollectionSpecClass;
 	add: #Collection -> #remote;
 	add: #Collection -> #staticCollectionSpecClass;
-	add: #Dictionary -> #_changesFrom:;
-	add: #Dictionary -> #_collectionAdditions;
 	add: #Dictionary -> #_dbAdd:suggestedIndex:;
-	add: #Dictionary -> #_dbKeyUpdateClass;
-	add: #Dictionary -> #_dbRemovalClass;
-	add: #Dictionary -> #_isMultiValue;
-	add: #Dictionary -> #_multiValueChangesFrom:;
-	add: #Dictionary -> #_multiValueKeyedCollectionAdditions;
-	add: #Dictionary -> #_valuesRemovedBy:;
 	add: #Dictionary -> #of:;
 	add: #Dictionary -> #of:keyClass:;
 	add: #Dictionary -> #of:keyedOn:;
 	add: #Dictionary -> #of:owner:;
 	add: #Dictionary -> #of:owner:keyedOn:;
+	add: #Dictionary -> #ownedCacheDictionarySpecClass;
+	add: #Dictionary -> #ownedMultiValueCacheDictionarySpecClass;
+	add: #Dictionary -> #staticCacheDictionarySpecClass;
 	add: #Dictionary -> #staticCollectionSpecClass;
-	add: #OrderedCollection -> #_changesFrom:;
-	add: #SequenceableCollection -> #_collectionAdditions;
+	add: #Dictionary -> #staticDictionarySpecClass;
+	add: #Dictionary -> #staticMultiValueCacheDictionarySpecClass;
 	add: #SequenceableCollection -> #isOrdered;
 	add: #SequenceableCollection -> #staticCollectionSpecClass;
-	add: #Set -> #_changesFrom:;
-	add: #Set -> #_superValuesRemovedBy:;
-	add: #Set -> #_valuesRemovedBy:;
-	add: #SortedCollection -> #_changesFrom:;
-	add: #SortedCollection -> #_collectionAdditions;
+	add: #Set -> #staticCollectionSpecClass;
 	add: #SortedCollection -> #_dbAdd:;
-	add: #SortedCollection -> #isSortedCollection;
 	add: #SortedCollection -> #orderingSpecsFor:in:;
+	add: #SortedCollection -> #ownedCollectionSpecClass;
 	add: #SortedCollection -> #staticCollectionSpecClass;
 	add: #SSWDBDependentWrapper -> #beKeyClassOf:;
 	add: #SSWDBDependentWrapper -> #beTargetClassOf:;
@@ -143,11 +126,6 @@ SSWDBCollectionChange subclass: #SSWDBCollectionAddition
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWDBCollectionChange subclass: #SSWDBCollectionIndexUpdate
-	instanceVariableNames: 'newIndex'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 SSWDBCollectionChange subclass: #SSWDBCollectionRemoval
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -155,11 +133,6 @@ SSWDBCollectionChange subclass: #SSWDBCollectionRemoval
 	classInstanceVariableNames: ''!
 SSWDBCollectionChange subclass: #SSWDBCollectionUpdate
 	instanceVariableNames: 'newTarget'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWDBCollectionIndexUpdate subclass: #SSWDBCollectionKeyUpdate
-	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -200,11 +173,16 @@ SSWDBCollectionSpec subclass: #SSWDBOwnedCollectionSpec
 	classInstanceVariableNames: ''!
 SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
 	instanceVariableNames: 'targetClass deleteEntriesStatement'
+	classVariableNames: 'NilCookie'
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBStaticCollectionSpec subclass: #SSWDBHashedStaticCollectionSpec
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBStaticCollectionSpec subclass: #SSWDBKeyedStaticCollectionSpec
-	instanceVariableNames: 'indexField updateIndexStatement'
+	instanceVariableNames: 'indexField updateTargetStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -213,18 +191,8 @@ SSWDBStaticCollectionSpec subclass: #SSWDBSortedStaticCollectionSpec
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWDBStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
+SSWDBHashedStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWDBKeyedStaticCollectionSpec subclass: #SSWDBOrderedStaticCollectionSpec
-	instanceVariableNames: 'updateTargetStatement'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
-	instanceVariableNames: 'keyClass isKeyDependent isKeyRelated keyTableForRead keyTableForRefresh deleteKeysStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -233,8 +201,28 @@ SSWDBStaticCacheDictionarySpec subclass: #SSWDBStaticMultiValueCacheDictionarySp
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+SSWDBKeyedStaticCollectionSpec subclass: #SSWDBOrderedStaticCollectionSpec
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
+	instanceVariableNames: 'keyClass isKeyDependent isKeyRelated keyTableForRead keyTableForRefresh deleteKeysStatement'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBOrderedStaticCollectionSpec subclass: #SSWDBArrayedStaticCollectionSpec
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 SSWDBOwnedCollectionSpec subclass: #SSWDBOwnedCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBOwnedCollectionSpec subclass: #SSWDBSortedOwnedCollectionSpec
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -251,40 +239,22 @@ SSWDBOwnedCacheDictionarySpec subclass: #SSWDBOwnedMultiValueCacheDictionarySpec
 
 !ArrayedCollection methodsFor!
 
-_changesFrom: aCollectionOfEntries
-
-	"Return the changes made to the receiver compared to aCollectionOf(Collection)Entries.
-	For an array, there are no additions or removals - just updates"
-
-	| entriesSize changes |
-
-	entriesSize := aCollectionOfEntries size. 
-	changes := OrderedCollection new: (self size // 10).
-
-	self keysAndValuesDo:
-		[ :index :each |
-		index > entriesSize
-		ifTrue:
-			[each isNil ifFalse: 
-				[changes add: (SSWDBCollectionAddition added: each at: index)]]
-		ifFalse:
-			[| entry |
-			entry := aCollectionOfEntries at: index.
-			entry target == each ifFalse: 
-				[changes add: (SSWDBCollectionUpdate entry: entry newTarget: each)]]].
-
-	^changes!
-
 _dbAdd: anObject suggestedIndex: anInteger
 
 	"Translate to at:put:"
 
 	^self at: anInteger put: anObject
 
+!
+
+staticCollectionSpecClass 
+
+	^SSWDBArrayedStaticCollectionSpec
+
 ! !
 !ArrayedCollection categoriesForMethods!
-_changesFrom:!comparing!private! !
 _dbAdd:suggestedIndex:!adding!private! !
+staticCollectionSpecClass!constants!private! !
 !
 
 !Class methodsFor!
@@ -311,22 +281,6 @@ beTargetClassOf:!accessing!public! !
 
 !Collection methodsFor!
 
-_changesFrom: aCollectionOfEntries
-
-	"Return the changes made to the receiver compared to aCollectionOf(SSWDBCollection)Entries,
-	as a collection of SSWDBCollectionChanges"
-
-	^self subclassResponsibility!
-
-_collectionAdditions
-
-	"Return an collection of SSWDBCollectionAdditions representing the addition of 
-	all the receiver's elements to an empty collection.
-	Default - defer to _nonKeyedCollectionAdditions (assume receiver does not support keys). 
-	Collections with keys/indexes should reimplement to include key/index information"
-
-	^self _nonKeyedCollectionAdditions!
-
 _dbAdd: anObject
 
 	"For use when instantiating a collection from the database.
@@ -340,14 +294,6 @@ _dbAdd: anObject suggestedIndex: anInteger
 	The suggestedIndex is only required by keyed collections so defer to just _dbAdd:"
 
 	^self _dbAdd: anObject!
-
-_dbKeyUpdateClass
-
-	^SSWDBCollectionIndexUpdate!
-
-_dbRemovalClass
-
-	^SSWDBCollectionRemoval!
 
 _fetchAll: aCollection
 
@@ -365,79 +311,10 @@ _fetchAll: aCollection
 
 	!
 
-_keyedChangesFrom: aCollectionOfEntries
-
-	"Return the changes made to the receiver compared to aCollectionOf(Collection)Entries.
-	For keyed changes, must consider additions, removals and changes of key"
-
-	| changes map |
-
-	changes := OrderedCollection new: (self size // 10).
-	map := IdentityDictionary new: aCollectionOfEntries size.
-
-	"Make a map of each element (as was) to its entry(s)"
-	aCollectionOfEntries do: 
-		[ :each | (map at: each target ifAbsentPut: [OrderedCollection new: 1]) addLast: each].
-
-	"Locate and remove entry for each member of the receiver and check for key change"
-	self keysAndValuesDo:
-		[ :newKey :each || entry |
-		entry := (map at: each ifAbsent: [##(OrderedCollection new)]) removeFirstIfAbsent:
-			"No entry found = element has been added to the receiver" 
-			[(changes add: (SSWDBCollectionAddition added: each at: newKey)) affectedEntry].
-		entry index = newKey ifFalse: 
-			[changes add: (self _dbKeyUpdateClass entry: entry newIndex: newKey)]].
-
-	"Any remaining entries indicate elements removed from the receiver"
-	map keysAndValuesDo:
-		[ :each :entries | 
-		entries isEmpty ifFalse:		"Minor optimisation"
-			[entries do: [ :entry | changes add: (self _dbRemovalClass newWithEntry: entry)]]].
-
-	^changes!
-
-_keyedCollectionAdditions
-
-	"Return a collection of SSWDBCollectionAdditions representing the addition of 
-	all the receiver's elements to an empty collection. 
-	Include the key of each element (as used by keysAndValuesDo:)"
-
-	| additions |
-
-	additions := OrderedCollection new.
-
-	self keysAndValuesDo: [ :key :each | additions add: (SSWDBCollectionAddition added: each at: key)].
-
-	^additions!
-
-_nonKeyedCollectionAdditions
-
-	"Return an collection of SSWDBCollectionAdditions representing the addition of 
-	all the receiver's elements to an empty collection.
-	The SSWDBCollectionAdditions do not contain key information"
-
-	| additions |
-
-	additions := OrderedCollection new.
-
-	self do: [ :each | additions add: (SSWDBCollectionAddition added: each)].
-
-	^additions!
-
 _proxifyIn: aCollectionProxy
 
 	aCollectionProxy _proxiedObject: self.
 	^self!
-
-_valuesRemovedBy: aCollectionOfChanges
-
-	"Return those values (objects) completely removed from the receiver by aCollectionOfChanges"
-
-	| affectedObjects |
-
-	affectedObjects := aCollectionOfChanges collect: [ :change | change affectedEntry target].
-
-	^affectedObjects asIdentitySet reject: [ :object | self identityIncludes: object]!
 
 fetch: aSymbol
 
@@ -454,11 +331,6 @@ fetchAll: aCollection
 	^(self select: [ :each | each _isRecovered]) _fetchAll: aCollection!
 
 isOrdered
-
-	^false
-!
-
-isSortedCollection
 
 	^false
 !
@@ -526,26 +398,15 @@ staticCollectionSpecClass
 	Subclasses for which this may differ depending on mode of use should not implement this,
 	but should route configuration through of:specClass: "
 
-	^SSWDBStaticCollectionSpec
-
-! !
+	^self subclassResponsibility! !
 !Collection categoriesForMethods!
-_changesFrom:!private!restore-internal! !
-_collectionAdditions!private!restore-internal! !
 _dbAdd:!private!restore-internal! !
 _dbAdd:suggestedIndex:!adding!private! !
-_dbKeyUpdateClass!private!restore-internal! !
-_dbRemovalClass!private!restore-internal! !
 _fetchAll:!private!restore-internal! !
-_keyedChangesFrom:!private!restore-internal! !
-_keyedCollectionAdditions!private!restore-internal! !
-_nonKeyedCollectionAdditions!private!restore-internal! !
 _proxifyIn:!private!restore-internal! !
-_valuesRemovedBy:!private!restore-internal! !
 fetch:!converting!public! !
 fetchAll:!converting!public! !
 isOrdered!public!testing! !
-isSortedCollection!public!testing! !
 isValidForPersistence!comparing!private! !
 of:!public!specification! !
 of:owner:!public!specification! !
@@ -575,87 +436,11 @@ of:owner:!public!specification! !
 
 !Dictionary methodsFor!
 
-_changesFrom: aCollectionOfEntries
-
-	"Override to include key information if necessary. 
-	This can be determined from any member of aCollectionOfEntries.
-	Defer to _collectionAdditions if empty (to give keyed entries, issue#0026) "
-
-	^aCollectionOfEntries isEmpty 
-	ifTrue:
-		[self _collectionAdditions]
-	ifFalse:
-		[(aCollectionOfEntries first isKindOf: SSWDBCacheDictionaryEntry)
-		ifTrue: 
-			[self _isMultiValue
-				ifTrue: [self _multiValueChangesFrom: aCollectionOfEntries]
-				ifFalse: [super _changesFrom: aCollectionOfEntries]]
-		ifFalse: 
-			[self _keyedChangesFrom: aCollectionOfEntries]]!
-
-_collectionAdditions
-
-	"Override to 
-	 - check for multi-value dictionary
-	 - include key information"
-
-	^self _isMultiValue
-		ifTrue: [self _multiValueKeyedCollectionAdditions]
-		ifFalse: [self _keyedCollectionAdditions]!
-
 _dbAdd: targetObject suggestedIndex: keyObject
 
 	"Make the receiver polymorphic with an indexed collection. keyObject = index"
 
 	^self at: keyObject put: targetObject!
-
-_dbKeyUpdateClass
-
-	^SSWDBCollectionKeyUpdate!
-
-_dbRemovalClass
-
-	^SSWDBCollectionRemovalWithKey!
-
-_isMultiValue
-
-	^self isEmpty not and: [(self anyOne isKindOf: Collection) and: [self anyOne isString not]]!
-
-_multiValueChangesFrom: aCollectionOfEntries
-
-	"Return the changes made to the receiver compared to aCollectionOf(Dictionary)Entries.
-	The receiver is a multi-value dictionary"
-
-	| allValues changes |
-
-	allValues := self inject: (IdentitySet new: self size * 4) into: [ :all :values | all addAll: values; yourself].
-	changes := OrderedCollection new.
-
-	aCollectionOfEntries do: 
-		[ :entry |
-		((self at: entry key ifAbsent: [#()]) includes: entry target) 
-			ifTrue: [allValues remove: entry target]
-			ifFalse: [changes add: (SSWDBCollectionRemoval newWithEntry: entry)]].
-
-	allValues do: [ :each | changes add: (SSWDBCollectionAddition added: each)].
-
-	^changes!
-
-_multiValueKeyedCollectionAdditions
-
-	| additions |
-
-	additions := OrderedCollection new.
-
-	self keysAndValuesDo: [ :key :values | values do: [ :each | additions add: (SSWDBCollectionAddition added: each at: key)]].
-
-	^additions!
-
-_valuesRemovedBy: aCollectionOfChanges
-
-	"The receiver is not a set (i.e. allows duplicates) and so cannot take advantage of superclass optimisation"
-
-	^self _superValuesRemovedBy: aCollectionOfChanges!
 
 of: anAssociation
 
@@ -679,7 +464,7 @@ of: targetClass keyClass: keyClass
 	The Dictionary's keys will be of the class keyClass, which should be a valid persistent class.
 	Create and return an appropriate SSWDBCollectionSpec"
 
-	^(self of: targetClass specClass: SSWDBStaticDictionarySpec)
+	^(self of: targetClass specClass: self staticDictionarySpecClass)
 		setKeyClass: keyClass;
 		yourself!
 
@@ -694,10 +479,10 @@ of: targetClass keyedOn: aSymbolOrBlock
 
 	(targetClass isKindOf: SSWDBCollectionSpec)
 	ifTrue: 
-		[spec := self of: targetClass targetClass specClass: SSWDBStaticMultiValueCacheDictionarySpec.
+		[spec := self of: targetClass targetClass specClass: self staticMultiValueCacheDictionarySpecClass.
 		targetClass isValueDependent ifTrue: [spec beValueDependent]]
 	ifFalse: 
-		[spec := self of: targetClass specClass: SSWDBStaticCacheDictionarySpec].
+		[spec := self of: targetClass specClass: self staticCacheDictionarySpecClass].
 
 	^spec
 		keyedOn: aSymbolOrBlock;
@@ -722,15 +507,27 @@ of: targetClass owner: ownerSymbol keyedOn: aSymbol
 
 	(targetClass isKindOf: SSWDBCollectionSpec)
 	ifTrue: 
-		[spec := self of: targetClass targetClass specClass: SSWDBOwnedMultiValueCacheDictionarySpec.
+		[spec := self of: targetClass targetClass specClass: self ownedMultiValueCacheDictionarySpecClass.
 		targetClass isValueDependent ifTrue: [spec beValueDependent]]
 	ifFalse: 
-		[spec := self of: targetClass specClass: SSWDBOwnedCacheDictionarySpec].
+		[spec := self of: targetClass specClass: self ownedCacheDictionarySpecClass].
 
 	^spec
 		owner: ownerSymbol;
 		keyedOn: aSymbol;
 		yourself!
+
+ownedCacheDictionarySpecClass
+
+	^SSWDBOwnedCacheDictionarySpec!
+
+ownedMultiValueCacheDictionarySpecClass
+
+	^SSWDBOwnedMultiValueCacheDictionarySpec!
+
+staticCacheDictionarySpecClass
+
+	^SSWDBStaticCacheDictionarySpec!
 
 staticCollectionSpecClass 
 
@@ -739,44 +536,31 @@ staticCollectionSpecClass
 
 	^self shouldNotImplement
 
-! !
+!
+
+staticDictionarySpecClass
+
+	^SSWDBStaticDictionarySpec!
+
+staticMultiValueCacheDictionarySpecClass
+
+	^SSWDBStaticMultiValueCacheDictionarySpec! !
 !Dictionary categoriesForMethods!
-_changesFrom:!comparing!private! !
-_collectionAdditions!comparing!private! !
 _dbAdd:suggestedIndex:!adding!private! !
-_dbKeyUpdateClass!private!restore-internal! !
-_dbRemovalClass!private!restore-internal! !
-_isMultiValue!private!testing! !
-_multiValueChangesFrom:!comparing!private! !
-_multiValueKeyedCollectionAdditions!comparing!private! !
-_valuesRemovedBy:!comparing!private! !
 of:!public!specification! !
 of:keyClass:!private!specification! !
 of:keyedOn:!private!specification! !
 of:owner:!private!specification! !
 of:owner:keyedOn:!private!specification! !
+ownedCacheDictionarySpecClass!private!specification! !
+ownedMultiValueCacheDictionarySpecClass!private!specification! !
+staticCacheDictionarySpecClass!private!specification! !
 staticCollectionSpecClass!constants!private! !
-!
-
-!OrderedCollection methodsFor!
-
-_changesFrom: aCollectionOfEntries
-
-	"Return the changes made to the receiver compared to aCollectionOf(Collection)Entries.
-	For an OrderedCollection, must include full keyed (indexed) changes"
-
-	^self _keyedChangesFrom: aCollectionOfEntries! !
-!OrderedCollection categoriesForMethods!
-_changesFrom:!comparing!private! !
+staticDictionarySpecClass!private!specification! !
+staticMultiValueCacheDictionarySpecClass!private!specification! !
 !
 
 !SequenceableCollection methodsFor!
-
-_collectionAdditions
-
-	"Reimplemented to include index (key) information"
-
-	^self _keyedCollectionAdditions!
 
 isOrdered
 
@@ -789,87 +573,24 @@ staticCollectionSpecClass
 
 ! !
 !SequenceableCollection categoriesForMethods!
-_collectionAdditions!comparing!private! !
 isOrdered!public!testing! !
 staticCollectionSpecClass!constants!private! !
 !
 
 !Set methodsFor!
 
-_changesFrom: aSetOfEntries
+staticCollectionSpecClass
 
-	"Return the changes made to the receiver compared to aSetOf(Collection)Entries.
-	For a Set, consider additions and removals only"
+	"Return the class of static collection spec that is appropriate for this kind of collection.
+	Subclasses for which this may differ depending on mode of use should not implement this,
+	but should route configuration through of:specClass: "
 
-	| changes oldSet |
-
-	changes := OrderedCollection new.
-	oldSet := aSetOfEntries collect: [ :entry | entry target].
-
-	self do: [ :each | (oldSet identityIncludes: each) ifFalse: 
-						[changes add: (SSWDBCollectionAddition added: each)]].
-
-	aSetOfEntries do: [ :entry | (self identityIncludes: entry target) ifFalse: 
-						[changes add: (SSWDBCollectionRemoval newWithEntry: entry)]].
-
-	^changes!
-
-_superValuesRemovedBy: aCollectionOfChanges
-
-	"Pass-thru to default implementation of _valuesRemovedBy: for benefit of non-Set subclasses"
-
-	^super _valuesRemovedBy: aCollectionOfChanges
-!
-
-_valuesRemovedBy: aCollectionOfChanges
-
-	"Overriden to take advantage of the lack of duplicates in the receiver:
-	if a change removes an element from the receiver, then all occurrences of that element are removed"
-
-	^aCollectionOfChanges collect: [ :each | each affectedEntry target]! !
+	^SSWDBHashedStaticCollectionSpec! !
 !Set categoriesForMethods!
-_changesFrom:!comparing!private! !
-_superValuesRemovedBy:!comparing!private! !
-_valuesRemovedBy:!comparing!private! !
+staticCollectionSpecClass!constants!private! !
 !
 
 !SortedCollection methodsFor!
-
-_changesFrom: aCollectionOfEntries
-
-	"Return the changes made to the receiver compared to aCollectionOf(Collection)Entries.
-	For a SortedCollection, can ignore index changes"
-
-	| changes map |
-
-	changes := OrderedCollection new: (self size // 10).
-	map := IdentityDictionary new: aCollectionOfEntries size.
-
-	"Make a map of each element (as was) to its entry(s)"
-	aCollectionOfEntries do: 
-		[ :each | (map at: each target ifAbsentPut: [OrderedCollection new: 1]) addLast: each].
-
-	"Locate and remove entry for each member of the receiver"
-	self keysAndValuesDo:
-		[ :newIndex :each |
-		(map at: each ifAbsent: [##(OrderedCollection new)]) removeFirstIfAbsent:
-			"No entry found = element has been added to the receiver" 
-			[changes add: (SSWDBCollectionAddition added: each)]].
-
-	"Any remaining entries indicate elements removed from the receiver"
-	map keysAndValuesDo:
-		[ :each :entries | 
-		entries isEmpty ifFalse:		"Minor optimisation"
-			[entries do: [ :entry | changes add: (SSWDBCollectionRemoval newWithEntry: entry)]]].
-
-	^changes!
-
-_collectionAdditions
-
-	"Defer to _nonKeyedCollectionAdditions, since indexing does not need to be stored 
-	(it is defined by the sorting criteria)"
-
-	^self _nonKeyedCollectionAdditions!
 
 _dbAdd: anObject
 
@@ -878,16 +599,11 @@ _dbAdd: anObject
 
 	^super addLast: anObject!
 
-isSortedCollection
-
-	^true
-!
-
 orderingSpecsFor: aClass in: aReStore
 
 	"Convert the receiver's sortBlock into DBOrderingSpecs"
 
-	^(self sortBlock = SortedCollection new sortBlock and: [aClass isPersistentBaseClass]) "default ascending sort"
+	^(self sortBlock = SortedCollection new sortBlock and: [aClass isDirectlyPersisted]) "default ascending sort"
 	ifTrue:
 		[OrderedCollection with: (SSWDBOrderingSpec ascending: #target)]
 	ifFalse:
@@ -901,17 +617,21 @@ orderingSpecsFor: aClass in: aReStore
 				ifTrue: [each criteria: #target]
 				ifFalse: [each criteria: field accessor name]]]!
 
+ownedCollectionSpecClass 
+
+	"Return the class of owned collection spec that is appropriate for this kind of collection"
+
+	^SSWDBSortedOwnedCollectionSpec!
+
 staticCollectionSpecClass 
 
 	^SSWDBSortedStaticCollectionSpec
 
 ! !
 !SortedCollection categoriesForMethods!
-_changesFrom:!comparing!private! !
-_collectionAdditions!comparing!private! !
 _dbAdd:!comparing!private! !
-isSortedCollection!public!testing! !
 orderingSpecsFor:in:!accessing!private! !
+ownedCollectionSpecClass!constants!private! !
 staticCollectionSpecClass!constants!private! !
 !
 

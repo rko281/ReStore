@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreDeleteDependentGeneralCollectionTest subclass: #SSWReStoreDeleteDependentDictionaryTest
 	instanceVariableNames: ''
@@ -13,7 +13,7 @@ SSWReStoreDeleteDependentDictionaryTest comment: ''!
 addOrderFor: aProduct to: aCustomer quantity: anInteger
 
 	"Need to convert orders to Dictionary if not already done - ensure unproxied before transformation"
-	aCustomer orders size.
+	aCustomer orders _deproxify.
 	(aCustomer orders isKindOf: Dictionary) ifFalse: [aCustomer orders become: Dictionary new].
 
 	^aCustomer orders at: (SimpleAddress new postcode: (aProduct description, anInteger displayString); yourself) put: 
@@ -22,12 +22,16 @@ addOrderFor: aProduct to: aCustomer quantity: anInteger
 			quantity: anInteger; 
 			customer: aCustomer; 
 			yourself)! !
-!SSWReStoreDeleteDependentDictionaryTest categoriesFor: #addOrderFor:to:quantity:!public!running! !
+!SSWReStoreDeleteDependentDictionaryTest categoriesForMethods!
+addOrderFor:to:quantity:!public!running! !
+!
 
 !SSWReStoreDeleteDependentDictionaryTest class methodsFor!
 
 isAbstract
 
 	^self = SSWReStoreDeleteDependentDictionaryTest! !
-!SSWReStoreDeleteDependentDictionaryTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreDeleteDependentDictionaryTest class categoriesForMethods!
+isAbstract!public! !
+!
 

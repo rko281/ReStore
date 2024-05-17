@@ -135,6 +135,7 @@ destroyAllData
 
 initReStore: aReStore
 
+	aReStore isDebugging: false.
 	self initConnectionFor: aReStore!
 
 performTest

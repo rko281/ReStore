@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreRelatedKeyDictionaryTest subclass: #SSWReStoreDependentKeyDictionaryTest
 	instanceVariableNames: ''
@@ -18,8 +18,8 @@ _testComponentExistenceOnDependency: value
 
 	| component |
 
-	"The keys are dependent, so we need to find the key for the removed object and check this"
-	component := inverseDictionary at: value.
+	"value is the removed key"
+	component := value.
 
 	self assert: (component _dbProxyIn: reStore ifNone: [nil]) isNil.
 
@@ -29,6 +29,8 @@ _testComponentExistenceOnDependency: value
 componentDefinition
 
 	^(Dictionary of: GenericOwnedTest dependent -> GenericOwnedTest)! !
-!SSWReStoreDependentKeyDictionaryTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!private! !
-!SSWReStoreDependentKeyDictionaryTest categoriesFor: #componentDefinition!accessing!public! !
+!SSWReStoreDependentKeyDictionaryTest categoriesForMethods!
+_testComponentExistenceOnDependency:!helpers!private! !
+componentDefinition!accessing!public! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBWrapper subclass: #SSWDBObjectWithComponents
 	instanceVariableNames: 'exclusions originatingComponent'
@@ -135,25 +135,27 @@ withoutAll: aCollection
 
 	self exclusions addAll: aCollection.
 	^self! !
-!SSWDBObjectWithComponents categoriesFor: #_changedObjectsIn:!public!testing! !
-!SSWDBObjectWithComponents categoriesFor: #_checkHasChangedIn:!public!testing! !
-!SSWDBObjectWithComponents categoriesFor: #_commitIn:!actions!public! !
-!SSWDBObjectWithComponents categoriesFor: #_forceRefreshIn:!actions!public! !
-!SSWDBObjectWithComponents categoriesFor: #_lazyRefreshIn:!actions!public! !
-!SSWDBObjectWithComponents categoriesFor: #_refreshIfUpdatedIn:!actions!public! !
-!SSWDBObjectWithComponents categoriesFor: #_refreshIn:!actions!public! !
-!SSWDBObjectWithComponents categoriesFor: #_refreshIn:with:!actions!private! !
-!SSWDBObjectWithComponents categoriesFor: #_rollbackIn:!actions!public! !
-!SSWDBObjectWithComponents categoriesFor: #componentsIn:do:visited:evaluated:!enumerating!private! !
-!SSWDBObjectWithComponents categoriesFor: #exclusions!accessing!private! !
-!SSWDBObjectWithComponents categoriesFor: #exclusions:!accessing!private! !
-!SSWDBObjectWithComponents categoriesFor: #originatingComponent!public! !
-!SSWDBObjectWithComponents categoriesFor: #originatingComponent:!public! !
-!SSWDBObjectWithComponents categoriesFor: #withComponents!accessing!public! !
-!SSWDBObjectWithComponents categoriesFor: #withComponentsIn:do:!enumerating!private! !
-!SSWDBObjectWithComponents categoriesFor: #withComponentsIn:do:visited:evaluated:!enumerating!private! !
-!SSWDBObjectWithComponents categoriesFor: #without:!initializing!public! !
-!SSWDBObjectWithComponents categoriesFor: #withoutAll:!initializing!public! !
+!SSWDBObjectWithComponents categoriesForMethods!
+_changedObjectsIn:!public!testing! !
+_checkHasChangedIn:!public!testing! !
+_commitIn:!actions!public! !
+_forceRefreshIn:!actions!public! !
+_lazyRefreshIn:!actions!public! !
+_refreshIfUpdatedIn:!actions!public! !
+_refreshIn:!actions!public! !
+_refreshIn:with:!actions!private! !
+_rollbackIn:!actions!public! !
+componentsIn:do:visited:evaluated:!enumerating!private! !
+exclusions!accessing!private! !
+exclusions:!accessing!private! !
+originatingComponent!public! !
+originatingComponent:!public! !
+withComponents!accessing!public! !
+withComponentsIn:do:!enumerating!private! !
+withComponentsIn:do:visited:evaluated:!enumerating!private! !
+without:!initializing!public! !
+withoutAll:!initializing!public! !
+!
 
 !SSWDBObjectWithComponents class methodsFor!
 
@@ -162,5 +164,7 @@ new
 	^super new
 		exclusions: IdentitySet new;
 		yourself! !
-!SSWDBObjectWithComponents class categoriesFor: #new!instance creation!public! !
+!SSWDBObjectWithComponents class categoriesForMethods!
+new!instance creation!public! !
+!
 

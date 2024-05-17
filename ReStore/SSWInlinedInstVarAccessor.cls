@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWInstVarAccessor subclass: #SSWInlinedInstVarAccessor
 	instanceVariableNames: 'inlinedAccessor inlinedClass'
@@ -29,6 +29,10 @@ accessesShallowly: aSymbol
 	This is the type of access provided by the superclass"
 
 	^super accesses: aSymbol!
+
+copyValue: valueObject in: targetObject
+
+	^self inlinedAccessor copyValue: valueObject in: (self inlinedValueIn: targetObject)!
 
 copyValueIn: sourceObject to: targetObject
 
@@ -66,6 +70,12 @@ inlinedClassDeeply
 		ifTrue: [self inlinedAccessor inlinedClassDeeply]
 		ifFalse: [self inlinedClass]!
 
+inlinedValueIn: targetObject
+
+	"Private - Return the inlined object in targetObject, creating and assigning it if necessary"
+
+	^(self shallowValueIn: targetObject) ifNil: [self shallowValue: self inlinedClass new in: targetObject]!
+
 isInlined
 
 	^true!
@@ -80,15 +90,7 @@ shallowValueIn: targetObject
 
 value: valueObject in: targetObject
 
-	| inlined |
-
-	inlined := self shallowValueIn: targetObject.
-
-	inlined isNil ifTrue: 
-		[inlined := self inlinedClass new.
-		self shallowValue: inlined in: targetObject].
-
-	^self inlinedAccessor value: valueObject in: inlined!
+	^self inlinedAccessor value: valueObject in: (self inlinedValueIn: targetObject)!
 
 valueIn: targetObject
 
@@ -99,18 +101,22 @@ valueIn: targetObject
 	^inlined isNil 
 		ifTrue: [nil]
 		ifFalse: [self inlinedAccessor valueIn: inlined]! !
-!SSWInlinedInstVarAccessor categoriesFor: #accesses:!public!testing! !
-!SSWInlinedInstVarAccessor categoriesFor: #accessesDeeply:!public!testing! !
-!SSWInlinedInstVarAccessor categoriesFor: #accessesShallowly:!public!testing! !
-!SSWInlinedInstVarAccessor categoriesFor: #copyValueIn:to:!evaluating!private! !
-!SSWInlinedInstVarAccessor categoriesFor: #inlinedAccessor!accessing!private! !
-!SSWInlinedInstVarAccessor categoriesFor: #inlinedAccessor:!accessing!private! !
-!SSWInlinedInstVarAccessor categoriesFor: #inlinedClass!accessing!private! !
-!SSWInlinedInstVarAccessor categoriesFor: #inlinedClass:!accessing!private! !
-!SSWInlinedInstVarAccessor categoriesFor: #inlinedClassDeeply!accessing!public! !
-!SSWInlinedInstVarAccessor categoriesFor: #isInlined!public!testing! !
-!SSWInlinedInstVarAccessor categoriesFor: #shallowValue:in:!public!updating! !
-!SSWInlinedInstVarAccessor categoriesFor: #shallowValueIn:!public!updating! !
-!SSWInlinedInstVarAccessor categoriesFor: #value:in:!public!updating! !
-!SSWInlinedInstVarAccessor categoriesFor: #valueIn:!public!updating! !
+!SSWInlinedInstVarAccessor categoriesForMethods!
+accesses:!public!testing! !
+accessesDeeply:!public!testing! !
+accessesShallowly:!public!testing! !
+copyValue:in:!public!updating! !
+copyValueIn:to:!evaluating!private! !
+inlinedAccessor!accessing!private! !
+inlinedAccessor:!accessing!private! !
+inlinedClass!accessing!private! !
+inlinedClass:!accessing!private! !
+inlinedClassDeeply!accessing!public! !
+inlinedValueIn:!private!updating! !
+isInlined!public!testing! !
+shallowValue:in:!public!updating! !
+shallowValueIn:!public!updating! !
+value:in:!public!updating! !
+valueIn:!public!updating! !
+!
 

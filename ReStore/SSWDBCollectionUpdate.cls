@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCollectionChange subclass: #SSWDBCollectionUpdate
 	instanceVariableNames: 'newTarget'
@@ -41,13 +41,16 @@ newTarget: anObject
 prepareToCommitFor: anSSWDBCollectionProxy
 
 	(anSSWDBCollectionProxy _shouldUnstoreValue: self affectedEntry target) ifTrue: [self affectedEntry target unstore].
+	self newTarget _ensureActiveIn: anSSWDBCollectionProxy _reStore.
 
 	^super prepareToCommitFor: anSSWDBCollectionProxy! !
-!SSWDBCollectionUpdate categoriesFor: #applyTo:!actions - api!public! !
-!SSWDBCollectionUpdate categoriesFor: #commitFor:!actions - api!public! !
-!SSWDBCollectionUpdate categoriesFor: #newTarget!accessing!public! !
-!SSWDBCollectionUpdate categoriesFor: #newTarget:!accessing!public! !
-!SSWDBCollectionUpdate categoriesFor: #prepareToCommitFor:!actions - api!public! !
+!SSWDBCollectionUpdate categoriesForMethods!
+applyTo:!actions - api!public! !
+commitFor:!actions - api!public! !
+newTarget!accessing!public! !
+newTarget:!accessing!public! !
+prepareToCommitFor:!actions - api!public! !
+!
 
 !SSWDBCollectionUpdate class methodsFor!
 
@@ -56,5 +59,7 @@ entry: aCollectionEntry newTarget: anObject
 	^(self newWithEntry: aCollectionEntry)
 		newTarget: anObject;
 		yourself! !
-!SSWDBCollectionUpdate class categoriesFor: #entry:newTarget:!instance creation!public! !
+!SSWDBCollectionUpdate class categoriesForMethods!
+entry:newTarget:!instance creation!public! !
+!
 

@@ -40,12 +40,12 @@ abbreviations: aDictionary
 
 	abbreviations := aDictionary!
 
-aboutToBeUnstored: anObject
+aboutToBeUnstored: anSSWDBProxy
 
-	"anObject (which originated in the receiver table) is about to be removed from the DB.
+	"anSSWDBProxy (which originated in the receiver table) is about to be removed from the DB.
 	Notify the receiver's components so they can take any necessary action"
 
-	self componentsDo: [ :field | field aboutToBeUnstored: anObject]!
+	self componentsDo: [ :field | field aboutToBeUnstored: anSSWDBProxy]!
 
 addDataField: anSSWDBField
 
@@ -310,7 +310,7 @@ define: aSymbol asFieldNamed: aString holding: aClass
 		(SSWDBStaticField new
 			name: aString;
 			targetClass: aClass;
-			accessor: ((self sqlDialect instVarAccessorFor: aClass) access: aSymbol in: self instanceClass);
+			accessor: ((aClass reStoreInstVarAccessorIn: self sqlDialect) access: aSymbol in: self instanceClass);
 			yourself)!
 
 define: aSymbol asInstVarHolding: aClass
@@ -319,7 +319,7 @@ define: aSymbol asInstVarHolding: aClass
 	
 	^aClass shouldInlinePersistency
 		ifTrue: [self define: aSymbol asInstVarHoldingInlined: aClass]
-		ifFalse: [self define: aSymbol asFieldNamed: (self dbNameFor: aSymbol) holding: aClass]!
+		ifFalse: [self define: aSymbol asFieldNamed: (aSymbol databaseFieldNameIn: self) holding: aClass]!
 
 define: aSymbol asInstVarHoldingInlined: aClass
 
@@ -347,7 +347,7 @@ defineAsID: aSymbol
 	This can be useful in some cases, although the unique ID is really internal information.
 	Return the idField"
 	
-	^self defineAsID: aSymbol fieldName: (self dbNameFor: aSymbol)!
+	^self defineAsID: aSymbol fieldName: (aSymbol databaseFieldNameIn: self)!
 
 defineAsID: aSymbol fieldName: aString
 
@@ -458,7 +458,7 @@ freePreparedStatements
 	refreshStatement := nil.
 	deleteStatement := nil.
 
-	self collectionSpecs do: [ :each | each freePreparedStatements].!
+	self componentsDo: [ :each | each freePreparedStatements].!
 
 fullName
 
@@ -668,25 +668,13 @@ recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 	
 	anSSWDBObjectProxy 
 		_proxiedObject: (self createInstanceFromRow: aDBRow);
-		_aquireCollectionProxiesUsing: self collectionSpecs.
+		_acquireCollectionProxiesUsing: self collectionSpecs.
 
 	self controlFields do:
 		[ :field |
-		field applyValueFromRow: aDBRow to: anSSWDBObjectProxy]!
+		field applyValueFromRow: aDBRow to: anSSWDBObjectProxy].
 
-refreshProxy: aProxy fromRow: aDBRow
-
-	| instance |
-
-	instance := aProxy _proxiedObject.
-
-	self dataFields do:
-		[ :field |
-		field applyValueFromRow: aDBRow to: instance].
-	
-	self controlFields do:
-		[ :field |
-		field applyValueFromRow: aDBRow to: aProxy]!
+	anSSWDBObjectProxy _postRecovered!
 
 refreshProxy: aProxy whereChangedFromRow: aDBRow
 
@@ -991,7 +979,6 @@ readAllBatchSize!accessing!public! !
 readAllBatchSize:!accessing!public! !
 readStatement!accessing!public! !
 recoverInstanceFromRow:into:!instance creation!public! !
-refreshProxy:fromRow:!instance creation!public! !
 refreshProxy:whereChangedFromRow:!instance creation!public! !
 refreshStatement!accessing!public! !
 registerClass!evaluating!public! !

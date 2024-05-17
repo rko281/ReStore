@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreGenericTest subclass: #SSWReStoreGenericCollectionTest
 	instanceVariableNames: 'collection'
@@ -29,11 +29,47 @@ addToCollection: aCollection
 
 	^aCollection add: self templateComponent!
 
+allSatisfy: aBlock
+
+	^collection allSatisfy: aBlock!
+
+anyOne
+
+	^collection anyOne!
+
+anySatisfy: aBlock
+
+	^collection anySatisfy: aBlock!
+
+componentDefinitionIsDependent 
+
+	^self componentDefinition isValueDependent!
+
+detect: aBlock
+
+	^collection detect: aBlock!
+
+detect: aBlock ifNone: absentBlock
+
+	^collection detect: aBlock ifNone: absentBlock!
+
+duplicateInCollection
+
+	^self duplicateInCollection: collection!
+
+duplicateInCollection: aCollection
+
+	"optional - implement where necessary" !
+
 fetchTestObjects
 
 	super fetchTestObjects.
 
 	collection := testObject component!
+
+includes: anObject
+
+	^collection includes: anObject!
 
 remove: anObject fromCollection: aCollection
 
@@ -45,7 +81,7 @@ removeFromCollection
 
 removeFromCollection: aCollection
 
-	^self remove: aCollection anyOne fromCollection: aCollection!
+	^self remove: self anyOne fromCollection: aCollection!
 
 replaceInCollection
 
@@ -54,6 +90,10 @@ replaceInCollection
 replaceInCollection: aCollection
 
 	self subclassResponsibility!
+
+select: aBlock
+
+	^collection select: aBlock!
 
 templateCollection
 
@@ -64,6 +104,20 @@ templateTestObject
 	^GenericTest new
 		component: self templateCollection;
 		yourself!
+
+testCollectionMultiAssignmentFailure
+
+	"Ensure an attemp to assign a collection to more than one persistent object will fail."
+
+	| object1 object2 |
+
+	object1 := self templateTestObject.
+	object1 storeIn: reStore.
+
+	object2 := self templateTestObject.
+	object2 component: object1 component.
+
+	self should: [object2 storeIn: reStore] raise: Error!
 
 testCollectionRefreshComponentAddition
 
@@ -77,13 +131,13 @@ testCollectionRefreshComponentAddition
 
 	collection refresh.
 	self assert: collection size equals: (originalSize + 1).
-	self assert: (collection select: [ :each | each name = added name]) size equals: 1!
+	self assert: (self select: [ :each | each name = added name]) size equals: 1!
 
 testCollectionRefreshComponentRemoval
 
 	| component originalSize removed | 
 
-	component := collection anyOne.
+	component := self anyOne.
 	originalSize := collection size.
 
 	removed := self remove: ((component class storedInstancesIn: reStore2) detect: [ :each | each name = component name]) fromCollection: testObject2 component.
@@ -92,8 +146,8 @@ testCollectionRefreshComponentRemoval
 
 	collection refresh.
 	self assert: collection size equals: (originalSize - 1).
-	self assert: (collection allSatisfy: [ :each | each name ~= removed name]).
-	self deny: (collection includes: component)!
+	self assert: (self allSatisfy: [ :each | each name ~= removed name]).
+	self deny: (self includes: component)!
 
 testCollectionRefreshComponentReplace
 
@@ -110,9 +164,23 @@ testCollectionRefreshComponentReplace
 
 	collection refresh.
 	self assert: collection size equals: originalSize.
-	self assert: (collection select: [ :each | each name = original name]) size equals: 0.
-	self assert: (collection select: [ :each | each name = replacement name]) size equals: 1
+	self assert: (self select: [ :each | each name = original name]) size equals: 0.
+	self assert: (self select: [ :each | each name = replacement name]) size equals: 1
 !
+
+testCollectionUninitializedOnRollback
+
+	"Ensure a collection that was created when storing an object with a collection definition (i.e. the collection inst var was nil prior to the store) is reset to nil on rollback"
+
+	| object |
+
+	object := self templateTestObject.
+
+	reStore beginTransaction.
+	object component: nil; storeIn: reStore.
+	reStore rollbackTransaction.
+
+	self assert: object component isNil!
 
 testDependencyCascadedDelete
 
@@ -120,7 +188,7 @@ testDependencyCascadedDelete
 
 	| component |
 
-	component := collection anyOne.
+	component := self anyOne.
 	testObject unstore.
 
 	"Verify the delete"
@@ -134,7 +202,7 @@ testDependencyDeleteOnRemoval
 
 	| component |
 
-	component := collection anyOne.
+	component := self anyOne.
 	self remove: component fromCollection: collection.
 
 	testObject store.
@@ -187,7 +255,7 @@ testDependencyDeleteOnReplacement
 
 	reStore evaluateAsTransaction: [originalAndReplacement := self replaceInCollection].
 
-	self componentDefinition isValueDependent ifTrue: [self _testComponentExistenceOnDependency: originalAndReplacement key]!
+	self componentDefinitionIsDependent ifTrue: [self _testComponentExistenceOnDependency: originalAndReplacement key]!
 
 testIncludes
 
@@ -207,26 +275,57 @@ testIncludes
 
 	matches := instances select: [ :each | each component includes: template].
 	self assert: matches size equals: 1.
-	self assert: matches first == testObject! !
-!SSWReStoreGenericCollectionTest categoriesFor: #_testComponentExistenceOnDependency:!helpers!private! !
-!SSWReStoreGenericCollectionTest categoriesFor: #addToCollection!helpers!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #addToCollection:!helpers!private! !
-!SSWReStoreGenericCollectionTest categoriesFor: #fetchTestObjects!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #remove:fromCollection:!helpers!private! !
-!SSWReStoreGenericCollectionTest categoriesFor: #removeFromCollection!helpers!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #removeFromCollection:!helpers!private! !
-!SSWReStoreGenericCollectionTest categoriesFor: #replaceInCollection!helpers!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #replaceInCollection:!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #templateTestObject!accessing!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testCollectionRefreshComponentAddition!public!unit tests! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testCollectionRefreshComponentRemoval!public!unit tests! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testCollectionRefreshComponentReplace!public! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testDependencyCascadedDelete!public!unit tests! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testDependencyDeleteOnRemoval!public!unit tests! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testDependencyDeleteOnRepeatedRemoval!public!unit tests! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testDependencyDeleteOnReplacement!public!unit tests! !
-!SSWReStoreGenericCollectionTest categoriesFor: #testIncludes!public! !
+	self assert: matches first == testObject!
+
+testNewEmptyCollectionRollback
+
+	"Ensure a collection that is stored when empty can be subsequently rolled back without error (previously gave an error for non-owned collections)"
+
+	| object |
+
+	object := self templateTestObject.
+	object component removeAll.
+	object storeIn: reStore.
+
+	reStore beginTransaction.
+	self addToCollection: object component.
+	self assert: object component size equals: 1.
+	self shouldnt: [reStore rollbackTransaction] raise: Error.
+	self assert: object component size equals: 0! !
+!SSWReStoreGenericCollectionTest categoriesForMethods!
+_testComponentExistenceOnDependency:!helpers!private! !
+addToCollection!helpers!public! !
+addToCollection:!helpers!private! !
+allSatisfy:!collection behavior!private! !
+anyOne!collection behavior!private! !
+anySatisfy:!collection behavior!private! !
+componentDefinitionIsDependent!private!testing! !
+detect:!collection behavior!private! !
+detect:ifNone:!collection behavior!private! !
+duplicateInCollection!helpers!public! !
+duplicateInCollection:!private! !
+fetchTestObjects!public! !
+includes:!collection behavior!private! !
+remove:fromCollection:!helpers!private! !
+removeFromCollection!helpers!public! !
+removeFromCollection:!helpers!private! !
+replaceInCollection!helpers!public! !
+replaceInCollection:!public! !
+select:!collection behavior!private! !
+templateCollection!accessing!public! !
+templateTestObject!accessing!public! !
+testCollectionMultiAssignmentFailure!public!unit tests! !
+testCollectionRefreshComponentAddition!public!unit tests! !
+testCollectionRefreshComponentRemoval!public!unit tests! !
+testCollectionRefreshComponentReplace!public!unit tests! !
+testCollectionUninitializedOnRollback!public!unit tests! !
+testDependencyCascadedDelete!public!unit tests! !
+testDependencyDeleteOnRemoval!public!unit tests! !
+testDependencyDeleteOnRepeatedRemoval!public!unit tests! !
+testDependencyDeleteOnReplacement!public!unit tests! !
+testIncludes!public!unit tests! !
+testNewEmptyCollectionRollback!public!unit tests! !
+!
 
 !SSWReStoreGenericCollectionTest class methodsFor!
 
@@ -238,6 +337,8 @@ multipleOccurrenceTestSelectors
 
 	"Return the selectors of any tests that depend on the ability to support multiple occurrences of an object in the collection tested by this class"
 	^#(#testDependencyDeleteOnRepeatedRemoval)! !
-!SSWReStoreGenericCollectionTest class categoriesFor: #isAbstract!public!testing! !
-!SSWReStoreGenericCollectionTest class categoriesFor: #multipleOccurrenceTestSelectors!accessing!public! !
+!SSWReStoreGenericCollectionTest class categoriesForMethods!
+isAbstract!public!testing! !
+multipleOccurrenceTestSelectors!accessing!public! !
+!
 

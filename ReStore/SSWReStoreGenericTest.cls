@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStore2Test subclass: #SSWReStoreGenericTest
 	instanceVariableNames: 'testObject testObject2'
@@ -65,21 +65,40 @@ templateComponent
 
 templateTestObject
 
-	^self subclassResponsibility! !
-!SSWReStoreGenericTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreGenericTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreGenericTest categoriesFor: #createTestData!public!running! !
-!SSWReStoreGenericTest categoriesFor: #createTestObject!public!running! !
-!SSWReStoreGenericTest categoriesFor: #destroyAllData!public!running! !
-!SSWReStoreGenericTest categoriesFor: #fetchTestObjects!public!running! !
-!SSWReStoreGenericTest categoriesFor: #setUp!public!running! !
-!SSWReStoreGenericTest categoriesFor: #templateComponent!accessing!public! !
-!SSWReStoreGenericTest categoriesFor: #templateTestObject!accessing!public! !
+	^self subclassResponsibility!
+
+testReadAllStatementNilled
+
+	"Verify the cached readAllStatement is nilled when necessary (previously omitted for non-collections)"
+
+	| persons table |
+
+	persons := (GenericTest storedInstancesIn: reStore) asOrderedCollection.
+	persons fetchAll: #(#component).
+
+	reStore reconnect.
+
+	table := reStore tableForClass: GenericTest.
+	self assert: (table componentAccessing: #component) _readAllStatement isNil! !
+!SSWReStoreGenericTest categoriesForMethods!
+addClassesTo:!public!running! !
+componentDefinition!accessing!public! !
+createTestData!public!running! !
+createTestObject!public!running! !
+destroyAllData!public!running! !
+fetchTestObjects!public!running! !
+setUp!public!running! !
+templateComponent!accessing!public! !
+templateTestObject!accessing!public! !
+testReadAllStatementNilled!public!unit tests! !
+!
 
 !SSWReStoreGenericTest class methodsFor!
 
 isAbstract
 
 	^self == SSWReStoreGenericTest! !
-!SSWReStoreGenericTest class categoriesFor: #isAbstract!public! !
+!SSWReStoreGenericTest class categoriesForMethods!
+isAbstract!public! !
+!
 

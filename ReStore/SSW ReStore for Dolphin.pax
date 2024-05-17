@@ -18,21 +18,37 @@ package methodNames
 	add: #CompiledCode -> #sswWritesInstVar:at:;
 	add: #DateAndTime -> #withResolution:;
 	add: #GUID -> #writeSQLOn:;
+	add: #Presenter -> #respondsTo:;
+	add: #Process -> #isExpectedToResumePromptly;
+	add: #Process -> #isInIDECallStack;
+	add: #SessionManager -> #onUnhandledTransactionError:;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:from:;
 	add: #SSWDBBlockArgument -> #postProcessIfNilFor:in:at:;
 	add: #SSWDBBlockArgument -> #preProcessNextMessageFor:in:;
-	add: #SSWDBBlockArgument -> #simulateMessageSend:;
+	add: #SSWDBBlockArgument -> #simulateMethod:withArguments:;
 	add: #SSWDBBlockArgument -> #stackFrameDetect:;
-	add: #SSWDBBlockEvaluator -> #perform:;
-	add: #SSWDBBlockEvaluator -> #perform:with:;
-	add: #SSWDBBlockEvaluator -> #perform:withArguments:;
+	add: #SSWDBProtoObject -> #perform:;
+	add: #SSWDBProtoObject -> #perform:with:;
+	add: #SSWDBProtoObject -> #perform:with:with:;
+	add: #SSWDBProtoObject -> #perform:with:with:with:;
+	add: #SSWDBProtoObject -> #perform:with:with:with:with:;
+	add: #SSWDBProtoObject -> #perform:withArguments:;
+	add: #SSWDBProtoObject -> #subclassResponsibility;
 	add: #SSWDBProxy -> #_allReferences;
 	add: #SSWDBProxy -> #_proxyClass;
-	add: #SSWDBProxy -> #_proxyInstVarAt:;
+	add: #SSWDBProxy -> #basicPrintOn:;
+	add: #SSWDBProxy -> #icon;
+	add: #SSWDBProxy -> #ifNil:;
+	add: #SSWDBProxy -> #ifNil:ifNotNil:;
+	add: #SSWDBProxy -> #ifNotNil:;
+	add: #SSWDBProxy -> #ifNotNil:ifNil:;
+	add: #SSWDBProxy -> #isImmediate;
+	add: #SSWDBProxy -> #isNil;
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
+	add: #SSWDBTransactionError -> #sessionManager;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
 	add: #SSWMSAccessDialect -> #platformSpecificFunctions;
 	add: #SSWMySQLDialect -> #platformSpecificFunctions;
@@ -62,6 +78,7 @@ package methodNames
 	add: #Time -> #withResolution:;
 	add: #TimeStamp -> #withResolution:;
 	add: #TimeStamp -> #writeSQLOn:;
+	add: #View -> #respondsTo:;
 	add: 'GUID class' -> #instanceFromDBValue:in:;
 	add: 'GUID class' -> #isPersistentBaseClass;
 	add: 'GUID class' -> #reStoreNewUnique;
@@ -85,6 +102,8 @@ package globalAliases: (Set new
 package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
+	'SSW ReStore Base Additions'
 	'SSW ReStore Main'
 	'SSW ReStore ODBC'
 	'SSW ReStore Querying'
@@ -208,6 +227,63 @@ instanceFromDBValue:in:!persistency!private! !
 isPersistentBaseClass!persistency!private! !
 reStoreNewUnique!persistency!private! !
 writeSQLTypeOn:using:!persistency!private! !
+!
+
+!Presenter methodsFor!
+
+respondsTo: selector
+
+	"Prevent ReStore's implementation of #refresh from tricking command routing"
+
+	^selector = #refresh
+		ifTrue: [(self class lookupMethod: #refresh) methodClass ~~ Object]
+		ifFalse: [super respondsTo: selector]! !
+!Presenter categoriesForMethods!
+respondsTo:!public!testing! !
+!
+
+!Process methodsFor!
+
+isExpectedToResumePromptly
+
+	^self isAlive and: [self topFrame sender receiver class name ~= #WalkbackDialog]!
+
+isInIDECallStack
+
+	"Answer whether this process is currently in a call stack originating in a message send from well-known IDE classes.
+	Used to adjust behaviour of SSWDBProxies depending on exection context"
+
+	| ideShellClasses frame receiver |
+
+	"Done by name to avoid creating a package dependency on the development environment"
+	ideShellClasses := ##(#(#Debugger #InspectorShell #FlipperInspector) collect: [ :each | self environment at: each]).
+
+	frame := Processor activeProcess topFrame sender.
+	receiver := frame receiver.
+	[frame notNil] whileTrue: 
+		[| nextReceiver |
+		(receiver basicClass canUnderstand: #topShell) ifTrue: 
+			[receiver topShell ifNotNil: 
+				[ :topShell | 
+				topShell ~~ DeafObject current ifTrue: [^(ideShellClasses anySatisfy: [ :each | topShell isKindOf: each])]]].
+		[frame := frame sender.
+		frame notNil and: [(nextReceiver := frame receiver) isNil or: [nextReceiver == receiver]]] whileTrue.
+		receiver := nextReceiver].
+
+	^false! !
+!Process categoriesForMethods!
+isExpectedToResumePromptly!public!testing! !
+isInIDECallStack!must strip!public! !
+!
+
+!SessionManager methodsFor!
+
+onUnhandledTransactionError: anSSWDBTransactionError
+
+	anSSWDBTransactionError autoRecover.
+	self unhandledException: anSSWDBTransactionError! !
+!SessionManager categoriesForMethods!
+onUnhandledTransactionError:!event handling!private! !
 !
 
 !SSWDBBlockArgument methodsFor!
@@ -388,27 +464,19 @@ preProcessNextMessageFor: anObject in: aStackFrame
 	"No special handling"
 	^anObject!
 
-simulateMessageSend: aMessage
-
-	"Attempt to simulate the method named aSymbol in the current class's methodDictionary, turning it into equivalent SQL function(s).
-	Limitations - the method (and any methods it invokes) must NOT directly access inst vars, other than simple getter accessor methods.
-	Also any messages sent my the method must map to SQL functions in the current dialect.
-	If any of these do not hold true a parseError will occur (or possibly something weirder)"
+simulateMethod: aCompiledMethod withArguments: aCollection
 
 	| method |
 
-	method := self currentClass lookupMethod: aMessage selector.
-	method isNil ifTrue: [self parseError: (self currentClass name, ' does not implement #', aMessage selector)].
-
 	"Check the method has no direct inst var accesses - we can't allow these since the method is actually evaluated with the receiver as, er, the receiver..."
-	method readsOrWritesAnyInstVar ifTrue: [self parseError: aMessage selector, ' directly accesses inst vars - cannot convert to SQL'].
+	aCompiledMethod readsOrWritesAnyInstVar ifTrue: [self parseError: '<1p> directly accesses inst vars - cannot convert to SQL' << aCompiledMethod].
 
 	"Make a local copy of the method in this class in order to invoke it"
-	method := method copy.
+	method := aCompiledMethod copy.
 	method methodClass: self basicClass.
 
 	"Try it!!"
-	^method value: self withArguments: aMessage arguments!
+	^method value: self withArguments: aCollection!
 
 stackFrameDetect: aBlock
 
@@ -426,11 +494,20 @@ postProcessDNU:!parsing - internal!public! !
 postProcessDNU:from:!parsing - internal!private! !
 postProcessIfNilFor:in:at:!parsing - internal!private! !
 preProcessNextMessageFor:in:!parsing - internal!private! !
-simulateMessageSend:!helpers!public! !
+simulateMethod:withArguments:!helpers!private! !
 stackFrameDetect:!public! !
 !
 
-!SSWDBBlockEvaluator methodsFor!
+!SSWDBBlockParser class methodsFor!
+
+platformClass
+
+	^SSWDBDolphinBlockParser! !
+!SSWDBBlockParser class categoriesForMethods!
+platformClass!constants!public! !
+!
+
+!SSWDBProtoObject methodsFor!
 
 perform: selector
 	"Send the receiver the unary message indicated by the <selector> argument, answering the result. 
@@ -461,6 +538,52 @@ perform: selector with: argument1
 		for: self
 		withArgs: {argument1}!
 
+perform: selector with: argument1 with: argument2
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument <selector> is the selector of the message. The other arguments <argument1> and <argument2>, are the argument of the message to be sent.
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not two."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {argument1. argument2}!
+
+perform: selector with: argument1 with: argument2 with: argument3
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument selector is the <selector> of the message. The other <Object> arguments argument1, argument2 and argument3 are the arguments of the message to be sent. 
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not three."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {argument1. argument2. argument3}!
+
+perform: selector with: argument1 with: argument2 with: argument3 with: argument4
+	"Send the receiver the keyword message indicated by the arguments, answering the result. 
+	The first argument selector is the <selector> of the message. The other <Object> arguments argument1, argument2, argument3, and argument4 are the arguments of the message to be sent. 
+
+
+	Primitive failure reasons:
+		InvalidSelector		- selector is not a Symbol
+		WrongNumberOfArgs	- The number of arguments expected with the selector is not four."
+
+	<primitive: 83>
+	^Error
+		performFailed: _failureCode
+		of: selector
+		for: self
+		withArgs: {argument1. argument2. argument3. argument4}!
+
 perform: selector withArguments: arguments
 	"Send the receiver the keyword message indicated by the arguments, answering the result. 
 	The first argument, selector, is the <selector> of the message. The arguments of the message 
@@ -476,20 +599,21 @@ perform: selector withArguments: arguments
 		performFailed: _failureCode
 		of: selector
 		for: self
-		withArgs: arguments! !
-!SSWDBBlockEvaluator categoriesForMethods!
+		withArgs: arguments!
+
+subclassResponsibility
+
+	| method |
+	method := Processor activeProcess topFrame sender method.
+	^Error subclassResponsibility: method selector! !
+!SSWDBProtoObject categoriesForMethods!
 perform:!message sending!public! !
 perform:with:!message sending!public! !
+perform:with:with:!message sending!public! !
+perform:with:with:with:!message sending!public! !
+perform:with:with:with:with:!message sending!public! !
 perform:withArguments:!message sending!public! !
-!
-
-!SSWDBBlockParser class methodsFor!
-
-platformClass
-
-	^SSWDBDolphinBlockParser! !
-!SSWDBBlockParser class categoriesForMethods!
-platformClass!constants!public! !
+subclassResponsibility!non forwarding!public! !
 !
 
 !SSWDBProxy methodsFor!
@@ -505,13 +629,64 @@ _proxyClass
 
 	^super basicClass!
 
-_proxyInstVarAt: index
+basicPrintOn: aStream
 
-	^super instVarAt: index! !
+	aStream nextPutAll: self debugPrintString!
+
+icon
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self icon]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+				ifTrue: [self _recoveredProxiedObject icon]
+				ifFalse: [self icon]]]!
+
+ifNil: nilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^self!
+
+ifNil: nilBlock ifNotNil: notNilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^notNilBlock cull: self!
+
+ifNotNil: notNilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^notNilBlock cull: self!
+
+ifNotNil: notNilBlock ifNil: nilBlock 
+	"This message is normally inlined by the compiler and so is never sent unless #perform'd."
+
+	^notNilBlock cull: self!
+
+isImmediate
+
+	"No need to bother the proxiedObject"
+
+	^false!
+
+isNil
+
+	"No need to bother the proxiedObject"
+
+	^false! !
 !SSWDBProxy categoriesForMethods!
 _allReferences!non forwarding!public! !
 _proxyClass!accessing:direct!private! !
-_proxyInstVarAt:!accessing:direct!private! !
+basicPrintOn:!accessing:direct!private! !
+icon!non forwarding!public! !
+ifNil:!non forwarding!public! !
+ifNil:ifNotNil:!non forwarding!public! !
+ifNotNil:!non forwarding!public! !
+ifNotNil:ifNil:!non forwarding!public! !
+isImmediate!non forwarding!private! !
+isNil!non forwarding!public! !
 !
 
 !SSWDBQueryCondition methodsFor!
@@ -536,6 +711,15 @@ mustBeBoolean
 	^self parser handleMustBeBooleanIn: self! !
 !SSWDBQueryConditionCollection categoriesForMethods!
 mustBeBoolean!evaluating!private! !
+!
+
+!SSWDBTransactionError methodsFor!
+
+sessionManager
+
+	^SessionManager current! !
+!SSWDBTransactionError categoriesForMethods!
+sessionManager!accessing!private! !
 !
 
 !SSWMSAccessDialect methodsFor!
@@ -836,6 +1020,19 @@ writeSQLTypeOn: aStream using: anSQLDialect
 !TimeStamp class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 writeSQLTypeOn:using:!printing!public! !
+!
+
+!View methodsFor!
+
+respondsTo: selector
+
+	"Prevent ReStore's implementation of #refresh from tricking command routing"
+
+	^selector = #refresh
+		ifTrue: [(self class lookupMethod: #refresh) methodClass ~~ Object]
+		ifFalse: [super respondsTo: selector]! !
+!View categoriesForMethods!
+respondsTo:!public!testing! !
 !
 
 "End of package definition"!

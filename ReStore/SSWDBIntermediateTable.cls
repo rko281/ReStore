@@ -25,22 +25,6 @@ _classCondition
 
 	^conditions!
 
-recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
-	
-	"Redirect to the relevant concrete class. Also set the class of the proxy to the actual class of object.
-	(since this may be one of the receiver's instanceClass' subclasses)"
-	
-	| class |
-	
-	class := self instanceClassFromRow: aDBRow.
-
-	class = self instanceClass
-		ifTrue: [super recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy]
-		ifFalse: [(self reStore tableForClass: class) 
-				recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy].
-	
-	anSSWDBObjectProxy _class: anSSWDBObjectProxy _proxiedObject class!
-
 subclasses
 
 	"Return those classes which inherit persistency from the receiver"
@@ -48,7 +32,8 @@ subclasses
 	^self instanceClass allSubclasses select:
 		[ :each | 
 		(self reStore tableForClass: each) ifNil: [false] ifNotNil: [ :table | table rootClass = self rootClass]]! !
-!SSWDBIntermediateTable categoriesFor: #_classCondition!evaluating!private! !
-!SSWDBIntermediateTable categoriesFor: #recoverInstanceFromRow:into:!instance creation!public! !
-!SSWDBIntermediateTable categoriesFor: #subclasses!evaluating!public! !
+!SSWDBIntermediateTable categoriesForMethods!
+_classCondition!evaluating!private! !
+subclasses!evaluating!public! !
+!
 

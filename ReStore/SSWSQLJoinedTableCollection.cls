@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWSQLTableCollection variableSubclass: #SSWSQLJoinedTableCollection
 	instanceVariableNames: 'joinConditions'
@@ -24,6 +24,12 @@ add: anSSWDBTable joinedWith: anSSWSQLCondition
 copy
 
 	^super copy
+		joinConditions: self joinConditions copy;
+		yourself!
+
+copyEmpty: anInteger
+
+	^(super copyEmpty: anInteger)
 		joinConditions: self joinConditions copy;
 		yourself!
 
@@ -107,18 +113,21 @@ withoutDuplicates
 		(withoutDuplicates includes: table joinedWith: condition) ifFalse: [withoutDuplicates add: table joinedWith: condition]].
 		
 	^withoutDuplicates! !
-!SSWSQLJoinedTableCollection categoriesFor: #add:joinedWith:!adding/removing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #copy!evaluating!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #copyLikeOfSize:!evaluating!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #doWithJoins:!enumerating!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #hasJoins!public!testing! !
-!SSWSQLJoinedTableCollection categoriesFor: #includes:joinedWith:!public!testing! !
-!SSWSQLJoinedTableCollection categoriesFor: #joinConditions!accessing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #joinConditions:!accessing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #merge:!adding/removing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #removeLast!adding/removing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #tableJoinedWithField:!accessing!public! !
-!SSWSQLJoinedTableCollection categoriesFor: #withoutDuplicates!evaluating!public! !
+!SSWSQLJoinedTableCollection categoriesForMethods!
+add:joinedWith:!adding/removing!public! !
+copy!evaluating!public! !
+copyEmpty:!evaluating!public! !
+copyLikeOfSize:!evaluating!public! !
+doWithJoins:!enumerating!public! !
+hasJoins!public!testing! !
+includes:joinedWith:!public!testing! !
+joinConditions!accessing!public! !
+joinConditions:!accessing!public! !
+merge:!adding/removing!public! !
+removeLast!adding/removing!public! !
+tableJoinedWithField:!accessing!public! !
+withoutDuplicates!evaluating!public! !
+!
 
 !SSWSQLJoinedTableCollection class methodsFor!
 
@@ -133,6 +142,8 @@ new: aSize
 	^(super new: aSize)
 		joinConditions: SSWSQLConditionCollection forAND;
 		yourself! !
-!SSWSQLJoinedTableCollection class categoriesFor: #new!instance creation!public! !
-!SSWSQLJoinedTableCollection class categoriesFor: #new:!instance creation!public! !
+!SSWSQLJoinedTableCollection class categoriesForMethods!
+new!instance creation!public! !
+new:!instance creation!public! !
+!
 

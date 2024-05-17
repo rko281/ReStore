@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreDeleteRelatedCollectionTest subclass: #SSWReStoreDeleteRelatedOwnedCollectionTest
 	instanceVariableNames: ''
@@ -53,18 +53,49 @@ testDeleteUnproxiedCollection
 	super testDeleteUnproxiedCollection.
 
 	"Verify the backpointers are nil"
-	self assert: (customer1Orders allSatisfy: [ :each | each customer isNil])! !
-!SSWReStoreDeleteRelatedOwnedCollectionTest categoriesFor: #deleteCustomer1QueriesCount!constants!public! !
-!SSWReStoreDeleteRelatedOwnedCollectionTest categoriesFor: #deleteCustomer2QueriesCount!constants!public! !
-!SSWReStoreDeleteRelatedOwnedCollectionTest categoriesFor: #deleteQueriesCount!constants!public! !
-!SSWReStoreDeleteRelatedOwnedCollectionTest categoriesFor: #ordersCollectionDefinition!constants!public! !
-!SSWReStoreDeleteRelatedOwnedCollectionTest categoriesFor: #testDeleteProxiedCollection!public!unit tests! !
-!SSWReStoreDeleteRelatedOwnedCollectionTest categoriesFor: #testDeleteUnproxiedCollection!public!unit tests! !
+	self assert: (customer1Orders allSatisfy: [ :each | each customer isNil])!
+
+testUnstoreCollectionElements
+
+	"Verify unstoring collection elements does not delete the owning customer (previous error case)"
+
+	| id expectedCount |
+
+	self deny: customer1 orders isEmpty.
+
+	id := customer1 _id.
+	expectedCount := (reStore instancesOf: SimpleProductOrder) size - customer1 orders size.
+
+	"For dialects which do not supportsDeleteWithJoin this isn't supported"
+	reStore sqlDialect supportsDeleteWithJoin
+		ifTrue: [(reStore instancesOf: SimpleProductOrder) unstore: [ :each | each customer firstName = customer1 firstName]]
+		ifFalse: [^self should: [(reStore instancesOf: SimpleProductOrder) unstore: [ :each | each customer firstName = customer1 firstName]] raise: Error].
+
+	reStore simulateReconnect.
+	customer1 := (reStore instancesOf: SimplePerson) detect: [ :each | each _id = id] ifNone: [nil].
+
+	"Verify customer1 still exists"
+	self assert: customer1 notNil.
+
+	"Verify deletion has happened"
+	self assert: customer1 orders isEmpty.	
+	self assert: (reStore instancesOf: SimpleProductOrder) size equals: expectedCount! !
+!SSWReStoreDeleteRelatedOwnedCollectionTest categoriesForMethods!
+deleteCustomer1QueriesCount!constants!public! !
+deleteCustomer2QueriesCount!constants!public! !
+deleteQueriesCount!constants!public! !
+ordersCollectionDefinition!constants!public! !
+testDeleteProxiedCollection!public!unit tests! !
+testDeleteUnproxiedCollection!public!unit tests! !
+testUnstoreCollectionElements!public!unit tests! !
+!
 
 !SSWReStoreDeleteRelatedOwnedCollectionTest class methodsFor!
 
 testSelectors
 
 	^self myTestSelectors! !
-!SSWReStoreDeleteRelatedOwnedCollectionTest class categoriesFor: #testSelectors!public! !
+!SSWReStoreDeleteRelatedOwnedCollectionTest class categoriesForMethods!
+testSelectors!public! !
+!
 

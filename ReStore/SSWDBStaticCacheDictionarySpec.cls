@@ -1,6 +1,6 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
-SSWDBStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
+SSWDBHashedStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -69,10 +69,12 @@ readAllFor: aCollection
 		(self accessor valueIn: proxy) 
 			_proxiedObject: (dictionaries at: proxy _id ifAbsent: [self newCollection]);
 			_collectionEntries: (collections at: proxy _id ifAbsent: [OrderedCollection new])]! !
-!SSWDBStaticCacheDictionarySpec categoriesFor: #createNonProxiedInstanceFromRow:!actions!public! !
-!SSWDBStaticCacheDictionarySpec categoriesFor: #entryClass!constants!public! !
-!SSWDBStaticCacheDictionarySpec categoriesFor: #keyAccessor!accessing!public! !
-!SSWDBStaticCacheDictionarySpec categoriesFor: #keyAccessor:!accessing!public! !
-!SSWDBStaticCacheDictionarySpec categoriesFor: #keyedOn:!accessing!public! !
-!SSWDBStaticCacheDictionarySpec categoriesFor: #readAllFor:!actions!public! !
+!SSWDBStaticCacheDictionarySpec categoriesForMethods!
+createNonProxiedInstanceFromRow:!actions!public! !
+entryClass!constants!public! !
+keyAccessor!accessing!public! !
+keyAccessor:!accessing!public! !
+keyedOn:!accessing!public! !
+readAllFor:!actions!public! !
+!
 

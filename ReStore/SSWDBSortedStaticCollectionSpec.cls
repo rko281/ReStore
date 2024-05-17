@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBStaticCollectionSpec subclass: #SSWDBSortedStaticCollectionSpec
 	instanceVariableNames: 'orderingSpecs'
@@ -11,6 +11,36 @@ SSWDBSortedStaticCollectionSpec comment: 'ReStore
 https://github.com/rko281/ReStore'!
 !SSWDBSortedStaticCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBSortedStaticCollectionSpec methodsFor!
+
+changesTo: aCollection from: aCollectionOfEntries
+
+	"Return the changes made to aCollection compared to aCollectionOf(Collection)Entries"
+
+	| changes map |
+
+	changes := OrderedCollection new: (aCollection size // 10).
+
+	"Make a map of each element (as was) to its entry(s)"
+	self shouldCompareChangesByEquality
+		ifTrue: [map := Dictionary new: aCollectionOfEntries size]
+		ifFalse: [map := IdentityDictionary new: aCollectionOfEntries size].
+
+	aCollectionOfEntries do: [ :each | (map at: (each target ifNil: [NilCookie]) ifAbsentPut: [OrderedCollection new: 1]) addLast: each].
+
+	"Locate and remove entry for each member of the receiver"
+	aCollection do:
+		[ :each |
+		(map at: (each ifNil: [NilCookie]) ifAbsent: [##(OrderedCollection new)]) removeFirstIfAbsent:
+			"No entry found = element has been added to the receiver" 
+			[changes add: (SSWDBCollectionAddition added: each)]].
+
+	"Any remaining entries indicate elements removed from the receiver"
+	map do:
+		[ :entries | 
+		entries isEmpty ifFalse:		"Minor optimisation"
+			[entries do: [ :entry | changes add: (SSWDBCollectionRemoval newWithEntry: entry)]]].
+
+	^changes!
 
 dbInstancesFor: aCollectionProxy
 
@@ -55,7 +85,7 @@ selectQueryIn: anSSWReStore
 
 	query := super selectQueryIn: anSSWReStore.
 
-	self targetClass isPersistentBaseClass
+	self targetClass isDirectlyPersisted
 	ifTrue:
 		[(self orderingSpecs isEmpty or: [self orderingSpecs first isAscending])
 			ifTrue: [query orderAscendingBy: self targetField]
@@ -74,11 +104,14 @@ selectQueryIn: anSSWReStore
 setOrderingSpecs
 
 	self orderingSpecs: (self templateCollection orderingSpecsFor: self targetClass in: self reStore)! !
-!SSWDBSortedStaticCollectionSpec categoriesFor: #dbInstancesFor:!accessing:derived!public! !
-!SSWDBSortedStaticCollectionSpec categoriesFor: #orderingSpecs!accessing!public! !
-!SSWDBSortedStaticCollectionSpec categoriesFor: #orderingSpecs:!accessing!public! !
-!SSWDBSortedStaticCollectionSpec categoriesFor: #queryClass!constants!public! !
-!SSWDBSortedStaticCollectionSpec categoriesFor: #refreshCollectionForProxy:!actions - api!public! !
-!SSWDBSortedStaticCollectionSpec categoriesFor: #selectQueryIn:!accessing:derived!public! !
-!SSWDBSortedStaticCollectionSpec categoriesFor: #setOrderingSpecs!accessing!initializing!public! !
+!SSWDBSortedStaticCollectionSpec categoriesForMethods!
+changesTo:from:!change detection!public! !
+dbInstancesFor:!accessing:derived!public! !
+orderingSpecs!accessing!public! !
+orderingSpecs:!accessing!public! !
+queryClass!constants!public! !
+refreshCollectionForProxy:!actions - api!public! !
+selectQueryIn:!accessing:derived!public! !
+setOrderingSpecs!accessing!initializing!public! !
+!
 

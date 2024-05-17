@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCollectionSpec subclass: #SSWDBOwnedCollectionSpec
 	instanceVariableNames: 'targetClass ownerField ownerAccessor orderingSpecs'
@@ -254,13 +254,9 @@ selectQueryIn: anSSWReStore
 
 setOrderingSpecs
 
-	self templateCollection isSortedCollection
-	ifTrue: 
-		[self orderingSpecs: (self templateCollection orderingSpecsFor: self targetClass in: self reStore)]
-	ifFalse: 
-		[self templateCollection isOrdered
-			ifTrue: [self orderingSpecs: (Array with: (SSWDBOrderingSpec ascending: self targetTable idField))]
-			ifFalse: [self orderingSpecs: #()]]!
+	^self templateCollection isOrdered
+		ifTrue: [self orderingSpecs: (Array with: (SSWDBOrderingSpec ascending: self targetTable idField))]
+		ifFalse: [self orderingSpecs: #()]!
 
 setOwnerFieldFrom: anSSWReStore
 
@@ -293,34 +289,36 @@ targetClass: aClass
 targetTable 
 
 	^self reStore tableForClass: self targetClass! !
-!SSWDBOwnedCollectionSpec categoriesFor: #allElementsIn:!accessing!private! !
-!SSWDBOwnedCollectionSpec categoriesFor: #copyCollection:!actions!private! !
-!SSWDBOwnedCollectionSpec categoriesFor: #dbInstancesFor:!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #deleteQuery!accessing-queries!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #elementsIn:notIn:!accessing!private! !
-!SSWDBOwnedCollectionSpec categoriesFor: #hasCollection:anyAdditionsOrRemovalsFrom:!private!testing! !
-!SSWDBOwnedCollectionSpec categoriesFor: #orderingSpecs!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #orderingSpecs:!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #owner:!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #ownerAccessor!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #ownerAccessor:!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #ownerClass!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #ownerField!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #ownerField:!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #queryClass!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #readAllFor:!actions!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #readAllQuery!accessing-queries!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #readQuery!accessing-queries!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #recoverCollectionForProxy:!actions!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #refreshCollectionForProxy:!actions!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #refreshCollectionWithContentsIfUpdatedForProxy:!actions!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #refreshQuery!accessing-queries!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #selectQueryIn:!accessing-queries!private! !
-!SSWDBOwnedCollectionSpec categoriesFor: #setOrderingSpecs!initializing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #setOwnerFieldFrom:!initializing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #setTargetClass:!initializing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #targetClass!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #targetClass:!accessing!public! !
-!SSWDBOwnedCollectionSpec categoriesFor: #targetTable!accessing!public! !
+!SSWDBOwnedCollectionSpec categoriesForMethods!
+allElementsIn:!accessing!private! !
+copyCollection:!actions!public! !
+dbInstancesFor:!accessing!public! !
+deleteQuery!accessing-queries!public! !
+elementsIn:notIn:!accessing!private! !
+hasCollection:anyAdditionsOrRemovalsFrom:!private!testing! !
+orderingSpecs!accessing!public! !
+orderingSpecs:!accessing!public! !
+owner:!accessing!public! !
+ownerAccessor!accessing!public! !
+ownerAccessor:!accessing!public! !
+ownerClass!accessing!public! !
+ownerField!accessing!public! !
+ownerField:!accessing!public! !
+queryClass!accessing!public! !
+readAllFor:!actions!public! !
+readAllQuery!accessing-queries!public! !
+readQuery!accessing-queries!public! !
+recoverCollectionForProxy:!actions!public! !
+refreshCollectionForProxy:!actions!public! !
+refreshCollectionWithContentsIfUpdatedForProxy:!actions!public! !
+refreshQuery!accessing-queries!public! !
+refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
+selectQueryIn:!accessing-queries!private! !
+setOrderingSpecs!initializing!public! !
+setOwnerFieldFrom:!initializing!public! !
+setTargetClass:!initializing!public! !
+targetClass!accessing!public! !
+targetClass:!accessing!public! !
+targetTable!accessing!public! !
+!
 

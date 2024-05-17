@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCollectionEntry subclass: #SSWDBKeyedCollectionEntry
 	instanceVariableNames: 'index'
@@ -16,6 +16,20 @@ addTargetTo: aCollection
 
 	aCollection _dbAdd: self target suggestedIndex: self index!
 
+copyTargetTo: aCollection
+
+	self hasMutableIndex 
+	ifTrue: 
+		[self hasMutableTarget
+			ifTrue: [aCollection _dbAdd: self target copy suggestedIndex: self index copy]
+			ifFalse: [aCollection _dbAdd: self target suggestedIndex: self index copy]]
+	ifFalse:
+		[aCollection _dbAdd: self target copy suggestedIndex: self index]!
+
+hasMutableIndex
+
+	^self index class isMutableDirectlyPersistedNonBaseClass!
+
 index
 
 	"index stores the index (key) of the target object in the collection"
@@ -32,10 +46,14 @@ prepareToCommitFor: anSSWDBCachingCollectionProxy
 
 	^self index _ensureActiveIn: anSSWDBCachingCollectionProxy _reStore
 ! !
-!SSWDBKeyedCollectionEntry categoriesFor: #addTargetTo:!actions!public! !
-!SSWDBKeyedCollectionEntry categoriesFor: #index!accessing!public! !
-!SSWDBKeyedCollectionEntry categoriesFor: #index:!accessing!public! !
-!SSWDBKeyedCollectionEntry categoriesFor: #prepareToCommitFor:!actions!public! !
+!SSWDBKeyedCollectionEntry categoriesForMethods!
+addTargetTo:!actions!public! !
+copyTargetTo:!actions!public! !
+hasMutableIndex!public!testing! !
+index!accessing!public! !
+index:!accessing!public! !
+prepareToCommitFor:!actions!public! !
+!
 
 !SSWDBKeyedCollectionEntry class methodsFor!
 
@@ -48,5 +66,7 @@ dbTableNamed: aString in: anSSWReStore
 	(table define: #index as: Integer) name: (anSSWReStore sqlDialect transformInstVarName: #index_).
 		
 	^table! !
-!SSWDBKeyedCollectionEntry class categoriesFor: #dbTableNamed:in:!persistence!public! !
+!SSWDBKeyedCollectionEntry class categoriesForMethods!
+dbTableNamed:in:!persistence!public! !
+!
 

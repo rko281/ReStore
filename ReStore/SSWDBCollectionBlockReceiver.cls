@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBBlockEvaluator subclass: #SSWDBCollectionBlockReceiver
 	instanceVariableNames: 'collectionSpec collection currentMode'
@@ -225,39 +225,41 @@ validateSizeMode
 
 	self currentMode = #size ifFalse: [self error: 'comparison message received when not in #size mode'].
 	self resetCurrentMode! !
-!SSWDBCollectionBlockReceiver categoriesFor: #~=!parsing-comparisons!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #<=!parsing-comparisons!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #=!parsing-comparisons!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #>!parsing-comparisons!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #>=!parsing-comparisons!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #anySatisfy:!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #collection!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #collectionParser!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #collectionSpec!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #collectionSpec:!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #conditionWithAggregatedQuery:!helpers!private! !
-!SSWDBCollectionBlockReceiver categoriesFor: #conditionWithQuery:!helpers!private! !
-!SSWDBCollectionBlockReceiver categoriesFor: #currentMode!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #currentMode:!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #currentTable!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #finalField!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #finalFieldFor:!helpers!private! !
-!SSWDBCollectionBlockReceiver categoriesFor: #first!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #hasFinalField!public!testing! !
-!SSWDBCollectionBlockReceiver categoriesFor: #includes:!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #includesAssociation:!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #includesKey:!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #isEmpty!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #isKindOf:!public!testing! !
-!SSWDBCollectionBlockReceiver categoriesFor: #last!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #localSelectQueryFrom:!helpers!private! !
-!SSWDBCollectionBlockReceiver categoriesFor: #qualifyCollectionParserWith:!helpers!private! !
-!SSWDBCollectionBlockReceiver categoriesFor: #resetCurrentMode!helpers!private! !
-!SSWDBCollectionBlockReceiver categoriesFor: #select:!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #selectQueryFrom:!helpers!private! !
-!SSWDBCollectionBlockReceiver categoriesFor: #size!parsing-collection messages!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #targetField!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #targetFieldCollectQuery!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #targetTableFromParser!accessing!public! !
-!SSWDBCollectionBlockReceiver categoriesFor: #validateSizeMode!helpers!private! !
+!SSWDBCollectionBlockReceiver categoriesForMethods!
+~=!parsing-comparisons!public! !
+<=!parsing-comparisons!public! !
+=!parsing-comparisons!public! !
+>!parsing-comparisons!public! !
+>=!parsing-comparisons!public! !
+anySatisfy:!parsing-collection messages!public! !
+collection!accessing!public! !
+collectionParser!accessing!public! !
+collectionSpec!accessing!public! !
+collectionSpec:!accessing!public! !
+conditionWithAggregatedQuery:!helpers!private! !
+conditionWithQuery:!helpers!private! !
+currentMode!accessing!public! !
+currentMode:!accessing!public! !
+currentTable!accessing!public! !
+finalField!accessing!public! !
+finalFieldFor:!helpers!private! !
+first!parsing-collection messages!public! !
+hasFinalField!public!testing! !
+includes:!parsing-collection messages!public! !
+includesAssociation:!parsing-collection messages!public! !
+includesKey:!parsing-collection messages!public! !
+isEmpty!parsing-collection messages!public! !
+isKindOf:!public!testing! !
+last!parsing-collection messages!public! !
+localSelectQueryFrom:!helpers!private! !
+qualifyCollectionParserWith:!helpers!private! !
+resetCurrentMode!helpers!private! !
+select:!parsing-collection messages!public! !
+selectQueryFrom:!helpers!private! !
+size!parsing-collection messages!public! !
+targetField!accessing!public! !
+targetFieldCollectQuery!accessing!public! !
+targetTableFromParser!accessing!public! !
+validateSizeMode!helpers!private! !
+!
 

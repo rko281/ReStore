@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWDBTableComponent subclass: #SSWDBField
 	instanceVariableNames: 'name isDependent isRelated'
@@ -17,11 +17,11 @@ https://github.com/rko281/ReStore'!
 	^self == anSSWDBField 
 		or: [anSSWDBField notNil and: [self table = anSSWDBField table and: [self name = anSSWDBField name]]]!
 
-aboutToBeUnstored: anObject
+aboutToBeUnstored: anSSWDBProxy
 
-	"Delete the component of anObject referenced by the receiver, if dependent"
+	"Delete the components of anSSWDBProxy referenced by the receiver, if dependent"
 
-	self isDependent ifTrue: [(self accessor valueIn: anObject) unstore]
+	self isDependent ifTrue: [(anSSWDBProxy _valuesForAccessor: self accessor) do: [ :each | each unstore]]
 !
 
 accessorPath
@@ -179,32 +179,34 @@ writeSQLOn: aStream
 	aStream 
 		nextPut: $.;
 		nextPutIdentifier: self name! !
-!SSWDBField categoriesFor: #=!comparing!public! !
-!SSWDBField categoriesFor: #aboutToBeUnstored:!actions!public! !
-!SSWDBField categoriesFor: #accessorPath!accessing!public! !
-!SSWDBField categoriesFor: #beDependent!defining!public! !
-!SSWDBField categoriesFor: #beRelated!defining!public! !
-!SSWDBField categoriesFor: #beUnrelated!defining!public! !
-!SSWDBField categoriesFor: #canBeParameterized!public!testing! !
-!SSWDBField categoriesFor: #fieldNamed:!accessing!public! !
-!SSWDBField categoriesFor: #hasAggregateFunction!public!testing! !
-!SSWDBField categoriesFor: #hash!comparing!public! !
-!SSWDBField categoriesFor: #initialize!initialize/release!public! !
-!SSWDBField categoriesFor: #isAll!public!testing! !
-!SSWDBField categoriesFor: #isDependent!public!testing! !
-!SSWDBField categoriesFor: #isFieldCollection!public!testing! !
-!SSWDBField categoriesFor: #isInlined!public!testing! !
-!SSWDBField categoriesFor: #isRelated!public!testing! !
-!SSWDBField categoriesFor: #name!accessing!public! !
-!SSWDBField categoriesFor: #name:!accessing!public! !
-!SSWDBField categoriesFor: #printOn:!printing!public! !
-!SSWDBField categoriesFor: #relatedComponentsOf:do:!evaluating!public! !
-!SSWDBField categoriesFor: #requiresAliasing!public!testing! !
-!SSWDBField categoriesFor: #sqlCanBeParameterized!public!testing! !
-!SSWDBField categoriesFor: #withFunction:!evaluating!public! !
-!SSWDBField categoriesFor: #withFunction:arguments:!evaluating!public! !
-!SSWDBField categoriesFor: #writeAliasedSQLOn:!output!public! !
-!SSWDBField categoriesFor: #writeSQLDefinitionOn:!output!public! !
-!SSWDBField categoriesFor: #writeSQLForUpdateOn:!printing!public! !
-!SSWDBField categoriesFor: #writeSQLOn:!output!public! !
+!SSWDBField categoriesForMethods!
+=!comparing!public! !
+aboutToBeUnstored:!actions!public! !
+accessorPath!accessing!public! !
+beDependent!defining!public! !
+beRelated!defining!public! !
+beUnrelated!defining!public! !
+canBeParameterized!public!testing! !
+fieldNamed:!accessing!public! !
+hasAggregateFunction!public!testing! !
+hash!comparing!public! !
+initialize!initialize/release!public! !
+isAll!public!testing! !
+isDependent!public!testing! !
+isFieldCollection!public!testing! !
+isInlined!public!testing! !
+isRelated!public!testing! !
+name!accessing!public! !
+name:!accessing!public! !
+printOn:!printing!public! !
+relatedComponentsOf:do:!evaluating!public! !
+requiresAliasing!public!testing! !
+sqlCanBeParameterized!public!testing! !
+withFunction:!evaluating!public! !
+withFunction:arguments:!evaluating!public! !
+writeAliasedSQLOn:!output!public! !
+writeSQLDefinitionOn:!output!public! !
+writeSQLForUpdateOn:!printing!public! !
+writeSQLOn:!output!public! !
+!
 

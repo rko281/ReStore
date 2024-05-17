@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk 7"!
 
 SuperPerson subclass: #MidPerson
-	instanceVariableNames: 'middleName midFriend'
+	instanceVariableNames: 'middleName midFriend midFlags'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -12,29 +12,46 @@ https://github.com/rko281/ReStore'!
 !MidPerson categoriesForClass!Unclassified! !
 !MidPerson methodsFor!
 
+initialize
+	super initialize.
+	midFlags := TestBitmask new.!
+
 middleName
 	^middleName!
 
 middleName: anObject
 	middleName := anObject!
 
+midFlags
+	^midFlags.!
+
 midFriend
 	^midFriend!
 
 midFriend: anObject
 	midFriend := anObject! !
-!MidPerson categoriesFor: #middleName!accessing!private! !
-!MidPerson categoriesFor: #middleName:!accessing!private! !
-!MidPerson categoriesFor: #midFriend!accessing!private! !
-!MidPerson categoriesFor: #midFriend:!accessing!private! !
+!MidPerson categoriesForMethods!
+initialize!initializing!private! !
+middleName!accessing!private! !
+middleName:!accessing!private! !
+midFlags!accessing!private! !
+midFriend!accessing!private! !
+midFriend:!accessing!private! !
+!
 
 !MidPerson class methodsFor!
 
-reStoreDefinition
+mutableAspects
+	^super mutableAspects copyWith: #midFlags.!
 
+reStoreDefinition
 	^super reStoreDefinition
 		define: #middleName as: (String maxSize: 128);
 		define: #midFriend as: SuperPerson;
-		yourself! !
-!MidPerson class categoriesFor: #reStoreDefinition!public! !
+		define: #midFlags as: TestBitmask;
+		yourself.! !
+!MidPerson class categoriesForMethods!
+mutableAspects!constants!public! !
+reStoreDefinition!public! !
+!
 

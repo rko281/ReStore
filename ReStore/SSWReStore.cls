@@ -1,16 +1,31 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations'
+	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging'
 	classVariableNames: ''
 	poolDictionaries: ''
-	classInstanceVariableNames: 'globalDefault activeReStores'!
+	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
 SSWReStore guid: (GUID fromString: '{5a3e3dd2-3990-11d5-b1df-444553540000}')!
 SSWReStore comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
 !SSWReStore categoriesForClass!Unclassified! !
 !SSWReStore methodsFor!
+
+_activeProxyForObject: anObject ifNone: aBlock
+
+	"Private - Locate and return the proxy object wrapping anObject, or the result of a Block if none"
+
+	^anObject isDBProxy 
+	ifTrue: 
+		["Possibly flipped whilst waiting for the lock" 
+		anObject]
+	ifFalse: 
+		["We only need to lookup proxies if they are active in the current transaction (since all external references to the proxy will have swapped to its proxied object).
+		Therefor we only need to check in the active transaction"
+		self transaction
+			ifNil: [aBlock value]
+			ifNotNil: [ :trans | trans proxyForObject: anObject ifNone: aBlock]]!
 
 _rollbackObjects: aCollection
 
@@ -30,14 +45,16 @@ activeProxyForObject: anObject ifNone: aBlock
 
 	"Locate and return the proxy object wrapping anObject, or the result of a Block if none"
 
-	"Base types (String, Number etc.) - these are never proxified"
-	anObject class isPersistentBaseClass ifTrue: [^aBlock value].
-
-	"We only need to lookup proxies if they are active in the current transaction (since all external references to the proxy will have swapped to its proxied object).
-	Therefor we only need to check in the active transaction"
-	^self transaction
-		ifNil: [aBlock value]
-		ifNotNil: [ :trans | trans proxyForObject: anObject ifNone: aBlock]!
+	"Directly-persisted objects are never proxified"
+	anObject class isDirectlyPersisted ifTrue: [aBlock value].
+	
+	^self 
+		transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]
+		ifLocked:
+			["Prevent lock-ups when in debugger or otherwise semi-permanently blocked"
+			(self transactionMutex owner ifNil: [true] ifNotNil: [ :process | process isExpectedToResumePromptly])
+				ifTrue: ["Wait" self transactionCritical: [self _activeProxyForObject: anObject ifNone: aBlock]]
+				ifFalse: ["Bypass" self _activeProxyForObject: anObject ifNone: aBlock]]!
 
 addClass: aClass
 
@@ -135,6 +152,13 @@ applyUpdates: anSSWSQLCollection toObject: anSSWDBObjectProxy
 	statement values: query values; exec.
 	^statement rowsAffected = 1!
 
+attachTo: aConnection
+
+	"Attach the receiver to aConnection (probably, but not necessarily, already-connected)"
+
+	self connection: aConnection.
+	self connect!
+
 beginDumbTransaction
 
 	"Begin a dumb transaction to absorb object traversals"
@@ -143,14 +167,13 @@ beginDumbTransaction
 
 beginTransaction
 
-	| newTransaction |
+	self transactionCritical: 
+		[self softRollback.
 
-	self softRollback.
-
-	newTransaction := self transactionClass new.
-	newTransaction beginWithin: self transaction.
-
-	self transaction: newTransaction!
+		self transaction: 
+			(self transactionClass new
+				beginWithin: self transaction;
+				yourself)]!
 
 cachedInstancesOf: aClass
 
@@ -163,7 +186,7 @@ cachedObjectOfClass: aClass withID: aRawID ifAbsent: aBlock
 	"Return the cached object (actually a proxy) of the given class with the given unique ID (raw value as read from database; may need reifying).
 	If none is found, evaluate aBlock"
 	
-	^(self classCacheFor: aClass) at: (aClass reStoreIDClass instanceFromDBValue: aRawID in: self) ifAbsent: aBlock!
+	^self transactionCritical: [(self classCacheFor: aClass) at: (aClass reStoreIDClass instanceFromDBValue: aRawID in: self) ifAbsent: aBlock]!
 
 cachedObjectOfClass: aClass withID: aRawID 
 	ifAbsent: absentBlock ifUnrecovered: unrecoveredBlock ifUntouched: untouchedBlock
@@ -174,17 +197,17 @@ cachedObjectOfClass: aClass withID: aRawID
 	If a recovered but not 'touched' proxy, evaluate untouchedBlock with it.
 	A proxy is considered 'touched' if it has been sent a message since the last abort"
 	
-	^(self cachedObjectOfClass: aClass withID: aRawID ifAbsent: [nil])
-	ifNil:
-		[absentBlock value]
-	ifNotNil:
-		[ :proxy |
-		proxy isDBProxy ifTrue:
-			[proxy _isRecovered 
-				ifTrue: [untouchedBlock value: proxy]
-				ifFalse: [unrecoveredBlock value: proxy]].
-		proxy]
-!
+	^self transactionCritical:
+		[(self cachedObjectOfClass: aClass withID: aRawID ifAbsent: [nil])
+		ifNil:
+			[absentBlock value]
+		ifNotNil:
+			[ :proxy |
+			proxy isDBProxy ifTrue:
+				[proxy _isRecovered 
+					ifTrue: [untouchedBlock value: proxy]
+					ifFalse: [unrecoveredBlock value: proxy]].
+			proxy]]!
 
 cacheObject: aPersistentObjectProxy
 
@@ -254,6 +277,15 @@ classCacheFor: aClass
 		at: (self tableForClass: aClass) registerClass 
 		ifAbsentPut: [WeakLookupTable new: 128]!
 
+clearAllCaches
+
+	self
+		clearProxyCache;
+		clearNextIDCache;
+		clearTransaction;
+		clearDBTableNames;
+		clearStatementCache!
+
 clearDBTableNames
 
 	self dbTableNames: nil!
@@ -284,6 +316,12 @@ clearTableCache
 clearTransaction
 
 	self transaction: nil!
+
+clearTxn
+
+	"Clear down any active database txn (transaction)"
+
+	[self connection rollbackTxn] on: Error do: [ :exc | exc return: nil]!
 
 columnsForFields: aCollectionOfDBFields
 
@@ -318,32 +356,15 @@ commitTransaction
 	self isTransactionInProgress ifFalse: [self error: 'No transaction in progress'].
 
 	^self transactionCritical:
-		[| success errorDescription |
+		[| success |
 
-		errorDescription := nil.
-
-		[self transaction prepareToCommit] on: Error do: 
-			[ :exc |
-			self transaction autoRecoverPreCommitIn: self.
-			errorDescription := exc description.
-			exc return].
-
-		errorDescription isNil ifFalse: [self error: ('An error occured during pre-commit: ', errorDescription)].
+		[self transaction prepareToCommit] on: Error do: [ :exc | SSWDBTransactionPreCommitError signalWith: exc in: self].
 
 		success := 
 			[self transaction commitTo: self connection.
-			self transaction hasFailedCommit not] 
-				on: Error do: 
-					[ :exc |
-					[self connection rollbackTxn] on: Error do: [ :txnExc | txnExc return].
-					self transaction autoRecoverCommitIn: self.
-					errorDescription := exc.
-					exc return: false].
-		success 
-		ifTrue: 
-			[self transaction: self transaction ownerTransaction]
-		ifFalse:
-			[errorDescription isNil ifFalse: [self error: ('An error occured during commit: ', errorDescription description)]].
+			self transaction hasFailedCommit not] on: Error do: [ :exc | SSWDBTransactionCommitError signalWith: exc in: self].
+
+		success ifTrue: [self transaction: self transaction ownerTransaction].
 	
 		success]!
 
@@ -351,24 +372,11 @@ connect
 
 	"Connect to the database, initializing the receiver"
 
-	self isConnected ifTrue: [self error: 'already connected'].
-
 	self objectProxyClass isNil ifTrue: [self setDefaultTransactionMode].
 
-	"Reinitializate the mutex"
-	self transactionMutex: Mutex new.
+	self isConnected ifFalse: [self openConnection].
 
-	[self connection connect] on: self dbErrorClass do:
-		[ :exc |
-		self connection free.
-		exc signal].
-
-	self class activated: self.
-	self connection willAutoCommit: false.
-	self connection postConnect.
-
-	"Must reset system classes after login to use current dialect's name transformation strategy"
-	self persistentSystemClasses do: [ :each | self addClass: each]!
+	self postConnect!
 
 connection
 
@@ -397,8 +405,11 @@ createProxyForNewObject: anObject
 	table := self tableForClass: anObject class.
 	id := table idDataField ifNotNil: [ :idDataField | idDataField accessor valueIn: anObject].
 	id isNil 
-		ifTrue: [proxy _id: (self allocateIDFor: anObject in: table)]
-		ifFalse: [proxy _id: id].
+	ifTrue: 
+		[proxy _id: (self allocateIDFor: anObject in: table)]
+	ifFalse: 
+		[((self classCacheFor: anObject class) includesKey: id) ifTrue: [self error: 'attempt to store object of class <1d> with duplicate ID <2p>' << {anObject class. id}].
+		proxy _id: id].
 
 	proxy _intern.
 
@@ -587,6 +598,25 @@ destroyTable: aTable
 		self unstoreNextIDsForTables: droppedTables.
 		true]] ensure: [self clearDBTableNames]!
 
+detach
+
+	"Detach the receiver from its connection, returning the connection.
+	The connection is left connected for potential reuse"
+
+	| oldConnection |
+
+	self mustBeConnected.
+
+	oldConnection := self connection.
+
+	self 
+		clearTxn;
+		debugTo: nil;
+		connection: nil;
+		postDisconnect.
+
+	^oldConnection!
+
 disaffiliateWith: anObject
 
 	self affiliations removeKey: anObject ifAbsent: [self error: 'not affiliated with ', anObject printString]!
@@ -595,18 +625,9 @@ disconnect
 
 	"Disconnect from the database and clear all caches"
 	
-	self isConnected ifFalse: [self error: 'Not connected'].
+	self mustBeConnected.
 
-	self
-		clearProxyCache;
-		clearNextIDCache;
-		clearTransaction;
-		clearDBTableNames;
-		clearStatementCache.
-
-	self connection close.
-
-	self class deactivated: self!
+	self hardDisconnect!
 
 enableFullTableRecords
 
@@ -641,6 +662,10 @@ ensureNoActiveTransaction
 		[self transaction isDumb
 			ifTrue: [self rollbackTransaction]
 			ifFalse: [self error: 'Active transaction - cannot proceed']]!
+
+enterDebugMode
+
+	self isDebugging: true!
 
 evaluateAsTransaction: aBlock
 
@@ -706,13 +731,12 @@ executeQuery: anSSWSQLQuery cursoredFetch: aBoolean
 	If it is a read query, return the DBResultSet (client code should close this when done); aBoolean controls whether the result set is cursored (incremental read)
 	If it is a write query, return the number of rows affected"
 
-	| statement |
-
-	statement := self connection executeQuery: anSSWSQLQuery cursoredFetch: aBoolean.
-
-	^anSSWSQLQuery isReadQuery
-		ifTrue: [statement results]
-		ifFalse: [statement rowsAffected]!
+	^self transactionCritical:
+		[| statement |
+		statement := self connection executeQuery: anSSWSQLQuery cursoredFetch: aBoolean.
+		anSSWSQLQuery isReadQuery
+			ifTrue: [statement results]
+			ifFalse: [[statement rowsAffected] ensure: [statement free]]]!
 
 executeSQL: aString
 
@@ -757,17 +781,13 @@ fetchObjectsOfClass: aClass withQuery: anSSWSQLQuery into: aCollection
 
 fetchObjectsOfClass: aClass withStatement: aDBPreparedStatement into: aCollection
 
-	| table index |
+	| table |
 		
 	table := self tableForClass: aClass.
-	index := 1.
 
 	self 
 		rowsFromStatement: aDBPreparedStatement 
-		do: 
-			[ :row |
-			aCollection _dbAdd: (self objectFromRow: row table: table) suggestedIndex: index.
-			index := index + 1]!
+		keysAndValuesDo: [ :index :row | aCollection _dbAdd: (self objectFromRow: row table: table) suggestedIndex: index]!
 
 finalize
 
@@ -804,6 +824,22 @@ fullTableRecordFor: anSSWDBTable
 		record isNil
 			ifTrue: [nil]
 			ifFalse: [self nextIDCache at: anSSWDBTable put: record]]!
+
+halt
+
+	"Put the receiver into debug mode first"
+
+	self enterDebugMode.
+	super halt!
+
+hardDisconnect
+
+	"Disconnect from the database and clear all caches"
+	
+	self 
+		preDisconnect;
+		softDisconnect;
+		postDisconnect!
 
 hasActiveAffiliation
 
@@ -877,6 +913,28 @@ isConnected
 
 	^self hasConnection and: [self connection isConnected]!
 
+isDebugging
+
+	"When isDebugging is true the receiver will adjust its behaviour to facilitate easier debugging within ReStore code. 
+
+	Principally, when the receiver's transactionMutex is locked, if debugging is enabled the mutex will check the current execution stack when an attempt is made to enter a critical section.
+	If the current execution stack is adjudged to have originated from a Debugger, Inspector or other development tool, the lock will be bypassed.
+	
+	Additionally, proxies adjust their response to instVarAt: to enable their internal state to be shown in the Debugger variables list"
+
+	^isDebugging!
+
+isDebugging: aBoolean
+
+	"When isDebugging is true the receiver will adjust its behaviour to facilitate easier debugging within ReStore code. 
+
+	Principally, when the receiver's transactionMutex is locked, if debugging is enabled the mutex will check the current execution stack when an attempt is made to enter a critical section.
+	If the current execution stack is adjudged to have originated from a Debugger, Inspector or other development tool, the lock will be bypassed.
+	
+	Additionally, proxies adjust their response to instVarAt: to enable their internal state to be shown in the Debugger variables list"
+
+	isDebugging := aBoolean!
+
 isInCurrentTransaction: anObject
 
 	^self transaction includesProxiedObject: anObject!
@@ -902,6 +960,14 @@ lazyRefreshAll: aCollection
 		self connection rollbackTxn.
 
 		aCollection do: [ :each | each _lazyRefreshIn: self]]!
+
+leaveDebugMode
+
+	self isDebugging: false!
+
+mustBeConnected
+	
+	self isConnected ifFalse: [self error: 'Not connected']!
 
 nextIDCache
 
@@ -1021,11 +1087,45 @@ onStartup
 	since these will reference the connection active in the previous session"
 	self clearStatementCache!
 
+openConnection
+
+	"Open the receiver's connection to the database"
+
+	[self connection connect] on: self dbErrorClass do:
+		[ :exc |
+		self connection free.
+		exc pass].
+
+	self connection willAutoCommit: false.
+	self connection postConnect!
+
 persistentSystemClasses
 
 	"Private - Return all ReStore system classes that exist in the database"
 
 	^##(Array with: SSWDBTableRecord)!
+
+postConnect
+
+	"Reinitializate the mutex"
+	self transactionMutex: Mutex new.
+
+	"Must reset system classes after login to use current dialect's name transformation strategy"
+	self persistentSystemClasses do: [ :each | self addClass: each].
+
+	self class activated: self!
+
+postDisconnect
+
+	self clearAllCaches.
+
+	self class deactivated: self!
+
+preDisconnect
+
+	"Statements may need an active connection in order to be free'd correctly, so this is done pre-disconnect"
+
+	self clearStatementCache!
 
 prepareStatementForQuery: anSSWSQLQuery
 
@@ -1347,7 +1447,7 @@ rowFromQuery: anSSWSQLQuery
 
 	row := results first.
 		
-	results close.
+	results free.
 	
 	^row!
 
@@ -1359,15 +1459,19 @@ rowsFromQuery: anSSWSQLQuery do: aBlock
 
 	 results 
 		do: [ :row | aBlock value: row];
-		close!
+		free!
 
 rowsFromStatement: aDBPreparedStatement do: aBlock
 
 	aDBPreparedStatement exec.
 
-	aDBPreparedStatement results do: [ :row | aBlock value: row].
+	[aDBPreparedStatement results do: [ :row | aBlock value: row]] ensure: [aDBPreparedStatement close]!
 
-	aDBPreparedStatement close!
+rowsFromStatement: aDBPreparedStatement keysAndValuesDo: aBlock
+
+	aDBPreparedStatement exec.
+
+	[aDBPreparedStatement results keysAndValuesDo: [ :index :row | aBlock value: index value: row]] ensure: [aDBPreparedStatement close]!
 
 selectChanged: aCollection
 
@@ -1375,9 +1479,20 @@ selectChanged: aCollection
 
 	^aCollection inject: IdentitySet new into: [ :all :each | all addAll: (each _changedObjectsIn: self)]!
 
+setDefaultDebugMode
+
+	self isDebugging: SSWReStore isDebugging!
+
 setDefaultTransactionMode
 
 	self useTransactionsWithVersioning!
+
+softDisconnect
+
+	"Disconnect from the DB but do not clear the proxy cache"
+
+	self clearTxn.
+	self connection close.!
 
 softRollback
 
@@ -1528,7 +1643,12 @@ transactionCritical: aBlock
 
 	"Evaluate aBlock under the guard of the transactionMutex"
 
-	^self transactionMutex critical: aBlock!
+	self isDebugging ifFalse: [^self transactionMutex critical: aBlock].
+
+	^self transactionMutex critical: aBlock ifLocked: 
+		[Processor activeProcess isInIDECallStack
+			ifTrue: [aBlock value]
+			ifFalse: [self transactionMutex critical: aBlock]]!
 
 transactionCritical: aBlock ifLocked: lockedBlock
 
@@ -1626,6 +1746,7 @@ validateTable: anSSWDBTable
 		ifFalse:
 			[self error: 'Oversize table name. Enable full table records (see supportsFullTableRecords)']]! !
 !SSWReStore categoriesForMethods!
+_activeProxyForObject:ifNone:!private!proxy manipulation! !
 _rollbackObjects:!private!transaction management! !
 abandonTransaction!public!transaction api! !
 activeProxyForObject:ifNone:!proxy manipulation!public! !
@@ -1637,6 +1758,7 @@ affiliations!accessing!public! !
 allocateIDFor:in:!cache management!public! !
 alterInstVar:in:!class maintenance!public! !
 applyUpdates:toObject:!public!read/write objects! !
+attachTo:!connection!public! !
 beginDumbTransaction!private!transaction management! !
 beginTransaction!public!transaction api! !
 cachedInstancesOf:!public!querying! !
@@ -1645,12 +1767,14 @@ cachedObjectOfClass:withID:ifAbsent:ifUnrecovered:ifUntouched:!cache management!
 cacheObject:!cache management!public! !
 changedClassOfInstVar:in:modifyUsing:!class maintenance!public! !
 classCacheFor:!cache management!public! !
+clearAllCaches!cache management!public! !
 clearDBTableNames!cache management!public! !
 clearNextIDCache!cache management!public! !
 clearProxyCache!cache management!public! !
 clearStatementCache!cache management!public! !
 clearTableCache!cache management!public! !
 clearTransaction!private!transaction management! !
+clearTxn!connection!private! !
 columnsForFields:!connection!public! !
 columnsInTable:!connection!public! !
 commit:!public!transactionless api! !
@@ -1679,12 +1803,14 @@ destroyAllClasses!class maintenance!public! !
 destroyAllTables!class maintenance!public! !
 destroyClass:!class maintenance!public! !
 destroyTable:!class maintenance!private! !
+detach!connection!public! !
 disaffiliateWith:!initialize/release!public! !
 disconnect!connection!public! !
 enableFullTableRecords!class maintenance!public! !
 ensureCanChangeTransactionMode!initialize/release!private! !
 ensureIsActiveInCurrentTransaction:!proxy manipulation!public! !
 ensureNoActiveTransaction!private!transaction management! !
+enterDebugMode!debugging!public! !
 evaluateAsTransaction:!public!transaction api! !
 evaluateAsTransactionUntilSuccess:!public!transaction api! !
 evaluateAsTxn:!connection!private! !
@@ -1704,6 +1830,8 @@ forceRefresh:!public!transactionless api! !
 forceRefreshAll:!public!transactionless api! !
 forgetClass:!class maintenance!public! !
 fullTableRecordFor:!class maintenance!private! !
+halt!debugging!must strip!public! !
+hardDisconnect!connection!private! !
 hasActiveAffiliation!public!testing! !
 hasAffiliations!public!testing! !
 hasChanged:!public!transactionless api! !
@@ -1716,11 +1844,15 @@ instancesOf:!public!querying! !
 isAffiliatedWith:!public!testing! !
 isClassPersistent:!public!testing! !
 isConnected!public!testing! !
+isDebugging!accessing!public! !
+isDebugging:!accessing!public! !
 isInCurrentTransaction:!private!transaction management! !
 isSystemClass:!public!testing! !
 isTransactionInProgress!public!transaction api! !
 lazyRefresh:!public!transactionless api! !
 lazyRefreshAll:!public!transactionless api! !
+leaveDebugMode!debugging!public! !
+mustBeConnected!connection!private! !
 nextIDCache!accessing!public! !
 nextIDCache:!accessing!public! !
 nextIDForTable:!cache management!public! !
@@ -1732,7 +1864,11 @@ objectProxyClass!accessing!public! !
 objectProxyClass:!accessing!public! !
 objectProxyClassFor:!proxy manipulation!public! !
 onStartup!initialize/release!public! !
+openConnection!connection!private! !
 persistentSystemClasses!class maintenance!private! !
+postConnect!connection!private! !
+postDisconnect!connection!private! !
+preDisconnect!connection!private! !
 prepareStatementForQuery:!connection!public! !
 proxy:forwarded:!proxy manipulation!public! !
 proxyCache!accessing!public! !
@@ -1762,8 +1898,11 @@ rollbackTransaction!public!transaction api! !
 rowFromQuery:!public!querying! !
 rowsFromQuery:do:!public!querying! !
 rowsFromStatement:do:!public!querying! !
+rowsFromStatement:keysAndValuesDo:!public!querying! !
 selectChanged:!public!transaction management! !
+setDefaultDebugMode!initialize/release!private! !
 setDefaultTransactionMode!initialize/release!private! !
+softDisconnect!connection!private! !
 softRollback!public!transaction api! !
 sqlDialect!accessing!public! !
 supportsFullTableRecords!accessing!public! !
@@ -1835,6 +1974,14 @@ default
 
 	^globalDefault!
 
+enterDebugMode
+
+	"Activate debugging for all active and future instances"
+
+	self 
+		isDebugging: true;
+		setDebugMode!
+
 globalDefault
 
 	"Private - Return the global default ReStore instance (i.e. the default for all processes not requiring their own private default), creating it if necessary. 
@@ -1851,12 +1998,35 @@ initializeReStoreGlobal
 
 	self class environment at: #ReStore put: self globalDefault!
 
+isDebugging
+
+	"Default setting for isDebugging status of instances.
+	See instance implementation for further details"
+
+	^isDebugging ifNil: [false]!
+
+isDebugging: aBoolean
+
+	"Default setting for isDebugging status of instances.
+	See instance implementation for further details"
+
+	isDebugging := aBoolean!
+
+leaveDebugMode
+
+	"Deactivate debugging for all active and future instances"
+
+	self 
+		isDebugging: false;
+		setDebugMode!
+
 new
 
 	^super new
 		clearProxyCache;
 		clearDBTableNames;
 		clearTableCache;
+		setDefaultDebugMode;
 		yourself!
 
 onStartup
@@ -1867,12 +2037,14 @@ proxyForObject: anObject ifNone: aBlock
 
 	"Locate and return the proxy wrapping anObject in the receiver's activeReStores.
 	If none found, return the result of evaluating aBlock"
-	
-	self activeReStores do:
-		[ :aReStore | 
-		"Only interrogate aReStore if it stores instances of the class of anObject"
-		((aReStore tableCache includesKey: anObject class) or: [anObject isKindOf: Collection]) ifTrue:
-			[(aReStore activeProxyForObject: anObject ifNone: [nil]) ifNotNil: [ :proxy | ^proxy]]].
+
+	"Inline for performance"
+	1 to: self activeReStores basicSize do:
+		[ :index |
+		(activeReStores basicAt: index) ifNotNil: 
+			[ :aReStore |
+			"Only interrogate aReStore if it stores instances of the class of anObject"
+			((aReStore tableCache includesKey: anObject class) or: [anObject isKindOf: Collection]) ifTrue: [(aReStore activeProxyForObject: anObject ifNone: [nil]) ifNotNil: [ :proxy | ^proxy]]]].
 
 	^aBlock value!
 
@@ -1898,7 +2070,12 @@ reStoreForObject: anObject ifNone: aBlock
 	^(self proxyForObject: anObject ifNone: [nil]) 
 		ifNil: [aBlock value]
 		ifNotNil: [ :proxy | proxy _reStore]
-! !
+!
+
+setDebugMode
+
+	"Private - Put all active instances into the current debug mode"
+	self activeReStores do: [ :each | each setDefaultDebugMode]! !
 !SSWReStore class categoriesForMethods!
 activated:!events!public! !
 activeReStores!accessing!public! !
@@ -1906,14 +2083,19 @@ affiliatedDefault!accessing!private! !
 affiliateFor:!accessing!public! !
 deactivated:!events!public! !
 default!accessing!public! !
+enterDebugMode!accessing!public! !
 globalDefault!accessing!private! !
 initialize!initialize/release!public! !
 initializeReStoreGlobal!initialize/release!private! !
+isDebugging!accessing!public! !
+isDebugging:!accessing!public! !
+leaveDebugMode!accessing!public! !
 new!instance creation!public! !
 onStartup!events!public! !
 proxyForObject:ifNone:!accessing!public! !
 reset!accessing!initialize/release!public! !
 resetActive!initialize/release!private! !
 reStoreForObject:ifNone:!accessing!public! !
+setDebugMode!initialize/release!private! !
 !
 

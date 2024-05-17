@@ -1,8 +1,8 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
-ProtoObject subclass: #SSWDBProxy
-	instanceVariableNames: 'proxiedObject reStore'
-	classVariableNames: ''
+SSWDBProtoObject subclass: #SSWDBProxy
+	instanceVariableNames: 'proxiedObject reStore flags'
+	classVariableNames: 'IsDeletedMask IsPersistentMask IsSwappedMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBProxy guid: (GUID fromString: '{5a3e3dd8-3990-11d5-b1df-444553540000}')!
@@ -48,6 +48,12 @@ _checkHasChangedIn: aReStore
 
 	^self _isRecovered and: [self _hasChanged]!
 
+_clearDeleted
+
+	"Private - Clear deleted status"
+
+	flags := flags maskClear: IsDeletedMask!
+
 _commitChanges
 
 	"Commit to the reStore changes to the receiver's proxiedObject.
@@ -79,6 +85,12 @@ _commitIn: anSSWReStore
 
 	self _isRecovered ifTrue: [self _referenced]!
 
+_dbProxyIfNone: aBlock
+
+	"Private - Received if the receiver has been swapped from a real object back to a proxy"
+
+	^self!
+
 _dbProxyIn: aReStore
 	
 	^self _dbProxyIn: aReStore ifNone: [self error: 'proxy does not belong to aReStore']!
@@ -89,20 +101,21 @@ _dbProxyIn: aReStore ifNone: aBlock
 		ifTrue: [self]
 		ifFalse: [aBlock value]!
 
-_doesNotUnderstand: aMessage
+_dbProxyReStore
+	"Private - As #_reStore, but do not perform a reverse lookup if sent to a regular object.
+	Used internally by #doesNotUnderstand: to safely retrieve the ReStore in order to enter a critical section.
 
-	"Forward to the proxiedObject"
-	
-	| me |
+	See implementation in Object for more details"
 
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
+	^reStore!
 
-	"Swap references to the receiver and proxiedObject.
-	From hereon, must use me instead of self, and not reference inst vars directly"
-	me := self _swapReferences.
+_debugPrintString
 
-	^[me _proxiedObject perform: aMessage selector withArguments: aMessage arguments]
-		ensure: [me _reStore proxy: me forwarded: aMessage]!
+	"Do not fault the receiver just for a debugger"
+
+	^proxiedObject == nil
+		ifTrue: [self _unrecoveredProxyString]
+		ifFalse: ['<', proxiedObject debugPrintString, '>']!
 
 _ensureActiveIn: anSSWReStore
 
@@ -124,6 +137,14 @@ _ensurePersistentIn: anSSWReStore
 	
 	"Proxies are persistent by default - only need check anSSWReStore"
 	self validateReStore: anSSWReStore!
+
+_flags
+
+	^flags!
+
+_flags: aSmallInteger
+
+	flags := aSmallInteger!
 
 _forceRefresh
 
@@ -153,6 +174,14 @@ _forgetProxiedObject
 	
 	proxiedObject := nil!
 
+_frontFace
+	"Private - Answer the 'front face' identity associated with the receiver--the identity that should be referenced by other persisted objects.
+	When the receiver is swapped, this is the proxiedObject.
+	
+	N.B. Must be called in a critical section."
+
+	^self _isSwapped ifTrue: [self _proxiedObject] ifFalse: [self].!
+
 _hasChanged
 
 	"Return whether the receiver's proxiedObject has been changed
@@ -172,18 +201,25 @@ _isDeleted
 
 	"Return a Boolean indicating whether the receiver is marked as deleted"
 	
-	^self subclassResponsibility!
+	^flags anyMask: IsDeletedMask!
 
 _isPersistent
 
 	"Return a Boolean indicating whether the receiver is persistent
 	(has been written to the database yet)"
 	
-	^self subclassResponsibility!
+	^flags anyMask: IsPersistentMask!
 
 _isRecovered
 
 	^proxiedObject ~~ nil!
+
+_isSwapped
+
+	"Return a Boolean indicating whether the receiver has been swapped such that all references point to the proxiedObject.
+	For speed this is usually inlined"
+
+	^flags anyMask: IsSwappedMask!
 
 _lazyRefresh
 
@@ -239,6 +275,12 @@ _prepareToCommitPhase2
 	"Subclasses only requiring a single phase should override _prepareToCommit"
 	^self!
 
+_proxiedClassIsDefinitive
+
+	"Private - Is the class of the proxied object definitively known?"
+
+	^true!
+
 _proxiedObject
 
 	"proxiedObject stores the actual object which the receiver is a proxy for"
@@ -250,6 +292,19 @@ _proxiedObject: anObject
 	"proxiedObject stores the actual object which the receiver is a proxy for"
 	
 	proxiedObject := anObject!
+
+_proxiedObjectClass
+
+	"Answer the class of the proxiedObject (or best guess) without needing to have the proxiedObject itself"
+
+	^self subclassResponsibility!
+
+_recoveredProxiedObject
+
+	"Answer the proxiedObject, recovering it from the database if necessary"
+
+	proxiedObject isNil ifTrue: [self _recoverProxiedObject].
+	^proxiedObject!
 
 _recoverProxiedObject
 
@@ -269,7 +324,7 @@ _referenced
 	"Unless the receiver is new, swap references to the receiver and proxiedObject.
 	From hereon, must use me instead of self, and not reference inst vars directly"
 	self _isPersistent
-		ifTrue: [me := self _swapReferences]
+		ifTrue: [me := self _swap]
 		ifFalse: [me := self].
 
 	me __referenced.
@@ -329,6 +384,10 @@ _reStore: anSSWReStore
 	
 	reStore := anSSWReStore!
 
+_reStoreIfNone: aBlock
+
+	^reStore!
+
 _rollbackChanges
 
 	"Forget changes to the receiver.
@@ -344,6 +403,26 @@ _rollbackIn: aReStore
 
 	self _isRecovered ifTrue: [self _referenced]!
 
+_setDeleted
+
+	"Private - Set the receiver's state to mark it as deleted from the database (assuming the commit completes)"
+
+	flags := flags maskSet: IsDeletedMask!
+
+_setNewNonPersistent
+
+	"Initialize the receiver as a new non-persistent object"
+
+	flags := (flags maskClear: IsPersistentMask) maskSet: IsSwappedMask!
+
+_setNonPersistent
+
+	flags := flags maskClear: IsPersistentMask!
+
+_setPersistent
+
+	flags := flags maskSet: IsPersistentMask!
+
 _setProxiedObject: anObject
 
 	"Set proxiedObject ONLY - no other actions.
@@ -351,9 +430,34 @@ _setProxiedObject: anObject
 	
 	proxiedObject := anObject!
 
+_setSwapped
+
+	"Set the receiver to mark that all references are now pointing to the proxied object.
+	For speed this is inlined in _swap"
+
+	flags := flags maskSet: IsSwappedMask!
+
+_setUnswapped
+
+	"Set the receiver to mark that all references are pointing to the receiver rather than the proxied object.
+	For speed this is inlined in _unswap"
+
+	flags := flags maskClear: IsSwappedMask!
+
+_swap
+
+	| newFlags |
+
+	newFlags := flags bitOr: IsSwappedMask.
+	newFlags == flags ifTrue: [self error: 'attempt to swap already-swapped proxy'].
+	flags := newFlags.
+
+	^self _swapReferences!
+
 _swapReferences
 
-	"Swap references to the receiver with references to the proxiedObject, returning the receiver.
+	"Private - this method should only be sent from _swap or _unswap.
+	Swap references to the receiver with references to the proxiedObject, returning the receiver.
 	Subclasses should not override this method, but instead use _postSwapReferences"
 
 	| me him |
@@ -374,7 +478,7 @@ _swapReferences
 
 _unrecoveredProxyString
 
-	^'<Unrecovered Proxy>'!
+	^'%<an unrecovered <1p>%>' expandMacrosWith: self _proxiedObjectClass!
 
 _unstore
 
@@ -382,20 +486,54 @@ _unstore
 
 	self subclassResponsibility!
 
+_unswap
+
+	| newFlags |
+
+	newFlags := flags bitAnd: -2 "IsSwappedMask bitInvert".
+	newFlags == flags ifTrue: [self error: 'attempt to unswap proxy which has not been swapped'].
+	flags := newFlags.
+
+	^self _swapReferences!
+
+class
+
+	"No need to bother the proxiedObject, except where needed to definitively determine their class"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self class]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
+					ifTrue: [self _proxiedObjectClass]
+					ifFalse: [self _recoveredProxiedObject class]]
+			ifFalse: 
+				[self class]]]!
+
 commit
 
 	"Commit the receiver and its related objects.
 	Return success"
 
-	^reStore commit: self withRelatedComponents!
+	Notification deprecated. "use store instead"
+
+	^self store!
 
 debugPrintString
 
-	"Do not fault the receiver just for a debugger"
-
-	^proxiedObject == nil
-		ifTrue: [self _unrecoveredProxyString]
-		ifFalse: ['<', proxiedObject debugPrintString, '>']!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self debugPrintString]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+				ifTrue: [self _debugPrintString]
+				ifFalse: [self debugPrintString]]]!
 
 doesNotUnderstand: aMessage
 
@@ -403,19 +541,22 @@ doesNotUnderstand: aMessage
 
 	"Forward aMessage to the proxiedObject, subject to the transactionMutex"
 	
-	[(self _proxyInstVarAt: 2) transactionCritical: 
-		["Make sure that some other process has not swapped my references while I was waiting for the mutex."
-		| me |
-		self isDBProxy ifTrue: 
-			[proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-			"Swap references to the receiver and proxiedObject. 
-			From hereon, must use me instead of self to refer to the proxy, and not reference inst vars directly."
-			me := self _swapReferences.
-			me _reStore proxy: me forwarded: aMessage]]] 
-		on: MessageNotUnderstood
-		do: [:ex | ex selector = #_proxyInstVarAt: ifTrue: [ex return] ifFalse: [ex pass]].
+	self _dbProxyReStore ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			["Make sure that some other process has not swapped my references while I was waiting for the mutex."
+			self isDBProxy ifTrue: 
+				[proxiedObject isNil ifTrue: [self _recoverProxiedObject].
+				"Swap references to the receiver and proxiedObject. From hereon, must not reference inst vars directly."
+				proxyReStore proxy: self _swap forwarded: aMessage]]].
 
 	^aMessage value: self!
+
+halt
+
+	"Go via the reStore so we use debug mode"
+
+	reStore isNil ifTrue: [super halt] ifFalse: [reStore halt]!
 
 includedIn: aCollection
 
@@ -426,15 +567,55 @@ includedIn: aCollection
 
 instVarAt: anInteger
 
-	"This is a standard message which does not modify the proxiedObject.
-	Hence forward without notification"	
-	
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
+	"Avoiding the ProtoObject implementation, selectively forward the message directly to the proxiedObject.
+	If we are in a debugging state and the current call stack originates from the IDE, directly access the inst vars of the receiver"	
 
-	^proxiedObject instVarAt: anInteger
-!
+	^self _dbProxyReStore 
+	ifNil: 
+		[self instVarAt: anInteger]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(reStore isDebugging and: [Processor activeProcess isInIDECallStack])
+					ifTrue: [super instVarAt: anInteger]
+					ifFalse: [self _recoveredProxiedObject instVarAt: anInteger]]
+			ifFalse: 
+				[self instVarAt: anInteger]]]!
 
 isDBProxy
+
+	^true!
+
+isInteger
+
+	"No need to bother the proxiedObject"
+	
+	^false
+!
+
+isKindOf: aClass
+
+	"No need to bother the proxiedObject if its class is definitively known"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self isKindOf: aClass]
+	ifNotNil: 
+		[ :proxyReStore |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[(proxiedObject isNil and: [self _proxiedClassIsDefinitive])
+					ifTrue: [self _proxiedObjectClass includesBehavior: aClass]
+					ifFalse: [self _recoveredProxiedObject isKindOf: aClass]]
+			ifFalse: 
+				[self isKindOf: aClass]]]!
+
+notNil
+
+	"No need to bother the proxiedObject"
 
 	^true!
 
@@ -447,21 +628,11 @@ onRollback
 
 printOn: aStream
 
-	"For efficiency, recognise this as a non-modifying method.
-	ASSERT: the proxiedObject is not modified when sent this message"
-
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-
-	^proxiedObject printOn: aStream!
+	^aStream nextPutAll: self debugPrintString!
 
 printString
 
-	"For efficiency, recognise this as a non-modifying method.
-	ASSERT: the proxiedObject is not modified when sent this message"
-
-	proxiedObject == nil ifTrue: [self _recoverProxiedObject].
-
-	^proxiedObject printString!
+	^self debugPrintString!
 
 refresh
 
@@ -484,10 +655,26 @@ softRollback
 
 store
 
-	"Store the receiver and its related objects.
-	Return success"
+	"Store the receiver and its related objects; return success.
 
-	^reStore commit: self withRelatedComponents!
+	NB: This is also a legacy selector whose meaning was 'store in the active transaction'.
+	We have repurposed this to also be a direct 'store now' message, which begins and completes in its own transaction.
+	Accomodate both new and legacy behavior by checking if there is currently a transaction in progress"
+
+	^self _dbProxyReStore 
+	ifNil: 
+		[self store]
+	ifNotNil: 
+		[ :proxyReStore || wasTransactionInProgress |
+		proxyReStore transactionCritical: 
+			[self isDBProxy 
+			ifTrue: 
+				[wasTransactionInProgress := reStore isTransactionInProgress.
+				(reStore commit: self withRelatedComponents)
+					ifTrue: [true]
+					ifFalse: [wasTransactionInProgress ifFalse: [StoreFailure signalWith: proxyReStore]. false]]
+			ifFalse: 
+				[self store]]]!
 
 storeIn: aReStore
 
@@ -497,12 +684,6 @@ storeIn: aReStore
 	self validateReStore: aReStore.
 
 	^self store!
-
-subclassResponsibility
-
-	"Revector to a well-known object"
-	
-	^nil subclassResponsibility!
 
 validateReStore: aReStore
 
@@ -531,24 +712,31 @@ __referenced!actions-internal!private! !
 _changedObjectsIn:!accessing!public! !
 _checkHasChanged!public!testing! !
 _checkHasChangedIn:!public!testing! !
+_clearDeleted!actions-internal!flags!private! !
 _commitChanges!actions-internal!public! !
 _commitChangesPhase1!actions-internal!public! !
 _commitChangesPhase2!actions-internal!public! !
 _commitIn:!actions-internal!public! !
+_dbProxyIfNone:!non forwarding!private! !
 _dbProxyIn:!accessing:direct!public! !
 _dbProxyIn:ifNone:!accessing:direct!public! !
-_doesNotUnderstand:!forwarding!public! !
+_dbProxyReStore!accessing!private! !
+_debugPrintString!non forwarding!private! !
 _ensureActiveIn:!actions-internal!public! !
 _ensurePersistentIn:!actions-internal!public! !
+_flags!accessing!public! !
+_flags:!accessing!public! !
 _forceRefresh!actions-refresh!public! !
 _forceRefreshIn:!actions-refresh!public! !
 _forceRefreshWithContents!actions-refresh!public! !
 _forgetProxiedObject!actions-internal!public! !
+_frontFace!accessing!private! !
 _hasChanged!public!testing! !
 _hasChangedFrom:!public!testing! !
 _isDeleted!public!testing! !
 _isPersistent!public!testing! !
 _isRecovered!public!testing! !
+_isSwapped!public!testing! !
 _lazyRefresh!actions-refresh!public! !
 _lazyRefreshIn:!actions-refresh!public! !
 _newProxiedObject:!accessing!public! !
@@ -557,8 +745,11 @@ _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
 _prepareToCommitPhase1!actions-internal!public! !
 _prepareToCommitPhase2!actions-internal!public! !
+_proxiedClassIsDefinitive!private!testing! !
 _proxiedObject!accessing!public! !
 _proxiedObject:!accessing!public! !
+_proxiedObjectClass!accessing!public! !
+_recoveredProxiedObject!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _referenced!actions-internal!public! !
 _refresh!actions-refresh!public! !
@@ -569,30 +760,64 @@ _refreshWithContents!actions-refresh!public! !
 _refreshWithContentsIfUpdated!actions-refresh!public! !
 _reStore!accessing!public! !
 _reStore:!accessing!public! !
+_reStoreIfNone:!accessing:direct!public! !
 _rollbackChanges!actions-internal!public! !
 _rollbackIn:!actions-internal!public! !
+_setDeleted!actions-internal!flags!private! !
+_setNewNonPersistent!actions-internal!flags!private! !
+_setNonPersistent!actions-internal!flags!private! !
+_setPersistent!actions-internal!flags!private! !
 _setProxiedObject:!accessing!public! !
-_swapReferences!actions-internal!public! !
+_setSwapped!actions-internal!flags!private! !
+_setUnswapped!actions-internal!flags!private! !
+_swap!actions-internal!public! !
+_swapReferences!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
+_unswap!actions-internal!public! !
+class!forwarding!public! !
 commit!actions-api!public! !
 debugPrintString!non forwarding!public! !
 doesNotUnderstand:!forwarding!public! !
+halt!non forwarding!public! !
 includedIn:!public!testing! !
 instVarAt:!forwarding!public! !
 isDBProxy!public!testing! !
+isInteger!non forwarding!public! !
+isKindOf:!forwarding!public! !
+notNil!non forwarding!public! !
 onRollback!actions-internal!public! !
-printOn:!forwarding!public! !
-printString!forwarding!public! !
+printOn:!non forwarding!public! !
+printString!non forwarding!public! !
 refresh!actions-api!public! !
 rollback!actions-api!public! !
 softRollback!actions-api!public! !
 store!actions-api!public! !
 storeIn:!actions-api!public! !
-subclassResponsibility!non forwarding!public! !
 validateReStore:!actions-internal!private! !
 withComponents!accessing!public! !
 withRelatedComponents!accessing!public! !
 yourself!non forwarding!public! !
+!
+
+!SSWDBProxy class methodsFor!
+
+initialize
+
+	IsSwappedMask := 1.
+	IsPersistentMask := 2.
+	IsDeletedMask := 4!
+
+new
+
+	"Create and answer a new instance of the receiver.
+	By default we assume the instance will be used for a persistent object; other users should send _setNewNonPersistent after creation"
+
+	^super new
+		_flags: IsPersistentMask;
+		yourself! !
+!SSWDBProxy class categoriesForMethods!
+initialize!class initialization!public! !
+new!instance creation!public! !
 !
 

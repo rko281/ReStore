@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smallalk"!
 
 SSWReStoreRelatedDictionaryTest subclass: #SSWReStoreRelatedCacheDictionaryTest
 	instanceVariableNames: ''
@@ -12,13 +12,15 @@ https://github.com/rko281/ReStore'!
 !SSWReStoreRelatedCacheDictionaryTest categoriesForClass!Unclassified! !
 !SSWReStoreRelatedCacheDictionaryTest methodsFor!
 
-addToCollection: aCollection
+addToCollectionAnsweringAssociation: aCollection
 
 	| component |
 
 	component := self templateComponent.
 
-	^aCollection at: component key put: component!
+	aCollection at: component key put: component.
+
+	^component key -> component!
 
 componentDefinition
 
@@ -58,12 +60,14 @@ templateComponent
 	component key: component name.
 
 	^component! !
-!SSWReStoreRelatedCacheDictionaryTest categoriesFor: #addToCollection:!helpers!private! !
-!SSWReStoreRelatedCacheDictionaryTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreRelatedCacheDictionaryTest categoriesFor: #remove:fromCollection:!helpers!private! !
-!SSWReStoreRelatedCacheDictionaryTest categoriesFor: #replaceInCollection:!public! !
-!SSWReStoreRelatedCacheDictionaryTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreRelatedCacheDictionaryTest categoriesFor: #templateComponent!public! !
+!SSWReStoreRelatedCacheDictionaryTest categoriesForMethods!
+addToCollectionAnsweringAssociation:!helpers!private! !
+componentDefinition!accessing!public! !
+remove:fromCollection:!helpers!private! !
+replaceInCollection:!public! !
+templateCollection!accessing!public! !
+templateComponent!public! !
+!
 
 !SSWReStoreRelatedCacheDictionaryTest class methodsFor!
 
@@ -72,5 +76,7 @@ allTestSelectors
 	^super allTestSelectors 
 		removeAll: self multipleOccurrenceTestSelectors;
 		yourself! !
-!SSWReStoreRelatedCacheDictionaryTest class categoriesFor: #allTestSelectors!accessing!public! !
+!SSWReStoreRelatedCacheDictionaryTest class categoriesForMethods!
+allTestSelectors!accessing!public! !
+!
 

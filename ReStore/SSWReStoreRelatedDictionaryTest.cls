@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreGenericRelatedCollectionTest subclass: #SSWReStoreRelatedDictionaryTest
 	instanceVariableNames: ''
@@ -14,11 +14,34 @@ https://github.com/rko281/ReStore'!
 
 addToCollection: aCollection
 
-	^aCollection at: self templateComponent put: self templateComponent!
+	^(self addToCollectionAnsweringAssociation: aCollection) value!
+
+addToCollectionAnsweringAssociation
+
+	^self addToCollectionAnsweringAssociation: collection!
+
+addToCollectionAnsweringAssociation: aCollection
+
+	| newKey |
+
+	newKey := self templateComponent.
+	^newKey -> (aCollection at: newKey put: self templateComponent)
+	!
+
+addToCollectionAnsweringKey
+
+	^self addToCollectionAnsweringAssociation key!
 
 componentDefinition
 
 	^(Dictionary of: GenericOwnedTest -> GenericOwnedTest related)!
+
+duplicateInCollection: aCollection
+
+	| keys |
+
+	keys := aCollection keys asArray.
+	^aCollection at: keys first put: (aCollection at: keys last)!
 
 remove: anObject fromCollection: aCollection
 
@@ -49,7 +72,7 @@ testDependencyDeleteOnRepeatedRemoval
 
 	| component id cls oldKey newKey |
 
-	component := collection anyOne.
+	component := self anyOne.
 	id := component _id.
 	cls := component class.
 
@@ -83,14 +106,25 @@ testDependencyDeleteOnRepeatedRemoval
 
 	self _testComponentExistenceOnDependency: component!
 
+testDuplicateEntries
+
+	"Ensure duplicate entries are handled correctly"
+
+	self duplicateInCollection.
+
+	"This should just involve an update of the value of the entry to which the duplicate has been assigned.
+	Previously this would update the duplicated entry's key, add a new entry for the original and delete the original entry"
+	self assert: (self countQueriesDuring: [testObject store]) equals: (1 "for the update" + (self componentDefinition isValueDependent ifTrue: [1] ifFalse: [0]) "1 for the deletion of the overwritten item (if dependent)")!
+
 testIncludesAssociation
 
-	| instances existingAssoc template templateKey matches |
+	| instances existingAssoc newAssoc template templateKey matches |
 
 	instances := GenericTest storedInstancesIn: reStore.
 	existingAssoc := testObject component associations anyOne.
-	template := self addToCollection.
-	templateKey := testObject component keyAtValue: template.
+	newAssoc := self addToCollectionAnsweringAssociation.
+	templateKey := newAssoc key.
+	template := newAssoc value.
 	self assert: (instances anySatisfy: [ :each | each component includesAssociation: existingAssoc]).
 	self deny: (instances anySatisfy: [ :each | each component includesAssociation: (existingAssoc key -> template)]).
 	self deny: (instances anySatisfy: [ :each | each component includesAssociation: (templateKey -> existingAssoc value)]).
@@ -110,12 +144,11 @@ testIncludesAssociation
 
 testIncludesKey
 
-	| instances existingKey template templateKey matches |
+	| instances existingKey templateKey matches |
 
 	instances := GenericTest storedInstancesIn: reStore.
 	existingKey := testObject component keys anyOne.
-	template := self addToCollection.
-	templateKey := testObject component keyAtValue: template.
+	templateKey := self addToCollectionAnsweringKey.
 	self assert: (instances anySatisfy: [ :each | each component includesKey: existingKey]).
 	self deny: (instances anySatisfy: [ :each | each component includesKey: templateKey]).
 
@@ -128,12 +161,28 @@ testIncludesKey
 	matches := instances select: [ :each | each component includesKey: templateKey].
 	self assert: matches size equals: 1.
 	self assert: matches first == testObject! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #addToCollection:!helpers!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #componentDefinition!accessing!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #remove:fromCollection:!helpers!private! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #replaceInCollection:!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #templateCollection!accessing!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #testDependencyDeleteOnRepeatedRemoval!public! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #testIncludesAssociation!public!unit tests! !
-!SSWReStoreRelatedDictionaryTest categoriesFor: #testIncludesKey!public!unit tests! !
+!SSWReStoreRelatedDictionaryTest categoriesForMethods!
+addToCollection:!helpers!private! !
+addToCollectionAnsweringAssociation!helpers!private! !
+addToCollectionAnsweringAssociation:!helpers!private! !
+addToCollectionAnsweringKey!helpers!private! !
+componentDefinition!accessing!public! !
+duplicateInCollection:!private! !
+remove:fromCollection:!helpers!private! !
+replaceInCollection:!public! !
+templateCollection!accessing!public! !
+testDependencyDeleteOnRepeatedRemoval!public! !
+testDuplicateEntries!public!unit tests! !
+testIncludesAssociation!public!unit tests! !
+testIncludesKey!public!unit tests! !
+!
+
+!SSWReStoreRelatedDictionaryTest class methodsFor!
+
+multipleOccurrenceTestSelectors
+
+	^super multipleOccurrenceTestSelectors, #(#testDuplicateEntries)! !
+!SSWReStoreRelatedDictionaryTest class categoriesForMethods!
+multipleOccurrenceTestSelectors!public! !
+!
 

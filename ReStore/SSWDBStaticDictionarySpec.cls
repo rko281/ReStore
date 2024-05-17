@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
 	instanceVariableNames: 'keyClass isKeyDependent isKeyRelated keyTableForRead keyTableForRefresh deleteKeysStatement'
@@ -69,9 +69,22 @@ deleteQueryWithJoin
 
 	query := super deleteQueryWithJoin.
 
-	self isKeyDependent ifTrue: [query addTable: self keyTable withAllFields joinedWithField: self indexField].
+	self isKeyDependent ifTrue: 
+		[query 
+			isMultiTableDelete: true;
+			addTable: self keyTable withAllFields joinedWithField: self indexField].
 
 	^query!
+
+elementRemovalClass
+
+	"Return the class of change object representing the removal of an element for the type of collection modelled by the receiver"
+
+	^SSWDBCollectionRemovalWithKey!
+
+hasMutableElements
+
+	^super hasMutableElements or: [self keyClass isMutableDirectlyPersistedNonBaseClass]!
 
 initialize
 
@@ -127,13 +140,13 @@ readAllEntriesFor: ids
 
 	"Lazy initialization of readAllStatement may be needed before tables are valid"
 	statement := self readAllStatement.
-	self targetClass isPersistentBaseClass ifFalse: [targetTable := self targetTable].
-	self keyClass isPersistentBaseClass ifFalse: [keyTable := self keyTableForRead].
+	self targetClass isDirectlyPersisted ifFalse: [targetTable := self targetTable].
+	self keyClass isDirectlyPersisted ifFalse: [keyTable := self keyTableForRead].
 		
 	[stream atEnd] whileFalse: 
 		[statement readValuesFrom: stream.
-		self targetClass isPersistentBaseClass ifFalse: [targetTable := self targetTable].
-		self keyClass isPersistentBaseClass ifFalse: [keyTable := self keyTableForRead].
+		self targetClass isDirectlyPersisted ifFalse: [targetTable := self targetTable].
+		self keyClass isDirectlyPersisted ifFalse: [keyTable := self keyTableForRead].
 		self reStore rowsFromStatement: self readAllStatement do: 
 			[ :row || entry |
 			entry := allEntries add: (self createNonProxiedInstanceFromRow: row).
@@ -178,7 +191,7 @@ readQuery
 	| query |
 
 	query := super readQuery.
-	self keyClass isPersistentBaseClass ifFalse: [keyTableForRead := (query addTable: self keyTable withAllFields joinedWithField: self indexField) last].
+	self keyClass isDirectlyPersisted ifFalse: [keyTableForRead := (query addTable: self keyTable withAllFields joinedWithField: self indexField) last].
 
 	^query!
 
@@ -192,8 +205,8 @@ recoverCollectionForProxy: aCollectionProxy
 	statement := self readStatement.
 	collection := self newCollection.
 	entries := OrderedCollection new.
-	self keyClass isPersistentBaseClass ifFalse: [keyTable := self keyTableForRead].
-	self targetClass isPersistentBaseClass ifFalse: [targetTable := self targetTable].
+	self keyClass isDirectlyPersisted ifFalse: [keyTable := self keyTableForRead].
+	self targetClass isDirectlyPersisted ifFalse: [targetTable := self targetTable].
 
 	statement values: (Array with: aCollectionProxy _ownerID).
 	self reStore rowsFromStatement: statement do:
@@ -231,7 +244,7 @@ refreshCollectionWithContentsIfUpdatedForProxy: aCollectionProxy
 	self reStore supportsVersioning ifFalse: [^self refreshCollectionWithContentsForProxy: aCollectionProxy].
 
 	"No persistent class - just read"
-	(self targetClass isPersistentBaseClass and: [self keyClass isPersistentBaseClass]) ifTrue: [^self recoverBaseClassCollectionForProxy: aCollectionProxy].
+	(self targetClass isDirectlyPersisted and: [self keyClass isDirectlyPersisted]) ifTrue: [^self recoverBaseClassCollectionForProxy: aCollectionProxy].
 
 	"Key or Value is persistent class - refresh as opposed to read - just fetch the IDs"
 	collection := self newCollection.
@@ -240,8 +253,8 @@ refreshCollectionWithContentsIfUpdatedForProxy: aCollectionProxy
 	statement := self refreshWithContentsIfUpdatedStatement.
 	statement values: (Array with: aCollectionProxy _ownerID).
 
-	self keyClass isPersistentBaseClass ifFalse: [keyVersionField := self keyTableForRefresh versionControlField].
-	self targetClass isPersistentBaseClass ifFalse: [valueVersionField := self targetTable versionControlField].
+	self keyClass isDirectlyPersisted ifFalse: [keyVersionField := self keyTableForRefresh versionControlField].
+	self targetClass isDirectlyPersisted ifFalse: [valueVersionField := self targetTable versionControlField].
 
 	self reStore rowsFromStatement: statement do:
 		[ :row || entry |
@@ -267,7 +280,7 @@ refreshWithContentsIfUpdatedQuery
 	| query |
 
 	query := super refreshWithContentsIfUpdatedQuery.
-	self keyClass isPersistentBaseClass ifFalse: [keyTableForRefresh := (query addTable: self keyTable withIDAndVersionFields joinedWithField: self indexField) last].
+	self keyClass isDirectlyPersisted ifFalse: [keyTableForRefresh := (query addTable: self keyTable withIDAndVersionFields joinedWithField: self indexField) last].
 
 	^query!
 
@@ -276,28 +289,37 @@ setKeyClass: aClass
 	"Double-despatch to the argument"
 	
 	aClass beKeyClassOf: self
-! !
-!SSWDBStaticDictionarySpec categoriesFor: #beKeyDependent!initializing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #beKeyRelated!initializing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #beKeyUnrelated!initializing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #createCollectionTable!initializing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #deleteKeysQuery!accessing-queries!private! !
-!SSWDBStaticDictionarySpec categoriesFor: #deleteKeysQueryWithSubQuery!accessing-queries!private! !
-!SSWDBStaticDictionarySpec categoriesFor: #deleteKeysStatement!accessing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #deleteQueryWithJoin!accessing-queries!private! !
-!SSWDBStaticDictionarySpec categoriesFor: #initialize!initialize/release!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #isKeyDependent!public!testing! !
-!SSWDBStaticDictionarySpec categoriesFor: #isKeyRelated!public!testing! !
-!SSWDBStaticDictionarySpec categoriesFor: #keyClass!accessing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #keyClass:!accessing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #keyTable!accessing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #keyTableForRead!accessing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #keyTableForRefresh!accessing!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #readAllEntriesFor:!actions-internal!private! !
-!SSWDBStaticDictionarySpec categoriesFor: #readAllFor:!actions-internal!private! !
-!SSWDBStaticDictionarySpec categoriesFor: #readQuery!accessing-queries!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #recoverCollectionForProxy:!actions-internal!private! !
-!SSWDBStaticDictionarySpec categoriesFor: #refreshCollectionWithContentsIfUpdatedForProxy:!actions-internal!private! !
-!SSWDBStaticDictionarySpec categoriesFor: #refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
-!SSWDBStaticDictionarySpec categoriesFor: #setKeyClass:!accessing!public! !
+!
+
+shouldCompareKeysByEquality
+
+	^self keyClass isDirectlyPersisted! !
+!SSWDBStaticDictionarySpec categoriesForMethods!
+beKeyDependent!initializing!public! !
+beKeyRelated!initializing!public! !
+beKeyUnrelated!initializing!public! !
+createCollectionTable!initializing!public! !
+deleteKeysQuery!accessing-queries!private! !
+deleteKeysQueryWithSubQuery!accessing-queries!private! !
+deleteKeysStatement!accessing!public! !
+deleteQueryWithJoin!accessing-queries!private! !
+elementRemovalClass!change detection!constants!private! !
+hasMutableElements!public!testing! !
+initialize!initialize/release!public! !
+isKeyDependent!public!testing! !
+isKeyRelated!public!testing! !
+keyClass!accessing!public! !
+keyClass:!accessing!public! !
+keyTable!accessing!public! !
+keyTableForRead!accessing!public! !
+keyTableForRefresh!accessing!public! !
+readAllEntriesFor:!actions-internal!private! !
+readAllFor:!actions-internal!private! !
+readQuery!accessing-queries!public! !
+recoverCollectionForProxy:!actions-internal!private! !
+refreshCollectionWithContentsIfUpdatedForProxy:!actions-internal!private! !
+refreshWithContentsIfUpdatedQuery!accessing-queries!public! !
+setKeyClass:!accessing!public! !
+shouldCompareKeysByEquality!change detection!private!testing! !
+!
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreTableTest
 	instanceVariableNames: ''
@@ -444,28 +444,83 @@ test20QueryRelatedHierarchy
 	self assert: ((DetailedPerson2 storedInstancesIn: reStore) size = 1).
 
 	self assert: (((DetailedPerson1 storedInstancesIn: reStore) select: [ :e | 'Jon*' match: e friend2 surname]) size = 1).
-	self assert: (((DetailedPerson1 storedInstancesIn: reStore) detect: [ :e | 'Jon*' match: e friend2 surname]) firstName = 'John')! !
-!SSWReStoreTableTest categoriesFor: #createTestData!helpers!public! !
-!SSWReStoreTableTest categoriesFor: #ensureHierarchyColumnsAllPresent!helpers!public! !
-!SSWReStoreTableTest categoriesFor: #renameClass!helpers!private! !
-!SSWReStoreTableTest categoriesFor: #renameDetailedClass!helpers!private! !
-!SSWReStoreTableTest categoriesFor: #sampleSize!constants!public! !
-!SSWReStoreTableTest categoriesFor: #setUp!public!running! !
-!SSWReStoreTableTest categoriesFor: #shouldDestroyClasses!public!testing! !
-!SSWReStoreTableTest categoriesFor: #test01VerifySetup!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test02RenameClass!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test03RenameInstVar!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test04RenameInstVarPersistent!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test06ChangeInstVarClass!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test07AlterInstVar!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test09DestroyTable!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test11VerifySetup!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test12Unstore!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test13RenameClassHierarchy!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test14RenameInstVarHierarchy!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test15RenameInstVarPersistentHierarchy!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test16ChangeInstVarClassHierarchy!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test17AlterInstVarHierarchy!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test19DestroyTable!public!unit tests! !
-!SSWReStoreTableTest categoriesFor: #test20QueryRelatedHierarchy!public!unit tests! !
+	self assert: (((DetailedPerson1 storedInstancesIn: reStore) detect: [ :e | 'Jon*' match: e friend2 surname]) firstName = 'John')!
+
+test22VerifyUnderscoreFormat
+
+	"General testing of sswInUnderscoreFormat"
+
+	self assert: #basic sswInUnderscoreFormat equals: 'basic'.
+	self assert: #basicOne sswInUnderscoreFormat equals: 'basic_one'.
+	self assert: #basicOneTwo sswInUnderscoreFormat equals: 'basic_one_two'.
+
+	self assert: #basic1 sswInUnderscoreFormat equals: 'basic1'.
+	self assert: #basic1two sswInUnderscoreFormat equals: 'basic1two'.
+	self assert: #basic1Two sswInUnderscoreFormat equals: 'basic1_two'!
+
+test30VerifySpecifiedFieldNames
+
+	| table instances |
+
+	"Verify standard transformations first"
+	FieldNameTest shouldUseAlternativeNames: false.
+	reStore 
+		addClass: FieldNameTest; 
+		destroyAllClasses;
+		synchronizeAllClasses.
+
+	table := reStore tableForClass: FieldNameTest.
+	self assert: (table fieldAccessing: #id) name equals: 'id'.
+	self assert: (table fieldAccessing: #name) name equals: 'name'.
+	self assert: (table fieldAccessing: #description) name equals: 'description'.
+	self assert: ((reStore connection _columnsInTable: table) collect: [ :each | each name]) asSortedCollection asArray equals: #('description' 'id' 'name' 'version_').
+
+	"Now check specified transformations"
+	FieldNameTest shouldUseAlternativeNames: true.
+	reStore 
+		addClass: FieldNameTest; 
+		destroyAllClasses;
+		synchronizeAllClasses.
+
+	table := reStore tableForClass: FieldNameTest.
+	self assert: (table fieldAccessing: #id) name equals: 'my_id'.
+	self assert: (table fieldAccessing: #name) name equals: 'my_name'.
+	self assert: (table fieldAccessing: #description) name equals: 'detailed_description'.
+	self assert: ((reStore connection _columnsInTable: table) collect: [ :each | each name]) asSortedCollection asArray equals: #('detailed_description' 'my_id' 'my_name' 'version_').
+
+	"Do some simple database interaction to check everything is OK"
+	#('andy' 'brian' 'colette' 'daisy') keysAndValuesDo: [ :index :name | FieldNameTest new id: index * 10; name: name; description: 'a person named ', name; storeIn: reStore].
+	reStore simulateReconnect.
+	instances := FieldNameTest storedInstancesIn: reStore.
+	self assert: instances size equals: 4.
+	self assert: (instances detect: [ :each | each id = 30]) name equals: 'colette'.
+	self assert: (instances collect: [ :each | each name]) asSortedCollection asArray equals: #('andy' 'brian' 'colette' 'daisy').
+	self assert: (instances collect: [ :each | each description]) asSortedCollection asArray equals: #('a person named andy' 'a person named brian' 'a person named colette' 'a person named daisy').! !
+!SSWReStoreTableTest categoriesForMethods!
+createTestData!helpers!public! !
+ensureHierarchyColumnsAllPresent!helpers!public! !
+renameClass!helpers!private! !
+renameDetailedClass!helpers!private! !
+sampleSize!constants!public! !
+setUp!public!running! !
+shouldDestroyClasses!public!testing! !
+test01VerifySetup!public!unit tests! !
+test02RenameClass!public!unit tests! !
+test03RenameInstVar!public!unit tests! !
+test04RenameInstVarPersistent!public!unit tests! !
+test06ChangeInstVarClass!public!unit tests! !
+test07AlterInstVar!public!unit tests! !
+test09DestroyTable!public!unit tests! !
+test11VerifySetup!public!unit tests! !
+test12Unstore!public!unit tests! !
+test13RenameClassHierarchy!public!unit tests! !
+test14RenameInstVarHierarchy!public!unit tests! !
+test15RenameInstVarPersistentHierarchy!public!unit tests! !
+test16ChangeInstVarClassHierarchy!public!unit tests! !
+test17AlterInstVarHierarchy!public!unit tests! !
+test19DestroyTable!public!unit tests! !
+test20QueryRelatedHierarchy!public!unit tests! !
+test22VerifyUnderscoreFormat!public! !
+test30VerifySpecifiedFieldNames!public! !
+!
 
