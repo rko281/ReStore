@@ -13,17 +13,20 @@ package classNames
 	add: #SSWDBAbstractSubTable;
 	add: #SSWDBClassAccessor;
 	add: #SSWDBClassDefinition;
+	add: #SSWDBControlField;
+	add: #SSWDBDataField;
 	add: #SSWDBDependentWrapper;
 	add: #SSWDBDirectlyPersistedObject;
 	add: #SSWDBField;
 	add: #SSWDBFunctionField;
 	add: #SSWDBIDAccessor;
+	add: #SSWDBIDField;
 	add: #SSWDBInheritedTable;
 	add: #SSWDBInlinedClass;
 	add: #SSWDBInstVarDefinition;
 	add: #SSWDBInstVarWithFieldName;
 	add: #SSWDBIntermediateTable;
-	add: #SSWDBNonParameterizedStaticField;
+	add: #SSWDBNonParameterizedControlField;
 	add: #SSWDBPrivateAccessor;
 	add: #SSWDBQueryField;
 	add: #SSWDBQueryTable;
@@ -56,13 +59,16 @@ package methodNames
 	add: #SSWDBClassWithInfo -> #reStoreInstVarAccessorIn:;
 	add: #SSWDBClassWithInfo -> #reStoreValueClass;
 	add: #SSWDBClassWithInfo -> #shouldInlinePersistency;
+	add: #SSWSQLCondition -> #columnIndex:;
 	add: #SSWSQLCondition -> #copyForQueryTable:;
+	add: #SSWSQLConditionCollection -> #columnIndex:;
 	add: #SSWSQLConditionCollection -> #copyForQueryTable:;
 	add: #SSWSQLDialect -> #instVarAccessorFor:;
 	add: #SSWSQLJoinedTableCollection -> #add:joinedWithField:;
 	add: #SSWSQLJoinedTableCollection -> #addAliasingDuplicates:joinedWithField:;
 	add: #SSWSQLJoinedTableCollection -> #joinFields;
 	add: #SSWSQLJoinedTableCollection -> #lastJoinField;
+	add: #SSWSQLParameterField -> #columnIndex:;
 	add: #SSWSQLTableCollection -> #occurrencesOfIncludingRepetitions:;
 	add: #Symbol -> #asInstVarName;
 	add: #Symbol -> #databaseFieldNameIn:;
@@ -126,7 +132,7 @@ Object subclass: #SSWDBInstVarDefinition
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 Object subclass: #SSWDBQueryField
-	instanceVariableNames: 'field'
+	instanceVariableNames: 'field columnIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -156,7 +162,7 @@ SSWDBPrivateAccessor subclass: #SSWDBClassAccessor
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBPrivateAccessor subclass: #SSWDBIDAccessor
-	instanceVariableNames: 'instanceAccessor'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -186,7 +192,7 @@ SSWDBClassWithInfo subclass: #SSWDBInlinedClass
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBInstVarDefinition subclass: #SSWDBInstVarWithFieldName
-	instanceVariableNames: 'instVar fieldName'
+	instanceVariableNames: 'fieldName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -221,7 +227,7 @@ SSWDBRelatedWrapper subclass: #SSWDBDependentWrapper
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWSQLTable subclass: #SSWDBTable
-	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize namespace'
+	instanceVariableNames: 'instanceClass fullName idField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -256,7 +262,7 @@ SSWSQLTableComponent subclass: #SSWDBTableComponent
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SSWDBTableComponent subclass: #SSWDBField
-	instanceVariableNames: 'name isDependent isRelated'
+	instanceVariableNames: 'name isDependent isRelated columnIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -265,7 +271,22 @@ SSWDBField subclass: #SSWDBStaticField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-SSWDBStaticField subclass: #SSWDBNonParameterizedStaticField
+SSWDBStaticField subclass: #SSWDBControlField
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBStaticField subclass: #SSWDBDataField
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBStaticField subclass: #SSWDBIDField
+	instanceVariableNames: 'dataField'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+SSWDBControlField subclass: #SSWDBNonParameterizedControlField
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -564,6 +585,11 @@ shouldInlinePersistency!public!testing! !
 
 !SSWSQLCondition methodsFor!
 
+columnIndex: anInteger
+
+	"Polymorphic with SSWDBField"
+	^self field columnIndex: anInteger!
+
 copyForQueryTable: aQueryTable
 
 	"Created for issue 120-015
@@ -575,10 +601,15 @@ copyForQueryTable: aQueryTable
 		yourself
 	! !
 !SSWSQLCondition categoriesForMethods!
+columnIndex:!accessing!public! !
 copyForQueryTable:!evaluating!public! !
 !
 
 !SSWSQLConditionCollection methodsFor!
+
+columnIndex: anInteger
+
+	"Polymorphic with SSWDBField"!
 
 copyForQueryTable: aQueryTable
 
@@ -590,6 +621,7 @@ copyForQueryTable: aQueryTable
 
 	! !
 !SSWSQLConditionCollection categoriesForMethods!
+columnIndex:!accessing!public! !
 copyForQueryTable:!copying!public! !
 !
 
@@ -657,6 +689,15 @@ add:joinedWithField:!adding/removing!public! !
 addAliasingDuplicates:joinedWithField:!adding/removing!public! !
 joinFields!accessing!public! !
 lastJoinField!accessing!public! !
+!
+
+!SSWSQLParameterField methodsFor!
+
+columnIndex: anInteger
+
+	"Polymorphic with SSWDBField"! !
+!SSWSQLParameterField categoriesForMethods!
+columnIndex:!accessing!private! !
 !
 
 !SSWSQLTableCollection methodsFor!

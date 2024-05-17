@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLCollection variableSubclass: #SSWSQLConditionCollection
 	instanceVariableNames: 'sqlConcatenator'
@@ -196,31 +196,33 @@ writeSQLOn: aStream
 	aStream nextPut: $(.
 	super writeSQLOn: aStream.
 	aStream nextPut: $)! !
-!SSWSQLConditionCollection categoriesFor: #&!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #_add:!adding/removing!public! !
-!SSWSQLConditionCollection categoriesFor: #|!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #add:!adding/removing!public! !
-!SSWSQLConditionCollection categoriesFor: #aggregatedConditions!accessing!public! !
-!SSWSQLConditionCollection categoriesFor: #anySatisfy:!enumerating!public! !
-!SSWSQLConditionCollection categoriesFor: #asFieldAssignment!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #beAND!initializing!public! !
-!SSWSQLConditionCollection categoriesFor: #beOR!initializing!public! !
-!SSWSQLConditionCollection categoriesFor: #copy!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #copyEmpty:!copying!private! !
-!SSWSQLConditionCollection categoriesFor: #flattened!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #hasAggregateFunction!public!testing! !
-!SSWSQLConditionCollection categoriesFor: #isAND!public!testing! !
-!SSWSQLConditionCollection categoriesFor: #isEmpty!public!testing! !
-!SSWSQLConditionCollection categoriesFor: #isOR!public!testing! !
-!SSWSQLConditionCollection categoriesFor: #not!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #sqlAnd:!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #sqlAndWithCondition:!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #sqlConcatenator!accessing!public! !
-!SSWSQLConditionCollection categoriesFor: #sqlConcatenator:!accessing!public! !
-!SSWSQLConditionCollection categoriesFor: #sqlOr:!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #sqlOrWithCondition:!evaluating!public! !
-!SSWSQLConditionCollection categoriesFor: #unaggregatedConditions!accessing!public! !
-!SSWSQLConditionCollection categoriesFor: #writeSQLOn:!output!public! !
+!SSWSQLConditionCollection categoriesForMethods!
+&!evaluating!public! !
+_add:!adding/removing!public! !
+|!evaluating!public! !
+add:!adding/removing!public! !
+aggregatedConditions!accessing!public! !
+anySatisfy:!enumerating!public! !
+asFieldAssignment!evaluating!public! !
+beAND!initializing!public! !
+beOR!initializing!public! !
+copy!evaluating!public! !
+copyEmpty:!copying!private! !
+flattened!evaluating!public! !
+hasAggregateFunction!public!testing! !
+isAND!public!testing! !
+isEmpty!public!testing! !
+isOR!public!testing! !
+not!evaluating!public! !
+sqlAnd:!evaluating!public! !
+sqlAndWithCondition:!evaluating!public! !
+sqlConcatenator!accessing!public! !
+sqlConcatenator:!accessing!public! !
+sqlOr:!evaluating!public! !
+sqlOrWithCondition:!evaluating!public! !
+unaggregatedConditions!accessing!public! !
+writeSQLOn:!output!public! !
+!
 
 !SSWSQLConditionCollection class methodsFor!
 
@@ -243,8 +245,10 @@ forOR
 	^self new
 		beOR;
 		yourself! !
-!SSWSQLConditionCollection class categoriesFor: #concatenatorForAND!public!utility! !
-!SSWSQLConditionCollection class categoriesFor: #concatenatorForOR!public!utility! !
-!SSWSQLConditionCollection class categoriesFor: #forAND!instance creation!public! !
-!SSWSQLConditionCollection class categoriesFor: #forOR!instance creation!public! !
+!SSWSQLConditionCollection class categoriesForMethods!
+concatenatorForAND!public!utility! !
+concatenatorForOR!public!utility! !
+forAND!instance creation!public! !
+forOR!instance creation!public! !
+!
 

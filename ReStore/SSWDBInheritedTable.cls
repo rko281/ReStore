@@ -38,18 +38,11 @@ initializeClassField: aDBField
 		targetClass: Metaclass;
 		yourself!
 
-initializeIn: anSSWReStore
-
-	"Overriden to setup the classField"
-
-	super initializeIn: anSSWReStore.
-	self setDefaultClassField!
-
 instanceClassFromRow: aDBRow
 
 	"Private - Determine the class to use from the row"
 	
-	^self classField convertValue: (aDBRow lookupField: self classField)!
+	^self classField convertValue: (self classField lookupIn: aDBRow)!
 
 recoverExactClassInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 	"Private - Recover assuming that aDBRow represents an object of exactly our instanceClass.
@@ -75,9 +68,9 @@ recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 		into: anSSWDBObjectProxy.!
 
 setDefaultClassField
-	
-	self controlFields add: (self initializeClassField: SSWDBStaticField new).
-	self classField: (self initializeClassField: SSWDBNonParameterizedStaticField new)!
+
+	self classField: (self initializeClassField: SSWDBNonParameterizedControlField new).
+	self controlFields add: self classField!
 
 withAllFields
 
@@ -102,7 +95,6 @@ withAllFields
 classField!accessing!public! !
 classField:!accessing!public! !
 initializeClassField:!defining!private! !
-initializeIn:!initializing!public! !
 instanceClassFromRow:!instance creation!private! !
 recoverExactClassInstanceFromRow:into:!private! !
 recoverInstanceFromRow:into:!public! !

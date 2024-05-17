@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBQueryField
-	instanceVariableNames: 'field'
+	instanceVariableNames: 'field columnIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -24,6 +24,20 @@ canBeParameterized
 
 	"Defer to the field"
 	^self field canBeParameterized!
+
+columnIndex
+
+	"columnIndex stores the expected index of the receiver's column in a DBRow after the most recent query involving the receiver.
+	It is set during query result preparation and is checked first during subsequent lookups for this field"
+
+	^columnIndex!
+
+columnIndex: anInteger
+
+	"columnIndex stores the expected index of the receiver's column in a DBRow after the most recent query involving the receiver.
+	It is set during query result preparation and is checked first during subsequent lookups for this field"
+
+	columnIndex := anInteger!
 
 convertValue: aValue
 
@@ -62,6 +76,10 @@ hasAggregateFunction
 isFieldCollection
 
 	^false!
+
+lookupIn: aDBRow
+
+	^aDBRow lookupField: self!
 
 name
 
@@ -129,12 +147,15 @@ writeSQLForUpdateOn: aStream
 accessor!evaluating!public! !
 accessorPath!accessing!public! !
 canBeParameterized!public!testing! !
+columnIndex!accessing!private! !
+columnIndex:!accessing!private! !
 convertValue:!evaluating!public! !
 field!accessing!public! !
 field:!accessing!public! !
 fieldNamed:!evaluating!public! !
 hasAggregateFunction!public!testing! !
 isFieldCollection!public!testing! !
+lookupIn:!accessing!public! !
 name!evaluating!public! !
 requiresAliasing!public!testing! !
 reStore!accessing!public! !

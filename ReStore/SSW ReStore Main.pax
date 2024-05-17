@@ -108,6 +108,7 @@ package methodNames
 	add: #SSWDBGeneralCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBOwnedCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBScaledDecimalWithInfo -> #instanceFromDBValue:in:;
+	add: #SSWDBStringWithInfo -> #instanceFromDBValue:in:;
 	add: #SSWDBTable -> #tableRecord;
 	add: #SSWDBTable -> #versionControlField;
 	add: #SSWDBTable -> #withIDAndVersionFields;
@@ -1045,6 +1046,15 @@ instanceFromDBValue: aValue in: aReStore
 
 	^(ScaledDecimal newFromNumber: (aValue * scaleFactor) rounded scale: self scale) / scaleFactor! !
 !SSWDBScaledDecimalWithInfo categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
+
+!SSWDBStringWithInfo methodsFor!
+
+instanceFromDBValue: aValue in: aReStore
+
+	^aValue! !
+!SSWDBStringWithInfo categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 !
 

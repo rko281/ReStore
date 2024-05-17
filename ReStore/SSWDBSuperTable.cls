@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBInheritedTable subclass: #SSWDBSuperTable
 	instanceVariableNames: ''
@@ -18,19 +18,15 @@ forCreation
 	from all the receiver's instanceClass's persistence subclasses"
 	
 	| tableForCreation |
-	
+
 	tableForCreation := self class forClass: self instanceClass.
 	tableForCreation 
 		name: self name;
 		fullName: self fullName;
 		namespace: self namespace.
-	self idDataField ifNotNil: 
-		[ :field | 
-		tableForCreation 
-			idField: field; 
-			idDataField: field].
+
 	tableForCreation initializeIn: self reStore.
-	self instanceClass addClassDefinitionTo: tableForCreation.
+	self instanceClass reStoreDefinition addDefinitionToTable: tableForCreation.
 	
 	self instanceClass subclassesInheritingPersistency do:
 		[ :cls || table |
@@ -49,6 +45,13 @@ forCreation
 	
 	^tableForCreation!
 
+initializeIn: anSSWReStore
+
+	"Overriden to setup the classField"
+
+	super initializeIn: anSSWReStore.
+	self setDefaultClassField!
+
 refreshProxy: aProxy whereChangedFromRow: aDBRow
 
 	"Redirect to the relevant concrete class"
@@ -62,6 +65,7 @@ refreshProxy: aProxy whereChangedFromRow: aDBRow
 		ifFalse: [(self reStore tableForClass: class) refreshProxy: aProxy whereChangedFromRow: aDBRow]! !
 !SSWDBSuperTable categoriesForMethods!
 forCreation!evaluating!public! !
+initializeIn:!defining!public! !
 refreshProxy:whereChangedFromRow:!instance creation!public! !
 !
 

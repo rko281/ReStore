@@ -23,7 +23,7 @@ createCollectionTable
 
 createNonProxiedInstanceFromRow: aDBRow
 
-	^(self collectionTable createNonProxiedInstanceFromRow: aDBRow)
+	^(self collectionTable createInstanceFromRow: aDBRow)
 		table: self collectionTable;
 		yourself!
 
@@ -289,7 +289,7 @@ refreshModelClassCollectionWithContentsIfUpdatedForProxy: aCollectionProxy
 	self reStore rowsFromStatement: statement do:
 		[ :row || entry |
 		entry := self createNonProxiedInstanceFromRow: row.
-		(entry target isDBProxy and: [entry target _isRecovered and: [entry target _version < (row lookupField: versionField)]]) ifTrue:
+		(entry target isDBProxy and: [entry target _isRecovered and: [entry target _version < (versionField lookupIn: row)]]) ifTrue:
 			["Out-of-date target object - forget it"
 			entry target _forgetProxiedObject].
 		entry

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLFieldValueConjunction subclass: #SSWSQLCondition
 	instanceVariableNames: 'operator'
@@ -207,37 +207,39 @@ writeSQLOn: aStream
 writeValueSQLOn: aStream
 
 	self value writeSQLOn: aStream forCondition: self! !
-!SSWSQLCondition categoriesFor: #&!evaluating!public! !
-!SSWSQLCondition categoriesFor: #|!evaluating!public! !
-!SSWSQLCondition categoriesFor: #=!comparing!public! !
-!SSWSQLCondition categoriesFor: #aggregatedConditions!accessing!public! !
-!SSWSQLCondition categoriesFor: #anySatisfy:!collection behavior!public! !
-!SSWSQLCondition categoriesFor: #asFieldAssignment!evaluating!public! !
-!SSWSQLCondition categoriesFor: #asOrderingSpec!evaluating!public! !
-!SSWSQLCondition categoriesFor: #canInvertValue!public!testing! !
-!SSWSQLCondition categoriesFor: #collect:!collection behavior!public! !
-!SSWSQLCondition categoriesFor: #do:!collection behavior!public! !
-!SSWSQLCondition categoriesFor: #field:equalTo:!initialize/release!public! !
-!SSWSQLCondition categoriesFor: #field:is:to:!initialize/release!public! !
-!SSWSQLCondition categoriesFor: #field:value:!initialize/release!public! !
-!SSWSQLCondition categoriesFor: #fieldOnly:!initialize/release!public! !
-!SSWSQLCondition categoriesFor: #flattened!collection behavior!public! !
-!SSWSQLCondition categoriesFor: #hasAggregateFunction!public!testing! !
-!SSWSQLCondition categoriesFor: #isEmpty!collection behavior!public! !
-!SSWSQLCondition categoriesFor: #isFieldCollection!public!testing! !
-!SSWSQLCondition categoriesFor: #isFieldOnly!public!testing! !
-!SSWSQLCondition categoriesFor: #newCollection!accessing!public! !
-!SSWSQLCondition categoriesFor: #not!evaluating!public! !
-!SSWSQLCondition categoriesFor: #operator!accessing!public! !
-!SSWSQLCondition categoriesFor: #operator:!accessing!public! !
-!SSWSQLCondition categoriesFor: #sqlAnd:!evaluating!public! !
-!SSWSQLCondition categoriesFor: #sqlAndWithCondition:!evaluating!public! !
-!SSWSQLCondition categoriesFor: #sqlOr:!evaluating!public! !
-!SSWSQLCondition categoriesFor: #sqlOrWithCondition:!evaluating!public! !
-!SSWSQLCondition categoriesFor: #unaggregatedConditions!accessing!public! !
-!SSWSQLCondition categoriesFor: #writeConjunctionSQLOn:!output!private! !
-!SSWSQLCondition categoriesFor: #writeSQLOn:!output!public! !
-!SSWSQLCondition categoriesFor: #writeValueSQLOn:!output!public! !
+!SSWSQLCondition categoriesForMethods!
+&!evaluating!public! !
+|!evaluating!public! !
+=!comparing!public! !
+aggregatedConditions!accessing!public! !
+anySatisfy:!collection behavior!public! !
+asFieldAssignment!evaluating!public! !
+asOrderingSpec!evaluating!public! !
+canInvertValue!public!testing! !
+collect:!collection behavior!public! !
+do:!collection behavior!public! !
+field:equalTo:!initialize/release!public! !
+field:is:to:!initialize/release!public! !
+field:value:!initialize/release!public! !
+fieldOnly:!initialize/release!public! !
+flattened!collection behavior!public! !
+hasAggregateFunction!public!testing! !
+isEmpty!collection behavior!public! !
+isFieldCollection!public!testing! !
+isFieldOnly!public!testing! !
+newCollection!accessing!public! !
+not!evaluating!public! !
+operator!accessing!public! !
+operator:!accessing!public! !
+sqlAnd:!evaluating!public! !
+sqlAndWithCondition:!evaluating!public! !
+sqlOr:!evaluating!public! !
+sqlOrWithCondition:!evaluating!public! !
+unaggregatedConditions!accessing!public! !
+writeConjunctionSQLOn:!output!private! !
+writeSQLOn:!output!public! !
+writeValueSQLOn:!output!public! !
+!
 
 !SSWSQLCondition class methodsFor!
 
@@ -261,9 +263,11 @@ field: anSSWDBField value: aValue
 fieldOnly: anSSWDBField
 
 	^self new fieldOnly: anSSWDBField! !
-!SSWSQLCondition class categoriesFor: #equals!instance creation!public! !
-!SSWSQLCondition class categoriesFor: #field:equalTo:!instance creation!output!public! !
-!SSWSQLCondition class categoriesFor: #field:is:to:!instance creation!output!public! !
-!SSWSQLCondition class categoriesFor: #field:value:!instance creation!output!public! !
-!SSWSQLCondition class categoriesFor: #fieldOnly:!instance creation!output!public! !
+!SSWSQLCondition class categoriesForMethods!
+equals!instance creation!public! !
+field:equalTo:!instance creation!output!public! !
+field:is:to:!instance creation!output!public! !
+field:value:!instance creation!output!public! !
+fieldOnly:!instance creation!output!public! !
+!
 

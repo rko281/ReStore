@@ -96,7 +96,7 @@ DBForwardOnlyResultSet subclass: #SSWODBCForwardOnlyResultSet
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 DBRow subclass: #SSWODBCRow
-	instanceVariableNames: 'fieldMap'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -121,7 +121,7 @@ DBConnection subclass: #SSWODBCConnection
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 DBField subclass: #SSWODBCField
-	instanceVariableNames: 'statement needsRebinding'
+	instanceVariableNames: 'statement needsRebinding previousScale scaleDivisor'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!

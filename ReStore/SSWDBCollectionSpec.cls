@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBTableComponent subclass: #SSWDBCollectionSpec
 	instanceVariableNames: 'templateCollection isValueDependent isValueRelated readStatement refreshStatement refreshWithContentsIfUpdatedStatement deleteStatement'
@@ -12,7 +12,7 @@ https://github.com/rko281/ReStore'!
 !SSWDBCollectionSpec categoriesForClass!Unclassified! !
 !SSWDBCollectionSpec methodsFor!
 
-applyTo: anObject withID: anInteger in: anSSWReStore
+applyTo: anObject in: anSSWReStore
 
 	"'Apply' the one-to-many relationship expressed by this object to the 'one' object anObject.
 	This is done by assigning (using the receiver's accessor) a suitable proxy that can
@@ -249,7 +249,7 @@ templateCollection: aCollection
 	
 	templateCollection := aCollection! !
 !SSWDBCollectionSpec categoriesForMethods!
-applyTo:withID:in:!actions!public! !
+applyTo:in:!actions!public! !
 beValueDependent!defining!public! !
 beValueRelated!defining!public! !
 beValueUnrelated!defining!public! !

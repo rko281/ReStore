@@ -259,10 +259,10 @@ refreshCollectionWithContentsIfUpdatedForProxy: aCollectionProxy
 	self reStore rowsFromStatement: statement do:
 		[ :row || entry |
 		entry := self createNonProxiedInstanceFromRow: row.
-		(entry index isDBProxy and: [entry index _isRecovered and: [entry index _version < (row lookupField: keyVersionField)]]) ifTrue:
+		(entry index isDBProxy and: [entry index _isRecovered and: [entry index _version < (keyVersionField lookupIn: row)]]) ifTrue:
 			["Out-of-date key object - forget it"
 			entry index _forgetProxiedObject].
-		(entry target isDBProxy and: [entry target _isRecovered and: [entry target _version < (row lookupField: valueVersionField)]]) ifTrue:
+		(entry target isDBProxy and: [entry target _isRecovered and: [entry target _version < (valueVersionField lookupIn: row)]]) ifTrue:
 			["Out-of-date value object - forget it"
 			entry target _forgetProxiedObject].
 		entry

@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBTableComponent subclass: #SSWDBField
-	instanceVariableNames: 'name isDependent isRelated'
+	instanceVariableNames: 'name isDependent isRelated columnIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -46,6 +46,20 @@ beUnrelated
 canBeParameterized
 
 	^true!
+
+columnIndex
+
+	"columnIndex stores the expected index of the receiver's column in a DBRow after the most recent query involving the receiver.
+	It is set during query result preparation and is checked first during subsequent lookups for this field"
+
+	^columnIndex!
+
+columnIndex: anInteger
+
+	"columnIndex stores the expected index of the receiver's column in a DBRow after the most recent query involving the receiver.
+	It is set during query result preparation and is checked first during subsequent lookups for this field"
+
+	columnIndex := anInteger!
 
 fieldNamed: aString
 
@@ -98,6 +112,10 @@ isRelated
 	"isRelated indicates whether the receiver field represents an object which is related to the owning/source object such that it will be commited/rolled-back with that object when withRelatedComponents is used"
 	
 	^isRelated!
+
+lookupIn: aDBRow
+
+	^aDBRow lookupField: self!
 
 name
 
@@ -187,6 +205,8 @@ beDependent!defining!public! !
 beRelated!defining!public! !
 beUnrelated!defining!public! !
 canBeParameterized!public!testing! !
+columnIndex!accessing!private! !
+columnIndex:!accessing!private! !
 fieldNamed:!accessing!public! !
 hasAggregateFunction!public!testing! !
 hash!comparing!public! !
@@ -196,6 +216,7 @@ isDependent!public!testing! !
 isFieldCollection!public!testing! !
 isInlined!public!testing! !
 isRelated!public!testing! !
+lookupIn:!accessing!public! !
 name!accessing!public! !
 name:!accessing!public! !
 printOn:!printing!public! !

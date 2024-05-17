@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
 	instanceVariableNames: 'version'
@@ -132,7 +132,7 @@ new
 
 versionControlField
 
-	^SSWDBStaticField new
+	^SSWDBControlField new
 		accessor: SSWDBVersionAccessor new;
 		targetClass: Integer;
 		yourself

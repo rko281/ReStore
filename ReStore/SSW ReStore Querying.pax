@@ -101,7 +101,7 @@ Object subclass: #SSWDBDumbArgument
 	poolDictionaries: ''
 	classInstanceVariableNames: 'current'!
 Object subclass: #SSWDBInstancesCollection
-	instanceVariableNames: 'reStore instancesClass parser sortBlock preFetchComponents preReadActions postReadActions'
+	instanceVariableNames: 'reStore instancesClass parser sortBlock preReadActions postReadActions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

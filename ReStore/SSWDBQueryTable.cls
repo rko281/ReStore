@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBQueryTable
 	instanceVariableNames: 'table repetitionIndex allFields'
@@ -36,7 +36,7 @@ collectionAccessing: aSymbol
 
 fieldAccessing: aSymbol
 
-	^self allFieldsDetect: [ :field | field accessor accesses: aSymbol] ifNone: [nil]!
+	^self allFieldsDetect: [ :field | field accesses: aSymbol] ifNone: [nil]!
 
 fieldNamed: aString
 
@@ -181,35 +181,37 @@ writeSQLOn: aStream
 	self repetitionIndex > 0 ifTrue:
 		[aStream nextPutAll: ' AS '.
 		self writeSQLNameOn: aStream]! !
-!SSWDBQueryTable categoriesFor: #=!comparing!public! !
-!SSWDBQueryTable categoriesFor: #allFields!accessing!public! !
-!SSWDBQueryTable categoriesFor: #allFieldsDetect:ifNone:!enumerating!public! !
-!SSWDBQueryTable categoriesFor: #allFieldsDo:!enumerating!public! !
-!SSWDBQueryTable categoriesFor: #collectionAccessing:!evaluating!public! !
-!SSWDBQueryTable categoriesFor: #fieldAccessing:!evaluating!public! !
-!SSWDBQueryTable categoriesFor: #fieldNamed:!accessing!public! !
-!SSWDBQueryTable categoriesFor: #hash!comparing!public! !
-!SSWDBQueryTable categoriesFor: #hasNamespace!public!testing! !
-!SSWDBQueryTable categoriesFor: #hasStaticConditions!public!testing! !
-!SSWDBQueryTable categoriesFor: #idField!accessing!public! !
-!SSWDBQueryTable categoriesFor: #instanceClass!accessing!public! !
-!SSWDBQueryTable categoriesFor: #instanceClassFromRow:!accessing!public! !
-!SSWDBQueryTable categoriesFor: #name!accessing!public! !
-!SSWDBQueryTable categoriesFor: #originalTable!accessing!public! !
-!SSWDBQueryTable categoriesFor: #recoverInstanceFromRow:into:!operations!public! !
-!SSWDBQueryTable categoriesFor: #refreshProxy:whereChangedFromRow:!operations!public! !
-!SSWDBQueryTable categoriesFor: #repetitionIndex!accessing!public! !
-!SSWDBQueryTable categoriesFor: #repetitionIndex:!accessing!public! !
-!SSWDBQueryTable categoriesFor: #reStore!accessing!public! !
-!SSWDBQueryTable categoriesFor: #sqlAndStaticConditionsWith:!accessing!public! !
-!SSWDBQueryTable categoriesFor: #sqlDialect!accessing!public! !
-!SSWDBQueryTable categoriesFor: #staticConditions!accessing!public! !
-!SSWDBQueryTable categoriesFor: #table!accessing!public! !
-!SSWDBQueryTable categoriesFor: #table:!accessing!public! !
-!SSWDBQueryTable categoriesFor: #versionControlField!accessing!public! !
-!SSWDBQueryTable categoriesFor: #withAllFields!accessing!public! !
-!SSWDBQueryTable categoriesFor: #writeSQLNameOn:!output!public! !
-!SSWDBQueryTable categoriesFor: #writeSQLOn:!output!public! !
+!SSWDBQueryTable categoriesForMethods!
+=!comparing!public! !
+allFields!accessing!public! !
+allFieldsDetect:ifNone:!enumerating!public! !
+allFieldsDo:!enumerating!public! !
+collectionAccessing:!evaluating!public! !
+fieldAccessing:!evaluating!public! !
+fieldNamed:!accessing!public! !
+hash!comparing!public! !
+hasNamespace!public!testing! !
+hasStaticConditions!public!testing! !
+idField!accessing!public! !
+instanceClass!accessing!public! !
+instanceClassFromRow:!accessing!public! !
+name!accessing!public! !
+originalTable!accessing!public! !
+recoverInstanceFromRow:into:!operations!public! !
+refreshProxy:whereChangedFromRow:!operations!public! !
+repetitionIndex!accessing!public! !
+repetitionIndex:!accessing!public! !
+reStore!accessing!public! !
+sqlAndStaticConditionsWith:!accessing!public! !
+sqlDialect!accessing!public! !
+staticConditions!accessing!public! !
+table!accessing!public! !
+table:!accessing!public! !
+versionControlField!accessing!public! !
+withAllFields!accessing!public! !
+writeSQLNameOn:!output!public! !
+writeSQLOn:!output!public! !
+!
 
 !SSWDBQueryTable class methodsFor!
 
@@ -219,5 +221,7 @@ forRepetition: anInteger of: anSSWDBTable
 		table: anSSWDBTable;
 		repetitionIndex: anInteger;
 		yourself! !
-!SSWDBQueryTable class categoriesFor: #forRepetition:of:!instance creation!public! !
+!SSWDBQueryTable class categoriesForMethods!
+forRepetition:of:!instance creation!public! !
+!
 
