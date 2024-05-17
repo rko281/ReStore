@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SQLite3PreparedStatement subclass: #SSWSQLite3Statement
 	instanceVariableNames: 'query sqlString parametersCount results values'
@@ -9,6 +9,10 @@ SSWSQLite3Statement guid: (GUID fromString: '{bfe54def-92fb-4d02-a20a-4eeba9ecc6
 SSWSQLite3Statement comment: ''!
 !SSWSQLite3Statement categoriesForClass!SQLite3-Core-Database! !
 !SSWSQLite3Statement methodsFor!
+
+at: aColumn putScaledDecimal: aScaledDecimal
+
+	^self at: aColumn putString: aScaledDecimal displayString!
 
 at: aColumn putTimeStamp: aTimeStamp
 
@@ -29,13 +33,17 @@ cursoredFetch: aBoolean
 	"Always enabled"!
 
 dataTypeForObject: anObject	^self dataTypeForObject: anObject ifNone: 
-		[ anObject class = TimeStamp 
+		[anObject class = ScaledDecimal 
 		ifTrue: 
-			[ #at:putTimeStamp: ]
+			[ #at:putScaledDecimal:]
 		ifFalse: 
-			[ anObject class = GUID
-				ifTrue: [ #at:putByteArray: ]
-				ifFalse: [ #at:putObject: ]]]!
+			[anObject class = TimeStamp 
+			ifTrue: 
+				[ #at:putTimeStamp: ]
+			ifFalse: 
+				[ anObject class = GUID
+					ifTrue: [ #at:putByteArray: ]
+					ifFalse: [ #at:putObject: ]]]]!
 
 exec
 
@@ -125,6 +133,7 @@ values
 values: anObject
 	values := anObject collect: [  :each | each reStoreValue ]! !
 !SSWSQLite3Statement categoriesForMethods!
+at:putScaledDecimal:!bindings!public! !
 at:putTimeStamp:!bindings!public! !
 close!initialize/release!public! !
 closeAfter:!initialize/release!public! !

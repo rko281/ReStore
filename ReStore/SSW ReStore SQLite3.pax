@@ -50,7 +50,7 @@ SQLite3Connection subclass: #SSWSQLite3Connection
 	poolDictionaries: 'SQLite3Constants'
 	classInstanceVariableNames: ''!
 SQLite3Cursor subclass: #SSWSQLite3ResultSet
-	instanceVariableNames: 'firstRow query'
+	instanceVariableNames: 'firstRow query columns'
 	classVariableNames: ''
 	poolDictionaries: 'SQLite3Constants'
 	classInstanceVariableNames: ''!
@@ -60,7 +60,7 @@ SQLite3PreparedStatement subclass: #SSWSQLite3Statement
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 SQLite3Row subclass: #SSWSQLite3Row
-	instanceVariableNames: 'columns fieldMap'
+	instanceVariableNames: 'columns'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

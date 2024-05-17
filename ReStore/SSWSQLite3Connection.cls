@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SQLite3Connection subclass: #SSWSQLite3Connection
 	instanceVariableNames: 'sqlDialect debugStream columnDescriptions hasTxn queryCount'
@@ -201,6 +201,15 @@ executeQuery: anSQLQuery cursoredFetch: aBoolean
 		exec;
 		yourself!
 
+finalize: aStatementHandle
+
+	"Compared to the superclass implementation we skip the OK check since (from sqlite documentation:
+
+		If the most recent evaluation of the statement encountered no errors or or if the statement is never been evaluated, then sqlite3_finalize() returns SQLITE_OK. 
+		If the most recent evaluation of statement S failed, then sqlite3_finalize(S) returns the appropriate error code or extended error code.	"
+
+	library apiFinalize: aStatementHandle!
+
 forgetTable: aDBTable
 
 	self columnDescriptions removeKey: aDBTable ifAbsent: []!
@@ -374,7 +383,7 @@ beginTxn!public!transactions! !
 close!connection open/close!public! !
 columnDescriptions!accessing!public! !
 columnDescriptions:!accessing!public! !
-columnNamesForTable:!private! !
+columnNamesForTable:!enquiries!private! !
 columns:!enquiries!public! !
 columnsForFields:!enquiries!public! !
 columnsInTable:!enquiries!public! !
@@ -391,6 +400,7 @@ evaluateAsTxn:!public!transactions! !
 exec:!public!querying! !
 execute:!public!querying! !
 executeQuery:cursoredFetch:!public!querying! !
+finalize:!connection open/close!public! !
 forgetTable:!accessing!public! !
 free!connection open/close!public! !
 hasTxn!public!transactions! !
