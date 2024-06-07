@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 DBField subclass: #SSWODBCField
-	instanceVariableNames: 'statement needsRebinding'
+	instanceVariableNames: 'statement needsRebinding previousScale scaleDivisor'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!
@@ -123,14 +123,17 @@ setUtf16String: aStringOrObject
 	 - automatically truncate oversize Strings
 	 - allow String-based objects (Date, Boolean etc.)"
 
+	| utf16 |
+
 	aStringOrObject isString
 	ifTrue: 
-		[(column isFunctionParameter not and: [aStringOrObject byteSize > (buffer size - 1) "for null terminator"])
+		[utf16 := aStringOrObject asUtf16String.
+		(column isFunctionParameter not and: [utf16 byteSize > (buffer size - 1) "for null terminator"])
 		ifTrue: 
 			[Notification signal: 'ReStore: oversized String truncated'. 
-			super setUtf16String: (aStringOrObject copyFrom: 1 to: ((buffer size - 2) // 2))]
+			super setUtf16String: (utf16 copyFrom: 1 to: ((buffer size - 2) // 2))]
 		ifFalse: 
-			[super setUtf16String: aStringOrObject]]
+			[super setUtf16String: utf16]]
 	ifFalse: 
 		[super setUtf16String: (aStringOrObject asSQLStringIn: self sqlDialect) asUtf16String]!
 

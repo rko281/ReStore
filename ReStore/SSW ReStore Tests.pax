@@ -190,6 +190,7 @@ package setPrerequisites: #(
 	'SSW ReStore for Dolphin'
 	'SSW ReStore Main'
 	'SSW ReStore MVP'
+	'SSW ReStore ODBC'
 	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities'
 	'SSW ReStore SQL Queries'

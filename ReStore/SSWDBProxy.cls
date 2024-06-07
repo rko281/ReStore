@@ -665,9 +665,10 @@ store
 	ifNil: 
 		[self store]
 	ifNotNil: 
-		[ :proxyReStore || wasTransactionInProgress |
+		[ :proxyReStore |
 		proxyReStore transactionCritical: 
-			[self isDBProxy 
+			[| wasTransactionInProgress |
+			self isDBProxy 
 			ifTrue: 
 				[wasTransactionInProgress := reStore isTransactionInProgress.
 				(reStore commit: self withRelatedComponents)

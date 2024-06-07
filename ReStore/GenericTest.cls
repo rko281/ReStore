@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #GenericTest
 	instanceVariableNames: 'name component'
@@ -62,7 +62,7 @@ reStoreDefinition
 
 	^super reStoreDefinition 
 		define: #name as: (String maxSize: 128);
-		define: #component as: componentDefinition;
+		define: #component as: (componentDefinition ifNil: [Integer]) copy;
 		yourself!
 
 reStoreIDClass

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreTest subclass: #SSWReStoreTypeTest
 	instanceVariableNames: 'date time datetime typeTest'
@@ -28,12 +28,12 @@ createTestData
 		varchar: 'VARCHAR';
 		medText: ((String new: 2000) atAllPut: $M; yourself);
 		largeText: ((String new: 5000) atAllPut: $L; yourself);
-		unsizedText: ((String new: 6000) atAllPut: $U; yourself);
+		unsizedText: ((String new: self unsizedSize) atAllPut: $U; yourself);
 
 		tinyBlob: (ByteArray withAll: (0 to: 240));
 		medBlob: ((ByteArray new: 2000) atAllPut: 200; yourself);
 		largeBlob: ((ByteArray new: 5000) atAllPut: 220; yourself);
-		unsizedBlob: ((ByteArray new: 6000) atAllPut: 240; yourself);
+		unsizedBlob: ((ByteArray new: self unsizedSize) atAllPut: 240; yourself);
 
 		integer: 123;
 		largeInteger: 1234567890;
@@ -72,7 +72,7 @@ testBytes
 
 	bytes := ByteArray withAll: (0 to: 255).
 	allBytes := bytes.
-	(10000 / bytes size) rounded timesRepeat: [allBytes := allBytes, bytes].
+	(self unsizedSize / bytes size) rounded timesRepeat: [allBytes := allBytes, bytes].
 
 	tiny := allBytes copyFrom: 1 to: 255.
 	med := allBytes copyFrom: 1 to: 2000.
@@ -145,8 +145,8 @@ testExtendedANSI
 
 	"Test a String containing an extended ANSI character"
 
-	"SQLite Native in Dolphin deals purely in UTF8"
-	(self isDolphin and: [reStore sqlDialect class name = #SSWSQLiteNativeDialect]) ifTrue: [self skip].
+	"Native connections in Dolphin deals purely in UTF8"
+	(self isDolphin and: [reStore connection class name ~= #SSWODBCConnection]) ifTrue: [self skip].
 
 	self testStrings: #[99 97 102 233] asAnsiString "café"!
 
@@ -156,12 +156,16 @@ testGeneral
 	self assert: typeTest varchar equals: 'VARCHAR'.
 	self assert: typeTest medText equals: ((String new: 2000) atAllPut: $M; yourself).
 	self assert: typeTest largeText equals: ((String new: 5000) atAllPut: $L; yourself).
-	self assert: typeTest unsizedText equals: ((String new: 6000) atAllPut: $U; yourself).
+	self assert: typeTest unsizedText equals: ((String new: self unsizedSize) atAllPut: $U; yourself).
 	self assert: typeTest integer equals: 123.
 	self assert: typeTest largeInteger equals: 1234567890.
 	self assert: typeTest float equals: 123.456.
 	self assert: typeTest trueBoolean equals: true.
-	self assert: typeTest falseBoolean equals: false!
+	self assert: typeTest falseBoolean equals: false.
+	self assert: typeTest tinyBlob equals: (ByteArray withAll: (0 to: 240)).
+	self assert: typeTest medBlob equals: ((ByteArray new: 2000) atAllPut: 200; yourself).
+	self assert: typeTest largeBlob equals: ((ByteArray new: 5000) atAllPut: 220; yourself).
+	self assert: typeTest unsizedBlob equals: ((ByteArray new: self unsizedSize) atAllPut: 240; yourself)!
 
 testIntegerRange
 
@@ -249,11 +253,9 @@ testTimeQuery
 
 	reStore simulateReconnect.
 
-	reStore sqlDialect defaultTimeResolution = 0 
-		ifTrue: [t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each time = time] ifNone: [nil]]
-		ifFalse: [t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each time = (time withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil]].
+	t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each time = (time withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil].
 	self assert: t2 notNil.
-	self assert: t2 date = typeTest date!
+	self assert: t2 date equals: typeTest date!
 
 testUTF8_2
 
@@ -295,6 +297,12 @@ testUUIDQuery
 	t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each uuid = GUID newUnique] ifNone: [nil].
 	self assert: t2 isNil!
 
+unsizedSize
+
+	^reStore connection class = SSWODBCConnection 
+		ifTrue: [2**15] "Limits on buffer size"
+		ifFalse: [2 ** 17]!
+
 uuid
 
 	^GUID fromString: '{e8beea63-43db-41e6-99e4-f31a64abd779}'! !
@@ -324,6 +332,7 @@ testUTF8_4!public!unit tests! !
 testUTF8_mixed!public!unit tests! !
 testUUID!public!unit tests! !
 testUUIDQuery!public!unit tests! !
+unsizedSize!constants!public! !
 uuid!constants!public! !
 !
 

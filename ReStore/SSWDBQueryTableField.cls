@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBQueryField subclass: #SSWDBQueryTableField
 	instanceVariableNames: 'table accessorPath'
@@ -15,6 +15,10 @@ https://github.com/rko281/ReStore'!
 = anSSWDBField
 
 	^self == anSSWDBField or: [anSSWDBField = self field and: [anSSWDBField table = self table]]!
+
+accesses: aSymbol
+
+	^self field accesses: aSymbol!
 
 accessorPath
 
@@ -87,6 +91,7 @@ writeSQLOn: aStream
 		nextPutIdentifier: self name! !
 !SSWDBQueryTableField categoriesForMethods!
 =!comparing!public! !
+accesses:!public!testing! !
 accessorPath!accessing!public! !
 accessorPath:!accessing!public! !
 hash!comparing!public! !

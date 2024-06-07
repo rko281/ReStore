@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWSQLDialect
 	instanceVariableNames: 'connection classNameTransformation instVarNameTransformation maxColumnNameLength maxTableNameLength sqlFunctions maxColumnBytes unsizedStringSize unsizedBlobSize standardNamespace nullBoolean'
@@ -174,16 +174,9 @@ dateAndTimeFormat
 
 dateAndTimeFrom: anObject
 
-	| stream date time |
-
-	(anObject isKindOf: String) ifTrue: 
-		[stream := anObject readStream.
-		date := Date readFrom: stream format: self dateFormat.
-		stream next.
-		time := Time readFrom: stream.
-		^DateAndTime fromDate: date time: time].
-
-	self error: ('cannot convert <1p> to a DateAndTime' expandMacrosWith: anObject)!
+	^(anObject isKindOf: String) 
+		ifTrue: [DateAndTime fromString: anObject]
+		ifFalse: [self error: ('cannot convert <1p> to a DateAndTime' expandMacrosWith: anObject)]!
 
 dateAndTimeStringFor: aDateAndTime
 

@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBInheritedTable subclass: #SSWDBAbstractSubTable
 	instanceVariableNames: 'rootClass classCondition'
@@ -43,6 +43,19 @@ hasStaticConditions
 isRootTable
 
 	^false!
+
+postCreate
+
+	| rootTable |
+
+	super postCreate.
+
+	"For efficient field lookup share control fields with the rootTable"
+	rootTable := self rootTable.
+	self
+		idField: rootTable idField;
+		controlFields: rootTable controlFields;
+		classField: rootTable classField!
 
 registerClass
 
@@ -89,6 +102,7 @@ defaultName!evaluating!public! !
 forCreation!evaluating!public! !
 hasStaticConditions!public!testing! !
 isRootTable!public!testing! !
+postCreate!initializing!private! !
 registerClass!evaluating!public! !
 rootClass!accessing!public! !
 rootClass:!accessing!public! !

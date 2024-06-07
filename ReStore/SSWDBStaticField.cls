@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBField subclass: #SSWDBStaticField
 	instanceVariableNames: 'targetClass'
@@ -14,13 +14,13 @@ https://github.com/rko281/ReStore'!
 
 applyValueFromRow: aDBRow to: anObject
 
-	self accessor value: (self convertValue: (aDBRow lookupField: self)) in: anObject!
+	self accessor value: (self convertValue: (self lookupIn: aDBRow)) in: anObject!
 
 applyValueIfChangedFromRow: aDBRow to: anObject
 
 	"Return whether a change was applied"
 
-	^self accessor valueIfChanged: (self convertValue: (aDBRow lookupField: self)) in: anObject!
+	^self accessor valueIfChanged: (self convertValue: (self lookupIn: aDBRow)) in: anObject!
 
 convertValue: aValue
 
@@ -32,6 +32,12 @@ convertValue: aValue
 isValidForPersistence
 
 	^true!
+
+populateObject: anObject with: aValue
+
+	"Populate the aspect of anObject related to this field with aValue"
+
+	self subclassResponsibility!
 
 readAllFor: aCollection
 
@@ -85,14 +91,17 @@ writeSQLDefinitionOn: aStream
 	super writeSQLDefinitionOn: aStream.
 	aStream space.
 	self targetClass writeSQLTypeOn: aStream using: self sqlDialect! !
-!SSWDBStaticField categoriesFor: #applyValueFromRow:to:!actions!public! !
-!SSWDBStaticField categoriesFor: #applyValueIfChangedFromRow:to:!actions!public! !
-!SSWDBStaticField categoriesFor: #convertValue:!actions!public! !
-!SSWDBStaticField categoriesFor: #isValidForPersistence!public! !
-!SSWDBStaticField categoriesFor: #readAllFor:!actions!public! !
-!SSWDBStaticField categoriesFor: #readAllQuery!accessing!public! !
-!SSWDBStaticField categoriesFor: #targetClass!accessing!public! !
-!SSWDBStaticField categoriesFor: #targetClass:!accessing!public! !
-!SSWDBStaticField categoriesFor: #targetTable!accessing!public! !
-!SSWDBStaticField categoriesFor: #writeSQLDefinitionOn:!output!public! !
+!SSWDBStaticField categoriesForMethods!
+applyValueFromRow:to:!actions!public! !
+applyValueIfChangedFromRow:to:!actions!public! !
+convertValue:!actions!public! !
+isValidForPersistence!public! !
+populateObject:with:!actions!private! !
+readAllFor:!actions!public! !
+readAllQuery!accessing!public! !
+targetClass!accessing!public! !
+targetClass:!accessing!public! !
+targetTable!accessing!public! !
+writeSQLDefinitionOn:!output!public! !
+!
 

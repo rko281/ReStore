@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLTableComponent subclass: #SSWDBTableComponent
 	instanceVariableNames: 'accessor readAllStatement'
@@ -19,6 +19,10 @@ aboutToBeUnstored: anSSWDBProxy
 
 	"Default - no action"
 	^self!
+
+accesses: aSymbol
+
+	^self accessor accesses: aSymbol!
 
 accessor
 
@@ -94,6 +98,7 @@ sqlDialect
 	^self table sqlDialect! !
 !SSWDBTableComponent categoriesForMethods!
 aboutToBeUnstored:!actions!public! !
+accesses:!public!testing! !
 accessor!accessing!public! !
 accessor:!accessing!public! !
 componentsOf:do:!evaluating!public! !

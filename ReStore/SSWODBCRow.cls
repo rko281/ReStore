@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 DBRow subclass: #SSWODBCRow
-	instanceVariableNames: 'fieldMap'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -17,26 +17,58 @@ deAliasQueryFieldsFor: aDBQueryTable
 	"The receiver is derived from a query containing the given SSWDBQueryTable as an alias for an actual SSWDBTable.
 	To allow field lookup by the original SSWDBTable, initialize the field map based on the original, non-aliased, fields"
 
-	fieldMap := LookupTable new: columns size.
-	1 to: columns size do: [ :index | (columns at: index) field ifNotNil: [ :field | field table == aDBQueryTable ifTrue: [fieldMap at: field field put: (contents at: index)]]]!
+	columns := 
+		columns collect: 
+			[ :each |
+			each field 
+				ifNil: [each] 
+				ifNotNil: [ :field | field table == aDBQueryTable ifTrue: [each copy field: field field] ifFalse: [each copy field: nil]]]!
 
 initializeFromBuffer: anSSWODBCBuffer
 
 	columns := anSSWODBCBuffer columns.
 	contents := anSSWODBCBuffer objects.
-	status := anSSWODBCBuffer status.
-
-	"For smaller numbers of columns (<=12, arrived at experimentally) it's more efficient to avoid the fieldMap creation (see atField:ifAbsent:)"
-	columns size > 12 ifTrue: 
-		[fieldMap := LookupTable new: columns size.
-		1 to: columns size do: [ :index | (columns at: index) field ifNotNil: [ :field | fieldMap at: field put: (contents at: index)]]]!
+	status := anSSWODBCBuffer status!
 
 lookupField: aField
 
-	^fieldMap isNil 
-		ifTrue: [1 to: columns size do: [ :index | (columns at: index) field = aField ifTrue: [^contents at: index]]. nil]
-		ifFalse: [fieldMap lookup: aField]! !
-!SSWODBCRow categoriesFor: #deAliasQueryFieldsFor:!initializing!public! !
-!SSWODBCRow categoriesFor: #initializeFromBuffer:!initializing!public! !
-!SSWODBCRow categoriesFor: #lookupField:!accessing!public! !
+	"Optimised method: 
+		Use the columnIndex where available;
+		In the common case fields will be identical; check for this first. 
+		Use to:do: to maximize inlining and avoid full blocks. "
+
+	aField columnIndex ifNotNil: 
+		[ :index |
+		(columns at: index ifAbsent: [nil]) ifNotNil: 
+			[ :column |
+			(column field == aField or: [column field = aField]) ifTrue: [^contents at: index]]].
+
+	1 to: columns size do: [ :index | (columns at: index) field == aField ifTrue: [^contents at: index]].
+	1 to: columns size do: [ :index | (columns at: index) field = aField ifTrue: [^contents at: index]].
+
+	^nil!
+
+lookupIDField: aField
+
+	"Optimised lookup for ID fields which are usually first"
+
+	^(columns at: 1) field == aField 
+		ifTrue: [contents at: 1]
+		ifFalse: [self lookupField: aField]!
+
+populateObject: anObject from: anSSWDBTable
+
+	1 to: columns size do: 
+		[ :index | 
+		(columns at: index) field ifNotNil: 
+			[ :field |  
+			(field table == anSSWDBTable or: [field table = anSSWDBTable]) ifTrue: 
+				[field populateObject: anObject with: (contents at: index)]]]! !
+!SSWODBCRow categoriesForMethods!
+deAliasQueryFieldsFor:!initializing!public! !
+initializeFromBuffer:!initializing!public! !
+lookupField:!accessing!public! !
+lookupIDField:!accessing!public! !
+populateObject:from:!initializing!private! !
+!
 

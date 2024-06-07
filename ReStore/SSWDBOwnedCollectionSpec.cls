@@ -182,7 +182,7 @@ refreshCollectionForProxy: aCollectionProxy
 	statement values: (Array with: aCollectionProxy _ownerID).
 	reStore rowsFromStatement: statement do:
 		[ :row |
-		collection _dbAdd: (reStore deferredObjectOfClass: self targetClass withID: (row lookupField: idField))].
+		collection _dbAdd: (reStore deferredObjectOfClass: self targetClass withID: (idField lookupIn: row))].
 	
 	collection _proxifyIn: aCollectionProxy.
 
@@ -207,7 +207,7 @@ refreshCollectionWithContentsIfUpdatedForProxy: aCollectionProxy
 
 	statement := self refreshWithContentsIfUpdatedStatement. 
 	statement values: (Array with: aCollectionProxy _ownerID).
-	reStore rowsFromStatement: statement do: [ :row | collection _dbAdd: (reStore deferredObjectOfClass: self targetClass withID: (row lookupField: idField) version: (row lookupField: versionField))].
+	reStore rowsFromStatement: statement do: [ :row | collection _dbAdd: (reStore deferredObjectOfClass: self targetClass withID: (idField lookupIn: row) version: (versionField lookupIn: row))].
 
 	^collection _proxifyIn: aCollectionProxy!
 
