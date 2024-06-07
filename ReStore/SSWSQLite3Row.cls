@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SQLite3Row subclass: #SSWSQLite3Row
-	instanceVariableNames: 'columns fieldMap'
+	instanceVariableNames: 'columns'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -10,39 +10,23 @@ SSWSQLite3Row comment: ''!
 !SSWSQLite3Row categoriesForClass!SQLite3-Core-Database! !
 !SSWSQLite3Row methodsFor!
 
+at: aKey put: anObject	^values at: aKey put: anObject!
+
 atIndex: anInteger
 
-	^self data at: anInteger!
+	^values at: anInteger!
 
 columns
 
-	^columns ifNil: [columns := self columnNames collect: [ :each | SSWDBColAttr new name: each; yourself ]]!
+	^columns!
 
 columns: aCollection
 
 	columns := aCollection!
 
-columns: colsCollection data: dataCollection query: aDBQuery
-
-	self 
-		columns: colsCollection;
-		data: dataCollection.
-		
-	aDBQuery isNil ifFalse: [ self createFieldMapFrom: aDBQuery ]!
-
 contents
 
 	^self!
-
-createFieldMapFrom: aDBQuery
-
-	fieldMap := Dictionary new.
-	self columns with: self data do: 
-		[ :column :value |
-		(aDBQuery fieldNamed: column fieldName) ifNotNil: 
-			 [ :field |
-			column field: field.
-			fieldMap at: field put: value ]]!
 
 data
 
@@ -57,50 +41,63 @@ deAliasQueryFieldsFor: aDBQueryTable
 	"The receiver is derived from a query containing the given SSWDBQueryTable as an alias for an actual SSWDBTable.
 	To allow field lookup by the original SSWDBTable, initialize the field map based on the original, non-aliased, fields"
 
-	| cols |
-	
-	cols := self columns.
-
-	fieldMap := Dictionary new: cols size.
-	1 to: cols size do: [ :index | (cols at: index) field ifNotNil: [ :field | field table == aDBQueryTable ifTrue: [fieldMap at: field field put: (values at: index)]]]!
-
-fieldMap
-	^ fieldMap!
-
-fieldMap: anObject
-	fieldMap := anObject!
+	columns := 
+		columns collect: 
+			[ :each |
+			each field 
+				ifNil: [each] 
+				ifNotNil: [ :field | field table == aDBQueryTable ifTrue: [each copy field: field field] ifFalse: [each copy field: nil]]]!
 
 lookupField: aField
 
-	^fieldMap at: aField ifAbsent: [ nil ]!
+	"Optimised method: 
+		Use the columnIndex where available;
+		In the common case fields will be identical; check for this first. 
+		Use to:do: to maximize inlining and avoid full blocks. "
+
+	aField columnIndex ifNotNil: 
+		[ :index |
+		(columns at: index ifAbsent: [nil]) ifNotNil: 
+			[ :column |
+			(column field == aField or: [column field = aField]) ifTrue: [^values at: index]]].
+
+	1 to: columns size do: [ :index | (columns at: index) field == aField ifTrue: [^values at: index]].
+	1 to: columns size do: [ :index | (columns at: index) field = aField ifTrue: [^values at: index]].
+
+	^nil!
+
+lookupIDField: aField
+
+	"Optimised lookup for ID fields which are usually first"
+
+	^(columns at: 1) field == aField 
+		ifTrue: [values at: 1]
+		ifFalse: [self lookupField: aField]!
+
+populateObject: anObject from: anSSWDBTable
+
+	1 to: columns size do: 
+		[ :index | 
+		(columns at: index) field ifNotNil: 
+			[ :field |  
+			(field table == anSSWDBTable or: [field table = anSSWDBTable]) ifTrue: 
+				[field populateObject: anObject with: (values at: index)]]]!
 
 values
 
 	^values! !
 !SSWSQLite3Row categoriesForMethods!
+at:put:!accessing!public! !
 atIndex:!accessing!public! !
 columns!accessing!public! !
 columns:!accessing!public! !
-columns:data:query:!initializing!public! !
 contents!accessing!public! !
-createFieldMapFrom:!initializing!public! !
 data!accessing!public! !
 data:!accessing!public! !
 deAliasQueryFieldsFor:!initializing!public! !
-fieldMap!accessing!public! !
-fieldMap:!accessing!public! !
 lookupField:!accessing!public! !
+lookupIDField:!accessing!public! !
+populateObject:from:!accessing!public! !
 values!accessing!public! !
-!
-
-!SSWSQLite3Row class methodsFor!
-
-newWithColumns: colsCollection data: dataCollection query: aDBQuery
-
-	^self new
-		columns: colsCollection data: dataCollection query: aDBQuery;
-		yourself! !
-!SSWSQLite3Row class categoriesForMethods!
-newWithColumns:data:query:!instance creation!public! !
 !
 
