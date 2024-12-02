@@ -9,7 +9,7 @@ ReStore is a framework enabling Dolphin Smalltalk objects to be stored in and re
 ## Automated Installation
 * Download and install [GitHub Package Manager](https://github.com/rko281/GitHub)
 * Evaluate:
-  `GitHubPackageManager install: 'rko281/ReStore'`
+  `GitHubPackageManager new install: 'rko281/ReStore' branch: '7.1'`
 * All required packages and prerequisites will be downloaded and installed
 
 ## Manual Installation
