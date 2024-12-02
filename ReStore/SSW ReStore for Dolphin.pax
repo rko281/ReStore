@@ -67,6 +67,7 @@ package methodNames
 	add: #SSWSQLDialect -> #isReservedWord:;
 	add: #SSWSQLDialect -> #legacyNameTransformationFor:with:;
 	add: #SSWSQLDialect -> #timestamp;
+	add: #SSWSQLDialect -> #timeStampFrom:;
 	add: #SSWSQLDialect -> #useLegacyNameTransformations;
 	add: #SSWSQLDialect -> #writeSQLForTimeStamp:on:;
 	add: #SSWSQLiteDialect -> #platformSpecificFunctions;
@@ -883,6 +884,10 @@ timestamp
 
 	^self datetime!
 
+timeStampFrom: anObject
+
+	^(self dateAndTimeFrom: anObject) asTimeStamp!
+
 useLegacyNameTransformations
 
 	"Private - Previously ReStore translated inst var and class names to database names as follows:
@@ -916,6 +921,7 @@ dialectReservedWords!constants!public! !
 isReservedWord:!public!testing! !
 legacyNameTransformationFor:with:!helpers!private! !
 timestamp!datatypes!public! !
+timeStampFrom:!conversions!public! !
 useLegacyNameTransformations!initializing!private! !
 writeSQLForTimeStamp:on:!public!writing sql! !
 !
@@ -1009,8 +1015,11 @@ writeSQLOn:!converting!printing!public! !
 
 instanceFromDBValue: aValue in: anSSWReStore
 
-	"aValue may be a TimeStamp, a Date or a Time depending on database supported types"
-	^aValue ifNotNil: [aValue asTimeStamp]!
+	"aValue may be a String, a TimeStamp, a Date or a Time depending on database supported types"
+	^aValue ifNotNil: 
+		[aValue isString
+			ifTrue: [anSSWReStore sqlDialect timeStampFrom: aValue]
+			ifFalse: [aValue asTimeStamp]]!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 

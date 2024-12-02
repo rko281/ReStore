@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBInstVarDefinition subclass: #SSWDBInstVarWithFieldName
-	instanceVariableNames: 'instVar fieldName'
+	instanceVariableNames: 'fieldName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

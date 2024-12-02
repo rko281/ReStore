@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreSpeedTest
 	instanceVariableNames: ''
@@ -17,6 +17,7 @@ sampleSet
 	^(1 to: self sampleSize) collect: 
 		[ :e | 
 		SimplePerson new 
+			time: nil;
 			surname: 'Smith'; 
 			firstName: 'John'; 
 			emailAddress: 'john@something'; 
@@ -24,7 +25,7 @@ sampleSet
 
 sampleSize
 
-	^100!
+	^1000!
 
 test1Write
 

@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBInstancesCollection
-	instanceVariableNames: 'reStore instancesClass parser sortBlock preFetchComponents preReadActions postReadActions'
+	instanceVariableNames: 'reStore instancesClass parser sortBlock preReadActions postReadActions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -505,69 +505,71 @@ withoutInheritance
 	Prevent this behaviour by restricting to only elements of the instancesClass"
 	
 	^self satisfying: [ :each | each class = self instancesClass]! !
-!SSWDBInstancesCollection categoriesFor: #addAll:!actions!public! !
-!SSWDBInstancesCollection categoriesFor: #allSatisfy:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #anyOne!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #anySatisfy:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #asOrderedCollection!converting!public! !
-!SSWDBInstancesCollection categoriesFor: #asSet!converting!public! !
-!SSWDBInstancesCollection categoriesFor: #asSortedCollection!converting!public! !
-!SSWDBInstancesCollection categoriesFor: #asSortedCollection:!converting!public! !
-!SSWDBInstancesCollection categoriesFor: #beOrdered!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #beSorted!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #collect:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #collect:into:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #collectInto:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #createParser!initializing!private! !
-!SSWDBInstancesCollection categoriesFor: #detect:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #detect:ifNone:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #do:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #fetchObjectsFromTable:withQuery:into:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #fetchObjectsWithQuery:into:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #first!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #first:!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #include:!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #includeAll:!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #includeDependentComponents!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #includeRelatedComponents!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #includes:!public!testing! !
-!SSWDBInstancesCollection categoriesFor: #includeTableComponents:!initializing!private! !
-!SSWDBInstancesCollection categoriesFor: #instancesClass!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #instancesClass:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #isEmpty!public!testing! !
-!SSWDBInstancesCollection categoriesFor: #isSorted!public!testing! !
-!SSWDBInstancesCollection categoriesFor: #last!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #last:!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #lookup:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #modify:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #parser!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #parser:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #postCopy!copying!public! !
-!SSWDBInstancesCollection categoriesFor: #postReadActions!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #postReadActions:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #preReadActions!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #preReadActions:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #project:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #project:into:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #qualifyWith:!initializing!private! !
-!SSWDBInstancesCollection categoriesFor: #query:into:!helpers!private! !
-!SSWDBInstancesCollection categoriesFor: #readStream!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #refreshed!initializing!public! !
-!SSWDBInstancesCollection categoriesFor: #reject:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #reStore!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #reStore:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #resultSet!evaluating!private! !
-!SSWDBInstancesCollection categoriesFor: #reverse!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #satisfying:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #select:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #select:thenCollect:!enumerating!public! !
-!SSWDBInstancesCollection categoriesFor: #size!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #sortBlock!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #sortBlock:!accessing!public! !
-!SSWDBInstancesCollection categoriesFor: #table!evaluating!public! !
-!SSWDBInstancesCollection categoriesFor: #unstore:!actions!public! !
-!SSWDBInstancesCollection categoriesFor: #unstoreAll!actions!public! !
-!SSWDBInstancesCollection categoriesFor: #withoutInheritance!evaluating!public! !
+!SSWDBInstancesCollection categoriesForMethods!
+addAll:!actions!public! !
+allSatisfy:!enumerating!public! !
+anyOne!evaluating!public! !
+anySatisfy:!enumerating!public! !
+asOrderedCollection!converting!public! !
+asSet!converting!public! !
+asSortedCollection!converting!public! !
+asSortedCollection:!converting!public! !
+beOrdered!initializing!public! !
+beSorted!initializing!public! !
+collect:!enumerating!public! !
+collect:into:!helpers!private! !
+collectInto:!helpers!private! !
+createParser!initializing!private! !
+detect:!enumerating!public! !
+detect:ifNone:!enumerating!public! !
+do:!enumerating!public! !
+fetchObjectsFromTable:withQuery:into:!helpers!private! !
+fetchObjectsWithQuery:into:!helpers!private! !
+first!evaluating!public! !
+first:!evaluating!public! !
+include:!initializing!public! !
+includeAll:!initializing!public! !
+includeDependentComponents!initializing!public! !
+includeRelatedComponents!initializing!public! !
+includes:!public!testing! !
+includeTableComponents:!initializing!private! !
+instancesClass!accessing!public! !
+instancesClass:!accessing!public! !
+isEmpty!public!testing! !
+isSorted!public!testing! !
+last!evaluating!public! !
+last:!evaluating!public! !
+lookup:!enumerating!public! !
+modify:!enumerating!public! !
+parser!accessing!public! !
+parser:!accessing!public! !
+postCopy!copying!public! !
+postReadActions!accessing!public! !
+postReadActions:!accessing!public! !
+preReadActions!accessing!public! !
+preReadActions:!accessing!public! !
+project:!enumerating!public! !
+project:into:!helpers!private! !
+qualifyWith:!initializing!private! !
+query:into:!helpers!private! !
+readStream!evaluating!public! !
+refreshed!initializing!public! !
+reject:!enumerating!public! !
+reStore!accessing!public! !
+reStore:!accessing!public! !
+resultSet!evaluating!private! !
+reverse!evaluating!public! !
+satisfying:!enumerating!public! !
+select:!enumerating!public! !
+select:thenCollect:!enumerating!public! !
+size!evaluating!public! !
+sortBlock!accessing!public! !
+sortBlock:!accessing!public! !
+table!evaluating!public! !
+unstore:!actions!public! !
+unstoreAll!actions!public! !
+withoutInheritance!evaluating!public! !
+!
 
 !SSWDBInstancesCollection class methodsFor!
 
@@ -585,6 +587,8 @@ new
 		preReadActions: OrderedCollection new;
 		postReadActions: OrderedCollection new;
 		yourself! !
-!SSWDBInstancesCollection class categoriesFor: #forClass:in:!instance creation!public! !
-!SSWDBInstancesCollection class categoriesFor: #new!instance creation!public! !
+!SSWDBInstancesCollection class categoriesForMethods!
+forClass:in:!instance creation!public! !
+new!instance creation!public! !
+!
 

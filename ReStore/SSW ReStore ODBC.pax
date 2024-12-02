@@ -5,16 +5,19 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
+	add: #SSWODBCBinaryBuffer;
 	add: #SSWODBCBoundBuffer;
 	add: #SSWODBCColAttr;
 	add: #SSWODBCConnection;
 	add: #SSWODBCField;
 	add: #SSWODBCForwardOnlyResultSet;
+	add: #SSWODBCLongVarField;
 	add: #SSWODBCResultSet;
 	add: #SSWODBCRow;
 	add: #SSWODBCStatement;
+	add: #SSWODBCVarBinaryBuffer;
+	add: #SSWODBCVarCharBuffer;
 	yourself.
 
 package methodNames
@@ -58,6 +61,10 @@ package methodNames
 	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
 	add: #String -> #asParameterColumn;
 	add: 'ByteArray class' -> #dbMaxFieldSize;
+	add: 'DBBoundField class' -> #sswODBCSubclass;
+	add: 'DBField class' -> #newForCol:statement:;
+	add: 'DBField class' -> #sswODBCSubclass;
+	add: 'DBLongVarField class' -> #sswODBCSubclass;
 	add: 'GUID class' -> #dbMaxFieldSize;
 	add: 'Object class' -> #dbMaxFieldSize;
 	add: 'SSWSQLParameterField class' -> #dbMaxFieldSize;
@@ -75,7 +82,6 @@ package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'SSW ReStore Base Additions'
-	'SSW ReStore Main'
 	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities'
 	'SSW ReStore SQL Queries'
@@ -90,44 +96,72 @@ DBResultSet subclass: #SSWODBCResultSet
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 DBForwardOnlyResultSet subclass: #SSWODBCForwardOnlyResultSet
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 DBRow subclass: #SSWODBCRow
-	instanceVariableNames: 'fieldMap'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 DBBoundBuffer subclass: #SSWODBCBoundBuffer
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 DBParameterizedStatement subclass: #SSWODBCStatement
 	instanceVariableNames: 'query numColumns cachedColumns cachedColumnsIndices'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 DBColAttr subclass: #SSWODBCColAttr
 	instanceVariableNames: 'field maxBoundBufferSize isFunctionParameter'
-	classVariableNames: ''
+	classVariableNames: 'SSWODBCBufferClasses'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 DBConnection subclass: #SSWODBCConnection
 	instanceVariableNames: 'sqlDialect debugStream allocatedStatementCount columnDescriptions queryCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-DBField subclass: #SSWODBCField
-	instanceVariableNames: 'statement needsRebinding'
+
+DBBoundField subclass: #SSWODBCField
+	instanceVariableNames: 'statement needsRebinding previousScale scaleDivisor'
 	classVariableNames: ''
 	poolDictionaries: 'ODBCConstants'
 	classInstanceVariableNames: ''!
 
-"Global Aliases"!
+DBLongVarField subclass: #SSWODBCLongVarField
+	instanceVariableNames: 'statement needsRebinding'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 
+DBBinaryBuffer subclass: #SSWODBCBinaryBuffer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+DBVarBinaryBuffer subclass: #SSWODBCVarBinaryBuffer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+DBVarCharBuffer subclass: #SSWODBCVarCharBuffer
+	instanceVariableNames: 'sqlDialect'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 
 "Loose Methods"!
 
@@ -138,8 +172,19 @@ dbMaxFieldSize
 	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
 
 	^nil! !
+
 !ByteArray class categoriesForMethods!
 dbMaxFieldSize!public!specification! !
+!
+
+!DBBoundField class methodsFor!
+
+sswODBCSubclass
+
+	^SSWODBCField! !
+
+!DBBoundField class categoriesForMethods!
+sswODBCSubclass!instance creation!public! !
 !
 
 !DBError methodsFor!
@@ -155,6 +200,7 @@ isInvalidTransactionState
 isRecordDeletedError
 
 	^tag notNil and: [tag errors anySatisfy: [ :each | each isInvalidCursorPosition]]! !
+
 !DBError categoriesForMethods!
 isCommunicationLinkFailure!public!testing! !
 isInvalidTransactionState!public!testing! !
@@ -174,10 +220,36 @@ isInvalidCursorPosition
 isInvalidTransactionState
 
 	^self sqlState = '25000'! !
+
 !DBErrorDetails categoriesForMethods!
 isCommunicationLinkFailure!public!testing! !
 isInvalidCursorPosition!public!testing! !
 isInvalidTransactionState!public!testing! !
+!
+
+!DBField class methodsFor!
+
+newForCol: aSSWODBCColAttr statement: anSSWODBCStatement
+
+	^self sswODBCSubclass newForCol: aSSWODBCColAttr statement: anSSWODBCStatement!
+
+sswODBCSubclass
+
+	self error: 'not implemented for <1d>' << self! !
+
+!DBField class categoriesForMethods!
+newForCol:statement:!instance creation!public! !
+sswODBCSubclass!instance creation!public! !
+!
+
+!DBLongVarField class methodsFor!
+
+sswODBCSubclass
+
+	^SSWODBCLongVarField! !
+
+!DBLongVarField class categoriesForMethods!
+sswODBCSubclass!instance creation!public! !
 !
 
 !GUID class methodsFor!
@@ -185,6 +257,7 @@ isInvalidTransactionState!public!testing! !
 dbMaxFieldSize
 
 	^16! !
+
 !GUID class categoriesForMethods!
 dbMaxFieldSize!persistency!private! !
 !
@@ -196,6 +269,7 @@ dbMaxFieldSize
 	"Invoked here where the reStoreIDClass is string or binary-based. Pass on to the reStoreIDClass"
 
 	^self reStoreIDClass dbMaxFieldSize! !
+
 !Object class categoriesForMethods!
 dbMaxFieldSize!persistency!public! !
 !
@@ -213,6 +287,7 @@ sqlDescribeParam: anExternalHandle parameterNumber: columnInteger dataTypePtr: t
 
 	<stdcall: sword SQLDescribeParam handle sword SWORD* DWORD* SWORD* SWORD*>
 	^self invalidCall: _failureCode! !
+
 !ODBCLibrary categoriesForMethods!
 sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:!public!win32 functions-odbc library! !
 !
@@ -226,6 +301,7 @@ asParameterColumn: anInteger for: aStatement
 columnIn: anODBCConnection
 
 	^(anODBCConnection columnsInTable: self table) at: self! !
+
 !SSWDBField categoriesForMethods!
 asParameterColumn:for:!accessing!public! !
 columnIn:!accessing!public! !
@@ -238,6 +314,7 @@ asParameterColumn: anInteger for: aStatement
 	^(super asParameterColumn: anInteger for: aStatement)
 		isFunctionParameter: true;
 		yourself! !
+
 !SSWDBFunctionField categoriesForMethods!
 asParameterColumn:for:!public! !
 !
@@ -247,6 +324,7 @@ asParameterColumn:for:!public! !
 asParameterColumn: anInteger for: aStatement
 
 	^self field asParameterColumn: anInteger for: aStatement! !
+
 !SSWDBQueryField categoriesForMethods!
 asParameterColumn:for:!accessing!public! !
 !
@@ -256,6 +334,7 @@ asParameterColumn:for:!accessing!public! !
 dbMaxFieldSize
 
 	^self fieldSize! !
+
 !SSWDBStringWithInfo categoriesForMethods!
 dbMaxFieldSize!accessing!public! !
 !
@@ -269,6 +348,7 @@ canDescribeParameters
 shouldMaskSuccessWithInfo
 
 	^false! !
+
 !SSWMSAccessDialect categoriesForMethods!
 canDescribeParameters!public!testing! !
 shouldMaskSuccessWithInfo!public!testing! !
@@ -287,6 +367,7 @@ schemaNameForTable: aDBTable
 tableNamesInNamespace: aString for: aDBConnection
 
 	^aDBConnection tables: aString owners: nil tables: nil types: '''TABLE'''! !
+
 !SSWMySQLDialect categoriesForMethods!
 catalogNameForTable:!helpers!public! !
 schemaNameForTable:!helpers!public! !
@@ -298,6 +379,7 @@ tableNamesInNamespace:for:!helpers!public! !
 shouldCheckAutoCommit
 
 	^true! !
+
 !SSWPostgreSQLDialect categoriesForMethods!
 shouldCheckAutoCommit!public!testing! !
 !
@@ -364,6 +446,7 @@ shouldUseColumnsStatement
 tableNamesInNamespace: aStringOrNil for: aDBConnection
 
 	^aDBConnection tables: nil owners: (aStringOrNil ifNil: [self standardNamespace]) tables: nil types: '''TABLE'''! !
+
 !SSWSQLDialect categoriesForMethods!
 canDescribeParameters!public!testing! !
 catalogNameForTable:!helpers!public! !
@@ -417,6 +500,7 @@ tableNamesInNamespace: aString for: aDBConnection
 	results := aDBConnection query: stream contents.
 
 	^results collect: [ :each | each atIndex: 1]! !
+
 !SSWSQLiteDialect categoriesForMethods!
 createNamespaceSQLFor:!maintenance!private! !
 dropNamespaceSQLFor:!maintenance!private! !
@@ -430,6 +514,7 @@ tableNamesInNamespace:for:!helpers!public! !
 asParameterColumn: anInteger for: aStatement
 
 	^(aStatement describeParam: anInteger) ifNil: [self value asParameterColumn]! !
+
 !SSWSQLParameterField categoriesForMethods!
 asParameterColumn:for:!converting!public! !
 !
@@ -439,6 +524,7 @@ asParameterColumn:for:!converting!public! !
 dbMaxFieldSize
 
 	^nil! !
+
 !SSWSQLParameterField class categoriesForMethods!
 dbMaxFieldSize!accessing!public! !
 !
@@ -456,6 +542,7 @@ cursorType
 	"Default #forwardOnly gives 'Connection is busy with results for another hstmt' error"
 
 	^#keysetDriven! !
+
 !SSWSQLServerDialect categoriesForMethods!
 canDescribeParameters!public!testing! !
 cursorType!constants!public! !
@@ -472,6 +559,7 @@ parameterizedColumnsFor: aStatement
 	self parameterizedFields keysAndValuesDo: [ :index :field | parameterizedColumns at: index put: (field asParameterColumn: index for: aStatement)].
 
 	^parameterizedColumns! !
+
 !SSWSQLWriteStream categoriesForMethods!
 parameterizedColumnsFor:!accessing!public! !
 !
@@ -481,6 +569,7 @@ parameterizedColumnsFor:!accessing!public! !
 asParameterColumn
 
 	^SSWODBCColAttr forString: self! !
+
 !String categoriesForMethods!
 asParameterColumn!converting!public! !
 !
@@ -492,6 +581,7 @@ dbMaxFieldSize
 	"The receiver represents the unsized character column concept in the database, therefore the max field size is undefined"
 
 	^nil! !
+
 !String class categoriesForMethods!
 dbMaxFieldSize!public!specification! !
 !

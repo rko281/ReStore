@@ -5,11 +5,15 @@ DBParameterizedStatement subclass: #SSWODBCStatement
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWODBCStatement guid: (GUID fromString: '{fe2079c2-ac50-11d5-b1e0-444553540000}')!
+
 SSWODBCStatement comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWODBCStatement categoriesForClass!Unclassified! !
+
 !SSWODBCStatement methodsFor!
 
 close
@@ -25,13 +29,13 @@ cursoredFetch: aBoolean
 
 	"Always enabled"!
 
-dbCheckException: anIntegerRetCode
+dbCheckException: anIntegerRetCode function: aString
 
 	"Overriden to revector to parent connection, which may mask certain 'errors' "
 	
-	^self parent dbCheckException: anIntegerRetCode from: self!
+	^self parent dbCheckException: anIntegerRetCode function: aString from: self!
 
-describeCols: columnNumbers 
+describeColumns: columnNumbers 
 
 	"Intercept to set the fields used in the query.
 	Also cache the results - in the common case, a statement is always asked for the same columns so we do this as simply/efficiently as possible"
@@ -40,7 +44,7 @@ describeCols: columnNumbers
 
 	cachedColumnsIndices := columnNumbers.
 	^cachedColumns :=
-		(super describeCols: columnNumbers) collect: 
+		(super describeColumns: columnNumbers) collect: 
 			[ :colAttr |
 			SSWODBCColAttr new
 				columnNumber: colAttr columnNumber;
@@ -77,7 +81,7 @@ describeParam: anInteger
 				parameterSizePtr: parameterSize
 				decimalDigitsPtr: decimalDigits
 				nullablePtr: nullable.
-	self dbCheckException: ret.
+	self dbCheckException: ret function: 'SQLDescribeParam'.
 
 	^SSWODBCColAttr new
 		type: dataType value;
@@ -91,15 +95,9 @@ exec
 
 	parent logStatementExec: self.
 
-	self close.
-	isPrepared
-		ifFalse: [self prepare].
-	paramCols notNil
-		ifTrue: [self setValues].
-	self parent 
-		dbCheckException: (ODBCLibrary default sqlExecute: self allocatedHandle) from: self;
-		postExec.
-	executed := true!
+	super exec.
+
+	parent postExec!
 
 exec: aString
 
@@ -138,7 +136,7 @@ parameters
 	"Overriden to use SSWDBODBCFields; see superclass implementation for comment"
 
 	^parameters ifNil: 
-		[parameters := (paramCols collect: [:col | SSWODBCField newForCol: col statement: self]) asArray.
+		[parameters := (paramCols collect: [:col | (col bufferClass dbBoundFieldClassForColumn: col) newForCol: col statement: self]) asArray.
 		self bindParams.
 		parameters]!
 
@@ -185,13 +183,13 @@ rebindParameterAt: anInteger
 			sqlBindParameter: self allocatedHandle
 			parameterNumber: anInteger
 			inputOutputType: column parameterType
-			valueType: column cType
+			valueType: buf dbInterchangeType
 			parameterType: column type
 			columnSize: column precision
 			decimalDigits: column scale
 			parameterValuePtr: buf
 			bufferLength: buf byteSize
-			strLenOrIndPtr: field lengthBuf).
+			strLenOrIndPtr: field lengthBuf) function: 'SQLBindParameter'.
 
 	field needsRebinding: false!
 
@@ -247,14 +245,15 @@ writeDebugInfoOn: aStream
 	readStream atEnd] whileFalse.
 
 	aStream nextPutAll: sqlStream contents; nextPut: $;; cr! !
+
 !SSWODBCStatement categoriesForMethods!
 close!operations!public! !
 closeAfter:!operations!public! !
 cursoredFetch:!initializing!public! !
-dbCheckException:!exceptions!private! !
-describeCols:!accessing!public! !
+dbCheckException:function:!exceptions!private! !
+describeColumns:!accessing!public! !
 describeParam:!accessing!public! !
-exec!public! !
+exec!operations!public! !
 exec:!operations!public! !
 execQuery:!operations!public! !
 numColumns!accessing!public! !

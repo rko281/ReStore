@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SQLite3PreparedStatement subclass: #SSWSQLite3Statement
 	instanceVariableNames: 'query sqlString parametersCount results values'
@@ -14,6 +14,8 @@ at: aColumn putTimeStamp: aTimeStamp
 
 	^self at: aColumn putDateTime: aTimeStamp asDateAndTime!
 
+bindParameters: bindings	bindings keysAndValuesDo: [ :index :value | value sqliteBindTo: self at: index]!
+
 close
 
 	"In Dolphin this closes the result set, leaving the statement open"
@@ -27,15 +29,6 @@ closeAfter: aBlock
 cursoredFetch: aBoolean
 
 	"Always enabled"!
-
-dataTypeForObject: anObject	^self dataTypeForObject: anObject ifNone: 
-		[ anObject class = TimeStamp 
-		ifTrue: 
-			[ #at:putTimeStamp: ]
-		ifFalse: 
-			[ anObject class = GUID
-				ifTrue: [ #at:putByteArray: ]
-				ifFalse: [ #at:putObject: ]]]!
 
 exec
 
@@ -119,6 +112,20 @@ valueAt: anIndex put: anObject
 
 	self values at: anIndex put: anObject!
 
+valueOfColumn: aColumn
+
+	| type |
+	
+	type := self library apiColumnType: handle atColumn: aColumn.
+
+	type = SQLITE_NULL ifTrue: [^nil].
+	type = SQLITE_INTEGER ifTrue: [^self integerAt: aColumn].
+	type = SQLITE_TEXT ifTrue: [^self stringAt: aColumn].
+	type = SQLITE_FLOAT ifTrue: [^self floatAt: aColumn].
+	type = SQLITE_BLOB ifTrue: [^self byteArrayAt: aColumn].
+	
+	self error: 'unknown type'!
+
 values
 	^ values ifNil: [ #() ]!
 
@@ -126,10 +133,10 @@ values: anObject
 	values := anObject collect: [  :each | each reStoreValue ]! !
 !SSWSQLite3Statement categoriesForMethods!
 at:putTimeStamp:!bindings!public! !
+bindParameters:!bindings!public! !
 close!initialize/release!public! !
 closeAfter:!initialize/release!public! !
 cursoredFetch:!initialize/release!public! !
-dataTypeForObject:!bindings!public! !
 exec!public!querying! !
 execute!execution!public! !
 execute:!execution!public! !
@@ -150,6 +157,7 @@ sqlDialect!accessing!public! !
 sqlString!accessing!public! !
 sqlString:!accessing!public! !
 valueAt:put:!accessing!public! !
+valueOfColumn:!fetching!public! !
 values!accessing!public! !
 values:!accessing!public! !
 !

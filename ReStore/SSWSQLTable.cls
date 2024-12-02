@@ -1,4 +1,4 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWSQLTable
 	instanceVariableNames: 'name'
@@ -47,6 +47,10 @@ name: aString
 	name := aString
 !
 
+postCreate
+
+	"Private - Carry out an actions necessary after the receiver has been fully created"!
+
 printOn: aStream
 
 	super printOn: aStream.
@@ -71,6 +75,7 @@ hash!comparing!public! !
 hasStaticConditions!public!testing! !
 name!accessing!public! !
 name:!accessing!public! !
+postCreate!initializing!private! !
 printOn:!displaying!public! !
 writeSQLNameOn:!output!public! !
 writeSQLOn:!output!public! !

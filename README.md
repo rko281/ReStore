@@ -1,8 +1,10 @@
+## Note the main ReStore branch is now for Dolphin Smalltalk 7.2. Please use named branches for Dolphin Smalltalk 7.1 and 7.0.
+
 # What is ReStore?
 ReStore is a framework enabling Dolphin Smalltalk objects to be stored in and read from relational databases (SQLite, PostgreSQL etc.). ReStore aims to make relational persistency as simple as possible, creating and maintaining the database structure itself and providing access to stored objects via familiar Smalltalk messages. 
 
 # Getting Started
-* Install [Dolphin Smalltalk 7.1](https://github.com/dolphinsmalltalk/Dolphin)
+* Install [Dolphin Smalltalk 7.2](https://github.com/dolphinsmalltalk/Dolphin)
 
 ## Automated Installation
 * Download and install [GitHub Package Manager](https://github.com/rko281/GitHub)

@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 DBColAttr subclass: #SSWODBCColAttr
 	instanceVariableNames: 'field maxBoundBufferSize isFunctionParameter'
-	classVariableNames: ''
+	classVariableNames: 'SSWODBCBufferClasses'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWODBCColAttr guid: (GUID fromString: '{40397b21-5946-11d6-87e7-0010a70883e2}')!
+
 SSWODBCColAttr comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWODBCColAttr categoriesForClass!Unclassified! !
+
 !SSWODBCColAttr methodsFor!
 
 configureToHold: anObject
@@ -31,28 +35,28 @@ configureToHold: anObject
 
 configureToHoldByteArray: aByteArray
 
-	sqlType := SQL_LONGVARBINARY.
+	self type: SQL_LONGVARBINARY.
 	length := aByteArray size!
 
 configureToHoldNumber: aNumber
 
 	aNumber isInteger ifTrue:
 		[^aNumber byteSize = 4
-			ifTrue: [sqlType := SQL_SMALLINT]
-			ifFalse: [sqlType := SQL_BIGINT]].
+			ifTrue: [self type: SQL_SMALLINT]
+			ifFalse: [self type: SQL_BIGINT]].
 
-	(aNumber isFloat or: [aNumber isFraction]) ifTrue: [^sqlType := SQL_DOUBLE].
+	(aNumber isFloat or: [aNumber isFraction]) ifTrue: [self type: SQL_DOUBLE].
 
 	aNumber class = ScaledDecimal ifTrue: 
 		[precision := 64.
 		scale := aNumber scale.
-		^sqlType := SQL_DECIMAL].
+		self type: SQL_DECIMAL].
 
 	self error: 'unsupported numeric class'!
 
 configureToHoldString: aString
 
-	sqlType := SQL_WLONGVARCHAR.
+	self type: SQL_WLONGVARCHAR.
 	length := aString size * 2
 
 	!
@@ -82,33 +86,6 @@ isFunctionParameter
 isFunctionParameter: anObject
 	isFunctionParameter := anObject!
 
-lengthC
-
-	"Override to utilise metadata from the field if available"
-
-	| lengthC |
-
-	"Workaround primarily for PostgreSQL which returns negative value for length of SQL_LONGVARBINARY columns"
-	length negative
-		ifTrue: [lengthC := self maxBoundBufferSize]
-		ifFalse: [lengthC := super lengthC min: self maxBoundBufferSize].
-
-	(self field isNil or: [self isFunctionParameter]) ifTrue: [^lengthC].
-
-	(sqlType = SQL_LONGVARCHAR or: [sqlType = SQL_LONGVARBINARY]) ifTrue: 
-		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
-		^self field targetClass dbMaxFieldSize
-			ifNil: [lengthC]
-			ifNotNil: [ :maxFieldSize | lengthC min: (maxFieldSize + (CTypesExtraBytes at: sqlType+TypeOffset))]].
-
-	sqlType = SQL_WLONGVARCHAR ifTrue: 
-		[lengthC = 0 ifTrue: [lengthC := self maxBoundBufferSize].
-		^self field targetClass dbMaxFieldSize
-			ifNil: [lengthC]
-			ifNotNil: [ :maxFieldSize | lengthC min: ((maxFieldSize * 2) + (CTypesExtraBytes at: sqlType+TypeOffset))]].
-
-	^lengthC!
-
 maxBoundBufferSize
 	^maxBoundBufferSize!
 
@@ -128,23 +105,38 @@ postCreate
 		type: SQL_LONGVARBINARY;
 		length: self maxBoundBufferSize!
 
+precision
+
+	^super precision ifNil: [0]!
+
+type: anInteger
+	"Private - Set the sqlType instance variable to anInteger."
+
+	sqlType := anInteger.
+	self bufferClass: (SSWODBCBufferClasses at: anInteger
+				ifAbsent: [self error: 'Unmarshallable column: ' , self printString])!
+
 writeSQLOn: aStream
 
 	aStream nextPutAll: self name! !
-!SSWODBCColAttr categoriesFor: #configureToHold:!accessing!initializing!public! !
-!SSWODBCColAttr categoriesFor: #configureToHoldByteArray:!accessing!initializing!private! !
-!SSWODBCColAttr categoriesFor: #configureToHoldNumber:!accessing!initializing!private! !
-!SSWODBCColAttr categoriesFor: #configureToHoldString:!accessing!initializing!private! !
-!SSWODBCColAttr categoriesFor: #field!accessing!public! !
-!SSWODBCColAttr categoriesFor: #field:!accessing!public! !
-!SSWODBCColAttr categoriesFor: #initialize!initializing!public! !
-!SSWODBCColAttr categoriesFor: #isFunctionParameter!accessing!public!testing! !
-!SSWODBCColAttr categoriesFor: #isFunctionParameter:!accessing!private! !
-!SSWODBCColAttr categoriesFor: #lengthC!accessing!private! !
-!SSWODBCColAttr categoriesFor: #maxBoundBufferSize!accessing!private! !
-!SSWODBCColAttr categoriesFor: #maxBoundBufferSize:!accessing!private! !
-!SSWODBCColAttr categoriesFor: #postCreate!accessing!private! !
-!SSWODBCColAttr categoriesFor: #writeSQLOn:!printing!public! !
+
+!SSWODBCColAttr categoriesForMethods!
+configureToHold:!accessing!initializing!public! !
+configureToHoldByteArray:!accessing!initializing!private! !
+configureToHoldNumber:!accessing!initializing!private! !
+configureToHoldString:!accessing!initializing!private! !
+field!accessing!public! !
+field:!accessing!public! !
+initialize!initializing!public! !
+isFunctionParameter!accessing!public!testing! !
+isFunctionParameter:!accessing!private! !
+maxBoundBufferSize!accessing!private! !
+maxBoundBufferSize:!accessing!private! !
+postCreate!accessing!private! !
+precision!public! !
+type:!initializing!public! !
+writeSQLOn:!printing!public! !
+!
 
 !SSWODBCColAttr class methodsFor!
 
@@ -157,6 +149,22 @@ forString: aString
 		precision: aString size;
 		maxBoundBufferSize: aString byteSize;
 		type: SQL_VARCHAR;
-		yourself! !
-!SSWODBCColAttr class categoriesFor: #forString:!instance creation!public! !
+		yourself!
+
+initialize
+	"Private - Initialize the receiver's class variables.
+		self initialize
+	"
+
+	SSWODBCBufferClasses := BufferClasses copy.
+	SSWODBCBufferClasses keysAndValuesDo: 
+		[ :key :cls |
+		cls = DBVarCharBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCVarCharBuffer].
+		cls = DBBinaryBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCBinaryBuffer].
+		cls = DBVarBinaryBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCVarBinaryBuffer]]! !
+
+!SSWODBCColAttr class categoriesForMethods!
+forString:!instance creation!public! !
+initialize!public! !
+!
 

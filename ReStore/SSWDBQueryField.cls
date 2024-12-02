@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBQueryField
-	instanceVariableNames: 'field'
+	instanceVariableNames: 'field columnIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryField guid: (GUID fromString: '{266e4dc8-398e-11d5-b1df-444553540000}')!
+
 SSWDBQueryField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBQueryField categoriesForClass!Unclassified! !
+
 !SSWDBQueryField methodsFor!
 
 accessor
@@ -24,6 +28,20 @@ canBeParameterized
 
 	"Defer to the field"
 	^self field canBeParameterized!
+
+columnIndex
+
+	"columnIndex stores the expected index of the receiver's column in a DBRow after the most recent query involving the receiver.
+	It is set during query result preparation and is checked first during subsequent lookups for this field"
+
+	^columnIndex!
+
+columnIndex: anInteger
+
+	"columnIndex stores the expected index of the receiver's column in a DBRow after the most recent query involving the receiver.
+	It is set during query result preparation and is checked first during subsequent lookups for this field"
+
+	columnIndex := anInteger!
 
 convertValue: aValue
 
@@ -63,6 +81,10 @@ isFieldCollection
 
 	^false!
 
+lookupIn: aDBRow
+
+	^aDBRow lookupField: self!
+
 name
 
 	"Forward to the real field"
@@ -84,6 +106,10 @@ sqlCanBeParameterized
 	Different to canBeParameterized!!"
 
 	^false!
+
+sqlDialect
+
+	^self field sqlDialect!
 
 table
 
@@ -125,20 +151,25 @@ writeSQLForUpdateOn: aStream
 	"Forward to the contained field"
 
 	^self field writeSQLForUpdateOn: aStream! !
+
 !SSWDBQueryField categoriesForMethods!
 accessor!evaluating!public! !
 accessorPath!accessing!public! !
 canBeParameterized!public!testing! !
+columnIndex!accessing!private! !
+columnIndex:!accessing!private! !
 convertValue:!evaluating!public! !
 field!accessing!public! !
 field:!accessing!public! !
 fieldNamed:!evaluating!public! !
 hasAggregateFunction!public!testing! !
 isFieldCollection!public!testing! !
+lookupIn:!accessing!public! !
 name!evaluating!public! !
 requiresAliasing!public!testing! !
 reStore!accessing!public! !
 sqlCanBeParameterized!public!testing! !
+sqlDialect!accessing!public! !
 table!accessing!public! !
 targetClass!accessing!public! !
 targetClass:!accessing!public! !

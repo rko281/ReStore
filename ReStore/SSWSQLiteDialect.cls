@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLDialect subclass: #SSWSQLiteDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLiteDialect guid: (GUID fromString: '{d86fd87d-a409-4be4-84bf-0fdcf5dfd249}')!
+
 SSWSQLiteDialect comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWSQLiteDialect categoriesForClass!Unclassified! !
+
 !SSWSQLiteDialect methodsFor!
 
 alterField: aField table: aTable in: aReStore
@@ -47,7 +51,9 @@ decimal
 
 defaultDateTimeResolution
 
-	^3!
+	"0 = seconds, 3 = milliseconds etc."
+
+	^0!
 
 defaultMaxColumnNameLength
 
@@ -56,6 +62,12 @@ defaultMaxColumnNameLength
 defaultMaxTableNameLength
 
 	^255!
+
+defaultTimeResolution
+
+	"0 = seconds, 3 = milliseconds etc."
+
+	^3!
 
 dialectSpecificFunctions
 
@@ -99,12 +111,14 @@ shouldExpandNamespacedAllFields
 	"SQLite gives error with namespace.table_name.* in SELECT query"
 
 	^true! !
+
 !SSWSQLiteDialect categoriesForMethods!
 alterField:table:in:!maintenance!public! !
 decimal!datatypes!public! !
 defaultDateTimeResolution!constants!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
+defaultTimeResolution!constants!public! !
 dialectSpecificFunctions!constants!public! !
 dropColumnNamed:fromTable:in:!maintenance!public! !
 shouldExpandNamespacedAllFields!public!testing! !
@@ -115,6 +129,7 @@ shouldExpandNamespacedAllFields!public!testing! !
 dbmsName
 
 	^'SQLITE'! !
+
 !SSWSQLiteDialect class categoriesForMethods!
 dbmsName!constants!public! !
 !

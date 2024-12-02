@@ -78,6 +78,8 @@ addClass: aClass
 	"Validate"
 	self validateTable: table.
 
+	table postCreate.
+
 	"Add it"
 	self tableCache at: aClass put: table.
 
@@ -273,9 +275,10 @@ classCacheFor: aClass
 	proxied instances of aClass"
 	
 	"Proxies are cached under the registerClass of their associated table"
-	^self proxyCache 
-		at: (self tableForClass: aClass) registerClass 
-		ifAbsentPut: [WeakLookupTable new: 128]!
+	^self proxyCache at: aClass ifAbsentPut:
+		[self proxyCache 
+			at: (self tableForClass: aClass) registerClass 
+			ifAbsentPut: [WeakLookupTable new: 128]]!
 
 clearAllCaches
 
@@ -1051,8 +1054,8 @@ objectFromRow: aDatabaseRow table: anSSWDBTable
 	"Return the proxyd object represented by the given row from the given table.
 	If the required proxy object is not in the cache, create it.
 	If the object is already recovered, refresh it from the row if it's not been changed in the image"
-	
-	^(aDatabaseRow lookupField: anSSWDBTable idField) ifNotNil: 
+
+	^(aDatabaseRow lookupIDField: anSSWDBTable idField) ifNotNil: 
 		[ :id | 
 		self 
 			cachedObjectOfClass: (anSSWDBTable instanceClassFromRow: aDatabaseRow)
@@ -1299,7 +1302,7 @@ refreshProxyIfUpdated: anSSWDBObjectProxy
 		[anSSWDBObjectProxy _proxiedObjectMissing. 
 		^true].
 
-	^(row lookupField: table versionControlField) ~= anSSWDBObjectProxy _version 
+	^(table versionControlField lookupIn: row) ~= anSSWDBObjectProxy _version 
 		ifTrue: [anSSWDBObjectProxy _forceRefresh. true] 
 		ifFalse: [false]!
 

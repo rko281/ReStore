@@ -1,7 +1,7 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLTable subclass: #SSWDBTable
-	instanceVariableNames: 'instanceClass fullName idField idDataField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize namespace'
+	instanceVariableNames: 'instanceClass fullName idField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -89,7 +89,7 @@ collectionAccessing: aSymbol
 	"Determine and return the collectionSpec of the receiver which accesses the inst var named aSymbol
 	of the receiver's instanceClass"
 	
-	^self collectionSpecs detect: [ :spec | spec accessor accesses: aSymbol] ifNone: [nil]!
+	^self collectionSpecs detect: [ :spec | spec accesses: aSymbol] ifNone: [nil]!
 
 collectionSpecs
 
@@ -189,49 +189,27 @@ createIDField
 
 	"Define the receiver table's unique ID field - it is not named at this point"
 	
-	| field |
-	
-	field := SSWDBStaticField new.
-	
-	field
-		table: self;
-		accessor: SSWDBIDAccessor new;
-		targetClass: self instanceClass reStoreIDClass.
-	
-	self idField: field!
+	self idField: 
+		(SSWDBIDField new
+			table: self;
+			targetClass: self instanceClass reStoreIDClass;
+			yourself)!
 
 createInstanceFromRow: aDBRow
 
-	| object id |
-	
+	| object |
+
 	object := self instanceClass basicNew.
 
-	self allDataFieldsDo:
-		[ :field |
-		field applyValueFromRow: aDBRow to: object].
+	aDBRow populateObject: object from: self.
 
 	self collectionSpecs isEmpty ifTrue: [^object].
 
-	id := aDBRow lookupField: self idField.
 	self collectionSpecs do:
 		[ :collection |
-		collection applyTo: object withID: id in: self reStore].
+		collection applyTo: object in: self reStore].
 		
 	^object!
-
-createNonProxiedInstanceFromRow: aDBRow
-	
-	"For internal/special non-proxied persistent objects"
-
-	| instance |
-	
-	instance := self createInstanceFromRow: aDBRow.
-
-	self controlFields do:
-		[ :field |
-		field applyValueFromRow: aDBRow to: instance].
-
-	^instance!
 
 dataAndControlFields
 
@@ -307,7 +285,7 @@ define: aSymbol asFieldNamed: aString holding: aClass
 					expandMacrosWith: aString with: aSymbol with: self sqlDialect maxColumnNameLength)].
 	
 	^self addDataField:
-		(SSWDBStaticField new
+		(SSWDBDataField new
 			name: aString;
 			targetClass: aClass;
 			accessor: ((aClass reStoreInstVarAccessorIn: self sqlDialect) access: aSymbol in: self instanceClass);
@@ -356,19 +334,9 @@ defineAsID: aSymbol fieldName: aString
 	This can be useful in some cases, although the unique ID is really internal information.
 	Return the idField"
 
-	| field instanceAccessor |
-
-	field := self defineIDFieldName: aString.
-	instanceAccessor := SSWInstVarAccessor toAccess: aSymbol in: self instanceClass.
-
-	field accessor instanceAccessor: instanceAccessor.
-
-	self idDataField:
-		(field copy
-			accessor: instanceAccessor;
-			yourself).
-
-	^field!
+	^(self defineIDFieldName: aString)
+		accessInstVarNamed: aSymbol;
+		yourself!
 
 defineDefaultIDField
 
@@ -421,7 +389,7 @@ fieldAccessing: aSymbol
 
 	"Determine and return the field of the receiver which accesses the inst var named aSymbol of the receiver's instanceClass"
 	
-	^self allFieldsDetect: [ :field | field accessor accesses: aSymbol] ifNone: [nil]!
+	^self allFieldsDetect: [ :field | field accesses: aSymbol] ifNone: [nil]!
 
 fieldNamed: aString
 
@@ -433,7 +401,7 @@ fieldsAccessing: aSymbol
 
 	matching := OrderedCollection new.
 
-	self allFieldsDo: [ :field | (field accessor accesses: aSymbol) ifTrue: [matching add: field]].
+	self allFieldsDo: [ :field | (field accesses: aSymbol) ifTrue: [matching add: field]].
 
 	^matching!
 
@@ -502,22 +470,11 @@ idDataField
 	This differs from the idField which accesses the ID solely in the proxy.
 	Can be (and usually is) nil"
 
-	^idDataField!
-
-idDataField: anObject
-
-	"idDataField stores a field which accesses the ID of instances when held as data in an actual object.
-	This differs from the idField which accesses the ID solely in the proxy.
-	Can be (and usually is) nil"
-
-	idDataField := anObject!
+	^idField dataField!
 
 idField
 
-	"idField stores the SSWDBField which holds the unique ID of records in this table.	
-	Lazy-defaulted if not set explicity"
-	
-	idField isNil ifTrue: [self defineDefaultIDField].
+	"idField stores the SSWDBField which holds the unique ID of records in this table"
 	
 	^idField!
 
@@ -531,6 +488,7 @@ initializeIn: anSSWReStore
 
 	self reStore: anSSWReStore.
 
+	self idField isNil ifTrue: [self defineDefaultIDField].
 	self controlFields: (anSSWReStore objectProxyClassFor: self instanceClass) controlFields.
 	self controlFields do: 
 		[ :field | 
@@ -666,8 +624,12 @@ readStatement
 
 recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 	
+	| instance |
+
+	instance := self createInstanceFromRow: aDBRow.
+
 	anSSWDBObjectProxy 
-		_proxiedObject: (self createInstanceFromRow: aDBRow);
+		_proxiedObject: instance;
 		_acquireCollectionProxiesUsing: self collectionSpecs.
 
 	self controlFields do:
@@ -924,8 +886,7 @@ controlFields:!accessing!public! !
 copyForProxy:!defining!evaluating!public! !
 createDefinition!db maintenance!public! !
 createIDField!initialize/release!private! !
-createInstanceFromRow:!instance creation!public! !
-createNonProxiedInstanceFromRow:!instance creation!private! !
+createInstanceFromRow:!instance creation!private! !
 dataAndControlFields!evaluating!public! !
 dataFields!accessing!public! !
 dataFields:!accessing!public! !
@@ -957,7 +918,6 @@ hasCollectionAccessing:!public!testing! !
 hasFieldAccessing:!public!testing! !
 hasNamespace!public!testing! !
 idDataField!accessing!public! !
-idDataField:!accessing!public! !
 idField!accessing!public! !
 idField:!accessing!public! !
 initializeIn:!initialize/release!public! !
