@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLDialect subclass: #SSWPostgreSQLDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWPostgreSQLDialect guid: (GUID fromString: '{12d8994a-38c7-47ee-9760-30dd5a44471a}')!
+
 SSWPostgreSQLDialect comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWPostgreSQLDialect categoriesForClass!Unclassified! !
+
 !SSWPostgreSQLDialect methodsFor!
 
 alterField: aField table: aTable in: aReStore
@@ -71,6 +75,10 @@ double
 
 	^'DOUBLE PRECISION'!
 
+falseObject
+
+	^'0'!
+
 identifierQuoteClose
 
 	^$"!
@@ -97,6 +105,10 @@ renameField: oldField to: newField in: aReStore
 			nextPutAll: ' TO ';
 			nextPutIdentifier: newField name]!
 
+trueObject
+
+	^'1'!
+
 unsizedBlob
 
 	^'bytea'!
@@ -104,6 +116,7 @@ unsizedBlob
 uuid
 
 	^'uuid'! !
+
 !SSWPostgreSQLDialect categoriesForMethods!
 alterField:table:in:!maintenance!public! !
 datetime!datatypes!public! !
@@ -114,10 +127,12 @@ defaultMaxTableNameLength!constants!public! !
 defaultStandardNamespace!constants!public! !
 dialectSpecificFunctions!constants!public! !
 double!datatypes!public! !
+falseObject!constants!public! !
 identifierQuoteClose!constants!public! !
 identifierQuoteOpen!constants!public! !
 maxCharacter!constants!public! !
 renameField:to:in:!maintenance!public! !
+trueObject!constants!public! !
 unsizedBlob!datatypes!public! !
 uuid!datatypes!public! !
 !
@@ -127,6 +142,7 @@ uuid!datatypes!public! !
 dbmsName
 
 	^'PostgreSQL'! !
+
 !SSWPostgreSQLDialect class categoriesForMethods!
 dbmsName!constants!public! !
 !

@@ -5,11 +5,15 @@ Object subclass: #SSWDBQueryField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryField guid: (GUID fromString: '{266e4dc8-398e-11d5-b1df-444553540000}')!
+
 SSWDBQueryField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBQueryField categoriesForClass!Unclassified! !
+
 !SSWDBQueryField methodsFor!
 
 accessor
@@ -103,6 +107,10 @@ sqlCanBeParameterized
 
 	^false!
 
+sqlDialect
+
+	^self field sqlDialect!
+
 table
 
 	^self field table!
@@ -143,6 +151,7 @@ writeSQLForUpdateOn: aStream
 	"Forward to the contained field"
 
 	^self field writeSQLForUpdateOn: aStream! !
+
 !SSWDBQueryField categoriesForMethods!
 accessor!evaluating!public! !
 accessorPath!accessing!public! !
@@ -160,6 +169,7 @@ name!evaluating!public! !
 requiresAliasing!public!testing! !
 reStore!accessing!public! !
 sqlCanBeParameterized!public!testing! !
+sqlDialect!accessing!public! !
 table!accessing!public! !
 targetClass!accessing!public! !
 targetClass:!accessing!public! !

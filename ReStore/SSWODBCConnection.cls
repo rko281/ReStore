@@ -5,11 +5,15 @@ DBConnection subclass: #SSWODBCConnection
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWODBCConnection guid: (GUID fromString: '{a1aded01-a947-11d5-b1e0-444553540000}')!
+
 SSWODBCConnection comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWODBCConnection categoriesForClass!Unclassified! !
+
 !SSWODBCConnection methodsFor!
 
 _columnsInTable: aDBTable 
@@ -129,13 +133,13 @@ createNamespace: aString
 
 	self autoCommitDuring: [self exec: (self sqlDialect createNamespaceSQLFor: aString)]!
 
-dbCheckException: anIntegerRetCode
+dbCheckException: anIntegerRetCode function: aString
 
 	"Overriden to revector to new dbCheckException:from: method, which may mask certain 'errors' "
 	
-	^self dbCheckException: anIntegerRetCode from: self!
+	^self dbCheckException: anIntegerRetCode function: aString from: self!
 
-dbCheckException: anIntegerRetCode from: anODBCObject
+dbCheckException: anIntegerRetCode function: aString from: anODBCObject
 
 	"Check anIntegerRetCode as returned to anODBCObject.
 	Report an error/notification if appropriate"
@@ -145,9 +149,9 @@ dbCheckException: anIntegerRetCode from: anODBCObject
 		(anIntegerRetCode = SQL_SUCCESS_WITH_INFO or: [anIntegerRetCode = SQL_NO_DATA])
 		ifTrue: 
 			[(self sqlDialect ifNil: ["During login - keep quiet" true] ifNotNil: [ :dialect | dialect shouldMaskSuccessWithInfo]) ifFalse:
-				[DBWarning signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]
+				[DBWarning signal: aString with: (anODBCObject newExceptionDetails: anIntegerRetCode)]]
 		ifFalse: 
-			[DBError signalWith: (anODBCObject exceptionDetails: anIntegerRetCode)]]!
+			[DBError signal: aString with: (anODBCObject newExceptionDetails: anIntegerRetCode)]]!
 
 dbErrorClass
 
@@ -167,23 +171,12 @@ defaultCursorType
 
 defaultMaxColumnBytes
 
-	"defaultMaxColumnBytes defines the default maximum size of a column in bytes - this is used to initialize/cap the size of a column's replication buffer.
-	
-	The default is 128KB (2 raisedTo: 17) which is increased compared to the limit defined in Dolphin's Database Connection (64KB, 2 raisedTo: 16 - see DBField>>initializeForColumn:).
-	If a larger size is needed you can set an appropriate value for your application following login by sending maxColumnBytes: to your ReStore's sqlDialect object.
-	Bear in mind that wide character strings (if supported) can use > 1 byte per character.
-	
-	Also bear in mind that this value is used when creating a ByteArray for each unsized column which is replicated.
-	If you increase this value then consider specifying a maximum String size in your reStoreDefinition methods to avoid unnecessarily large buffers.
+	"defaultMaxColumnBytes defines the default maximum size of a column in bytes.
+	As of Dolphin 7.2 very large columns are supported in ODBC - see DBLongVarField - so we now return a very large value here.
 
-	Also bear in mind that this value can be limited by the ODBC driver. 
-	e.g. as of writing SQLite appears to be limited to 65536 bytes, whilst Postgres lets you specify the limit in the Datasource dialog (but the default is only 8190 bytes!!!!)
+	Bear in mind that the maximum size can be limited by the ODBC driver, e.g. Postgres lets you specify the limit in the Datasource dialog (but the default is only 8190 bytes!!!!)"
 
-	Purely anecdotally, a maxColumnBytes of 1MB (2 raisedTo: 20) makes no discernable performance difference compared to the Dolphin default size of 64KB when run over the entire ReStore test suite.
-
-	Very large values really need the use of unbound columns and incremental (paged) put/getData, however this is not yet implemented (and is potentially less performant than bound columns)"
-
-	^##(2**17)!
+	^SmallInteger maximum!
 
 disconnect
 
@@ -257,7 +250,7 @@ getLongInfoString: infoCode
 			infoType: infoCode
 			infoValuePtr: buffer
 			bufferLength: buffer size
-			stringLengthPtr: len).
+			stringLengthPtr: len) function: 'SQLGetInfo'.
 
 	^buffer copyFrom: 1 to: (len value / 2)!
 
@@ -419,6 +412,7 @@ willAutoCommit: aBoolean
 
 	(self sqlDialect shouldCheckAutoCommit and: [self willAutoCommit = aBoolean]) ifFalse: 
 		[super willAutoCommit: aBoolean]! !
+
 !SSWODBCConnection categoriesForMethods!
 _columnsInTable:!enquiries!private! !
 _columnsInTableViaQuery:!enquiries!private! !
@@ -433,8 +427,8 @@ columnDescriptions:!accessing!private! !
 columnsForFields:!enquiries!public! !
 columnsInTable:!enquiries!public! !
 createNamespace:!operations!private! !
-dbCheckException:!exceptions!private! !
-dbCheckException:from:!exceptions!private! !
+dbCheckException:function:!exceptions!private! !
+dbCheckException:function:from:!exceptions!private! !
 dbErrorClass!accessing!public! !
 debugStream!accessing!private! !
 debugStream:!accessing!private! !

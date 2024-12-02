@@ -7,7 +7,6 @@ https://github.com/rko281/ReStore'.
 
 package basicPackageVersion: '2.11'.
 
-
 package classNames
 	add: #SSWAccessor;
 	add: #SSWDBAbstractSubTable;
@@ -116,184 +115,216 @@ Object subclass: #SSWAccessor
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBClassDefinition
 	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBDirectlyPersistedObject
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBInstVarDefinition
 	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBQueryField
 	instanceVariableNames: 'field columnIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBQueryTable
 	instanceVariableNames: 'table repetitionIndex allFields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWFieldInliner
 	instanceVariableNames: 'table instanceClass inlinedName inlinedSlot inlinedClass fields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWAccessor subclass: #SSWDBPrivateAccessor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWAccessor subclass: #SSWInstVarAccessor
 	instanceVariableNames: 'ownerClass slot name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBPrivateAccessor subclass: #SSWDBClassAccessor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBPrivateAccessor subclass: #SSWDBIDAccessor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBPrivateAccessor subclass: #SSWDBVersionAccessor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWInstVarAccessor subclass: #SSWInlinedInstVarAccessor
 	instanceVariableNames: 'inlinedAccessor inlinedClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWInstVarAccessor subclass: #SSWMutableInstVarAccessor
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
 	instanceVariableNames: 'transformation'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBClassWithInfo subclass: #SSWDBInlinedClass
 	instanceVariableNames: 'inlinedClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBInstVarDefinition subclass: #SSWDBInstVarWithFieldName
 	instanceVariableNames: 'fieldName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBInstVarDefinition subclass: #SSWDBRenamedInstVar
 	instanceVariableNames: 'previousName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryField subclass: #SSWDBFunctionField
 	instanceVariableNames: 'function arguments'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryField subclass: #SSWDBQueryTableField
 	instanceVariableNames: 'table accessorPath'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBWrapper subclass: #SSWDBRelatedWrapper
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBWrapper subclass: #SSWDBUnrelatedWrapper
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBRelatedWrapper subclass: #SSWDBDependentWrapper
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLTable subclass: #SSWDBTable
 	instanceVariableNames: 'instanceClass fullName idField dataFields controlFields collectionSpecs abbreviations reStore insertStatement readStatement refreshStatement deleteStatement readAllBatchSize namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTable subclass: #SSWDBInheritedTable
 	instanceVariableNames: 'classField'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBInheritedTable subclass: #SSWDBAbstractSubTable
 	instanceVariableNames: 'rootClass classCondition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBInheritedTable subclass: #SSWDBSuperTable
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBAbstractSubTable subclass: #SSWDBIntermediateTable
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBAbstractSubTable subclass: #SSWDBSubTable
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLTableComponent subclass: #SSWDBTableComponent
 	instanceVariableNames: 'accessor readAllStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTableComponent subclass: #SSWDBField
 	instanceVariableNames: 'name isDependent isRelated columnIndex'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBField subclass: #SSWDBStaticField
 	instanceVariableNames: 'targetClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticField subclass: #SSWDBControlField
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticField subclass: #SSWDBDataField
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticField subclass: #SSWDBIDField
 	instanceVariableNames: 'dataField'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBControlField subclass: #SSWDBNonParameterizedControlField
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -313,6 +344,7 @@ inlined
 	^SSWDBInlinedClass new
 		inlinedClass: self;
 		yourself! !
+
 !Class categoriesForMethods!
 defineAs:in:!accessing!public! !
 inlined!accessing!public! !
@@ -325,6 +357,7 @@ reStoreNewUnique
 	"Return nil to invoke default allocation of auto-incrementing Integer ID"
 
 	^nil! !
+
 !Integer class categoriesForMethods!
 reStoreNewUnique!persistency!public! !
 !
@@ -364,6 +397,7 @@ unrelated
 	"Return an unrelated version of the receiver"
 
 	^SSWDBUnrelatedWrapper on: self! !
+
 !Object categoriesForMethods!
 convertValue:!converting!public! !
 dependent!defining!public! !
@@ -533,6 +567,7 @@ tableIn: anSSWReStore
 	instead implement reStoreDefinition"
 
 	^self reStoreDefinition asTableIn: anSSWReStore! !
+
 !Object class categoriesForMethods!
 addClassDefinitionTo:!persistency!public! !
 hasOwnReStoreDefinition!persistency!public! !
@@ -576,6 +611,7 @@ reStoreValueClass
 shouldInlinePersistency
 
 	^false! !
+
 !SSWDBClassWithInfo categoriesForMethods!
 defineAs:in:!defining!public! !
 reStoreInstVarAccessorIn:!public!testing! !
@@ -600,6 +636,7 @@ copyForQueryTable: aQueryTable
 		field: (SSWDBQueryTableField forField: self field in: aQueryTable);
 		yourself
 	! !
+
 !SSWSQLCondition categoriesForMethods!
 columnIndex:!accessing!public! !
 copyForQueryTable:!evaluating!public! !
@@ -620,6 +657,7 @@ copyForQueryTable: aQueryTable
 	^self collect: [ :each | each copyForQueryTable: aQueryTable]
 
 	! !
+
 !SSWSQLConditionCollection categoriesForMethods!
 columnIndex:!accessing!public! !
 copyForQueryTable:!copying!public! !
@@ -638,6 +676,7 @@ instVarAccessorFor: aClass
 
 	"Default"
 	^SSWInstVarAccessor new! !
+
 !SSWSQLDialect categoriesForMethods!
 instVarAccessorFor:!accessing!public! !
 !
@@ -684,6 +723,7 @@ lastJoinField
 	"Patched for issue 120-001(revised)"
 	
 	^self joinConditions last value! !
+
 !SSWSQLJoinedTableCollection categoriesForMethods!
 add:joinedWithField:!adding/removing!public! !
 addAliasingDuplicates:joinedWithField:!adding/removing!public! !
@@ -696,6 +736,7 @@ lastJoinField!accessing!public! !
 columnIndex: anInteger
 
 	"Polymorphic with SSWDBField"! !
+
 !SSWSQLParameterField categoriesForMethods!
 columnIndex:!accessing!private! !
 !
@@ -712,6 +753,7 @@ occurrencesOfIncludingRepetitions: aTable
 	(self includes: aTable) ifFalse: [^0].
 
 	^(self select: [ :table | (table class = SSWDBQueryTable) and: [table table == aTable]]) size + 1! !
+
 !SSWSQLTableCollection categoriesForMethods!
 occurrencesOfIncludingRepetitions:!public!searching! !
 !
@@ -725,6 +767,7 @@ reStoreInstVarAccessorIn: aSQLDialect
 	^aSQLDialect shouldMapEmptyStringsToNil 
 		ifTrue: [SSWTransformingInstVarAccessor newWithTransformation: (Message selector: #orNilIfEmpty)]
 		ifFalse: [super reStoreInstVarAccessorIn: aSQLDialect]! !
+
 !String class categoriesForMethods!
 reStoreInstVarAccessorIn:!persistency!public! !
 !
@@ -756,6 +799,7 @@ withDatabaseName: aString
 	^(SSWDBInstVarWithFieldName name: self) 
 		fieldName: aString;
 		yourself! !
+
 !Symbol categoriesForMethods!
 asInstVarName!converting!public! !
 databaseFieldNameIn:!converting!public! !

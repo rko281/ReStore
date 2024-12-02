@@ -5,11 +5,15 @@ SSWReStoreTest subclass: #SSWReStoreTypeTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreTypeTest guid: (GUID fromString: '{989359ed-2e4c-4ebb-bdc0-861c1f8eb0e4}')!
+
 SSWReStoreTypeTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreTypeTest categoriesForClass!Unclassified! !
+
 !SSWReStoreTypeTest methodsFor!
 
 addClassesTo: aReStore
@@ -152,7 +156,7 @@ testExtendedANSI
 
 testGeneral
 
-	self assert: typeTest char trimBlanks equals: 'CHAR'.
+	self assert: typeTest char trimNulls equals: 'CHAR'.
 	self assert: typeTest varchar equals: 'VARCHAR'.
 	self assert: typeTest medText equals: ((String new: 2000) atAllPut: $M; yourself).
 	self assert: typeTest largeText equals: ((String new: 5000) atAllPut: $L; yourself).
@@ -297,6 +301,46 @@ testUUIDQuery
 	t2 := (TypeTest storedInstancesIn: reStore) detect: [ :each | each uuid = GUID newUnique] ifNone: [nil].
 	self assert: t2 isNil!
 
+testVeryLargeBlob
+
+	| size instance |
+
+	"10MB"
+	size := 10 * 1024 * 1024.
+
+	TypeTest new
+		varchar: 'Very Large Blob';
+		unsizedBlob: ((ByteArray new: size) atAllPut: 128; at: 1 put: 0; at: size put: 255; yourself);
+		storeIn: reStore.
+
+	reStore simulateReconnect.
+
+	instance := (TypeTest storedInstancesIn: reStore) detect: [ :each | each varchar = 'Very Large Blob'].
+	self assert: instance unsizedBlob size equals: size.
+	self assert: instance unsizedBlob first equals: 0.
+	self assert: instance unsizedBlob second equals: 128.
+	self assert: instance unsizedBlob last equals: 255.!
+
+testVeryLargeString
+
+	| size instance |
+
+	"10MB"
+	size := 10 * 1024 * 1024.
+
+	TypeTest new
+		varchar: 'Very Large String';
+		unsizedText: ((String new: size) atAllPut: $V; at: 1 put: $A; at: size put: $Z; yourself);
+		storeIn: reStore.
+
+	reStore simulateReconnect.
+
+	instance := (TypeTest storedInstancesIn: reStore) detect: [ :each | each varchar = 'Very Large String'].
+	self assert: instance unsizedText size equals: size.
+	self assert: instance unsizedText first equals: $A.
+	self assert: instance unsizedText second equals: $V.
+	self assert: instance unsizedText last equals: $Z.!
+
 unsizedSize
 
 	^reStore connection class = SSWODBCConnection 
@@ -306,6 +350,7 @@ unsizedSize
 uuid
 
 	^GUID fromString: '{e8beea63-43db-41e6-99e4-f31a64abd779}'! !
+
 !SSWReStoreTypeTest categoriesForMethods!
 addClassesTo:!public!running! !
 createTestData!public!running! !
@@ -332,6 +377,8 @@ testUTF8_4!public!unit tests! !
 testUTF8_mixed!public!unit tests! !
 testUUID!public!unit tests! !
 testUUIDQuery!public!unit tests! !
+testVeryLargeBlob!public!unit tests! !
+testVeryLargeString!public!unit tests! !
 unsizedSize!constants!public! !
 uuid!constants!public! !
 !

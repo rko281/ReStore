@@ -5,8 +5,8 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
+	add: #SSWMariaDBDialect;
 	add: #SSWMSAccess2013Dialect;
 	add: #SSWMSAccessDialect;
 	add: #SSWMySQLDialect;
@@ -47,6 +47,7 @@ package methodNames
 	add: #Date -> #asSQLStringIn:;
 	add: #DateAndTime -> #asSQLStringIn:;
 	add: #False -> #asSQLStringIn:;
+	add: #Object -> #asSQLStringIn:;
 	add: #Object -> #ifNull:;
 	add: #Object -> #ifNull:ifNotNull:;
 	add: #Object -> #isSQLNull;
@@ -106,139 +107,168 @@ Object subclass: #SSWSQLDialect
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWSQLFieldValueConjunction
 	instanceVariableNames: 'field value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWSQLFunction
 	instanceVariableNames: 'parameterizedString resultParamIndex staticResultClass isAggregateFunction'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWSQLOperator
 	instanceVariableNames: 'sqlString messageSelector isInverted'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'messageSQLMap messageInverseSQLMap'!
+
 Object subclass: #SSWSQLParameterField
 	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWSQLQueryParameter
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWSQLTable
 	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWSQLTableComponent
 	instanceVariableNames: 'table'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 OrderedCollection variableSubclass: #SSWSQLCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLCollection variableSubclass: #SSWSQLConditionCollection
 	instanceVariableNames: 'sqlConcatenator'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLCollection variableSubclass: #SSWSQLFieldAssignmentCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLCollection variableSubclass: #SSWSQLFieldCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLCollection variableSubclass: #SSWSQLTableCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLTableCollection variableSubclass: #SSWSQLJoinedTableCollection
 	instanceVariableNames: 'joinConditions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLJoinedTableCollection variableSubclass: #SSWSQLLeftJoinedTableCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLDialect subclass: #SSWMSAccessDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLDialect subclass: #SSWMySQLDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLDialect subclass: #SSWPostgreSQLDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLDialect subclass: #SSWSQLiteDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLDialect subclass: #SSWSQLServerDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWMSAccessDialect subclass: #SSWMSAccess2013Dialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
+SSWMySQLDialect subclass: #SSWMariaDBDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
 SSWSQLFieldValueConjunction subclass: #SSWSQLCondition
 	instanceVariableNames: 'operator'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLFieldValueConjunction subclass: #SSWSQLFieldAssignment
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLTableComponent subclass: #SSWSQLField
 	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLTableComponent subclass: #SSWSQLTableAllFields
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLField subclass: #SSWSQLFunctionField
 	instanceVariableNames: 'function arguments'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 WriteStream subclass: #SSWSQLWriteStream
 	instanceVariableNames: 'dialect fieldAliases tableAliases parameterizedFields parameterizedValues placeholderCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -250,6 +280,7 @@ then: trueValue else: otherValue
 	Really just here to prevent unimplemented selector warnings but can be used where image/database agnostic code is needed"
 
 	^self ifTrue: [trueValue] ifFalse: [otherValue]! !
+
 !Boolean categoriesForMethods!
 then:else:!control flow!public! !
 !
@@ -259,6 +290,7 @@ then:else:!control flow!public! !
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect boolean! !
+
 !Boolean class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -274,6 +306,7 @@ writeSQLOn: aStream forField: aField
 
 	"Opt out of the Collection implementation"
 	^aStream nextPut: self forField: aField! !
+
 !ByteArray categoriesForMethods!
 writeSQLOn:!printing!public! !
 writeSQLOn:forField:!printing!public! !
@@ -284,6 +317,7 @@ writeSQLOn:forField:!printing!public! !
 writeSQLTypeOn: aStream using: aSQLDialect
 
 	aStream nextPutAll: aSQLDialect blob! !
+
 !ByteArray class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -295,6 +329,7 @@ reStoreValue
 	"As far as SQL is concerned, a Character == a String"
 	
 	^String with: self! !
+
 !Character categoriesForMethods!
 reStoreValue!accessing!public! !
 !
@@ -320,6 +355,7 @@ writeSQLOn: aStream with: aBlock
 		separatedBy: [aStream nextPut: $,].
 	
 	aStream nextPut: $)! !
+
 !Collection categoriesForMethods!
 writeSQLOn:!printing!public! !
 writeSQLOn:forField:!printing!public! !
@@ -331,6 +367,7 @@ writeSQLOn:with:!printing!private! !
 asSQLStringIn: aSQLDialect
 
 	^aSQLDialect dateStringFor: self! !
+
 !Date categoriesForMethods!
 asSQLStringIn:!converting!public! !
 !
@@ -340,6 +377,7 @@ asSQLStringIn:!converting!public! !
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	^aStream nextPutAll: anSQLDialect date! !
+
 !Date class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -349,6 +387,7 @@ writeSQLTypeOn:using:!printing!public! !
 asSQLStringIn: aSQLDialect
 
 	^aSQLDialect dateAndTimeStringFor: self! !
+
 !DateAndTime categoriesForMethods!
 asSQLStringIn:!converting!public! !
 !
@@ -358,6 +397,7 @@ asSQLStringIn:!converting!public! !
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect datetime! !
+
 !DateAndTime class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -368,6 +408,7 @@ asSQLStringIn: aSQLDialect
 
 	"ASSERT: falseObject is a String in this dialect"
 	^aSQLDialect falseObject! !
+
 !False categoriesForMethods!
 asSQLStringIn:!converting!public! !
 !
@@ -377,6 +418,7 @@ asSQLStringIn:!converting!public! !
 writeSQLTypeOn: aStream  using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect double! !
+
 !Float class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -388,6 +430,7 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 	"Use INT - long integer"
 	
 	aStream nextPutAll: anSQLDialect integer! !
+
 !Integer class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -399,6 +442,7 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 	"Map LargeInteger to (typically) BIGINT"
 	
 	aStream nextPutAll: anSQLDialect largeInteger! !
+
 !LargeInteger class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -411,6 +455,7 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	Use a VARCHAR at 128 characters"
 	
 	(String maxSize: 128) writeSQLTypeOn: aStream using: anSQLDialect! !
+
 !Metaclass class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -422,11 +467,16 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 	"Default to single float"
 	
 	aStream nextPutAll: anSQLDialect float! !
+
 !Number class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
 
 !Object methodsFor!
+
+asSQLStringIn: aSQLDialect
+
+	^self asAnsiString!
 
 ifNull: aValue
 
@@ -468,7 +518,9 @@ writeSQLOn: aStream forCondition: aSQLCondition
 writeSQLOn: aStream forField: aField
 
 	^aStream nextPut: self forField: aField! !
+
 !Object categoriesForMethods!
+asSQLStringIn:!public!restore-internal! !
 ifNull:!control flow!public! !
 ifNull:ifNotNull:!control flow!public! !
 isSQLNull!public!testing! !
@@ -485,6 +537,7 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	"If not overriden, assume a persistent class with a unique ID"
 	
 	self reStoreIDClass writeSQLTypeOn: aStream using: anSQLDialect! !
+
 !Object class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -496,6 +549,7 @@ writeSQLOn: aStream
 	"We don't want the s postfix"
 
 	self displayOn: aStream! !
+
 !ScaledDecimal categoriesForMethods!
 writeSQLOn:!printing!public! !
 !
@@ -505,6 +559,7 @@ writeSQLOn:!printing!public! !
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: ((anSQLDialect blobTypeForSize: self fieldSize) expandMacrosWith: self fieldSize)! !
+
 !SSWDBByteArrayWithInfo categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -514,6 +569,7 @@ writeSQLTypeOn:using:!printing!public! !
 writeSQLTypeOn: aStream  using: anSQLDialect
 
 	aStream nextPutAll: (anSQLDialect datetimeWithResolution expandMacrosWith: self resolution)! !
+
 !SSWDBDateAndTimeWithResolution categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -527,6 +583,7 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	(self fieldSize > anSQLDialect maxChar)
 		ifTrue: [aStream nextPutAll: (anSQLDialect unsizedStringTypeForSize: self fieldSize)]
 		ifFalse: [aStream nextPutAll: (anSQLDialect char expandMacrosWith: self fieldSize)]! !
+
 !SSWDBFixedStringWithInfo categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -544,6 +601,7 @@ writeSQLTypeOn: aStream  using: anSQLDialect
 		ifFalse: [actualPrecision := self precision].
 
 	aStream nextPutAll: (anSQLDialect decimal expandMacrosWith: actualPrecision with: self scale)! !
+
 !SSWDBScaledDecimalWithInfo categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -557,6 +615,7 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	(self fieldSize > anSQLDialect maxVarchar)
 		ifTrue: [aStream nextPutAll: (anSQLDialect unsizedStringTypeForSize: self fieldSize)]
 		ifFalse: [aStream nextPutAll: (anSQLDialect varchar expandMacrosWith: self fieldSize)]! !
+
 !SSWDBVariableStringWithInfo categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -596,6 +655,7 @@ writeSQLOn: aStream forField: aField
 
 	"Opt out of the Collection implementation"
 	^aStream nextPut: self forField: aField! !
+
 !String categoriesForMethods!
 asSQLFunction!converting!public! !
 asSQLFunctionBooleanResult!converting!public! !
@@ -613,6 +673,7 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	"As this is the non-sized variant, use a reasonably-sized variable text type"
 	
 	aStream nextPutAll: anSQLDialect unsizedString! !
+
 !String class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -622,6 +683,7 @@ writeSQLTypeOn:using:!printing!public! !
 asSQLStringIn: aSQLDialect
 
 	^aSQLDialect timeStringFor: self! !
+
 !Time categoriesForMethods!
 asSQLStringIn:!converting!public! !
 !
@@ -631,6 +693,7 @@ asSQLStringIn:!converting!public! !
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	aStream nextPutAll: anSQLDialect time! !
+
 !Time class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
@@ -641,6 +704,7 @@ asSQLStringIn: aSQLDialect
 
 	"ASSERT: trueObject is a String in this dialect"
 	^aSQLDialect trueObject! !
+
 !True categoriesForMethods!
 asSQLStringIn:!converting!public! !
 !
@@ -659,6 +723,7 @@ writeSQLOn: aStream forCondition: aSQLCondition
 
 	"Do not parameterize - NULL not allowed as parameterized condition value in some DBs"
 	self writeSQLOn: aStream! !
+
 !UndefinedObject categoriesForMethods!
 isSQLNull!public!testing! !
 writeSQLOn:!printing!public! !
