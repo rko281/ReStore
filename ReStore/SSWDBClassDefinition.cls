@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBClassDefinition
 	instanceVariableNames: 'definedClass instVarDefinitions tableName idInstVar namespace'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBClassDefinition guid: (GUID fromString: '{0be1d2d5-2bb0-4ac3-959a-a758bb4dee08}')!
+
 SSWDBClassDefinition comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBClassDefinition categoriesForClass!Kernel-Objects! !
+
 !SSWDBClassDefinition methodsFor!
 
 addDefinitionToTable: aDBTable
@@ -104,22 +108,25 @@ tableName: aString
 	Normally this is automatically generated based on the class's name."
 
 	tableName := aString! !
-!SSWDBClassDefinition categoriesFor: #addDefinitionToTable:!defining!private! !
-!SSWDBClassDefinition categoriesFor: #asTableIn:!converting!public! !
-!SSWDBClassDefinition categoriesFor: #define:as:!defining!public! !
-!SSWDBClassDefinition categoriesFor: #defineAsID:!accessing!defining!public! !
-!SSWDBClassDefinition categoriesFor: #definedClass!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #definedClass:!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #idInstVar!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #idInstVar:!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #instVarDefinitions!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #instVarDefinitions:!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #isEmpty!public!testing! !
-!SSWDBClassDefinition categoriesFor: #name:!accessing!defining!public! !
-!SSWDBClassDefinition categoriesFor: #namespace!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #namespace:!accessing!public! !
-!SSWDBClassDefinition categoriesFor: #tableName!accessing!private! !
-!SSWDBClassDefinition categoriesFor: #tableName:!accessing!defining!public! !
+
+!SSWDBClassDefinition categoriesForMethods!
+addDefinitionToTable:!defining!private! !
+asTableIn:!converting!public! !
+define:as:!defining!public! !
+defineAsID:!accessing!defining!public! !
+definedClass!accessing!private! !
+definedClass:!accessing!private! !
+idInstVar!accessing!private! !
+idInstVar:!accessing!private! !
+instVarDefinitions!accessing!private! !
+instVarDefinitions:!accessing!private! !
+isEmpty!public!testing! !
+name:!accessing!defining!public! !
+namespace!accessing!private! !
+namespace:!accessing!public! !
+tableName!accessing!private! !
+tableName:!accessing!defining!public! !
+!
 
 !SSWDBClassDefinition class methodsFor!
 
@@ -129,5 +136,8 @@ forClass: aClass
 		definedClass: aClass;
 		instVarDefinitions: OrderedCollection new;
 		yourself! !
-!SSWDBClassDefinition class categoriesFor: #forClass:!instance creation!public! !
+
+!SSWDBClassDefinition class categoriesForMethods!
+forClass:!instance creation!public! !
+!
 

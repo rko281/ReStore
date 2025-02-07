@@ -311,7 +311,7 @@ columnIn:!accessing!public! !
 
 asParameterColumn: anInteger for: aStatement
 
-	^(super asParameterColumn: anInteger for: aStatement)
+	^(super asParameterColumn: anInteger for: aStatement) copyForFunction
 		isFunctionParameter: true;
 		yourself! !
 

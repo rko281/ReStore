@@ -61,6 +61,12 @@ configureToHoldString: aString
 
 	!
 
+copyForFunction
+
+	^self copy
+		resetType;
+		yourself!
+
 field
 
 	"field stores the SSWSQLField from a SELECT query 
@@ -102,6 +108,7 @@ postCreate
 	sqlType = SQL_BINARY ifFalse: [^self].
 
 	self 
+		resetType;
 		type: SQL_LONGVARBINARY;
 		length: self maxBoundBufferSize!
 
@@ -109,9 +116,14 @@ precision
 
 	^super precision ifNil: [0]!
 
+resetType
+
+	sqlType := nil!
+
 type: anInteger
 	"Private - Set the sqlType instance variable to anInteger."
 
+	sqlType notNil ifTrue: [self error: 'attempt to reconfigure column type'].
 	sqlType := anInteger.
 	self bufferClass: (SSWODBCBufferClasses at: anInteger
 				ifAbsent: [self error: 'Unmarshallable column: ' , self printString])!
@@ -125,6 +137,7 @@ configureToHold:!accessing!initializing!public! !
 configureToHoldByteArray:!accessing!initializing!private! !
 configureToHoldNumber:!accessing!initializing!private! !
 configureToHoldString:!accessing!initializing!private! !
+copyForFunction!copying!public! !
 field!accessing!public! !
 field:!accessing!public! !
 initialize!initializing!public! !
@@ -134,6 +147,7 @@ maxBoundBufferSize!accessing!private! !
 maxBoundBufferSize:!accessing!private! !
 postCreate!accessing!private! !
 precision!public! !
+resetType!initializing!public! !
 type:!initializing!public! !
 writeSQLOn:!printing!public! !
 !

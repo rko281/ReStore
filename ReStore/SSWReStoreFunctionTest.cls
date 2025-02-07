@@ -5,11 +5,15 @@ SSWReStoreQueryTest subclass: #SSWReStoreFunctionTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreFunctionTest guid: (GUID fromString: '{c689d42a-c99a-43b0-8365-4f70102d7fb8}')!
+
 SSWReStoreFunctionTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreFunctionTest categoriesForClass!Unclassified! !
+
 !SSWReStoreFunctionTest methodsFor!
 
 addClassesTo: aReStore
@@ -17,6 +21,45 @@ addClassesTo: aReStore
 	super addClassesTo: aReStore.
 	aReStore
 		addClass: SimpleProductOrder!
+
+testArgumentsAreParameterized
+
+	"Test a previously-failing case where Date arguments to BETWEEN...AND were not parameterized and passed to the query as their printString (e.g. '1 January 2025')"
+
+	| product template po1 po2 orders results |
+
+	product := SimpleProduct new description: 'test'; storeIn: reStore; yourself.
+
+	template := 
+		SimpleProductOrder new
+			customer: (SimplePerson storedInstancesIn: reStore) anyOne;
+			product: product;
+			quantity: 1;
+			yourself.
+
+	po1 := template copy date: (Date year: 2024 month: 1 day: 1); storeIn: reStore; yourself.
+	po2 := template copy date: (Date year: 2024 month: 12 day: 1); storeIn: reStore; yourself.
+
+	orders := SimpleProductOrder storedInstancesIn: reStore.
+
+	"Test for previous failure"
+	self shouldnt: [results := orders select: [ :each | each date between: (Date year: 2024 month: 1 day: 1) and: (Date year: 2024 month: 12 day: 31)]] raise: Error.
+
+	self assert: results size equals: 2.
+	self assert: (results identityIncludes: po1).
+	self assert: (results identityIncludes: po2).
+
+	results := orders select: [ :each | each date between: (Date year: 2024 month: 1 day: 1) and: (Date year: 2024 month: 1 day: 31)].
+	self assert: results size equals: 1.
+	self assert: results first identicalTo: po1.
+
+	results := orders select: [ :each | each date between: (Date year: 2024 month: 12 day: 1) and: (Date year: 2024 month: 12 day: 31)].
+	self assert: results size equals: 1.
+	self assert: results first identicalTo: po2.
+
+	results := orders select: [ :each | each date between: (Date year: 2025 month: 1 day: 1) and: (Date year: 2025 month: 12 day: 31)].
+	self assert: results isEmpty.
+!
 
 testConditionAsFunctionReceiver
 
@@ -125,8 +168,10 @@ testTargetFieldFromArgument
 	results := (SimplePerson storedInstancesIn: reStore) collect: [ :each | each || ((each age > 20) then: each else: each friend)].
 
 	self assert: (results allSatisfy: [ :each | each first age > 20 ifTrue: [each last == each first] ifFalse: [each last == each first friend]])! !
+
 !SSWReStoreFunctionTest categoriesForMethods!
 addClassesTo:!public!Running! !
+testArgumentsAreParameterized!public!unit tests! !
 testConditionAsFunctionReceiver!public!unit tests! !
 testDifferentClassAsFunctionCriteriaDateYear!public!unit tests! !
 testDifferentClassAsFunctionCriteriaStringSize!public!unit tests! !
@@ -143,6 +188,7 @@ testTargetFieldFromArgument!public!unit tests! !
 shouldInheritSelectors
 
 	^false! !
+
 !SSWReStoreFunctionTest class categoriesForMethods!
 shouldInheritSelectors!public! !
 !

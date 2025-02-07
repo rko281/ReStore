@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBQueryField subclass: #SSWDBFunctionField
 	instanceVariableNames: 'function arguments'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBFunctionField guid: (GUID fromString: '{266e4dc9-398e-11d5-b1df-444553540000}')!
+
 SSWDBFunctionField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBFunctionField categoriesForClass!Unclassified! !
+
 !SSWDBFunctionField methodsFor!
 
 anySatisfy: aBlock
@@ -103,7 +107,8 @@ writeSQLOn: aStream
 			argIndex := funcStream next digitValue - 1.
 			argIndex = 0
 				ifTrue: [self field writeSQLOn: aStream]
-				ifFalse: [(self arguments at: argIndex) writeSQLOn: aStream]]]! !
+				ifFalse: [(self arguments at: argIndex) writeSQLOn: aStream forField: self]]]! !
+
 !SSWDBFunctionField categoriesForMethods!
 anySatisfy:!public!testing! !
 arguments!accessing!public! !

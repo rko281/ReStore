@@ -5,7 +5,6 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
 	add: #DolphinTypeTest;
 	add: #Where;
@@ -31,6 +30,7 @@ package methodNames
 	add: #SSWReStoreDebugTest -> #testFlipperInspectorIsInIDECallStack;
 	add: #SSWReStoreDebugTest -> #testWorkspaceIsInIDECallStack;
 	add: #SSWReStoreFullTableTest -> #test21VerifyLegacyNameTransformationMode;
+	add: #SSWReStoreFunctionTest -> #testFunctionsDontCorruptODBCFieldDefinition;
 	add: #SSWReStoreFunctionTest -> #testPlatformSpecificFunction;
 	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern1:;
 	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern2:;
@@ -99,6 +99,7 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
 	'..\Core\Object Arts\Dolphin\IDE\Base\Development System'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
@@ -118,14 +119,12 @@ Object subclass: #Where
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 TypeTest subclass: #DolphinTypeTest
 	instanceVariableNames: 'timeStamp'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -196,6 +195,7 @@ testNotNilJumpBytecodePattern4
 	"JumpIfNotNil to non-return without ^True in jumped-over code "
 
 	^(self friend notNil or: [self test isNil]) and: [self firstName = 'Zoe']! !
+
 !SimplePerson categoriesForMethods!
 friendSurnameOrNil!public! !
 testIsNilJumpBytecodePattern1!public!testing! !
@@ -215,6 +215,7 @@ testNotNilJumpBytecodePattern4!public!testing! !
 freeIgnoringFinalizer
 
 	Processor activeProcess == MemoryManager current finalizer ifFalse: [super free]! !
+
 !SSWODBCStatement categoriesForMethods!
 freeIgnoringFinalizer!operations!public! !
 !
@@ -231,6 +232,7 @@ note
 
 (0 to: 255) allSatisfy: [ :b1 | 
 	(0 to: 255) allSatisfy: [ :b2 | ((ByteArray with: b1 with: b2) swordAtOffset: 0) = (ByteCodeDispatcher decodeLongJump: b1 byte2: b2)]]"! !
+
 !SSWReStoreBlockAndOrQueryTest categoriesForMethods!
 note!public!Running! !
 !
@@ -278,6 +280,7 @@ testWorkspaceIsInIDECallStack
 
 	workspaceDocument := SmalltalkWorkspaceDocument create.
 	[self deny: (self evaluateIsInIDECallStackIn: workspaceDocument workspace)] ensure: [workspaceDocument exit]! !
+
 !SSWReStoreDebugTest categoriesForMethods!
 evaluateIsInIDECallStackIn:!helpers!private! !
 testBasicInspectorIsInIDECallStack!public!unit tests! !
@@ -312,11 +315,53 @@ test21VerifyLegacyNameTransformationMode
 	ifFalse: 
 		[self assert: table name equals: 'WHERE_0'.
 		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD']! !
+
 !SSWReStoreFullTableTest categoriesForMethods!
 test21VerifyLegacyNameTransformationMode!public!unit tests! !
 !
 
 !SSWReStoreFunctionTest methodsFor!
+
+testFunctionsDontCorruptODBCFieldDefinition
+
+	"Test a previously-failing case where a function applied to a field could corrupt the field definition in the 'new' Dolphin ODBC implementation"
+
+	| date product order table columns column |
+
+	"Only relevant to ODBC connections"
+	reStore connection class = SSWODBCConnection ifFalse: [^self].
+
+	date := Date year: 2024 month: 1 day: 1.
+	product := SimpleProduct new description: 'test'; storeIn: reStore; yourself.
+	order :=
+		SimpleProductOrder new
+			customer: (SimplePerson storedInstancesIn: reStore) anyOne;
+			product: product;
+			quantity: 1;
+			date: date;
+			storeIn: reStore;
+			yourself.
+
+	
+	table := reStore tableForClass: SimpleProductOrder.
+	columns := reStore connection columnDescriptions at: table.
+	column := columns at: (table fieldAccessing: #date).
+
+	"Test definition after simple query"
+	self assert: ((SimpleProductOrder storedInstancesIn: reStore) detect: [ :each | each date = date] ifNone: [nil]) identicalTo: order.
+	self assert: column type = ODBCTypes.SQL_TYPE_DATE.
+	self assert: column bufferClass equals: SQL_DATE_STRUCT.
+
+	"Query with a function applied to date - previously this changed the column bufferClass to SWORD"
+	self assert: ((SimpleProductOrder storedInstancesIn: reStore) detect: [ :each | each date year = 2024] ifNone: [nil]) identicalTo: order.
+	self assert: column type = ODBCTypes.SQL_TYPE_DATE.
+	self assert: column bufferClass equals: SQL_DATE_STRUCT.
+
+	"Re-test simple query"
+	self assert: ((SimpleProductOrder storedInstancesIn: reStore) detect: [ :each | each date = date] ifNone: [nil]) identicalTo: order.
+	self assert: column type = ODBCTypes.SQL_TYPE_DATE.
+	self assert: column bufferClass equals: SQL_DATE_STRUCT.
+!
 
 testPlatformSpecificFunction
 
@@ -330,7 +375,9 @@ testPlatformSpecificFunction
 	expectedResults := (1 to: 12) collect: [ :index | {12 - index. index}].
 	results := (SimpleProductOrder storedInstancesIn: reStore) collect: [ :each | each quantity || each date month].
 	self assert: (results asSortedCollection: [ :a :b | a first >= b first]) asArray equals: expectedResults! !
+
 !SSWReStoreFunctionTest categoriesForMethods!
+testFunctionsDontCorruptODBCFieldDefinition!public!unit tests! !
 testPlatformSpecificFunction!public!unit tests! !
 !
 
@@ -592,6 +639,7 @@ testMethodIsNilJumpBytecodePattern4
 	results := instances select: [ :each | each testIsNilJumpBytecodePattern4].
 
 	self assert: results size equals: 1! !
+
 !SSWReStoreIsNilQueryTest categoriesForMethods!
 assertIsNilJumpBytecodePattern1:!helpers!private! !
 assertIsNilJumpBytecodePattern2:!helpers!private! !
@@ -872,6 +920,7 @@ testNotNilJumpBytecodePattern4
 	results := instances select: [ :each | (each friend notNil or: [each test isNil]) and: [each firstName = 'Zoe']].
 
 	self assert: results size equals: 1! !
+
 !SSWReStoreNotNilQueryTest categoriesForMethods!
 assertMethodNotNilJumpBytecodePattern1:!helpers!private! !
 assertMethodNotNilJumpBytecodePattern2:!helpers!private! !
@@ -909,6 +958,7 @@ testQueryWithIfTrueMethodFollowedByOr
 
 	self assert: smiths size = 2.
 	self assert: ((smiths collect: [ :each | each firstName]) asSortedCollection asArray) equals: #('John' 'Zoe')! !
+
 !SSWReStoreQueryTest categoriesForMethods!
 testQueryWithIfTrueMethodFollowedByOr!public!unit tests! !
 !
@@ -942,6 +992,7 @@ _testStatementFreedAfter: aBlock
 	self assert: (newStatements allSatisfy: [ :each | each handle isNull])] ensure: [self removeSelector: #free fromClass: SSWODBCStatement].
 
 	templateStatement free! !
+
 !SSWReStoreResourcesTest categoriesForMethods!
 _testStatementFinalizedAfter:!helpers!private! !
 _testStatementFreedAfter:!helpers!private! !
@@ -977,6 +1028,7 @@ test21VerifyLegacyNameTransformationMode
 		self assert: (table fieldAccessing: #select) name equals: 'SELECT_FIELD'.
 		"Also check a system class - previously was not reset to new strategy"
 		self assert: (reStore tableForClass: SSWDBTableRecord) name = 'NEXT_ID']! !
+
 !SSWReStoreTableTest categoriesForMethods!
 test21VerifyLegacyNameTransformationMode!public!unit tests! !
 !
@@ -1031,6 +1083,7 @@ removeSelector: aSymbol fromClass: aClass
 
 	aClass methodDictionary removeKey: aSymbol.
 	aClass flushMethodCache! !
+
 !SSWReStoreTest categoriesForMethods!
 addMethod:withSelector:toClass:!public!running! !
 debugStream!public!running! !
@@ -1068,6 +1121,7 @@ queryCount
 resetQueryCount
 
 	queryCount := 0! !
+
 !SSWReStoreTest class categoriesForMethods!
 incrementQueryCount!public! !
 isDolphin!public!testing! !
@@ -1092,6 +1146,7 @@ testTimeStamp
 	t := (DolphinTypeTest storedInstancesIn: reStore) detect: [ :each | each timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil].
 	self assert: t notNil.
 	self assert: t timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ensure: [reStore destroyClass: DolphinTypeTest]! !
+
 !SSWReStoreTypeTest categoriesForMethods!
 testTimeStamp!public!unit tests! !
 !

@@ -1,20 +1,28 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWSQLFieldValueConjunction
 	instanceVariableNames: 'field value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLFieldValueConjunction guid: (GUID fromString: '{6266c928-3983-11d5-b1df-444553540000}')!
+
 SSWSQLFieldValueConjunction comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWSQLFieldValueConjunction categoriesForClass!Unclassified! !
+
 !SSWSQLFieldValueConjunction methodsFor!
 
 = anSSWSQLFieldValueConjunction
 
 	^self field = anSSWSQLFieldValueConjunction field and: [self value = anSSWSQLFieldValueConjunction value]!
+
+canBeParameterized
+
+	^false!
 
 field
 
@@ -67,16 +75,20 @@ writeSQLOn: aStream
 writeValueSQLOn: aStream
 
 	self value writeSQLOn: aStream forField: self field! !
-!SSWSQLFieldValueConjunction categoriesFor: #=!comparing!public! !
-!SSWSQLFieldValueConjunction categoriesFor: #field!accessing!public! !
-!SSWSQLFieldValueConjunction categoriesFor: #field:!accessing!public! !
-!SSWSQLFieldValueConjunction categoriesFor: #hash!comparing!public! !
-!SSWSQLFieldValueConjunction categoriesFor: #value!accessing!public! !
-!SSWSQLFieldValueConjunction categoriesFor: #value:!accessing!public! !
-!SSWSQLFieldValueConjunction categoriesFor: #writeConjunctionSQLOn:!output!private! !
-!SSWSQLFieldValueConjunction categoriesFor: #writeFieldSQLOn:!output!private! !
-!SSWSQLFieldValueConjunction categoriesFor: #writeSQLOn:!output!public! !
-!SSWSQLFieldValueConjunction categoriesFor: #writeValueSQLOn:!output!private! !
+
+!SSWSQLFieldValueConjunction categoriesForMethods!
+=!comparing!public! !
+canBeParameterized!output!public! !
+field!accessing!public! !
+field:!accessing!public! !
+hash!comparing!public! !
+value!accessing!public! !
+value:!accessing!public! !
+writeConjunctionSQLOn:!output!private! !
+writeFieldSQLOn:!output!private! !
+writeSQLOn:!output!public! !
+writeValueSQLOn:!output!private! !
+!
 
 !SSWSQLFieldValueConjunction class methodsFor!
 
@@ -86,5 +98,8 @@ field: anSSWDBField value: aValue
 		field: anSSWDBField;
 		value: aValue;
 		yourself! !
-!SSWSQLFieldValueConjunction class categoriesFor: #field:value:!instance creation!public! !
+
+!SSWSQLFieldValueConjunction class categoriesForMethods!
+field:value:!instance creation!public! !
+!
 
