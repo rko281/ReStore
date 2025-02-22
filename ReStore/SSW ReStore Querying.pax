@@ -5,7 +5,6 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
 	add: #ConcatenatedCollection;
 	add: #RequiredUndefinedObject;
@@ -90,104 +89,120 @@ Object subclass: #RequiredUndefinedObject
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'soleInstance'!
+
 Object subclass: #SSWDBBlockParser
 	instanceVariableNames: 'reStore argumentClass argumentTable referencedTables qualifyingConditions qualifyingTables orderingSpecs groupByFields activeReceiver isCollectingAssociations fieldEncounters'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBDumbArgument
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'current'!
+
 Object subclass: #SSWDBInstancesCollection
 	instanceVariableNames: 'reStore instancesClass parser sortBlock preReadActions postReadActions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #WildcardString
 	instanceVariableNames: 'string'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 OrderedCollection variableSubclass: #ConcatenatedCollection
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLConditionCollection variableSubclass: #SSWDBQueryConditionCollection
 	instanceVariableNames: 'parser blockEndpoint postCondition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLFieldCollection variableSubclass: #SSWDBQueryFieldCollection
 	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Error subclass: #SSWDBParseError
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryTableField subclass: #SSWDBQueryIDField
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLCondition subclass: #SSWDBQueryCondition
 	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 PositionableStream subclass: #SSWDBReadStream
 	instanceVariableNames: 'instancesCollection peeked'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBReadStream subclass: #SSWDBForwardOnlyReadStream
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBProtoObject subclass: #SSWDBBlockEvaluator
 	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBBlockEvaluator subclass: #SSWDBBlockArgument
 	instanceVariableNames: 'currentClass isForModify finalFields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBBlockEvaluator subclass: #SSWDBCollectionBlockReceiver
 	instanceVariableNames: 'collectionSpec collection currentMode'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBBlockArgument subclass: #SSWDBBlockReceiver
 	instanceVariableNames: 'currentTable path'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBBlockArgument subclass: #SSWDBInlinedBlockReceiver
 	instanceVariableNames: 'inlinedInstVar inlinedFields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionBlockReceiver subclass: #SSWDBGeneralCollectionBlockReceiver
 	instanceVariableNames: 'intermediateCollection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionBlockReceiver subclass: #SSWDBOwnedCollectionBlockReceiver
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -199,6 +214,7 @@ asSQLConditions
 
 	"Always true = no conditions"
 	^SSWSQLConditionCollection forAND! !
+
 !Boolean categoriesForMethods!
 asSQLConditions!converting!public! !
 !
@@ -208,6 +224,7 @@ asSQLConditions!converting!public! !
 isPersistentIn: anSSWReStore
 
 	^anSSWReStore isClassPersistent: self! !
+
 !Class categoriesForMethods!
 isPersistentIn:!private!testing! !
 !
@@ -217,6 +234,7 @@ isPersistentIn:!private!testing! !
 _id
 
 	^self! !
+
 !DeafObject categoriesForMethods!
 _id!accessing!public! !
 !
@@ -279,6 +297,7 @@ similarityComparator
 	"Private - Default is equality"
 
 	^#=! !
+
 !Object categoriesForMethods!
 ||!converting!public! !
 concatenatedWith:!double dispatch!private! !
@@ -297,6 +316,7 @@ isPersistentIn: anSSWReStore
 	"Required class-like behavior"
 
 	^false! !
+
 !SSWDBClassWithInfo categoriesForMethods!
 isPersistentIn:!private!testing! !
 !
@@ -308,6 +328,7 @@ dbBlockCollectionReceiver
 	"Return a block receiver object suitable for parsing (mainly) subqueries involving the receiver"
 
 	^self subclassResponsibility! !
+
 !SSWDBCollectionSpec categoriesForMethods!
 dbBlockCollectionReceiver!accessing!public! !
 !
@@ -317,6 +338,7 @@ dbBlockCollectionReceiver!accessing!public! !
 forConcatenation
 
 	^SSWDBQueryConditionCollection with: self! !
+
 !SSWDBFunctionField categoriesForMethods!
 forConcatenation!converting!public! !
 !
@@ -330,6 +352,7 @@ dbBlockCollectionReceiver
 	^SSWDBGeneralCollectionBlockReceiver new
 		collectionSpec: self;
 		yourself! !
+
 !SSWDBGeneralCollectionSpec categoriesForMethods!
 dbBlockCollectionReceiver!accessing!public! !
 !
@@ -343,6 +366,7 @@ dbBlockCollectionReceiver
 	^SSWDBOwnedCollectionBlockReceiver new
 		collectionSpec: self;
 		yourself! !
+
 !SSWDBOwnedCollectionSpec categoriesForMethods!
 dbBlockCollectionReceiver!accessing!public! !
 !
@@ -352,6 +376,7 @@ dbBlockCollectionReceiver!accessing!public! !
 asSQLFields
 
 	^self! !
+
 !SSWDBQueryField categoriesForMethods!
 asSQLFields!converting!public! !
 !
@@ -400,6 +425,7 @@ writeAliasedSQLOn: aStream
 	"For situations where a condition is being used as a result field in a query"
 
 	aStream nextPutAliasedField: self! !
+
 !SSWSQLCondition categoriesForMethods!
 convertValue:!output!public! !
 fieldNamed:!accessing!public! !
@@ -448,6 +474,7 @@ writeAliasedSQLOn: aStream
 	"For situations where a condition is being used as a result field in a query"
 
 	aStream nextPutAliasedField: self! !
+
 !SSWSQLConditionCollection categoriesForMethods!
 convertValue:!output!public! !
 fieldNamed:!accessing!public! !
@@ -466,6 +493,7 @@ asSQLFields
 hasAggregateFunction
 
 	^false! !
+
 !SSWSQLParameterField categoriesForMethods!
 asSQLFields!converting!public! !
 hasAggregateFunction!public!testing! !
@@ -479,6 +507,7 @@ asWildcard
 		string: self;
 		yourself
 ! !
+
 !String categoriesForMethods!
 asWildcard!converting!public! !
 !
@@ -496,6 +525,7 @@ required
 	"Return the 'required nil' object"
 
 	^RequiredUndefinedObject soleInstance! !
+
 !UndefinedObject categoriesForMethods!
 isRequiredForSimilarity!private!testing! !
 required!accessing!public! !

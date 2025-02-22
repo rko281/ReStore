@@ -20,7 +20,7 @@ _columnsInTable: aDBTable
 
 	"Private - Answer the list of columns in the table matching the specified search criteria"
 
-	| i stmt colAttrs maxBoundBufferSize |
+	| i stmt colAttrs maxBoundBufferSize shouldRequeryLongColumns toRequery |
 
 	self sqlDialect shouldUseColumnsStatement ifFalse: [^self _columnsInTableViaQuery: aDBTable].
 
@@ -32,22 +32,35 @@ _columnsInTable: aDBTable
 		columnName: nil.
 	i := 0.
 	maxBoundBufferSize := self sqlDialect maxColumnBytes.
+
+	(shouldRequeryLongColumns := self sqlDialect shouldRequeryLongColumnDefinitions) ifTrue: [toRequery := OrderedCollection new].
+
 	colAttrs := stmt results collect: 
-					[:each || name |
+					[:each || name coll |
 					i := i + 1.
 					name := each atIndex: 4.
 					"at: 'column_name'"	"at: 'DATA_TYPE'"	"at: 'LENGTH'"	"at: 'PRECISION'"	"at: 'SCALE'"
-					(SSWODBCColAttr new)
-						columnNumber: i;
-						name: name;
-						type: (each atIndex: 5);
-						length: (each atIndex: 8);
-						precision: (each atIndex: 7);
-						scale: (each atIndex: 9);
-						field: (aDBTable fieldNamed: name);
-						maxBoundBufferSize: maxBoundBufferSize;
-						yourself].
+					coll := 
+						(SSWODBCColAttr new)
+							columnNumber: i;
+							name: name;
+							type: (each atIndex: 5);
+							length: (each atIndex: 8);
+							precision: (each atIndex: 7);
+							scale: (each atIndex: 9);
+							field: (aDBTable fieldNamed: name);
+							maxBoundBufferSize: maxBoundBufferSize;
+							yourself.
+					(shouldRequeryLongColumns and: [(#(-4 -1 -10) includes: coll type) and: [(DBVarFieldBuffer isLongColumn: coll) not]]) ifTrue: [toRequery add: coll].
+					coll].
 	stmt free.
+
+	shouldRequeryLongColumns  ifTrue: 
+		[toRequery do: 
+			[ :each || updated |
+			updated := (self columns: each name qualifier: nil owner: nil table: aDBTable name) first.
+			(DBVarFieldBuffer isLongColumn: updated) ifTrue: [each length: updated length]]].
+
 	^colAttrs!
 
 _columnsInTableViaQuery: aDBTable

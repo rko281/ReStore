@@ -8,6 +8,7 @@ https://github.com/rko281/ReStore'.
 package classNames
 	add: #SSWODBCBinaryBuffer;
 	add: #SSWODBCBoundBuffer;
+	add: #SSWODBCCharBuffer;
 	add: #SSWODBCColAttr;
 	add: #SSWODBCConnection;
 	add: #SSWODBCField;
@@ -18,6 +19,7 @@ package classNames
 	add: #SSWODBCStatement;
 	add: #SSWODBCVarBinaryBuffer;
 	add: #SSWODBCVarCharBuffer;
+	add: #SSWODBCWCharBuffer;
 	yourself.
 
 package methodNames
@@ -27,12 +29,14 @@ package methodNames
 	add: #DBErrorDetails -> #isCommunicationLinkFailure;
 	add: #DBErrorDetails -> #isInvalidCursorPosition;
 	add: #DBErrorDetails -> #isInvalidTransactionState;
+	add: #DBUnstructuredFieldBuffer -> #dbUnmarshalCharBuffer:in:;
 	add: #ODBCLibrary -> #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:;
 	add: #SSWDBField -> #asParameterColumn:for:;
 	add: #SSWDBField -> #columnIn:;
 	add: #SSWDBFunctionField -> #asParameterColumn:for:;
 	add: #SSWDBQueryField -> #asParameterColumn:for:;
 	add: #SSWDBStringWithInfo -> #dbMaxFieldSize;
+	add: #SSWMariaDBDialect -> #shouldRequeryLongColumnDefinitions;
 	add: #SSWMSAccessDialect -> #canDescribeParameters;
 	add: #SSWMSAccessDialect -> #shouldMaskSuccessWithInfo;
 	add: #SSWMySQLDialect -> #catalogNameForTable:;
@@ -47,6 +51,7 @@ package methodNames
 	add: #SSWSQLDialect -> #schemaNameForTable:;
 	add: #SSWSQLDialect -> #shouldCheckAutoCommit;
 	add: #SSWSQLDialect -> #shouldMaskSuccessWithInfo;
+	add: #SSWSQLDialect -> #shouldRequeryLongColumnDefinitions;
 	add: #SSWSQLDialect -> #shouldRollbackOnQuery;
 	add: #SSWSQLDialect -> #shouldUseColumnsStatement;
 	add: #SSWSQLDialect -> #tableNamesInNamespace:for:;
@@ -151,6 +156,12 @@ DBBinaryBuffer subclass: #SSWODBCBinaryBuffer
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
+DBCharBuffer subclass: #SSWODBCCharBuffer
+	instanceVariableNames: 'reStore'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
 DBVarBinaryBuffer subclass: #SSWODBCVarBinaryBuffer
 	instanceVariableNames: ''
 	classVariableNames: ''
@@ -159,6 +170,12 @@ DBVarBinaryBuffer subclass: #SSWODBCVarBinaryBuffer
 
 DBVarCharBuffer subclass: #SSWODBCVarCharBuffer
 	instanceVariableNames: 'sqlDialect'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+DBWCharBuffer subclass: #SSWODBCWCharBuffer
+	instanceVariableNames: 'reStore'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -252,6 +269,36 @@ sswODBCSubclass
 sswODBCSubclass!instance creation!public! !
 !
 
+!DBUnstructuredFieldBuffer methodsFor!
+
+dbUnmarshalCharBuffer: aDBField in: aReStore
+
+	"Private - Workaround for issues with function fields containing parameters seen in test cases:
+		SSWReStoreFunctionTest>>testConditionAsFunctionReceiver 
+		SSWReStoreFunctionTest>>testStaticValueAsFunctionResult
+	In both these cases the result from the hard-coded values in the function is mis-reported:
+	 - in the first case MariaDB ODBC Driver version 3.02.04.00 reports 'young' and 'old' as fixed-size CHAR fields of size 5 (i.e. the largest possible value; shorter values are null-terminated).
+	 - in the second case MySQL ODBC Driver 8.00.40.00 reports 1 and 2 as fixed-size CHAR instead of integer.
+
+	Attempt to handle cases such as these by coercing to the expected result type"
+
+	| targetClass |
+
+	"The standard case"
+	(aDBField column field ifNil: [true] ifNotNil: [ :field | (targetClass := field targetClass) = SSWDBFixedStringWithInfo]) ifTrue: [^self dbUnmarshal: aDBField].
+
+	"Simple coercion of the kind already encountered"
+	(targetClass includesBehavior: String) ifTrue: [^bytes upTo: $\x00].
+	(targetClass includesBehavior: Number) ifTrue: [^targetClass readFrom: bytes readStream].
+
+	"Take a punt on the targetClass being able to correctly convert from bytes - may be unreliable so signal this is happening"
+	Notification signal: 'Coercing <1p> to instance of <2d>' << {bytes. targetClass}.	
+	^targetClass instanceFromDBValue: bytes in: aReStore! !
+
+!DBUnstructuredFieldBuffer categoriesForMethods!
+dbUnmarshalCharBuffer:in:!operations!private! !
+!
+
 !GUID class methodsFor!
 
 dbMaxFieldSize
@@ -337,6 +384,41 @@ dbMaxFieldSize
 
 !SSWDBStringWithInfo categoriesForMethods!
 dbMaxFieldSize!accessing!public! !
+!
+
+!SSWMariaDBDialect methodsFor!
+
+shouldRequeryLongColumnDefinitions 
+
+	"Return whether this dialect should indivially requery the definitions of long columns.
+	
+	Here primarily to workaround an apparent bug in MariaDB ODBC driver 3.02.04.00 where, when requesting the definitions of a table's columns en masse, 
+	the length of a long column can be mis-reported as the length of the previous column in the table.
+
+	Example:
+
+		c := DBConnection new.
+		c dsn: 'MariaDB'; connect.
+
+		c exec: 'drop table if exists bug_test'.
+		c exec: 'create table bug_test (num integer, string longtext)'.
+		(c columns: 'bug_test') collect: [ :e | e name -> e length]. an OrderedCollection('num' -> 4 'string' -> 4)
+
+		c exec: 'drop table if exists bug_test'.
+		c exec: 'create table bug_test (num decimal(8,2), string longtext)'.
+		c columns: 'bug_test'.
+		(c columns: 'bug_test') collect: [ :e | e name -> e length]. an OrderedCollection('num' -> 10 'string' -> 10)
+
+	Requesting the long column details individually gives the correct result of zero: 
+
+		(c columns: 'string' qualifier: nil owner: nil table: 'bug_test') collect: [ :e | e name -> e length]. an OrderedCollection('string' -> 0)
+
+	A length of zero causes the column to be treated as 'long' - see DBVarFieldBuffer>>isLongColumn: aDBColAttr"
+
+	^true! !
+
+!SSWMariaDBDialect categoriesForMethods!
+shouldRequeryLongColumnDefinitions!public!testing! !
 !
 
 !SSWMSAccessDialect methodsFor!
@@ -428,6 +510,17 @@ shouldMaskSuccessWithInfo
 
 	^true!
 
+shouldRequeryLongColumnDefinitions 
+
+	"Return whether this dialect should individually requery the definitions of long columns.
+	
+	Here primarily to workaround an apparent bug in MariaDB ODBC driver 3.02.04.00 where, when requesting the definitions of a table's columns en masse, 
+	the length of a long column can be mis-reported as the length of the previous column in the table.
+
+	See definition in SSWMariaDBDialect for more info"
+
+	^false!
+
 shouldRollbackOnQuery
 
 	"Should the ODBC connection rollbackTxn following a query outside a Txn?"
@@ -456,6 +549,7 @@ dropNamespaceSQLFor:!maintenance!private! !
 schemaNameForTable:!helpers!public! !
 shouldCheckAutoCommit!public!testing! !
 shouldMaskSuccessWithInfo!public!testing! !
+shouldRequeryLongColumnDefinitions!public!testing! !
 shouldRollbackOnQuery!public!testing! !
 shouldUseColumnsStatement!public!testing! !
 tableNamesInNamespace:for:!helpers!public! !

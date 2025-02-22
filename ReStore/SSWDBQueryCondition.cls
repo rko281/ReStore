@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLCondition subclass: #SSWDBQueryCondition
 	instanceVariableNames: 'parser'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryCondition guid: (GUID fromString: '{019d523c-7327-472c-8f85-167bce12d1e2}')!
+
 SSWDBQueryCondition comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBQueryCondition categoriesForClass!Unclassified! !
+
 !SSWDBQueryCondition methodsFor!
 
 _sqlAnd: aCondition
@@ -100,6 +104,10 @@ parser
 parser: anObject
 	parser := anObject!
 
+reStore
+
+	^self field reStore!
+
 sqlAnd: aCondition
 
 	| argument receiver |
@@ -127,20 +135,24 @@ withFunction: aString arguments: aCollection
 		function: aString;
 		arguments: aCollection;
 		yourself! !
-!SSWDBQueryCondition categoriesFor: #_sqlAnd:!evaluating!private! !
-!SSWDBQueryCondition categoriesFor: #_sqlOr:!evaluating!private! !
-!SSWDBQueryCondition categoriesFor: #||!evaluating!public! !
-!SSWDBQueryCondition categoriesFor: #addLast:!evaluating!public! !
-!SSWDBQueryCondition categoriesFor: #asSQLConditions!converting!public! !
-!SSWDBQueryCondition categoriesFor: #asSQLFields!converting!public! !
-!SSWDBQueryCondition categoriesFor: #concatenateCondition:!evaluating!public! !
-!SSWDBQueryCondition categoriesFor: #concatenatedWith:!evaluating!private! !
-!SSWDBQueryCondition categoriesFor: #doesNotUnderstand:!parsing - internal!public! !
-!SSWDBQueryCondition categoriesFor: #forConcatenation!converting!public! !
-!SSWDBQueryCondition categoriesFor: #newCollection!accessing!public! !
-!SSWDBQueryCondition categoriesFor: #parser!accessing!private! !
-!SSWDBQueryCondition categoriesFor: #parser:!accessing!private! !
-!SSWDBQueryCondition categoriesFor: #sqlAnd:!evaluating!public! !
-!SSWDBQueryCondition categoriesFor: #sqlOr:!evaluating!public! !
-!SSWDBQueryCondition categoriesFor: #withFunction:arguments:!converting!public! !
+
+!SSWDBQueryCondition categoriesForMethods!
+_sqlAnd:!evaluating!private! !
+_sqlOr:!evaluating!private! !
+||!evaluating!public! !
+addLast:!evaluating!public! !
+asSQLConditions!converting!public! !
+asSQLFields!converting!public! !
+concatenateCondition:!evaluating!public! !
+concatenatedWith:!evaluating!private! !
+doesNotUnderstand:!parsing - internal!public! !
+forConcatenation!converting!public! !
+newCollection!accessing!public! !
+parser!accessing!private! !
+parser:!accessing!private! !
+reStore!accessing!public! !
+sqlAnd:!evaluating!public! !
+sqlOr:!evaluating!public! !
+withFunction:arguments:!converting!public! !
+!
 

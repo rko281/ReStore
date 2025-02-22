@@ -173,12 +173,14 @@ initialize
 	SSWODBCBufferClasses := BufferClasses copy.
 	SSWODBCBufferClasses keysAndValuesDo: 
 		[ :key :cls |
+		cls = DBCharBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCCharBuffer].
+		cls = DBWCharBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCWCharBuffer].
 		cls = DBVarCharBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCVarCharBuffer].
 		cls = DBBinaryBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCBinaryBuffer].
 		cls = DBVarBinaryBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCVarBinaryBuffer]]! !
 
 !SSWODBCColAttr class categoriesForMethods!
 forString:!instance creation!public! !
-initialize!public! !
+initialize!must not strip!public! !
 !
 
