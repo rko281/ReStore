@@ -5,9 +5,13 @@ SSWReStore2Test subclass: #SSWReStoreDirectlyPersistedTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreDirectlyPersistedTest guid: (GUID fromString: '{5e4d0065-e7f6-49fe-8304-9071baa6ffb6}')!
+
 SSWReStoreDirectlyPersistedTest comment: ''!
+
 !SSWReStoreDirectlyPersistedTest categoriesForClass!Unclassified! !
+
 !SSWReStoreDirectlyPersistedTest methodsFor!
 
 _testCollection: aSymbol
@@ -272,7 +276,7 @@ testCollectQuery
 	self storeNewOwnersWithBitmaskValues: (1 to: 8).
 
 	instances := TestWithBitmask storedInstancesIn: reStore.
-	self assert: (instances collect: [ :each | each bitmask]) asArray equals: ((0 to: 8) collect: [ :each | TestBitmask new value: each])!
+	self assert: (instances collect: [ :each | each bitmask]) asSortedCollection asArray equals: ((0 to: 8) collect: [ :each | TestBitmask new value: each])!
 
 testCollectQueryOnValue
 
@@ -281,7 +285,7 @@ testCollectQueryOnValue
 	self storeNewOwnersWithBitmaskValues: (1 to: 8).
 
 	instances := TestWithBitmask storedInstancesIn: reStore.
-	self assert: (instances collect: [ :each | each bitmask value]) asArray equals: (0 to: 8) asArray!
+	self assert: (instances collect: [ :each | each bitmask value]) asSortedCollection asArray equals: (0 to: 8) asArray!
 
 testCollectQueryWithMethod
 
@@ -290,6 +294,7 @@ testCollectQueryWithMethod
 	self storeNewOwnersWithBitmaskValues: (1 to: 8).
 
 	instances := TestWithBitmask storedInstancesIn: reStore.
+	instances sortBlock: [ :a :b | a bitmask value <= b bitmask value].
 	self assert: (instances collect: [ :each | each bitmask isBitSet: 1]) asArray equals: ((0 to: 8) collect: [ :each | each isBitSet: 1]).
 	self assert: (instances collect: [ :each | each bitmask isBitSet: 2]) asArray equals: ((0 to: 8) collect: [ :each | each isBitSet: 2])!
 
@@ -692,6 +697,7 @@ testSortedCollectionRefresh
 testSortedCollectionRollback
 
 	self _testSequenceableCollectionRollback: #sortedCollection! !
+
 !SSWReStoreDirectlyPersistedTest categoriesForMethods!
 _testCollection:!private!unit tests! !
 _testCollectionMutationCommit:!private!unit tests! !

@@ -5,11 +5,15 @@ PositionableStream subclass: #SSWDBReadStream
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBReadStream guid: (GUID fromString: '{5a3e3dd7-3990-11d5-b1df-444553540000}')!
+
 SSWDBReadStream comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBReadStream categoriesForClass!Unclassified! !
+
 !SSWDBReadStream methodsFor!
 
 basicNext
@@ -42,6 +46,10 @@ collectionNext
 			ifTrue: [readLimit := readLimit - 1]
 			ifFalse: [self resync].
 		exc return: self collectionNext]!
+
+cursorType
+
+	^collection cursorType!
 
 evaluatePostReadActionsFor: aCollection
 
@@ -104,7 +112,7 @@ position: anInteger
 reinitialize
 
 	self resetPeeked.
-	self on: self instancesCollection resultSet.
+	self on: (self instancesCollection resultSet: self cursorType).
 	self setInstancesCollection: self instancesCollection!
 
 reset
@@ -160,10 +168,12 @@ upToEnd
 	[self atEnd] whileFalse: [results add: self basicNext].
 
 	^self evaluatePostReadActionsFor: results! !
+
 !SSWDBReadStream categoriesForMethods!
 basicNext!evaluating!private! !
 close!actions!public! !
 collectionNext!evaluating!private! !
+cursorType!accessing!public! !
 evaluatePostReadActionsFor:!evaluating!private! !
 instancesCollection!accessing!public! !
 instancesCollection:!accessing!public! !

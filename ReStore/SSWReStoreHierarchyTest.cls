@@ -5,11 +5,15 @@ SSWReStoreTest subclass: #SSWReStoreHierarchyTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreHierarchyTest guid: (GUID fromString: '{fe506bd0-b0c1-4b63-b613-b8597358f150}')!
+
 SSWReStoreHierarchyTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreHierarchyTest categoriesForClass!Unclassified! !
+
 !SSWReStoreHierarchyTest methodsFor!
 
 _testClassOfProxyOfIndirectInstanceOf: aClass
@@ -31,7 +35,7 @@ _testClassOfProxyOfInstanceOf: aClass recoveredBy: aBlock
 	| owner proxy |
 	"Just using MidPerson here for its reference to SuperPerson in its midFriend inst var"
 	owner := MidPerson new firstName: 'owner'.
-	owner midFriend: (aClass storedInstancesIn: reStore) first.
+	owner midFriend: (aClass storedInstancesIn: reStore) withoutInheritance first.
 	owner storeIn: reStore.
 	reStore simulateReconnect.
 
@@ -290,15 +294,16 @@ testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediateOldF
 
 testRetrievingIncompatibleClassRaisesError
 	| detailedID midID |
-	midID := (reStore instancesOf: MidPerson) first _id.
+	midID := (reStore instancesOf: MidPerson) withoutInheritance first _id.
 	DetailedPerson1 new storeIn: reStore.
-	detailedID := (reStore instancesOf: DetailedPerson1) first _id.
+	detailedID := (reStore instancesOf: DetailedPerson1) withoutInheritance first _id.
 	reStore simulateReconnect.
 
 	"Attempt to retrieve what is actually a DetailedPerson as if it were a MidPerson (siblings)"
 	self should: [(reStore deferredObjectOfClass: MidPerson withID: detailedID) firstName] raise: Error description: 'Proxy for MidPerson retrieved a DetailedPerson1 from the database.'.
 	"As above, but parent of the declared class"
 	self should: [(reStore deferredObjectOfClass: SubPerson withID: midID) firstName] raise: Error description: 'Proxy for SubPerson retrieved a MidPerson from the database.'! !
+
 !SSWReStoreHierarchyTest categoriesForMethods!
 _testClassOfProxyOfIndirectInstanceOf:!private!unit tests! !
 _testClassOfProxyOfInstanceOf:!private!unit tests! !

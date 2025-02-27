@@ -1,26 +1,24 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLDialect subclass: #SSWSQLServerDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLServerDialect guid: (GUID fromString: '{520d9399-40a8-4481-bf93-615e8a4eb465}')!
+
 SSWSQLServerDialect comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWSQLServerDialect categoriesForClass!Unclassified! !
+
 !SSWSQLServerDialect methodsFor!
 
 boolean
 
 	^'BIT'!
-
-dateAndTimeFormat
-
-	"The format for DateAndTImes when expressed as Strings"
-
-	^'yyyy-MM-dd HH:mm:ssfff'!
 
 datetime
 
@@ -29,6 +27,12 @@ datetime
 datetimeWithResolution
 
 	^'DATETIME2(<1p>)'!
+
+defaultCursorType
+
+	"Default #forwardOnly gives 'Connection is busy with results for another hstmt' error"
+
+	^#keysetDriven!
 
 defaultMaxColumnNameLength
 
@@ -114,11 +118,12 @@ unsizedBlob
 uuid
 
 	^'UNIQUEIDENTIFIER'! !
+
 !SSWSQLServerDialect categoriesForMethods!
 boolean!datatypes!public! !
-dateAndTimeFormat!constants!public! !
 datetime!datatypes!public! !
 datetimeWithResolution!datatypes!public! !
+defaultCursorType!constants!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
 defaultStandardNamespace!constants!public! !
@@ -140,6 +145,7 @@ uuid!datatypes!public! !
 dbmsName
 
 	^'MICROSOFT SQL SERVER' ! !
+
 !SSWSQLServerDialect class categoriesForMethods!
 dbmsName!constants!public! !
 !

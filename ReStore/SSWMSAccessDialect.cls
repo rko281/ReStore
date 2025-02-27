@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLDialect subclass: #SSWMSAccessDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWMSAccessDialect guid: (GUID fromString: '{afd771ea-5cc7-4d40-9dc1-eb018e9e13c7}')!
+
 SSWMSAccessDialect comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWMSAccessDialect categoriesForClass!Unclassified! !
+
 !SSWMSAccessDialect methodsFor!
 
 boolean
@@ -117,10 +121,6 @@ time
 
 	^self datetime!
 
-trueObject
-
-	^-1!
-
 unsizedBlob
 
 	^'LONGBINARY'!
@@ -134,6 +134,7 @@ updateDelaySeconds
 uuid
 
 	^'GUID'! !
+
 !SSWMSAccessDialect categoriesForMethods!
 boolean!datatypes!public! !
 date!datatypes!public! !
@@ -150,7 +151,6 @@ maxDateTimeResolution!constants!public! !
 renameTable:to:in:!maintenance!public! !
 shouldMapEmptyStringsToNil!public!testing! !
 time!datatypes!public! !
-trueObject!constants!public! !
 unsizedBlob!datatypes!public! !
 updateDelaySeconds!constants!public! !
 uuid!datatypes!public! !
@@ -161,6 +161,7 @@ uuid!datatypes!public! !
 dbmsName
 
 	^'ACCESS'! !
+
 !SSWMSAccessDialect class categoriesForMethods!
 dbmsName!constants!public! !
 !

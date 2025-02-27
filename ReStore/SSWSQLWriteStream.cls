@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 WriteStream subclass: #SSWSQLWriteStream
 	instanceVariableNames: 'dialect fieldAliases tableAliases parameterizedFields parameterizedValues placeholderCount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLWriteStream guid: (GUID fromString: '{3d2e72e1-a7ae-11d5-b1e0-444553540000}')!
+
 SSWSQLWriteStream comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWSQLWriteStream categoriesForClass!Unclassified! !
+
 !SSWSQLWriteStream methodsFor!
 
 dialect
@@ -89,6 +93,14 @@ nextPutParameterPlaceholder
 	self placeholderCount: self placeholderCount + 1.
 	self dialect printParameterPlaceholder: self placeholderCount on: self!
 
+nextPutPossiblyAliasedField: anSSWSQLField
+
+	"Append to the receiver anSSWSQLField, using any already-defined alias"
+
+	(self fieldAliases at: anSSWSQLField  ifAbsent: [nil])
+		ifNil: [anSSWSQLField writeSQLOn: self]
+		ifNotNil: [ :alias | self nextPutAll: alias]!
+
 nextTableAlias
 
 	^self dialect transformClassName: ('table', (self tableAliases size + 1) printString) asSymbol!
@@ -128,28 +140,32 @@ tableAliases: anIdentityDictionary
 writeSQLFor: anObject
 
 	anObject writeSQLOn: self! !
-!SSWSQLWriteStream categoriesFor: #dialect!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #dialect:!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #fieldAliases!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #fieldAliases:!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #hasParameterizedFields!public!testing! !
-!SSWSQLWriteStream categoriesFor: #nextFieldAlias!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPut:forField:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutAliasedField:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutAliasedTable:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutIdentifier:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutParameterizedValue:forField:!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextPutParameterPlaceholder!printing!public! !
-!SSWSQLWriteStream categoriesFor: #nextTableAlias!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #parameterizedFields!accessing!private! !
-!SSWSQLWriteStream categoriesFor: #parameterizedFields:!accessing!private! !
-!SSWSQLWriteStream categoriesFor: #parameterizedValues!accessing!private! !
-!SSWSQLWriteStream categoriesFor: #parameterizedValues:!accessing!private! !
-!SSWSQLWriteStream categoriesFor: #placeholderCount!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #placeholderCount:!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #tableAliases!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #tableAliases:!accessing!public! !
-!SSWSQLWriteStream categoriesFor: #writeSQLFor:!printing!public! !
+
+!SSWSQLWriteStream categoriesForMethods!
+dialect!accessing!public! !
+dialect:!accessing!public! !
+fieldAliases!accessing!public! !
+fieldAliases:!accessing!public! !
+hasParameterizedFields!public!testing! !
+nextFieldAlias!accessing!public! !
+nextPut:forField:!printing!public! !
+nextPutAliasedField:!printing!public! !
+nextPutAliasedTable:!printing!public! !
+nextPutIdentifier:!printing!public! !
+nextPutParameterizedValue:forField:!printing!public! !
+nextPutParameterPlaceholder!printing!public! !
+nextPutPossiblyAliasedField:!printing!public! !
+nextTableAlias!accessing!public! !
+parameterizedFields!accessing!private! !
+parameterizedFields:!accessing!private! !
+parameterizedValues!accessing!private! !
+parameterizedValues:!accessing!private! !
+placeholderCount!accessing!public! !
+placeholderCount:!accessing!public! !
+tableAliases!accessing!public! !
+tableAliases:!accessing!public! !
+writeSQLFor:!printing!public! !
+!
 
 !SSWSQLWriteStream class methodsFor!
 
@@ -163,5 +179,8 @@ newIn: anSSWSQLDialect
 		parameterizedValues: OrderedCollection new;
 		placeholderCount: 0;
 		yourself! !
-!SSWSQLWriteStream class categoriesFor: #newIn:!instance creation!public! !
+
+!SSWSQLWriteStream class categoriesForMethods!
+newIn:!instance creation!public! !
+!
 

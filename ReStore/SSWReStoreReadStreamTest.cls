@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreReadStreamTest
 	instanceVariableNames: 'readStream'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreReadStreamTest guid: (GUID fromString: '{87f53dec-12b5-4b17-b6b6-885a162996ae}')!
+
 SSWReStoreReadStreamTest comment: 'ReStore
 ©2020 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreReadStreamTest categoriesForClass!Unclassified! !
+
 !SSWReStoreReadStreamTest methodsFor!
 
 _testIncludeDuring: aBlock
@@ -236,6 +240,7 @@ testUpToInclude
 	j25 := (SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName = 'John25'].
 
 	self _testIncludeDuring: [readStream upTo: j25]! !
+
 !SSWReStoreReadStreamTest categoriesForMethods!
 _testIncludeDuring:!private!unit tests! !
 _testRead:during:!private!unit tests! !

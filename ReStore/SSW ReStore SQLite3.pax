@@ -3,7 +3,6 @@ package := Package name: 'SSW ReStore SQLite3'.
 package paxVersion: 1;
 	basicComment: ''.
 
-
 package classNames
 	add: #SSWDBColAttr;
 	add: #SSWSQLite3Connection;
@@ -43,34 +42,36 @@ Object subclass: #SSWDBColAttr
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SQLite3Connection subclass: #SSWSQLite3Connection
 	instanceVariableNames: 'sqlDialect debugStream columnDescriptions hasTxn queryCount'
 	classVariableNames: ''
 	poolDictionaries: 'SQLite3Constants'
 	classInstanceVariableNames: ''!
+
 SQLite3Cursor subclass: #SSWSQLite3ResultSet
 	instanceVariableNames: 'firstRow query columns'
 	classVariableNames: ''
 	poolDictionaries: 'SQLite3Constants'
 	classInstanceVariableNames: ''!
+
 SQLite3PreparedStatement subclass: #SSWSQLite3Statement
 	instanceVariableNames: 'query sqlString parametersCount results values'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SQLite3Row subclass: #SSWSQLite3Row
 	instanceVariableNames: 'columns'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLiteDialect subclass: #SSWSQLiteNativeDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -79,6 +80,7 @@ SSWSQLiteDialect subclass: #SSWSQLiteNativeDialect
 isRecordDeletedError
 
 	^false! !
+
 !SQLite3AbstractError class categoriesForMethods!
 isRecordDeletedError!public!testing! !
 !
@@ -90,6 +92,7 @@ asSSWSQLite3ResultSet
 	^SSWSQLite3ResultSet new
 		statement: statement moreRows: moreRows rows: rows;
 		yourself ! !
+
 !SQLite3Cursor categoriesForMethods!
 asSSWSQLite3ResultSet!converting!public! !
 !

@@ -44,10 +44,6 @@ package methodNames
 	add: #Collection -> #writeSQLOn:;
 	add: #Collection -> #writeSQLOn:forField:;
 	add: #Collection -> #writeSQLOn:with:;
-	add: #Date -> #asSQLStringIn:;
-	add: #DateAndTime -> #asSQLStringIn:;
-	add: #False -> #asSQLStringIn:;
-	add: #Object -> #asSQLStringIn:;
 	add: #Object -> #ifNull:;
 	add: #Object -> #ifNull:ifNotNull:;
 	add: #Object -> #isSQLNull;
@@ -68,8 +64,6 @@ package methodNames
 	add: #String -> #asSQLFunctionWithResultClass:;
 	add: #String -> #writeSQLOn:;
 	add: #String -> #writeSQLOn:forField:;
-	add: #Time -> #asSQLStringIn:;
-	add: #True -> #asSQLStringIn:;
 	add: #UndefinedObject -> #isSQLNull;
 	add: #UndefinedObject -> #writeSQLOn:;
 	add: #UndefinedObject -> #writeSQLOn:forCondition:;
@@ -362,16 +356,6 @@ writeSQLOn:forField:!printing!public! !
 writeSQLOn:with:!printing!private! !
 !
 
-!Date methodsFor!
-
-asSQLStringIn: aSQLDialect
-
-	^aSQLDialect dateStringFor: self! !
-
-!Date categoriesForMethods!
-asSQLStringIn:!converting!public! !
-!
-
 !Date class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
@@ -382,16 +366,6 @@ writeSQLTypeOn: aStream using: anSQLDialect
 writeSQLTypeOn:using:!printing!public! !
 !
 
-!DateAndTime methodsFor!
-
-asSQLStringIn: aSQLDialect
-
-	^aSQLDialect dateAndTimeStringFor: self! !
-
-!DateAndTime categoriesForMethods!
-asSQLStringIn:!converting!public! !
-!
-
 !DateAndTime class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
@@ -400,17 +374,6 @@ writeSQLTypeOn: aStream using: anSQLDialect
 
 !DateAndTime class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
-!
-
-!False methodsFor!
-
-asSQLStringIn: aSQLDialect
-
-	"ASSERT: falseObject is a String in this dialect"
-	^aSQLDialect falseObject! !
-
-!False categoriesForMethods!
-asSQLStringIn:!converting!public! !
 !
 
 !Float class methodsFor!
@@ -474,10 +437,6 @@ writeSQLTypeOn:using:!printing!public! !
 
 !Object methodsFor!
 
-asSQLStringIn: aSQLDialect
-
-	^self asAnsiString!
-
 ifNull: aValue
 
 	"SQL control flow message; maps to IFNULL().
@@ -520,7 +479,6 @@ writeSQLOn: aStream forField: aField
 	^aStream nextPut: self forField: aField! !
 
 !Object categoriesForMethods!
-asSQLStringIn:!public!restore-internal! !
 ifNull:!control flow!public! !
 ifNull:ifNotNull:!control flow!public! !
 isSQLNull!public!testing! !
@@ -678,16 +636,6 @@ writeSQLTypeOn: aStream using: anSQLDialect
 writeSQLTypeOn:using:!printing!public! !
 !
 
-!Time methodsFor!
-
-asSQLStringIn: aSQLDialect
-
-	^aSQLDialect timeStringFor: self! !
-
-!Time categoriesForMethods!
-asSQLStringIn:!converting!public! !
-!
-
 !Time class methodsFor!
 
 writeSQLTypeOn: aStream using: anSQLDialect
@@ -696,17 +644,6 @@ writeSQLTypeOn: aStream using: anSQLDialect
 
 !Time class categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
-!
-
-!True methodsFor!
-
-asSQLStringIn: aSQLDialect
-
-	"ASSERT: trueObject is a String in this dialect"
-	^aSQLDialect trueObject! !
-
-!True categoriesForMethods!
-asSQLStringIn:!converting!public! !
 !
 
 !UndefinedObject methodsFor!

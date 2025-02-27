@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk"!
 
 DBColAttr subclass: #SSWODBCColAttr
-	instanceVariableNames: 'field maxBoundBufferSize isFunctionParameter'
+	instanceVariableNames: 'field isFunctionParameter'
 	classVariableNames: 'SSWODBCBufferClasses'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -64,7 +64,7 @@ configureToHoldString: aString
 copyForFunction
 
 	^self copy
-		resetType;
+		isFunctionParameter: true;
 		yourself!
 
 field
@@ -92,25 +92,19 @@ isFunctionParameter
 isFunctionParameter: anObject
 	isFunctionParameter := anObject!
 
-maxBoundBufferSize
-	^maxBoundBufferSize!
-
-maxBoundBufferSize: anObject
-	maxBoundBufferSize := anObject!
-
 postCreate
 
 	"Workaround primarily for SQLite which reports BLOB columns as SQL_BINARY - this is defined as
 		'Binary data of fixed length n'
 	...which is incorrect and gives a max length of 255.
 
-	Since ReStore doesn't support a SQL_BINARY type we convert this to SQL_LONGVARBINARY and increase the length accordingly"
+	Since ReStore doesn't support a SQL_BINARY type we convert this to SQL_LONGVARBINARY"
 	sqlType = SQL_BINARY ifFalse: [^self].
 
 	self 
 		resetType;
 		type: SQL_LONGVARBINARY;
-		length: self maxBoundBufferSize!
+		length: 0!
 
 precision
 
@@ -123,7 +117,7 @@ resetType
 type: anInteger
 	"Private - Set the sqlType instance variable to anInteger."
 
-	sqlType notNil ifTrue: [self error: 'attempt to reconfigure column type'].
+	(sqlType notNil and: [self isFunctionParameter not]) ifTrue: [self error: 'attempt to reconfigure column type'].
 	sqlType := anInteger.
 	self bufferClass: (SSWODBCBufferClasses at: anInteger
 				ifAbsent: [self error: 'Unmarshallable column: ' , self printString])!
@@ -143,8 +137,6 @@ field:!accessing!public! !
 initialize!initializing!public! !
 isFunctionParameter!accessing!public!testing! !
 isFunctionParameter:!accessing!private! !
-maxBoundBufferSize!accessing!private! !
-maxBoundBufferSize:!accessing!private! !
 postCreate!accessing!private! !
 precision!public! !
 resetType!initializing!public! !
@@ -161,7 +153,6 @@ forString: aString
 	^self new
 		length: aString size;
 		precision: aString size;
-		maxBoundBufferSize: aString byteSize;
 		type: SQL_VARCHAR;
 		yourself!
 
@@ -173,9 +164,6 @@ initialize
 	SSWODBCBufferClasses := BufferClasses copy.
 	SSWODBCBufferClasses keysAndValuesDo: 
 		[ :key :cls |
-		cls = DBCharBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCCharBuffer].
-		cls = DBWCharBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCWCharBuffer].
-		cls = DBVarCharBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCVarCharBuffer].
 		cls = DBBinaryBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCBinaryBuffer].
 		cls = DBVarBinaryBuffer ifTrue: [SSWODBCBufferClasses at: key put: SSWODBCVarBinaryBuffer]]! !
 

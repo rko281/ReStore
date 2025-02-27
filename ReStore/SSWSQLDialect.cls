@@ -5,11 +5,15 @@ Object subclass: #SSWSQLDialect
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLDialect guid: (GUID fromString: '{24d06227-afdd-43ac-934f-2a8fcd601791}')!
+
 SSWSQLDialect comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWSQLDialect categoriesForClass!Unclassified! !
+
 !SSWSQLDialect methodsFor!
 
 addFields: aCollection to: aTable in: anSSWReStore
@@ -166,44 +170,6 @@ date
 
 	^'DATE'!
 
-dateAndTimeFormat
-
-	"The format for DateAndTImes when expressed as Strings"
-
-	^'yyyy-MM-dd HH:mm:ssffffff'!
-
-dateAndTimeFrom: anObject
-
-	^(anObject isKindOf: String) 
-		ifTrue: [DateAndTime fromString: anObject]
-		ifFalse: [self error: ('cannot convert <1p> to a DateAndTime' expandMacrosWith: anObject)]!
-
-dateAndTimeStringFor: aDateAndTime
-
-	"Return the String representation of aDateAndTime in this dialect"
-
-	^aDateAndTime printStringFormat: self dateAndTimeFormat!
-
-dateFormat
-
-	"The format for Dates when expressed as Strings"
-
-	^'yyyy-MM-dd'!
-
-dateFrom: anObject
-
-	anObject class = DateAndTime ifTrue: [^anObject asDate].
-
-	(anObject isKindOf: String) ifTrue: [^Date readFrom: anObject readStream format: self dateFormat].
-
-	self error: ('cannot convert <1p> to a Date' expandMacrosWith: anObject)!
-
-dateStringFor: aDate
-
-	"Return the String representation of aDate in this dialect"
-
-	^aDate printStringFormat: self dateFormat!
-
 datetime
 
 	^'DATETIME'!
@@ -221,6 +187,21 @@ decimal
 defaultClassNameTransformation
 
 	^[ :name | name sswInUnderscoreFormat]!
+
+defaultCursorType
+
+	"Return the Symbol-ic name of the cursor type that will be used when creating statements for cursored results in this dialect. 
+	The names are adopted from the Dolphin ODBC package:
+		CursorTypes
+			at: #static put: SQL_CURSOR_STATIC;
+			at: #forwardOnly put: SQL_CURSOR_FORWARD_ONLY;
+			at: #keysetDriven put: SQL_CURSOR_KEYSET_DRIVEN;
+			at: #dynamic put: SQL_CURSOR_DYNAMIC;
+
+	This is mostly relevant for ODBC connections since native connections don't generally support different cursor types.
+	It is included in the main class since specifying a nil cursorType when executing a query is used to indicate no cursor is required - this is relevant to the native MySQL implementation"
+
+	^#forwardOnly!
 
 defaultDateTimeResolution
 
@@ -308,12 +289,6 @@ dropColumnNamed: colString fromTable: anSSWDBTable in: anSSWReStore
 			writeSQLFor: anSSWDBTable;
 			nextPutAll: ' DROP COLUMN ';
 			nextPutIdentifier: colString]!
-
-falseObject
-
-	"The object which represents the false Boolean in this dialect"
-
-	^0!
 
 float
 
@@ -485,6 +460,14 @@ nullBoolean: anObject
 
 	nullBoolean := anObject!
 
+onConnected: aConnection
+
+	"Sent to the dialect immediately after login"
+
+	self postLoginScript ifNotNil: 
+		[ :script | 
+		aConnection evaluateAsTxn: [aConnection exec: script. true]]!
+
 platformSpecificFunctions
 
 	"Return a mapping from Smalltalk method names which are specific to this platform (Dolphin, Pharo...) to an equivalent SQL function in this dialect.
@@ -619,20 +602,6 @@ timeFormat
 
 	^'HH:mm:ss'!
 
-timeFrom: anObject
-
-	anObject class = DateAndTime ifTrue: [^anObject asTime].
-
-	(anObject isKindOf: String) ifTrue: [^Time readFrom: anObject readStream].
-
-	self error: ('cannot convert <1p> to a Time' expandMacrosWith: anObject)!
-
-timeStringFor: aTime
-
-	"Return the String representation of aTime in this dialect"
-
-	^aTime printStringFormat: self timeFormat!
-
 timeWithResolution
 
 	"Parameter is resolution (0=seconds, 3=milliseconds etc.)"
@@ -654,12 +623,6 @@ transformInstVarName: aSymbol
 translateMessage: aSymbol toFunction: aSQLFunction
 
 	self sqlFunctions at: aSymbol put: aSQLFunction!
-
-trueObject
-
-	"The object which represents the true Boolean in this dialect"
-
-	^1!
 
 unsizedBlob
 
@@ -743,6 +706,7 @@ uuid
 varchar
 
 	^'VARCHAR(<1p>)'! !
+
 !SSWSQLDialect categoriesForMethods!
 addFields:to:in:!maintenance!public! !
 alterField:table:in:!maintenance!public! !
@@ -758,16 +722,11 @@ commonFunctions!constants!public! !
 connection!accessing!private! !
 connection:!accessing!private! !
 date!datatypes!public! !
-dateAndTimeFormat!constants!public! !
-dateAndTimeFrom:!conversions!public! !
-dateAndTimeStringFor:!conversions!public! !
-dateFormat!constants!public! !
-dateFrom:!conversions!public! !
-dateStringFor:!conversions!public! !
 datetime!datatypes!public! !
 datetimeWithResolution!datatypes!public! !
 decimal!datatypes!public! !
 defaultClassNameTransformation!constants!public! !
+defaultCursorType!constants!public! !
 defaultDateTimeResolution!constants!public! !
 defaultInstVarNameTransformation!constants!public! !
 defaultMaxColumnBytes!constants!public! !
@@ -782,7 +741,6 @@ defaultUnsizedStringSize!constants!public! !
 dialectSpecificFunctions!constants!public! !
 double!datatypes!public! !
 dropColumnNamed:fromTable:in:!maintenance!public! !
-falseObject!constants!public! !
 float!datatypes!public! !
 identifierQuoteClose!constants!public! !
 identifierQuoteOpen!constants!public! !
@@ -811,6 +769,7 @@ maxTimeResolution!public! !
 maxVarchar!constants!public! !
 nullBoolean!accessing!public! !
 nullBoolean:!accessing!public! !
+onConnected:!event handling!public! !
 platformSpecificFunctions!constants!public! !
 postLoginScript!constants!public! !
 printParameterPlaceholder:on:!helpers!public! !
@@ -829,13 +788,10 @@ supportsImplicitTrueConditions!public!testing! !
 supportsMultipleAddColumns!public!testing! !
 time!datatypes!public! !
 timeFormat!constants!public! !
-timeFrom:!conversions!public! !
-timeStringFor:!conversions!public! !
 timeWithResolution!public! !
 transformClassName:!helpers!public! !
 transformInstVarName:!helpers!public! !
 translateMessage:toFunction:!initializing!public! !
-trueObject!constants!public! !
 unsizedBlob!datatypes!public! !
 unsizedBlobSize!accessing!public! !
 unsizedBlobSize:!accessing!public! !
@@ -894,6 +850,7 @@ subclassFor: aDBConnection
 
 	"Sort to prefer subclasses with specific version number over non version-specific subclasses"
 	^(self allSubclasses asSortedCollection: [ :c1 :c2 | c1 dbmsVersion size >= c2 dbmsVersion size]) detect: [ :each | each isCompatibleWithConnection: aDBConnection] ifNone: ["Fallback" self]! !
+
 !SSWSQLDialect class categoriesForMethods!
 dbmsName!constants!public! !
 dbmsVersion!constants!public! !

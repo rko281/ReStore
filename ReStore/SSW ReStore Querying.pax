@@ -30,8 +30,10 @@ package classNames
 
 package methodNames
 	add: #Boolean -> #asSQLConditions;
+	add: #ByteArray -> #convertValue:;
 	add: #Class -> #isPersistentIn:;
 	add: #DeafObject -> #_id;
+	add: #Number -> #convertValue:;
 	add: #Object -> #||;
 	add: #Object -> #concatenatedWith:;
 	add: #Object -> #forConcatenation;
@@ -51,6 +53,7 @@ package methodNames
 	add: #SSWSQLCondition -> #finalField;
 	add: #SSWSQLCondition -> #hasFinalField;
 	add: #SSWSQLCondition -> #requiresAliasing;
+	add: #SSWSQLCondition -> #reStore;
 	add: #SSWSQLCondition -> #table;
 	add: #SSWSQLCondition -> #writeAliasedSQLOn:;
 	add: #SSWSQLConditionCollection -> #convertValue:;
@@ -58,10 +61,12 @@ package methodNames
 	add: #SSWSQLConditionCollection -> #finalField;
 	add: #SSWSQLConditionCollection -> #hasFinalField;
 	add: #SSWSQLConditionCollection -> #requiresAliasing;
+	add: #SSWSQLConditionCollection -> #reStore;
 	add: #SSWSQLConditionCollection -> #writeAliasedSQLOn:;
 	add: #SSWSQLParameterField -> #asSQLFields;
 	add: #SSWSQLParameterField -> #hasAggregateFunction;
 	add: #String -> #asWildcard;
+	add: #String -> #convertValue:;
 	add: #UndefinedObject -> #isRequiredForSimilarity;
 	add: #UndefinedObject -> #required;
 	yourself.
@@ -219,6 +224,24 @@ asSQLConditions
 asSQLConditions!converting!public! !
 !
 
+!ByteArray methodsFor!
+
+convertValue: aValue
+
+	"Field behaviour; needed when the result of a function is a fixed value.
+	Depending on the function, database and driver combination we may sometimes get back the incorrect class of result.
+	Attempt to coerce aValue if this is the case"
+
+	aValue class = ByteArray ifTrue: [^aValue].
+	aValue isString ifTrue: [^aValue asByteArray].
+	aValue isNumber ifTrue: [^aValue displayString asByteArray].
+
+	self error: 'unsupported coercion'! !
+
+!ByteArray categoriesForMethods!
+convertValue:!converting!public! !
+!
+
 !Class methodsFor!
 
 isPersistentIn: anSSWReStore
@@ -237,6 +260,24 @@ _id
 
 !DeafObject categoriesForMethods!
 _id!accessing!public! !
+!
+
+!Number methodsFor!
+
+convertValue: aValue
+
+	"Field behaviour; needed when the result of a function is a fixed value.
+	Depending on the function, database and driver combination we may sometimes get back the incorrect class of result.
+	Attempt to coerce aValue if this is the case"
+
+	aValue isNumber ifTrue: [^aValue].
+	aValue isString ifTrue: [^self class readFrom: aValue readStream].
+	aValue class = ByteArray ifTrue: [^self class readFrom: (AnsiString fromByteArray: aValue) readStream].
+
+	self error: 'unsupported coercion'! !
+
+!Number categoriesForMethods!
+convertValue:!converting!public! !
 !
 
 !Object methodsFor!
@@ -388,7 +429,7 @@ convertValue: aValue
 	"For situations where a condition is being used as a result field in a query.
 	Since the receiver is a condition, its result must be a Boolean"
 
-	^Boolean instanceFromDBValue: aValue in: self field table reStore!
+	^Boolean instanceFromDBValue: aValue in: self reStore!
 
 fieldNamed: aString
 
@@ -414,6 +455,10 @@ requiresAliasing
 
 	^false!
 
+reStore
+
+	^self field reStore!
+
 table
 
 	"Polymorphic with SSWDBField; used when collect: queries have a condition as a result field, e.g. object cancelDate notNil"
@@ -432,6 +477,7 @@ fieldNamed:!accessing!public! !
 finalField!accessing!public! !
 hasFinalField!public!testing! !
 requiresAliasing!public!testing! !
+reStore!accessing!public! !
 table!accessing!public! !
 writeAliasedSQLOn:!output!public! !
 !
@@ -443,7 +489,7 @@ convertValue: aValue
 	"For situations where a condition is being used as a result field in a query.
 	Since the receiver is a condition, its result must be a Boolean"
 
-	^Boolean instanceFromDBValue: aValue in: self first field table reStore!
+	^Boolean instanceFromDBValue: aValue in: self reStore!
 
 fieldNamed: aString
 
@@ -469,6 +515,10 @@ requiresAliasing
 
 	^false!
 
+reStore
+
+	^self first field reStore!
+
 writeAliasedSQLOn: aStream
 
 	"For situations where a condition is being used as a result field in a query"
@@ -481,6 +531,7 @@ fieldNamed:!accessing!public! !
 finalField!accessing!public! !
 hasFinalField!public!testing! !
 requiresAliasing!public!testing! !
+reStore!output!public! !
 writeAliasedSQLOn:!output!public! !
 !
 
@@ -506,10 +557,23 @@ asWildcard
 	^WildcardString new
 		string: self;
 		yourself
-! !
+!
+
+convertValue: aValue
+
+	"Field behaviour; needed when the result of a function is a fixed value.
+	Depending on the function, database and driver combination we may sometimes get back the incorrect class of result.
+	Attempt to coerce aValue if this is the case"
+
+	aValue isString ifTrue: [^aValue upTo: $\x00].
+	aValue isNumber ifTrue: [^aValue displayString].
+	aValue class = ByteArray ifTrue: [^AnsiString fromByteArray: aValue].
+
+	self error: 'unsupported coercion'! !
 
 !String categoriesForMethods!
 asWildcard!converting!public! !
+convertValue:!converting!public! !
 !
 
 !UndefinedObject methodsFor!

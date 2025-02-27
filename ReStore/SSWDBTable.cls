@@ -5,11 +5,15 @@ SSWSQLTable subclass: #SSWDBTable
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTable guid: (GUID fromString: '{266e4dcc-398e-11d5-b1df-444553540000}')!
+
 SSWDBTable comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBTable categoriesForClass!Unclassified! !
+
 !SSWDBTable methodsFor!
 
 = anSSWDBTable
@@ -862,6 +866,7 @@ writeSQLNameOn: aStream
 
 	super writeSQLNameOn: aStream
 ! !
+
 !SSWDBTable categoriesForMethods!
 =!comparing!public! !
 abbreviate:to:!defining!private! !
@@ -984,6 +989,7 @@ new
 		collectionSpecs: OrderedCollection new;
 		abbreviations: Dictionary new;
 		yourself! !
+
 !SSWDBTable class categoriesForMethods!
 forClass:!instance creation!public! !
 forClass:in:!instance creation!public! !

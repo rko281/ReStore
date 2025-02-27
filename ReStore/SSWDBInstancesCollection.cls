@@ -5,11 +5,15 @@ Object subclass: #SSWDBInstancesCollection
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBInstancesCollection guid: (GUID fromString: '{5a3e3dd0-3990-11d5-b1df-444553540000}')!
+
 SSWDBInstancesCollection comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBInstancesCollection categoriesForClass!Unclassified! !
+
 !SSWDBInstancesCollection methodsFor!
 
 addAll: anSSWDBInstancesCollection
@@ -334,7 +338,14 @@ readStream
 
 	"Create and return an appropraite ReadStream-like object on the receiver"
 
-	^self resultSet readStream
+	^self readStream: self reStore sqlDialect defaultCursorType!
+
+readStream: aSymbol
+
+	"Create and return an appropraite ReadStream-like object on the receiver.
+	aSymbol describes the cursor type for the result set"
+
+	^(self resultSet: aSymbol) readStream
 		setInstancesCollection: self;
 		yourself!
 
@@ -369,15 +380,16 @@ reStore: anSSWReStore
 	
 	reStore := anSSWReStore!
 
-resultSet
+resultSet: aSymbol
 
-	"Private - Return a DBResultSet (open query results) onto the collection of rows represented by the receiver"
+	"Private - Return a DBResultSet (open query results) onto the collection of rows represented by the receiver.
+	aSymbol describes the cursor type for the result set"
 	
 	| query |
 
 	query := self parser collectQueryFrom: [ :elem | elem].
 
-	^self reStore executeQuery: query cursoredFetch: true!
+	^self reStore executeQuery: query cursorType: aSymbol!
 
 reverse
 
@@ -505,6 +517,7 @@ withoutInheritance
 	Prevent this behaviour by restricting to only elements of the instancesClass"
 	
 	^self satisfying: [ :each | each class = self instancesClass]! !
+
 !SSWDBInstancesCollection categoriesForMethods!
 addAll:!actions!public! !
 allSatisfy:!enumerating!public! !
@@ -553,11 +566,12 @@ project:into:!helpers!private! !
 qualifyWith:!initializing!private! !
 query:into:!helpers!private! !
 readStream!evaluating!public! !
+readStream:!evaluating!public! !
 refreshed!initializing!public! !
 reject:!enumerating!public! !
 reStore!accessing!public! !
 reStore:!accessing!public! !
-resultSet!evaluating!private! !
+resultSet:!evaluating!private! !
 reverse!evaluating!public! !
 satisfying:!enumerating!public! !
 select:!enumerating!public! !
@@ -587,6 +601,7 @@ new
 		preReadActions: OrderedCollection new;
 		postReadActions: OrderedCollection new;
 		yourself! !
+
 !SSWDBInstancesCollection class categoriesForMethods!
 forClass:in:!instance creation!public! !
 new!instance creation!public! !

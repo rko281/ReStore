@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLDialect subclass: #SSWMySQLDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWMySQLDialect guid: (GUID fromString: '{6645ca35-73aa-4a51-b909-d0cb2f7c228b}')!
+
 SSWMySQLDialect comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWMySQLDialect categoriesForClass!Unclassified! !
+
 !SSWMySQLDialect methodsFor!
 
 alterField: aField table: aTable in: aReStore
@@ -44,6 +48,10 @@ defaultMaxColumnNameLength
 defaultMaxTableNameLength
 
 	^64!
+
+defaultTimeResolution
+
+	^3!
 
 dialectSpecificFunctions
 
@@ -130,12 +138,14 @@ unsizedStringTypes
 uuid
 
 	^'BINARY(16)'! !
+
 !SSWMySQLDialect categoriesForMethods!
 alterField:table:in:!maintenance!public! !
 blobTypes!datatypes!public! !
 boolean!datatypes!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
+defaultTimeResolution!constants!public! !
 dialectSpecificFunctions!constants!public! !
 maxVarchar!constants!public! !
 renameField:to:in:!maintenance!public! !
@@ -151,6 +161,7 @@ uuid!datatypes!public! !
 dbmsName
 
 	^'MySQL'! !
+
 !SSWMySQLDialect class categoriesForMethods!
 dbmsName!constants!public! !
 !

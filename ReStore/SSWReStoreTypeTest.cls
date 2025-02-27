@@ -22,6 +22,8 @@ addClassesTo: aReStore
 
 createTestData
 
+	(reStore sqlDialect class = SSWMariaDBDialect and: [reStore connection class = SSWODBCConnection]) ifTrue: [self ensureLongColumnsAreUtf8].
+
 	datetime := DateAndTime now withResolution: reStore sqlDialect maxDateTimeResolution.
 	date := datetime asDate.
 	time := datetime asTime.
@@ -58,6 +60,27 @@ createTestData
 	reStore commitTransaction.
 
 	self readTypeTest!
+
+ensureLongColumnsAreUtf8
+
+	"There appears to be an issue with the MariaDB ODBC connector where long columns configured with a latin character set make an incorrect conversion from unicode query parameters - see:
+		https://mariadb.com/kb/en/problem-with-connector-to-get-latin-data-and-utf8-data-in-one-table/
+	The net effect of this is that long columns configured with latin character sets can store corrupt data.
+
+	As per the issue in the link this does not happen with the MySQL ODBC driver even when connecting to MariaDB rather than MySQL.
+	The issue referenced in the link is long-standing so presumably will not be fixed.
+
+	The workaround is to configure long columns as UTF8 character set if this is not the default"
+
+	| columnDefs |
+
+	columnDefs := reStore connection query: 'show full columns from type_test'.
+
+	#('large_text' 'unsized_text') do: 
+		[ :name || def |
+		def := columnDefs detect: [ :each | (each at: 'Field') = name].
+		((def at: 'Collation') beginsWith: 'utf8') ifFalse: 
+			[reStore executeSQLAsTxn: {'ALTER TABLE `type_test` CHANGE COLUMN `<1s>` `<1s>` <2s> NULL DEFAULT NULL COLLATE ''utf8mb4_general_ci''' << {name. def at: 'Type'}}]]!
 
 readTypeTest
 
@@ -156,7 +179,7 @@ testExtendedANSI
 
 testGeneral
 
-	self assert: typeTest char trimNulls equals: 'CHAR'.
+	self assert: typeTest char trimNulls "<- most dialects pad with nulls" trimBlanks "<- Postgres pads with whitespace" equals: 'CHAR'.
 	self assert: typeTest varchar equals: 'VARCHAR'.
 	self assert: typeTest medText equals: ((String new: 2000) atAllPut: $M; yourself).
 	self assert: typeTest largeText equals: ((String new: 5000) atAllPut: $L; yourself).
@@ -343,9 +366,7 @@ testVeryLargeString
 
 unsizedSize
 
-	^reStore connection class = SSWODBCConnection 
-		ifTrue: [2**15] "Limits on buffer size"
-		ifFalse: [2 ** 17]!
+	^2 ** 17!
 
 uuid
 
@@ -354,6 +375,7 @@ uuid
 !SSWReStoreTypeTest categoriesForMethods!
 addClassesTo:!public!running! !
 createTestData!public!running! !
+ensureLongColumnsAreUtf8!private!running! !
 readTypeTest!private!running! !
 testANSI!public!unit tests! !
 testBytes!public!unit tests! !

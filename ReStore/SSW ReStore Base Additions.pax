@@ -5,7 +5,6 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
 	add: #SSWDBByteArrayWithInfo;
 	add: #SSWDBClassWithInfo;
@@ -66,59 +65,66 @@ Object subclass: #SSWDBClassWithInfo
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBOrderingSpec
 	instanceVariableNames: 'criteria isAscending'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBWrapper
 	instanceVariableNames: 'object'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 DeafObject subclass: #SSWDBDeletedObject
 	instanceVariableNames: 'deletedObjectClass id'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBClassWithInfo subclass: #SSWDBDateAndTimeWithResolution
 	instanceVariableNames: 'resolution'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBClassWithInfo subclass: #SSWDBScaledDecimalWithInfo
 	instanceVariableNames: 'scale precision'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBClassWithInfo subclass: #SSWDBStringWithInfo
 	instanceVariableNames: 'fieldSize'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStringWithInfo subclass: #SSWDBByteArrayWithInfo
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStringWithInfo subclass: #SSWDBFixedStringWithInfo
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStringWithInfo subclass: #SSWDBVariableStringWithInfo
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 ProtoObject subclass: #SSWDBProtoObject
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -127,6 +133,7 @@ ProtoObject subclass: #SSWDBProtoObject
 isPersistentBaseClass
 
 	^true! !
+
 !Boolean class categoriesForMethods!
 isPersistentBaseClass!public!testing! !
 !
@@ -138,6 +145,7 @@ maxSize: anInteger
 	^SSWDBByteArrayWithInfo new
 		fieldSize: anInteger;
 		yourself! !
+
 !ByteArray class categoriesForMethods!
 maxSize:!public!specification! !
 !
@@ -149,6 +157,7 @@ withMillisecondResolution
 	^SSWDBDateAndTimeWithResolution new
 		beMillisecondResolution
 		yourself! !
+
 !DateAndTime class categoriesForMethods!
 withMillisecondResolution!accessing!public! !
 !
@@ -160,6 +169,7 @@ asInteger
 	"For DB support"
 
 	^0! !
+
 !False categoriesForMethods!
 asInteger!converting!public! !
 !
@@ -171,6 +181,7 @@ isPersistentBaseClass
 	"NB not all subclasses are valid, but this is not important"
 
 	^true! !
+
 !Magnitude class categoriesForMethods!
 isPersistentBaseClass!public!testing! !
 !
@@ -180,6 +191,7 @@ isPersistentBaseClass!public!testing! !
 isPersistentBaseClass
 
 	^true! !
+
 !Metaclass class categoriesForMethods!
 isPersistentBaseClass!public!testing! !
 !
@@ -211,6 +223,7 @@ includedIn: aCollection
 	"Reciprocal of Collection>>includes: "
 
 	^aCollection includes: self! !
+
 !Object categoriesForMethods!
 _instVarAt:!accessing!private! !
 _instVarAt:put:!accessing!private! !
@@ -259,6 +272,7 @@ isPersistentBaseClass
 	false by default, subclasses which are so valid may override"
 
 	^false! !
+
 !Object class categoriesForMethods!
 hasMutablePersistentInstances!persistency!public! !
 isDirectlyPersisted!persistency!public! !
@@ -284,6 +298,7 @@ withScale: scaleInteger
 	^SSWDBScaledDecimalWithInfo new
 		scale: scaleInteger;
 		yourself! !
+
 !ScaledDecimal class categoriesForMethods!
 withPrecision:scale:!public!specification! !
 withScale:!public!specification! !
@@ -296,6 +311,7 @@ orNilIfEmpty
 	^self isEmpty
 		ifTrue: [nil]
 		ifFalse: [self]! !
+
 !String categoriesForMethods!
 orNilIfEmpty!accessing!must not strip!public! !
 !
@@ -321,6 +337,7 @@ maxSize: anInteger
 	^SSWDBVariableStringWithInfo new
 		fieldSize: anInteger;
 		yourself! !
+
 !String class categoriesForMethods!
 fixedSize:!public!specification! !
 isPersistentBaseClass!public!testing! !
@@ -348,6 +365,7 @@ sswInUnderscoreFormat
 		writeStream nextPut: char asLowercase.
 		last := char].
 	^writeStream contents! !
+
 !Symbol categoriesForMethods!
 sswInUnderscoreFormat!converting!evaluating!public! !
 !
@@ -359,6 +377,7 @@ asInteger
 	"For DB support"
 
 	^1! !
+
 !True categoriesForMethods!
 asInteger!converting!public! !
 !
@@ -368,6 +387,7 @@ asInteger!converting!public! !
 orNilIfEmpty
 
 	^nil! !
+
 !UndefinedObject categoriesForMethods!
 orNilIfEmpty!accessing!must not strip!public! !
 !
@@ -377,6 +397,7 @@ orNilIfEmpty!accessing!must not strip!public! !
 isPersistentBaseClass
 
 	^true! !
+
 !UndefinedObject class categoriesForMethods!
 isPersistentBaseClass!public!testing! !
 !

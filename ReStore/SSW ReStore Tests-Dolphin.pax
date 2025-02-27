@@ -1145,7 +1145,7 @@ testTimeStamp
 
 	t := (DolphinTypeTest storedInstancesIn: reStore) detect: [ :each | each timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil].
 	self assert: t notNil.
-	self assert: t timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ensure: [reStore destroyClass: DolphinTypeTest]! !
+	self assert: t timeStamp asSeconds truncated equals: now asSeconds truncated] ensure: [reStore destroyClass: DolphinTypeTest]! !
 
 !SSWReStoreTypeTest categoriesForMethods!
 testTimeStamp!public!unit tests! !

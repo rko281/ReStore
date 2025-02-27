@@ -15,7 +15,7 @@ SSWODBCBinaryBuffer comment: ''!
 !SSWODBCBinaryBuffer methodsFor!
 
 dbConvert: anObject for: aDBField
-	
+
 	^super dbConvert: anObject asByteArray for: aDBField ! !
 
 !SSWODBCBinaryBuffer categoriesForMethods!

@@ -25,10 +25,6 @@ closeAfter: aBlock
 
 	^[aBlock value: self] ensure: [self close]!
 
-cursoredFetch: aBoolean
-
-	"Always enabled"!
-
 dbCheckException: anIntegerRetCode function: aString
 
 	"Overriden to revector to parent connection, which may mask certain 'errors' "
@@ -54,7 +50,6 @@ describeColumns: columnNumbers
 				precision: colAttr precision;
 				scale: colAttr scale;
 				field: (self query ifNotNil: [ :q | q fieldNamed: colAttr name]);
-				maxBoundBufferSize: self sqlDialect maxColumnBytes;
 				postCreate;
 				yourself]!
 
@@ -86,7 +81,6 @@ describeParam: anInteger
 	^SSWODBCColAttr new
 		type: dataType value;
 		length: parameterSize value;
-		maxBoundBufferSize: parameterSize value;
 		precision: parameterSize value;
 		scale: decimalDigits value;
 		yourself!
@@ -249,7 +243,6 @@ writeDebugInfoOn: aStream
 !SSWODBCStatement categoriesForMethods!
 close!operations!public! !
 closeAfter:!operations!public! !
-cursoredFetch:!initializing!public! !
 dbCheckException:function:!exceptions!private! !
 describeColumns:!accessing!public! !
 describeParam:!accessing!public! !

@@ -74,6 +74,7 @@ package classNames
 	add: #SSWReStoreDependentOwnedSortedCollectionTest;
 	add: #SSWReStoreDependentSortedCollectionTest;
 	add: #SSWReStoreDirectlyPersistedTest;
+	add: #SSWReStoreDynamicReadStreamTest;
 	add: #SSWReStoreEventsTest;
 	add: #SSWReStoreFullTableTest;
 	add: #SSWReStoreFunctionTest;
@@ -1134,6 +1135,12 @@ SSWReStoreDeleteRelatedDictionaryTest subclass: #SSWReStoreDeleteDependentKeyRel
 	classInstanceVariableNames: ''!
 
 SSWReStoreDeleteRelatedDictionaryTest subclass: #SSWReStoreDeleteRelatedKeyRelatedValueDictionaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWReStoreReadStreamTest subclass: #SSWReStoreDynamicReadStreamTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

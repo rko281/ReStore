@@ -5,7 +5,6 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
 	add: #SSWDBAbstractSingleTransaction;
 	add: #SSWDBAllocatedID;
@@ -119,8 +118,9 @@ package methodNames
 	add: #UndefinedObject -> #unstore;
 	add: 'Boolean class' -> #instanceFromDBValue:in:;
 	add: 'ByteArray class' -> #instanceFromDBValue:in:;
-	add: 'Date class' -> #instanceFromDBValue:in:;
-	add: 'DateAndTime class' -> #instanceFromDBValue:in:;
+	add: 'Date class' -> #instanceFromDBString:;
+	add: 'Magnitude class' -> #instanceFromDBString:;
+	add: 'Magnitude class' -> #instanceFromDBValue:in:;
 	add: 'Metaclass class' -> #instanceFromDBValue:in:;
 	add: 'Number class' -> #instanceFromDBValue:in:;
 	add: 'Object class' -> #instanceFromDBValue:in:;
@@ -128,7 +128,6 @@ package methodNames
 	add: 'Object class' -> #storedInstances;
 	add: 'Object class' -> #storedInstancesIn:;
 	add: 'String class' -> #instanceFromDBValue:in:;
-	add: 'Time class' -> #instanceFromDBValue:in:;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -156,124 +155,144 @@ Object subclass: #SSWDBAllocatedID
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBTableRecord
 	instanceVariableNames: 'tableName fullTableName nextID'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBTransaction
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWReStore
 	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
+
 Error subclass: #SSWDBTransactionError
 	instanceVariableNames: 'reStore isRecovered'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTransactionError subclass: #SSWDBTransactionCommitError
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTransactionError subclass: #SSWDBTransactionPreCommitError
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Notification subclass: #StoreFailure
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
 	instanceVariableNames: 'allReferencedObjects currentReferencedObjects activeProxiesMap changedObjects allocatedIDs deletedObjects'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBAbstractSingleTransaction subclass: #SSWDBDumbTransaction
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBAbstractSingleTransaction subclass: #SSWDBSingleTransaction
 	instanceVariableNames: 'updateStatementsCache'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBSingleTransaction subclass: #SSWDBSingleTransactionWithVersioning
 	instanceVariableNames: 'proxyCommitFailures'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBWrapper subclass: #SSWDBObjectWithComponents
 	instanceVariableNames: 'exclusions originatingComponent'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBWrapper subclass: #SSWDBUnstoreWrapper
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBObjectWithComponents subclass: #SSWDBCollectionWithContents
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBObjectWithComponents subclass: #SSWDBObjectWithRelatedComponents
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBObjectWithRelatedComponents subclass: #SSWDBCollectionWithRelatedContents
 	instanceVariableNames: 'cachedProxy'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBProtoObject subclass: #SSWDBProxy
 	instanceVariableNames: 'proxiedObject reStore flags'
 	classVariableNames: 'IsDeletedMask IsPersistentMask IsSwappedMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBProxy subclass: #SSWDBCollectionProxy
 	instanceVariableNames: 'collectionSpec owner'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBProxy subclass: #SSWDBObjectProxy
 	instanceVariableNames: 'class id collectionProxies'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionProxy subclass: #SSWDBGeneralCollectionProxy
 	instanceVariableNames: 'collectionEntries changes'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionProxy subclass: #SSWDBOwnedCollectionProxy
 	instanceVariableNames: 'copyCollection'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBObjectProxy subclass: #SSWDBCachingObjectProxy
 	instanceVariableNames: 'copyObject'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
 	instanceVariableNames: 'version'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -281,13 +300,16 @@ SSWDBCachingObjectProxy subclass: #SSWDBVersionedCachingObjectProxy
 
 instanceFromDBValue: aValue in: anSSWReStore
 
+	"Handle numeric aliases - 0 for false; another value (usually 1) for true"
+
 	"Check the obvious possibilities first for efficiency"
 	aValue == true ifTrue: [^true].
 	aValue == false ifTrue: [^false].
 
 	^aValue isNil 
 		ifTrue: [anSSWReStore sqlDialect nullBoolean]
-		ifFalse: [aValue = anSSWReStore sqlDialect trueObject]! !
+		ifFalse: [aValue ~= 0]! !
+
 !Boolean class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!private! !
 !
@@ -299,6 +321,7 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"ASSERT: aValue isNil OR aValue isKindOf: self"
 
 	^aValue! !
+
 !ByteArray class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 !
@@ -318,6 +341,7 @@ reStoreValue
 writeSQLOn: aStream
 
 	self name asString printOn: aStream! !
+
 !Class categoriesForMethods!
 isValidForPersistence!private!testing! !
 reStoreValue!accessing!public! !
@@ -388,6 +412,7 @@ withComponents
 withRelatedComponents
 
 	^SSWDBCollectionWithRelatedContents on: self! !
+
 !Collection categoriesForMethods!
 hasAnyChanged!public!restore-api!testing! !
 refreshAll!public!restore-api! !
@@ -402,27 +427,31 @@ withRelatedComponents!converting!public! !
 
 !Date class methodsFor!
 
-instanceFromDBValue: aValue in: anSSWReStore
+instanceFromDBString: aString
 
-	"aValue may be some other object which can convert itself to a Date"
-	
-	^(aValue isNil or: [aValue class = Date])
-		ifTrue: [aValue]
-		ifFalse: [anSSWReStore sqlDialect dateFrom: aValue]! !
+	^self readFrom: aString readStream format: 'yyyy-MM-dd'! !
+
 !Date class categoriesForMethods!
-instanceFromDBValue:in:!instance creation!private! !
+instanceFromDBString:!public! !
 !
 
-!DateAndTime class methodsFor!
+!Magnitude class methodsFor!
+
+instanceFromDBString: aString
+
+	^self readFrom: aString readStream!
 
 instanceFromDBValue: aValue in: anSSWReStore
 
-	"aValue may be nil, a DateAndTime, a Date or a Time depending on database supported types"
-	^(aValue isNil or: [aValue class == DateAndTime])
+	"aValue may be nil, an instance of the receiver, or a String"
+
+	^(aValue isNil or: [aValue class = self])
 		ifTrue: [aValue]
-		ifFalse: [anSSWReStore sqlDialect dateAndTimeFrom: aValue]! !
-!DateAndTime class categoriesForMethods!
-instanceFromDBValue:in:!instance creation!public! !
+		ifFalse: [self instanceFromDBString: aValue]! !
+
+!Magnitude class categoriesForMethods!
+instanceFromDBString:!public! !
+instanceFromDBValue:in:!public! !
 !
 
 !Metaclass class methodsFor!
@@ -432,6 +461,7 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"Classes are represented by name"
 
 	^aValue ifNotNil: [ :clsName | self class environment at: clsName asSymbol ifAbsent: [self error: 'Class not in image']]! !
+
 !Metaclass class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!private! !
 !
@@ -441,6 +471,7 @@ instanceFromDBValue:in:!instance creation!private! !
 isDebugging
 
 	^false! !
+
 !Mutex categoriesForMethods!
 isDebugging!public!testing! !
 !
@@ -452,6 +483,7 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"ASSERT: aValue isNil OR aValue isKindOf: self"
 
 	^aValue! !
+
 !Number class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 !
@@ -880,6 +912,7 @@ writeSQLOn: aStream
 
 	"Defer to printOn: by default"
 	^self printOn: aStream! !
+
 !Object categoriesForMethods!
 _changedObjectsIn:!private!restore-internal! !
 _checkHasChangedIn:!private!restore-internal! !
@@ -966,6 +999,7 @@ storedInstancesIn: aReStore
 	"Return all instances of the receiver stored in the database accessed by aReStore"
 
 	^aReStore instancesOf: self! !
+
 !Object class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 preferredObjectProxyClass!persistency!public! !
@@ -990,6 +1024,7 @@ reStore: aReStoreOrNil
 	aReStoreOrNil isNil 
 		ifTrue: [(SSWReStore affiliateFor: self) ifNotNil: [ :reStore | reStore disaffiliateWith: self]]
 		ifFalse: [aReStoreOrNil affiliateWith: self using: [ :proc | Processor activeProcess == proc]]! !
+
 !Process categoriesForMethods!
 reStore!accessing!public! !
 reStore:!accessing!public! !
@@ -1000,6 +1035,7 @@ reStore:!accessing!public! !
 instanceFromDBValue: aValue in: aReStore
 
 	^self infoClass instanceFromDBValue: aValue in: aReStore! !
+
 !SSWDBClassWithInfo categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 !
@@ -1009,6 +1045,7 @@ instanceFromDBValue:in:!instance creation!public! !
 instanceFromDBValue: aValue in: aReStore
 
 	^aValue ifNotNil: [(self infoClass instanceFromDBValue: aValue in: aReStore) withResolution: self resolution]! !
+
 !SSWDBDateAndTimeWithResolution categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 !
@@ -1018,6 +1055,7 @@ instanceFromDBValue:in:!instance creation!public! !
 collectionProxyClass
 
 	^SSWDBGeneralCollectionProxy! !
+
 !SSWDBGeneralCollectionSpec categoriesForMethods!
 collectionProxyClass!constants!public! !
 !
@@ -1027,6 +1065,7 @@ collectionProxyClass!constants!public! !
 collectionProxyClass
 
 	^SSWDBOwnedCollectionProxy! !
+
 !SSWDBOwnedCollectionSpec categoriesForMethods!
 collectionProxyClass!constants!public! !
 !
@@ -1045,6 +1084,7 @@ instanceFromDBValue: aValue in: aReStore
 	scaleFactor := 10 ** self scale.
 
 	^(ScaledDecimal newFromNumber: (aValue * scaleFactor) rounded scale: self scale) / scaleFactor! !
+
 !SSWDBScaledDecimalWithInfo categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 !
@@ -1054,6 +1094,7 @@ instanceFromDBValue:in:!instance creation!public! !
 instanceFromDBValue: aValue in: aReStore
 
 	^aValue! !
+
 !SSWDBStringWithInfo categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
 !
@@ -1087,6 +1128,7 @@ withIDAndVersionFields
 		idField: self idField;
 		controlFields: (Array with: self versionControlField);
 		yourself! !
+
 !SSWDBTable categoriesForMethods!
 tableRecord!evaluating!public! !
 versionControlField!evaluating!public! !
@@ -1106,6 +1148,7 @@ withRelatedComponents
 	"Treat as an object, not a collection"
 
 	^SSWDBObjectWithRelatedComponents on: self! !
+
 !String categoriesForMethods!
 withComponents!converting!public! !
 withRelatedComponents!converting!public! !
@@ -1118,21 +1161,9 @@ instanceFromDBValue: aValue in: anSSWReStore
 	"ASSERT: aValue isNil OR aValue isKindOf: self"
 
 	^aValue! !
+
 !String class categoriesForMethods!
 instanceFromDBValue:in:!instance creation!public! !
-!
-
-!Time class methodsFor!
-
-instanceFromDBValue: aValue in: anSSWReStore
-
-	"aValue may be some other object which can convert itself to a Time"
-	
-	^(aValue isNil or: [aValue class = Time])
-		ifTrue: [aValue]
-		ifFalse: [anSSWReStore sqlDialect timeFrom: aValue]! !
-!Time class categoriesForMethods!
-instanceFromDBValue:in:!instance creation!private! !
 !
 
 !UndefinedObject methodsFor!
@@ -1148,6 +1179,7 @@ storeIn: anSSWReStore
 unstore
 
 	"Do nothing - cannot store/unstore an UndefinedObject"! !
+
 !UndefinedObject categoriesForMethods!
 _ensurePersistentIn:!private!restore-internal! !
 storeIn:!converting!public! !

@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 DBForwardOnlyResultSet subclass: #SSWODBCForwardOnlyResultSet
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWODBCForwardOnlyResultSet guid: (GUID fromString: '{91952fb5-bbfd-4e69-a36d-268a26de19c7}')!
+
 SSWODBCForwardOnlyResultSet comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWODBCForwardOnlyResultSet categoriesForClass!ODBC Interface! !
+
 !SSWODBCForwardOnlyResultSet methodsFor!
 
 bufferClass
@@ -18,6 +22,10 @@ bufferClass
 	which are retrieved individually)."
 
 	^SSWODBCBoundBuffer!
+
+cursorType
+
+	^statement cursorType!
 
 readStream
 
@@ -35,7 +43,11 @@ size
 	^numRows <= 0
 		ifTrue: [nil]
 		ifFalse: [numRows]! !
-!SSWODBCForwardOnlyResultSet categoriesFor: #bufferClass!constants!private! !
-!SSWODBCForwardOnlyResultSet categoriesFor: #readStream!accessing!public! !
-!SSWODBCForwardOnlyResultSet categoriesFor: #size!public! !
+
+!SSWODBCForwardOnlyResultSet categoriesForMethods!
+bufferClass!constants!private! !
+cursorType!accessing!public! !
+readStream!accessing!public! !
+size!public! !
+!
 

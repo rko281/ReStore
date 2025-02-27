@@ -5,7 +5,6 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
 	add: #SSWSQLAggregatedOrderedSelectQuery;
 	add: #SSWSQLConditionalQuery;
@@ -42,71 +41,78 @@ Object subclass: #SSWSQLQuery
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLQuery subclass: #SSWSQLObjectQuery
 	instanceVariableNames: 'object table'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLQuery subclass: #SSWSQLSubQuery
 	instanceVariableNames: 'query'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLQuery subclass: #SSWSQLTableQuery
 	instanceVariableNames: 'tables'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLObjectQuery subclass: #SSWSQLDeleteObjectQuery
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLObjectQuery subclass: #SSWSQLInsertQuery
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLObjectQuery subclass: #SSWSQLUpdateObjectQuery
 	instanceVariableNames: 'fieldUpdates'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLTableQuery subclass: #SSWSQLConditionalQuery
 	instanceVariableNames: 'conditions'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLConditionalQuery subclass: #SSWSQLDeleteQuery
 	instanceVariableNames: 'isMultiTableDelete'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLConditionalQuery subclass: #SSWSQLSelectQuery
 	instanceVariableNames: 'fields fieldAliases'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLConditionalQuery subclass: #SSWSQLUpdateQuery
 	instanceVariableNames: 'fieldUpdates'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLSelectQuery subclass: #SSWSQLOrderedSelectQuery
 	instanceVariableNames: 'orderingSpecs'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLOrderedSelectQuery subclass: #SSWSQLAggregatedOrderedSelectQuery
 	instanceVariableNames: 'groupByFields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
-
-"Loose Methods"!
 
 "End of package definition"!
 

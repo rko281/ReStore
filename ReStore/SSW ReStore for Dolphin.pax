@@ -5,7 +5,6 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
 	add: #SSWDBDolphinBlockParser;
 	yourself.
@@ -67,18 +66,14 @@ package methodNames
 	add: #SSWSQLDialect -> #isReservedWord:;
 	add: #SSWSQLDialect -> #legacyNameTransformationFor:with:;
 	add: #SSWSQLDialect -> #timestamp;
-	add: #SSWSQLDialect -> #timeStampFrom:;
 	add: #SSWSQLDialect -> #useLegacyNameTransformations;
-	add: #SSWSQLDialect -> #writeSQLForTimeStamp:on:;
 	add: #SSWSQLiteDialect -> #platformSpecificFunctions;
 	add: #SSWSQLServerDialect -> #platformSpecificFunctions;
 	add: #SSWSQLServerDialect -> #timestamp;
-	add: #SSWSQLWriteStream -> #nextPutTimeStamp:;
 	add: #StackFrame -> #_method:;
 	add: #StackFrame -> #sswByteCodeDispatcher;
 	add: #Time -> #withResolution:;
 	add: #TimeStamp -> #withResolution:;
-	add: #TimeStamp -> #writeSQLOn:;
 	add: #View -> #respondsTo:;
 	add: 'GUID class' -> #instanceFromDBValue:in:;
 	add: 'GUID class' -> #isPersistentBaseClass;
@@ -121,9 +116,6 @@ SSWDBBlockParser subclass: #SSWDBDolphinBlockParser
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
-"Global Aliases"!
-
-
 "Loose Methods"!
 
 !BlockFrame methodsFor!
@@ -131,6 +123,7 @@ SSWDBBlockParser subclass: #SSWDBDolphinBlockParser
 _method: aCompiledMethod 
 
 	super method: aCompiledMethod! !
+
 !BlockFrame categoriesForMethods!
 _method:!accessing!private! !
 !
@@ -172,6 +165,7 @@ sswWritesInstVar: aString at: anInteger
 
 	^(self extraIndex between: 1 and: 6) not 
 		and: [self sswByteCodeDispatcher writesInstVarAt: anInteger]! !
+
 !CompiledCode categoriesForMethods!
 readsOrWritesAnyInstVar!public!testing! !
 sswByteCodeDispatcher!accessing!private! !
@@ -193,6 +187,7 @@ withResolution: anInteger
 		setRataDie: rataDie 
 		seconds: ((seconds * multplier) truncated / multplier)
 		offset: offset! !
+
 !DateAndTime categoriesForMethods!
 withResolution:!accessing!public! !
 !
@@ -202,6 +197,7 @@ withResolution:!accessing!public! !
 writeSQLOn: aStream
 
 	self asByteArray writeSQLOn: aStream! !
+
 !GUID categoriesForMethods!
 writeSQLOn:!printing!public! !
 !
@@ -223,6 +219,7 @@ reStoreNewUnique
 writeSQLTypeOn: aStream using: aSQLDialect
 
 	aStream nextPutAll: aSQLDialect uuid! !
+
 !GUID class categoriesForMethods!
 instanceFromDBValue:in:!persistency!private! !
 isPersistentBaseClass!persistency!private! !
@@ -239,6 +236,7 @@ respondsTo: selector
 	^selector = #refresh
 		ifTrue: [(self class lookupMethod: #refresh) methodClass ~~ Object]
 		ifFalse: [super respondsTo: selector]! !
+
 !Presenter categoriesForMethods!
 respondsTo:!public!testing! !
 !
@@ -272,6 +270,7 @@ isInIDECallStack
 		receiver := nextReceiver].
 
 	^false! !
+
 !Process categoriesForMethods!
 isExpectedToResumePromptly!public!testing! !
 isInIDECallStack!must strip!public! !
@@ -283,6 +282,7 @@ onUnhandledTransactionError: anSSWDBTransactionError
 
 	anSSWDBTransactionError autoRecover.
 	self unhandledException: anSSWDBTransactionError! !
+
 !SessionManager categoriesForMethods!
 onUnhandledTransactionError:!event handling!private! !
 !
@@ -489,6 +489,7 @@ stackFrameDetect: aBlock
 	[(aBlock value: frame) or: [(frame := frame sender) isNil]] whileFalse.
 
 	^frame! !
+
 !SSWDBBlockArgument categoriesForMethods!
 isJumpOnNilBytecode:!parsing - internal!private! !
 postProcessDNU:!parsing - internal!public! !
@@ -504,6 +505,7 @@ stackFrameDetect:!public! !
 platformClass
 
 	^SSWDBDolphinBlockParser! !
+
 !SSWDBBlockParser class categoriesForMethods!
 platformClass!constants!public! !
 !
@@ -607,6 +609,7 @@ subclassResponsibility
 	| method |
 	method := Processor activeProcess topFrame sender method.
 	^Error subclassResponsibility: method selector! !
+
 !SSWDBProtoObject categoriesForMethods!
 perform:!message sending!public! !
 perform:with:!message sending!public! !
@@ -677,6 +680,7 @@ isNil
 	"No need to bother the proxiedObject"
 
 	^false! !
+
 !SSWDBProxy categoriesForMethods!
 _allReferences!non forwarding!public! !
 _proxyClass!accessing:direct!private! !
@@ -698,6 +702,7 @@ mustBeBoolean
 	Ask the parser to handle"
 
 	^self parser handleMustBeBooleanIn: self! !
+
 !SSWDBQueryCondition categoriesForMethods!
 mustBeBoolean!evaluating!private! !
 !
@@ -710,6 +715,7 @@ mustBeBoolean
 	Ask the parser to handle"
 
 	^self parser handleMustBeBooleanIn: self! !
+
 !SSWDBQueryConditionCollection categoriesForMethods!
 mustBeBoolean!evaluating!private! !
 !
@@ -719,6 +725,7 @@ mustBeBoolean!evaluating!private! !
 sessionManager
 
 	^SessionManager current! !
+
 !SSWDBTransactionError categoriesForMethods!
 sessionManager!accessing!private! !
 !
@@ -737,6 +744,7 @@ platformSpecificFunctions
 	^Dictionary new
 		at: #month put: 'DATEPART(''m'',%1)' asSQLFunctionIntegerResult;
 		yourself! !
+
 !SSWMSAccessDialect categoriesForMethods!
 dialectReservedWords!constants!public! !
 platformSpecificFunctions!constants!public! !
@@ -753,6 +761,7 @@ platformSpecificFunctions
 timestamp
 
 	^'DATETIME'! !
+
 !SSWMySQLDialect categoriesForMethods!
 platformSpecificFunctions!constants!public! !
 timestamp!datatypes!public! !
@@ -771,6 +780,7 @@ platformSpecificFunctions
 	^Dictionary new
 		at: #month put: 'EXTRACT(MONTH FROM %1)' asSQLFunctionIntegerResult;
 		yourself! !
+
 !SSWPostgreSQLDialect categoriesForMethods!
 legacyNameTransformationFor:with:!helpers!private! !
 platformSpecificFunctions!constants!public! !
@@ -840,6 +850,7 @@ useLegacyNameTransformations
 
 	"Must reset system classes after login to use current dialect's name transformation strategy"
 	self persistentSystemClasses do: [ :each | self addClass: each]! !
+
 !SSWReStore categoriesForMethods!
 binaryStoreOn:!binary filing!public! !
 connectString:!connection!public! !
@@ -884,10 +895,6 @@ timestamp
 
 	^self datetime!
 
-timeStampFrom: anObject
-
-	^(self dateAndTimeFrom: anObject) asTimeStamp!
-
 useLegacyNameTransformations
 
 	"Private - Previously ReStore translated inst var and class names to database names as follows:
@@ -900,30 +907,14 @@ useLegacyNameTransformations
 
 	self 
 		instVarNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_FIELD'];
-		classNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_TABLE']!
+		classNameTransformation: [ :name | self legacyNameTransformationFor: name with: '_TABLE']! !
 
-writeSQLForTimeStamp: aTimeStamp on: aStream
-
-	"For multi-datasource compatability, use standard ODBC date escape sequence {ts 'yyyy-MM-dd hh:mm:ss'}.
-	Subclasses may override to do their own thing"
-
-	aStream 
-		nextPutAll: '{ts';
-		nextPut: $'.
-	aTimeStamp date printOn: aStream format: 'yyyy-MM-dd'.
-	aStream space.
-	aTimeStamp time printOn: aStream format: 'HH:mm:ss'.
-	aStream
-		nextPut: $';
-		nextPut: $}! !
 !SSWSQLDialect categoriesForMethods!
 dialectReservedWords!constants!public! !
 isReservedWord:!public!testing! !
 legacyNameTransformationFor:with:!helpers!private! !
 timestamp!datatypes!public! !
-timeStampFrom:!conversions!public! !
 useLegacyNameTransformations!initializing!private! !
-writeSQLForTimeStamp:on:!public!writing sql! !
 !
 
 !SSWSQLiteDialect methodsFor!
@@ -933,6 +924,7 @@ platformSpecificFunctions
 	^Dictionary new
 		at: #month put: 'CAST(STRFTIME(''%%m'',%1) AS INTEGER)' asSQLFunctionIntegerResult;
 		yourself! !
+
 !SSWSQLiteDialect categoriesForMethods!
 platformSpecificFunctions!constants!public! !
 !
@@ -948,18 +940,10 @@ platformSpecificFunctions
 timestamp
 
 	^'DATETIME'! !
+
 !SSWSQLServerDialect categoriesForMethods!
 platformSpecificFunctions!constants!public! !
 timestamp!datatypes!public! !
-!
-
-!SSWSQLWriteStream methodsFor!
-
-nextPutTimeStamp: aTimeStamp
-
-	self dialect writeSQLForTimeStamp: aTimeStamp on: self! !
-!SSWSQLWriteStream categoriesForMethods!
-nextPutTimeStamp:!printing!public! !
 !
 
 !StackFrame methodsFor!
@@ -976,6 +960,7 @@ sswByteCodeDispatcher
 	^self method sswByteCodeDispatcher
 		ip: self ip;
 		yourself! !
+
 !StackFrame categoriesForMethods!
 _method:!accessing!private! !
 sswByteCodeDispatcher!accessing!private! !
@@ -992,6 +977,7 @@ withResolution: anInteger
 	multiplier := 10 ** anInteger.
 
 	^Time fromSeconds: ((seconds * multiplier) rounded / multiplier)! !
+
 !Time categoriesForMethods!
 withResolution:!public! !
 !
@@ -1000,34 +986,26 @@ withResolution:!public! !
 
 withResolution: anInteger
 
-	^TimeStamp date: self date time: (self time withResolution: anInteger)!
+	^TimeStamp date: self date time: (self time withResolution: anInteger)! !
 
-writeSQLOn: aStream
-
-	"Defer to the Stream to account for dialect differences"
-	aStream nextPutTimeStamp: self! !
 !TimeStamp categoriesForMethods!
 withResolution:!accessing!public! !
-writeSQLOn:!converting!printing!public! !
 !
 
 !TimeStamp class methodsFor!
 
 instanceFromDBValue: aValue in: anSSWReStore
 
-	"aValue may be a String, a TimeStamp, a Date or a Time depending on database supported types"
-	^aValue ifNotNil: 
-		[aValue isString
-			ifTrue: [anSSWReStore sqlDialect timeStampFrom: aValue]
-			ifFalse: [aValue asTimeStamp]]!
+	^(DateAndTime instanceFromDBValue: aValue in: anSSWReStore) ifNotNil: [ :dateAndTime | dateAndTime asTimeStamp]!
 
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	"9/3/01"
 	
 	aStream nextPutAll: anSQLDialect timestamp! !
+
 !TimeStamp class categoriesForMethods!
-instanceFromDBValue:in:!instance creation!public! !
+instanceFromDBValue:in:!public! !
 writeSQLTypeOn:using:!printing!public! !
 !
 
@@ -1040,6 +1018,7 @@ respondsTo: selector
 	^selector = #refresh
 		ifTrue: [(self class lookupMethod: #refresh) methodClass ~~ Object]
 		ifFalse: [super respondsTo: selector]! !
+
 !View categoriesForMethods!
 respondsTo:!public!testing! !
 !

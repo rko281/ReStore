@@ -8,7 +8,6 @@ https://github.com/rko281/ReStore'.
 package classNames
 	add: #SSWODBCBinaryBuffer;
 	add: #SSWODBCBoundBuffer;
-	add: #SSWODBCCharBuffer;
 	add: #SSWODBCColAttr;
 	add: #SSWODBCConnection;
 	add: #SSWODBCField;
@@ -18,8 +17,6 @@ package classNames
 	add: #SSWODBCRow;
 	add: #SSWODBCStatement;
 	add: #SSWODBCVarBinaryBuffer;
-	add: #SSWODBCVarCharBuffer;
-	add: #SSWODBCWCharBuffer;
 	yourself.
 
 package methodNames
@@ -29,7 +26,6 @@ package methodNames
 	add: #DBErrorDetails -> #isCommunicationLinkFailure;
 	add: #DBErrorDetails -> #isInvalidCursorPosition;
 	add: #DBErrorDetails -> #isInvalidTransactionState;
-	add: #DBUnstructuredFieldBuffer -> #dbUnmarshalCharBuffer:in:;
 	add: #ODBCLibrary -> #sqlDescribeParam:parameterNumber:dataTypePtr:parameterSizePtr:decimalDigitsPtr:nullablePtr:;
 	add: #SSWDBField -> #asParameterColumn:for:;
 	add: #SSWDBField -> #columnIn:;
@@ -46,7 +42,6 @@ package methodNames
 	add: #SSWSQLDialect -> #canDescribeParameters;
 	add: #SSWSQLDialect -> #catalogNameForTable:;
 	add: #SSWSQLDialect -> #createNamespaceSQLFor:;
-	add: #SSWSQLDialect -> #cursorType;
 	add: #SSWSQLDialect -> #dropNamespaceSQLFor:;
 	add: #SSWSQLDialect -> #schemaNameForTable:;
 	add: #SSWSQLDialect -> #shouldCheckAutoCommit;
@@ -62,7 +57,6 @@ package methodNames
 	add: #SSWSQLiteDialect -> #tableNamesInNamespace:for:;
 	add: #SSWSQLParameterField -> #asParameterColumn:for:;
 	add: #SSWSQLServerDialect -> #canDescribeParameters;
-	add: #SSWSQLServerDialect -> #cursorType;
 	add: #SSWSQLWriteStream -> #parameterizedColumnsFor:;
 	add: #String -> #asParameterColumn;
 	add: 'ByteArray class' -> #dbMaxFieldSize;
@@ -127,7 +121,7 @@ DBParameterizedStatement subclass: #SSWODBCStatement
 	classInstanceVariableNames: ''!
 
 DBColAttr subclass: #SSWODBCColAttr
-	instanceVariableNames: 'field maxBoundBufferSize isFunctionParameter'
+	instanceVariableNames: 'field isFunctionParameter'
 	classVariableNames: 'SSWODBCBufferClasses'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -156,26 +150,8 @@ DBBinaryBuffer subclass: #SSWODBCBinaryBuffer
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
-DBCharBuffer subclass: #SSWODBCCharBuffer
-	instanceVariableNames: 'reStore'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
 DBVarBinaryBuffer subclass: #SSWODBCVarBinaryBuffer
 	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
-DBVarCharBuffer subclass: #SSWODBCVarCharBuffer
-	instanceVariableNames: 'sqlDialect'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
-DBWCharBuffer subclass: #SSWODBCWCharBuffer
-	instanceVariableNames: 'reStore'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -269,36 +245,6 @@ sswODBCSubclass
 sswODBCSubclass!instance creation!public! !
 !
 
-!DBUnstructuredFieldBuffer methodsFor!
-
-dbUnmarshalCharBuffer: aDBField in: aReStore
-
-	"Private - Workaround for issues with function fields containing parameters seen in test cases:
-		SSWReStoreFunctionTest>>testConditionAsFunctionReceiver 
-		SSWReStoreFunctionTest>>testStaticValueAsFunctionResult
-	In both these cases the result from the hard-coded values in the function is mis-reported:
-	 - in the first case MariaDB ODBC Driver version 3.02.04.00 reports 'young' and 'old' as fixed-size CHAR fields of size 5 (i.e. the largest possible value; shorter values are null-terminated).
-	 - in the second case MySQL ODBC Driver 8.00.40.00 reports 1 and 2 as fixed-size CHAR instead of integer.
-
-	Attempt to handle cases such as these by coercing to the expected result type"
-
-	| targetClass |
-
-	"The standard case"
-	(aDBField column field ifNil: [true] ifNotNil: [ :field | (targetClass := field targetClass) = SSWDBFixedStringWithInfo]) ifTrue: [^self dbUnmarshal: aDBField].
-
-	"Simple coercion of the kind already encountered"
-	(targetClass includesBehavior: String) ifTrue: [^bytes upTo: $\x00].
-	(targetClass includesBehavior: Number) ifTrue: [^targetClass readFrom: bytes readStream].
-
-	"Take a punt on the targetClass being able to correctly convert from bytes - may be unreliable so signal this is happening"
-	Notification signal: 'Coercing <1p> to instance of <2d>' << {bytes. targetClass}.	
-	^targetClass instanceFromDBValue: bytes in: aReStore! !
-
-!DBUnstructuredFieldBuffer categoriesForMethods!
-dbUnmarshalCharBuffer:in:!operations!private! !
-!
-
 !GUID class methodsFor!
 
 dbMaxFieldSize
@@ -358,9 +304,7 @@ columnIn:!accessing!public! !
 
 asParameterColumn: anInteger for: aStatement
 
-	^(super asParameterColumn: anInteger for: aStatement) copyForFunction
-		isFunctionParameter: true;
-		yourself! !
+	^(super asParameterColumn: anInteger for: aStatement) copyForFunction! !
 
 !SSWDBFunctionField categoriesForMethods!
 asParameterColumn:for:!public! !
@@ -392,7 +336,7 @@ shouldRequeryLongColumnDefinitions
 
 	"Return whether this dialect should indivially requery the definitions of long columns.
 	
-	Here primarily to workaround an apparent bug in MariaDB ODBC driver 3.02.04.00 where, when requesting the definitions of a table's columns en masse, 
+	Here primarily to workaround an apparent bug in MariaDB ODBC driver 3.02.05.00 where, when requesting the definitions of a table's columns en masse, 
 	the length of a long column can be mis-reported as the length of the previous column in the table.
 
 	Example:
@@ -482,13 +426,6 @@ createNamespaceSQLFor: aString
 
 	^'CREATE SCHEMA ', (self asIdentifier: aString)!
 
-cursorType
-
-	"Return the Symbol-ic name of the ODBC cursor type that will be used when creating statements. 
-	See DBAbstractStatement>>cursorType for further details"
-
-	^#forwardOnly!
-
 dropNamespaceSQLFor: aString
 
 	^'DROP SCHEMA ', (self asIdentifier: aString)!
@@ -544,7 +481,6 @@ tableNamesInNamespace: aStringOrNil for: aDBConnection
 canDescribeParameters!public!testing! !
 catalogNameForTable:!helpers!public! !
 createNamespaceSQLFor:!maintenance!private! !
-cursorType!constants!public! !
 dropNamespaceSQLFor:!maintenance!private! !
 schemaNameForTable:!helpers!public! !
 shouldCheckAutoCommit!public!testing! !
@@ -629,17 +565,10 @@ canDescribeParameters
 
 	"Appears to be supported by the native ODBC driver, but flaky (doesn't work with > 1 param?), so let's act as if it doesn't work"
 
-	^false!
-
-cursorType
-
-	"Default #forwardOnly gives 'Connection is busy with results for another hstmt' error"
-
-	^#keysetDriven! !
+	^false! !
 
 !SSWSQLServerDialect categoriesForMethods!
 canDescribeParameters!public!testing! !
-cursorType!constants!public! !
 !
 
 !SSWSQLWriteStream methodsFor!

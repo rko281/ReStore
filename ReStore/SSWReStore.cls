@@ -5,11 +5,15 @@ Object subclass: #SSWReStore
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
+
 SSWReStore guid: (GUID fromString: '{5a3e3dd2-3990-11d5-b1df-444553540000}')!
+
 SSWReStore comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStore categoriesForClass!Unclassified! !
+
 !SSWReStore methodsFor!
 
 _activeProxyForObject: anObject ifNone: aBlock
@@ -726,17 +730,17 @@ executeQuery: anSSWSQLQuery
 	If it is a read query, return the DBResultSet (client code should close this when done)
 	If it is a write query, return the number of rows affected"
 
-	^self executeQuery: anSSWSQLQuery cursoredFetch: false!
+	^self executeQuery: anSSWSQLQuery cursorType: nil!
 
-executeQuery: anSSWSQLQuery cursoredFetch: aBoolean
+executeQuery: anSSWSQLQuery cursorType: aSymbol
 
 	"Execute the given query.
-	If it is a read query, return the DBResultSet (client code should close this when done); aBoolean controls whether the result set is cursored (incremental read)
+	If it is a read query, return the DBResultSet (client code should close this when done); aSymbol indicates the type of cursor for streaming/incremental read (may be nil)
 	If it is a write query, return the number of rows affected"
 
 	^self transactionCritical:
 		[| statement |
-		statement := self connection executeQuery: anSSWSQLQuery cursoredFetch: aBoolean.
+		statement := self connection executeQuery: anSSWSQLQuery cursorType: aSymbol.
 		anSSWSQLQuery isReadQuery
 			ifTrue: [statement results]
 			ifFalse: [[statement rowsAffected] ensure: [statement free]]]!
@@ -1748,6 +1752,7 @@ validateTable: anSSWDBTable
 			anSSWDBTable name: abbrevName]
 		ifFalse:
 			[self error: 'Oversize table name. Enable full table records (see supportsFullTableRecords)']]! !
+
 !SSWReStore categoriesForMethods!
 _activeProxyForObject:ifNone:!private!proxy manipulation! !
 _rollbackObjects:!private!transaction management! !
@@ -1820,7 +1825,7 @@ evaluateAsTxn:!connection!private! !
 evaluateInTransaction:!public!transaction api! !
 evaluateInTxn:!connection!private! !
 executeQuery:!connection!public! !
-executeQuery:cursoredFetch:!connection!public! !
+executeQuery:cursorType:!connection!public! !
 executeSQL:!connection!public! !
 executeSQLAsTxn:!connection!public! !
 executeSQLFrom:!connection!public! !
@@ -2079,6 +2084,7 @@ setDebugMode
 
 	"Private - Put all active instances into the current debug mode"
 	self activeReStores do: [ :each | each setDefaultDebugMode]! !
+
 !SSWReStore class categoriesForMethods!
 activated:!events!public! !
 activeReStores!accessing!public! !

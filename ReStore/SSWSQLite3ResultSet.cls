@@ -5,14 +5,22 @@ SQLite3Cursor subclass: #SSWSQLite3ResultSet
 	classVariableNames: ''
 	poolDictionaries: 'SQLite3Constants'
 	classInstanceVariableNames: ''!
+
 SSWSQLite3ResultSet guid: (GUID fromString: '{cd22f984-8475-4ee3-9d18-195a9f903add}')!
+
 SSWSQLite3ResultSet comment: ''!
+
 !SSWSQLite3ResultSet categoriesForClass!Unclassified! !
+
 !SSWSQLite3ResultSet methodsFor!
 
 columns
 
 	^columns!
+
+cursorType
+
+	^#forwardOnly!
 
 do: aBlock
 
@@ -115,8 +123,10 @@ statement: aStatement moreRows: aBoolean rows: rCollection
 
 	moreRows := aBoolean.
 	rows := rCollection! !
+
 !SSWSQLite3ResultSet categoriesForMethods!
 columns!accessing!public! !
+cursorType!accessing!public! !
 do:!enumerating!public! !
 first!accessing!public! !
 free!initialization!public! !

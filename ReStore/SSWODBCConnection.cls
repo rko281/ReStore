@@ -20,7 +20,7 @@ _columnsInTable: aDBTable
 
 	"Private - Answer the list of columns in the table matching the specified search criteria"
 
-	| i stmt colAttrs maxBoundBufferSize shouldRequeryLongColumns toRequery |
+	| i stmt colAttrs shouldRequeryLongColumns toRequery |
 
 	self sqlDialect shouldUseColumnsStatement ifFalse: [^self _columnsInTableViaQuery: aDBTable].
 
@@ -31,7 +31,6 @@ _columnsInTable: aDBTable
 		tableName: aDBTable name;
 		columnName: nil.
 	i := 0.
-	maxBoundBufferSize := self sqlDialect maxColumnBytes.
 
 	(shouldRequeryLongColumns := self sqlDialect shouldRequeryLongColumnDefinitions) ifTrue: [toRequery := OrderedCollection new].
 
@@ -49,7 +48,6 @@ _columnsInTable: aDBTable
 							precision: (each atIndex: 7);
 							scale: (each atIndex: 9);
 							field: (aDBTable fieldNamed: name);
-							maxBoundBufferSize: maxBoundBufferSize;
 							yourself.
 					(shouldRequeryLongColumns and: [(#(-4 -1 -10) includes: coll type) and: [(DBVarFieldBuffer isLongColumn: coll) not]]) ifTrue: [toRequery add: coll].
 					coll].
@@ -180,7 +178,7 @@ defaultCursorType
 
 	"Overriden to defer to the dialect"
 
-	^self sqlDialect cursorType!
+	^self sqlDialect defaultCursorType!
 
 defaultMaxColumnBytes
 
@@ -223,14 +221,13 @@ evaluateAsTxn: aBlock
 			ifTrue: [self commitTxn. true]
 			ifFalse: [self rollbackTxn. false]] on: Error do: [ :exc | self rollbackTxn. exc pass]!
 
-executeQuery: anSQLQuery cursoredFetch: aBoolean
+executeQuery: anSQLQuery cursorType: aSymbol
 
 	"Entry point for ad-hoc querying"
 
 	anSQLQuery preExecIn: self.
 
-	^self newStatement
-		cursoredFetch: aBoolean;
+	^(self newStatement: (aSymbol ifNil: [self defaultCursorType]))
 		execQuery: anSQLQuery;
 		yourself!
 
@@ -314,9 +311,7 @@ onStartup
 
 postConnect
 
-	self sqlDialect postLoginScript ifNotNil: 
-		[ :script | 
-		self evaluateAsTxn: [self exec: script. true]]!
+	self sqlDialect onConnected: self!
 
 postExec
 
@@ -397,6 +392,18 @@ stopQueryCounting
 
 	self queryCount: nil!
 
+supportsScrollableCursors
+
+	^self supportsScrollableDynamicCursorType or: [self supportsScrollableStaticCursorType]!
+
+supportsScrollableDynamicCursorType
+
+	^(self getDWordInfo: SQL_DYNAMIC_CURSOR_ATTRIBUTES1) allMask: SQL_CA1_ABSOLUTE!
+
+supportsScrollableStaticCursorType
+
+	^(self getDWordInfo: SQL_STATIC_CURSOR_ATTRIBUTES1) allMask: SQL_CA1_ABSOLUTE!
+
 tables
 
 	^self tablesInNamespace: nil!
@@ -450,7 +457,7 @@ defaultMaxColumnBytes!constants!public! !
 disconnect!operations!private! !
 dropNamespace:!operations!private! !
 evaluateAsTxn:!public!transactions! !
-executeQuery:cursoredFetch:!executing!public! !
+executeQuery:cursorType:!executing!public! !
 forgetTable:!helpers!private! !
 freeStmtHandle:!helpers!private! !
 getLongInfoString:!helpers!private! !
@@ -477,6 +484,9 @@ shouldFreeStatementsOnClose!public!testing! !
 sqlDialect!accessing!public! !
 sqlDialect:!accessing!public! !
 stopQueryCounting!operations!private! !
+supportsScrollableCursors!public!testing! !
+supportsScrollableDynamicCursorType!public!testing! !
+supportsScrollableStaticCursorType!public!testing! !
 tables!enquiries!public! !
 tablesInNamespace:!enquiries!public! !
 transaction:!public!transactions! !

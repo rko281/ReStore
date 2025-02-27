@@ -5,9 +5,13 @@ SQLite3Connection subclass: #SSWSQLite3Connection
 	classVariableNames: ''
 	poolDictionaries: 'SQLite3Constants'
 	classInstanceVariableNames: ''!
+
 SSWSQLite3Connection guid: (GUID fromString: '{9a6695ab-0c71-44c0-8c25-4b5d7f385335}')!
+
 SSWSQLite3Connection comment: ''!
+
 !SSWSQLite3Connection categoriesForClass!SQLite3-Core-Connections! !
+
 !SSWSQLite3Connection methodsFor!
 
 _columnsInTable: aDBTable
@@ -181,7 +185,7 @@ execute: aString
 
 	^(self prepare: aString) execute!
 
-executeQuery: anSQLQuery cursoredFetch: aBoolean
+executeQuery: anSQLQuery cursorType: aSymbol
 
 	"Entry point for ad-hoc querying"
 
@@ -197,7 +201,6 @@ executeQuery: anSQLQuery cursoredFetch: aBoolean
 	^statement 
 		setQuery: anSQLQuery;
 		values: values;
-		cursoredFetch: aBoolean;
 		exec;
 		yourself!
 
@@ -279,9 +282,7 @@ open
 
 postConnect
 
-	self sqlDialect postLoginScript ifNotNil: 
-		[ :script | 
-		self evaluateAsTxn: [self exec: script. true]]!
+	self sqlDialect onConnected: self!
 
 prepareQuery: anSQLQuery
 
@@ -355,6 +356,10 @@ stopQueryCounting
 
 	self queryCount: nil!
 
+supportsScrollableCursors
+
+	^false!
+
 tables
 
 	^self tablesInNamespace: self sqlDialect standardNamespace!
@@ -374,6 +379,7 @@ tablesInNamespace: aString
 			^ tables ]!
 
 willAutoCommit: aBoolean! !
+
 !SSWSQLite3Connection categoriesForMethods!
 _columnsInTable:!enquiries!public! !
 basicClose!connection open/close!public! !
@@ -399,7 +405,7 @@ dropNamespace:!db maintenance!public! !
 evaluateAsTxn:!public!transactions! !
 exec:!public!querying! !
 execute:!public!querying! !
-executeQuery:cursoredFetch:!public!querying! !
+executeQuery:cursorType:!public!querying! !
 finalize:!connection open/close!public! !
 forgetTable:!accessing!public! !
 free!connection open/close!public! !
@@ -430,6 +436,7 @@ sqlDialect!accessing!public! !
 sqlDialect:!accessing!public! !
 sqlDialectClass!constants!public! !
 stopQueryCounting!public!querying! !
+supportsScrollableCursors!public!testing! !
 tables!enquiries!public! !
 tablesInNamespace:!enquiries!public! !
 willAutoCommit:!accessing!public! !

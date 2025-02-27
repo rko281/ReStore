@@ -75,10 +75,6 @@ double
 
 	^'DOUBLE PRECISION'!
 
-falseObject
-
-	^'0'!
-
 identifierQuoteClose
 
 	^$"!
@@ -93,6 +89,16 @@ maxCharacter
 
 	^65535!
 
+onConnected: aConnection
+
+	"ReStore has removed support for non-numeric Booleans.
+	Ensure the 'bools as chars' option isn't set"
+
+	(aConnection query: 'select true') first contents first = '1' ifTrue: 
+		[self error: 'Bools as Char connection option is set; this is no longer supported in ReStore. Please unset this option in the connection configuration'].
+
+	super onConnected: aConnection!
+
 renameField: oldField to: newField in: aReStore
 
 	aReStore executeSQLFrom: 
@@ -104,10 +110,6 @@ renameField: oldField to: newField in: aReStore
 			nextPutIdentifier: oldField name;
 			nextPutAll: ' TO ';
 			nextPutIdentifier: newField name]!
-
-trueObject
-
-	^'1'!
 
 unsizedBlob
 
@@ -127,12 +129,11 @@ defaultMaxTableNameLength!constants!public! !
 defaultStandardNamespace!constants!public! !
 dialectSpecificFunctions!constants!public! !
 double!datatypes!public! !
-falseObject!constants!public! !
 identifierQuoteClose!constants!public! !
 identifierQuoteOpen!constants!public! !
 maxCharacter!constants!public! !
+onConnected:!event handling!public! !
 renameField:to:in:!maintenance!public! !
-trueObject!constants!public! !
 unsizedBlob!datatypes!public! !
 uuid!datatypes!public! !
 !
