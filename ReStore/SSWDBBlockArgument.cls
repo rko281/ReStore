@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBBlockEvaluator subclass: #SSWDBBlockArgument
 	instanceVariableNames: 'currentClass isForModify finalFields'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBBlockArgument guid: (GUID fromString: '{5a3e3dcd-3990-11d5-b1df-444553540000}')!
+
 SSWDBBlockArgument comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBBlockArgument categoriesForClass!Unclassified! !
+
 !SSWDBBlockArgument methodsFor!
 
 & aValue
@@ -386,7 +390,11 @@ simulateMessageSend: aMessage
 
 	^(self currentClass lookupMethod: aMessage selector)
 		ifNil: [self parseError: '<1d> does not implement <2p>' << {self currentClass. aMessage selector}]
-		ifNotNil: [ :method | self simulateMethod: method withArguments: aMessage arguments]!
+		ifNotNil: 
+			[ :method | 
+			method == (Object>>#=) 
+				ifTrue: [self sqlConditionFor: aMessage]
+				ifFalse: [self simulateMethod: method withArguments: aMessage arguments]]!
 
 simulateMessageSendToFinalField: aMessage
 
@@ -474,6 +482,7 @@ writeSQLOn: aStream
 	condition isNil ifFalse: [self finalField: field].
 	
 	^(condition ifNil: [self finalField]) writeSQLOn: aStream! !
+
 !SSWDBBlockArgument categoriesForMethods!
 &!parsing - implicit true!public! !
 _cacheDictionaryKey_!parsing - internal!private! !
@@ -534,6 +543,7 @@ new
 	^super new
 		finalFields: (OrderedCollection new: 2);
 		yourself! !
+
 !SSWDBBlockArgument class categoriesForMethods!
 new!instance creation!public! !
 !

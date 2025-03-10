@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreSortTest
 	instanceVariableNames: 'simplePersonCompareMethod'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreSortTest guid: (GUID fromString: '{8d5253a9-2eb9-4836-bcb2-265137d61adb}')!
+
 SSWReStoreSortTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreSortTest categoriesForClass!Unclassified! !
+
 !SSWReStoreSortTest methodsFor!
 
 _testClassSortImplementationInverted
@@ -206,6 +210,64 @@ testSortImplementationWithBlocks
 
 	self assert: ((instances collect: [ :each | each fullName]) asArray = #('Jim Brown' 'Zoe Brown' 'John Smith' 'David Smythe' ))!
 
+testSortImplementationWithPersistentObjectEqualityIdentityCondition
+
+	"Test a previously-erroring case where a sort block containing an equality test on a persistent class which does not implement a custom equality test 
+	(i.e. drops through to the identity test in Object>>#=) gave an error or went unprocessed"
+
+	| instances test1 test2 test3 testEquality |
+
+	instances := (SimplePerson storedInstancesIn: reStore) asSortedCollection.
+	self assert: (instances collect: [ :each | each fullName]) asArray equals: #('Jim Brown' 'Zoe Brown' 'John Smith' 'David Smythe' ).
+	test1 := Test new name: '1'.
+	test2 := Test new name: '2'.
+	test3 := Test new name: '3'.
+	instances first test: test1.
+	instances second test: test2.
+	instances third test: test3.
+	instances fourth test: test3.
+	instances storeAllIn: reStore.
+
+	"Remove the implementation of equality from Test"
+	testEquality := Test>>#=.
+	self removeSelector: #= fromClass: Test.
+
+	[self 
+		shouldnt:
+			[instances := (SimplePerson storedInstancesIn: reStore) asSortedCollection: [ :a :b | (a test < b test) | ((a test = b test) & (a firstName <= b firstName))]]
+		raise: Error.
+
+	self assert: (instances collect: [ :each | each fullName]) asArray equals: #('Jim Brown' 'Zoe Brown' 'David Smythe' 'John Smith')] ensure: [self addMethod: testEquality withSelector: #= toClass: Test]!
+
+testSortImplementationWithPersistentObjectEqualityIdentityConditionWithBlocks
+
+	"Test a previously-erroring case where a sort block containing an equality test on a persistent class which does not implement a custom equality test 
+	(i.e. drops through to the identity test in Object>>#=) gave an error or went unprocessed"
+
+	| instances test1 test2 test3 testEquality |
+
+	instances := (SimplePerson storedInstancesIn: reStore) asSortedCollection.
+	self assert: (instances collect: [ :each | each fullName]) asArray equals: #('Jim Brown' 'Zoe Brown' 'John Smith' 'David Smythe' ).
+	test1 := Test new name: '1'.
+	test2 := Test new name: '2'.
+	test3 := Test new name: '3'.
+	instances first test: test1.
+	instances second test: test2.
+	instances third test: test3.
+	instances fourth test: test3.
+	instances storeAllIn: reStore.
+
+	"Remove the implementation of equality from Test"
+	testEquality := Test>>#=.
+	self removeSelector: #= fromClass: Test.
+
+	[self 
+		shouldnt:
+			[instances := (SimplePerson storedInstancesIn: reStore) asSortedCollection: [ :a :b | a test < b test or: [a test = b test and: [a firstName <= b firstName]]]]
+		raise: Error.
+
+	self assert: (instances collect: [ :each | each fullName]) asArray equals: #('Jim Brown' 'Zoe Brown' 'David Smythe' 'John Smith')] ensure: [self addMethod: testEquality withSelector: #= toClass: Test]!
+
 testStandardSort
 
 	| instances |
@@ -252,6 +314,7 @@ testStandardSortWithBlocks
 	instances := (SimplePerson storedInstancesIn: reStore) asSortedCollection: [ :a :b | a firstName < b firstName or: [a firstName = b firstName and: [a surname <= b surname]]].
 
 	self assert: ((instances collect: [ :each | each fullName]) asArray = #('Jim Brown' 'John Smith' 'John Smythe' 'Zoe Brown'))! !
+
 !SSWReStoreSortTest categoriesForMethods!
 _testClassSortImplementationInverted!inverse!public! !
 _testClassSortImplementationWithBlocksInverted!inverse!public! !
@@ -272,6 +335,8 @@ testSortImplementationOnPersistentObject!public!unit tests! !
 testSortImplementationOnPersistentObjectWithBlocks!public!unit tests! !
 testSortImplementationReversed!public!unit tests! !
 testSortImplementationWithBlocks!public!unit tests! !
+testSortImplementationWithPersistentObjectEqualityIdentityCondition!public!unit tests! !
+testSortImplementationWithPersistentObjectEqualityIdentityConditionWithBlocks!public!unit tests! !
 testStandardSort!public!unit tests! !
 testStandardSortOnPersistentObject!public!unit tests! !
 testStandardSortOnPersistentObjectWithBlocks!public!unit tests! !

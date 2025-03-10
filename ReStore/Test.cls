@@ -1,16 +1,24 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #Test
 	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Test guid: (GUID fromString: '{75e7c262-4b99-11d5-b1df-0010a70883e2}')!
+
 Test comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !Test categoriesForClass!Unclassified! !
+
 !Test methodsFor!
+
+< a
+
+	^self name < a name!
 
 <= a
 
@@ -45,13 +53,17 @@ name: anObject
 printOn: aStream
 
 	aStream nextPutAll: self name! !
-!Test categoriesFor: #<=!comparing!public! !
-!Test categoriesFor: #=!comparing!public! !
-!Test categoriesFor: #handleUpdateClash:from:to:!public! !
-!Test categoriesFor: #hash!comparing!public! !
-!Test categoriesFor: #name!accessing!private! !
-!Test categoriesFor: #name:!accessing!private! !
-!Test categoriesFor: #printOn:!public! !
+
+!Test categoriesForMethods!
+<!comparing!public! !
+<=!comparing!public! !
+=!comparing!public! !
+handleUpdateClash:from:to:!public! !
+hash!comparing!public! !
+name!accessing!private! !
+name:!accessing!private! !
+printOn:!public! !
+!
 
 !Test class methodsFor!
 
@@ -60,5 +72,8 @@ reStoreDefinition
 	^super reStoreDefinition
 		define: #name as: (String maxSize: 128);
 		yourself! !
-!Test class categoriesFor: #reStoreDefinition!public! !
+
+!Test class categoriesForMethods!
+reStoreDefinition!public! !
+!
 
