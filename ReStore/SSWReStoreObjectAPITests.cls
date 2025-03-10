@@ -1,18 +1,22 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStore2Test subclass: #SSWReStoreObjectAPITests
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreObjectAPITests guid: (GUID fromString: '{4ddc6940-d762-4d55-b7eb-02267d50e20b}')!
+
 SSWReStoreObjectAPITests comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreObjectAPITests categoriesForClass!Unclassified! !
+
 !SSWReStoreObjectAPITests methodsFor!
 
-_test05CommitFailureRefreshAndRollbackDirectedToProxy: aBoolean
+_test05StoreFailureRollbackAndRefreshDirectedToProxy: aBoolean
 
 	"Private - aBoolean controls whether the store message is directed to the real object or the proxy.
 	Direct to the proxy previously failed to raise a StoreFailure exception, leaving a transaction in an open state"
@@ -117,6 +121,142 @@ _test06StoreFailureRefreshAndRollforwardDirectedToProxy: aBoolean
 	self assert: obj1A name = newName.
 	self assert: obj1A single2 name = newSingleName!
 
+_test25StoreFailureHandlerRollbackAndRefreshDirectedToProxy: aBoolean
+
+	"Private - aBoolean controls whether the store message is directed to the real object or the proxy.
+	Direct to the proxy previously failed to raise a StoreFailure exception, leaving a transaction in an open state"
+
+	| obj1 obj1A oldName oldSingleName newName newSingleName failureRaised |
+
+	obj1 := self _testCreateObject.
+
+	"Update in the other session"
+	self refreshDelay.
+	obj1A := (OwnerTest storedInstancesIn: reStore2) first.
+	obj1A single2 name: 'BLOCK UPDATE'.
+	self assert: obj1A store.
+
+	self refreshDelay.
+
+	"Blocked clashing update should fail"
+	oldName := obj1 name.
+	oldSingleName := obj1 single2 name.
+	newName := oldName, 'AAA'.
+	newSingleName := oldSingleName, 'AAA'.
+	obj1 name: newName.
+	obj1 single2 name: newSingleName.
+
+	failureRaised := false.
+
+	"Install the custom storeFailureHandler"
+	reStore storeFailureHandler: 
+		[ :storeFailure |
+		failureRaised := true.
+		self assert: storeFailure failedObjects asArray = {obj1 single2}.
+		storeFailure rollbackAndRefresh].
+
+	aBoolean ifTrue: [reStore abandonTransaction].
+	self deny: obj1 store.
+	self assert: failureRaised.
+
+	"Due to rollback and refresh we should now be in the same state as the other session"
+	self deny: reStore isTransactionInProgress.
+	self deny: obj1 hasChanged.
+	self assert: obj1 name = obj1A name.
+	self assert: obj1 single2 name = obj1A single2 name!
+
+_test26StoreFailureHandlerRefreshAndRollforwardDirectedToProxy: aBoolean
+
+	"Private - aBoolean controls whether the store message is directed to the real object or the proxy.
+	Direct to the proxy previously failed to raise a StoreFailure exception, leaving a transaction in an open state"
+
+	| obj1 obj1A oldName oldSingleName newName newSingleName failureRaised |
+
+	obj1 := self _testCreateObject.
+
+	"Update in the other session"
+	self refreshDelay.
+	obj1A := (OwnerTest storedInstancesIn: reStore2) first.
+	obj1A single2 name: 'BLOCK UPDATE'.
+	self assert: obj1A store.
+
+	self refreshDelay.
+
+	"Blocked clashing update should fail"
+	oldName := obj1 name.
+	oldSingleName := obj1 single2 name.
+	newName := oldName, 'AAA'.
+	newSingleName := oldSingleName, 'AAA'.
+	obj1 name: newName.
+	obj1 single2 name: newSingleName.
+
+	failureRaised := false.
+
+	"Install the custom storeFailureHandler"
+	reStore storeFailureHandler: 
+		[ :storeFailure |
+		failureRaised := true.
+		self assert: storeFailure failedObjects asArray = {obj1 single2}.
+		storeFailure refreshAndRollforward].
+
+	aBoolean ifTrue: [reStore abandonTransaction].
+	self deny: obj1 store.
+	self assert: failureRaised.
+
+	"Due to refresh and rollforware we should still have our changes"
+	self assert: reStore isTransactionInProgress.
+	self assert: obj1 hasChanged.
+	self assert: obj1 name = newName.
+	self assert: obj1 single2 name = newSingleName!
+
+_test35StoreFailureHandlerOverriddenDirectedToProxy: aBoolean
+
+	"Private - aBoolean controls whether the store message is directed to the real object or the proxy.
+	Ensure a custom storeFailureHandler can be overridden on a case-by-case basis"
+
+	| obj1 obj1A oldName oldSingleName newName newSingleName failureRaised |
+
+	obj1 := self _testCreateObject.
+
+	"Update in the other session"
+	self refreshDelay.
+	obj1A := (OwnerTest storedInstancesIn: reStore2) first.
+	obj1A single2 name: 'BLOCK UPDATE'.
+	self assert: obj1A store.
+
+	self refreshDelay.
+
+	"Blocked clashing update should fail"
+	oldName := obj1 name.
+	oldSingleName := obj1 single2 name.
+	newName := oldName, 'AAA'.
+	newSingleName := oldSingleName, 'AAA'.
+	obj1 name: newName.
+	obj1 single2 name: newSingleName.
+
+	"Install a custom storeFailureHandler which will refreshAndRollforward"
+	reStore storeFailureHandler: 
+		[ :storeFailure |
+		failureRaised := true.
+		self assert: storeFailure failedObjects asArray = {obj1 single2}.
+		storeFailure refreshAndRollforward].
+
+	aBoolean ifTrue: [reStore abandonTransaction].
+
+	"Retry with commit failure handling to rollback and refresh"
+	[obj1 store] on: StoreFailure do: 
+		[ :failedTransaction | 
+		failureRaised := true.
+		self assert: failedTransaction failedObjects asArray = {obj1 single2}.
+		failedTransaction rollbackAndRefresh].
+
+	self assert: failureRaised.
+
+	"Rollback and refresh should have overridden the installed refreshAndRollforward action.
+	Thus we should now be in the same state as the other session"
+	self assert: obj1 name = obj1A name.
+	self assert: obj1 single2 name = obj1A single2 name!
+
 _testCreateObject
 
 	| obj1 |
@@ -168,6 +308,11 @@ createReStore
 	"Private - Use the default instance"
 
 	reStore := ReStore!
+
+tearDown
+
+	reStore storeFailureHandler: nil.
+	^super tearDown!
 
 test01Store
 
@@ -258,13 +403,13 @@ test04HasChanged
 	self deny: obj1 single2 hasChanged.
 	self deny: obj1 hasChanged!
 
-test05CommitFailureRefreshAndRollback
+test05StoreFailureRollbackAndRefresh
 
-	self _test05CommitFailureRefreshAndRollbackDirectedToProxy: false!
+	self _test05StoreFailureRollbackAndRefreshDirectedToProxy: false!
 
-test05CommitFailureRefreshAndRollbackDirectedToProxy
+test05StoreFailureRollbackAndRefreshDirectedToProxy
 
-	self _test05CommitFailureRefreshAndRollbackDirectedToProxy: true!
+	self _test05StoreFailureRollbackAndRefreshDirectedToProxy: true!
 
 test06StoreFailureRefreshAndRollforward
 
@@ -647,7 +792,31 @@ test18StoreWithTransactionRollbackNonProxied
 
 	self assert: obj3 isNil!
 
-test19UnstoreAll
+test25StoreFailureHandlerRollbackAndRefresh
+
+	self _test25StoreFailureHandlerRollbackAndRefreshDirectedToProxy: false!
+
+test25StoreFailureHandlerRollbackAndRefreshDirectedToProxy
+
+	self _test25StoreFailureHandlerRollbackAndRefreshDirectedToProxy: true!
+
+test26StoreFailureHandlerRefreshAndRollforward
+
+	self _test26StoreFailureHandlerRefreshAndRollforwardDirectedToProxy: false!
+
+test26StoreFailureHandlerRefreshAndRollforwardDirectedToProxy
+
+	self _test26StoreFailureHandlerRefreshAndRollforwardDirectedToProxy: true!
+
+test35StoreFailureHandlerOverridden
+
+	self _test35StoreFailureHandlerOverriddenDirectedToProxy: false!
+
+test35StoreFailureHandlerOverriddenDirectedToProxy
+
+	self _test35StoreFailureHandlerOverriddenDirectedToProxy: true!
+
+test99UnstoreAll
 
 	| objs obj1 obj2 prevName1 prevSingleName1 prevName2 prevSingleName2 prevCount1 prevSingleCount1 prevCount2 prevSingleCount2 |
 
@@ -671,18 +840,23 @@ test19UnstoreAll
 	self assert: (Test storedInstances satisfying: [ :each | each name = prevSingleName1]) size = (prevSingleCount1 - 1).
 	self assert: (OwnerTest storedInstances satisfying: [ :each | each name = prevName2]) size = (prevCount2 - 1).
 	self assert: (Test storedInstances satisfying: [ :each | each name = prevSingleName2]) size = (prevSingleCount2 - 1)! !
+
 !SSWReStoreObjectAPITests categoriesForMethods!
-_test05CommitFailureRefreshAndRollbackDirectedToProxy:!private!unit tests! !
+_test05StoreFailureRollbackAndRefreshDirectedToProxy:!private!unit tests! !
 _test06StoreFailureRefreshAndRollforwardDirectedToProxy:!private!unit tests! !
+_test25StoreFailureHandlerRollbackAndRefreshDirectedToProxy:!private!unit tests! !
+_test26StoreFailureHandlerRefreshAndRollforwardDirectedToProxy:!private!unit tests! !
+_test35StoreFailureHandlerOverriddenDirectedToProxy:!private!unit tests! !
 _testCreateObject!private!running! !
 _testCreateObjects!private!running! !
 createReStore!private!running! !
+tearDown!private!running! !
 test01Store!public!unit tests! !
 test02Rollback!public!unit tests! !
 test03Refresh!public!unit tests! !
 test04HasChanged!public!unit tests! !
-test05CommitFailureRefreshAndRollback!public!unit tests! !
-test05CommitFailureRefreshAndRollbackDirectedToProxy!public!unit tests! !
+test05StoreFailureRollbackAndRefresh!public!unit tests! !
+test05StoreFailureRollbackAndRefreshDirectedToProxy!public!unit tests! !
 test06StoreFailureRefreshAndRollforward!public!unit tests! !
 test06StoreFailureRefreshAndRollforwardDirectedToProxy!public!unit tests! !
 test08CantPersistCollection!public!unit tests! !
@@ -696,6 +870,12 @@ test15StoreWithTransaction!public!unit tests! !
 test16StoreWithTransactionNonProxied!public!unit tests! !
 test17StoreWithTransactionRollback!public!unit tests! !
 test18StoreWithTransactionRollbackNonProxied!public!unit tests! !
-test19UnstoreAll!public!unit tests! !
+test25StoreFailureHandlerRollbackAndRefresh!public!unit tests! !
+test25StoreFailureHandlerRollbackAndRefreshDirectedToProxy!public!unit tests! !
+test26StoreFailureHandlerRefreshAndRollforward!public!unit tests! !
+test26StoreFailureHandlerRefreshAndRollforwardDirectedToProxy!public!unit tests! !
+test35StoreFailureHandlerOverridden!public!unit tests! !
+test35StoreFailureHandlerOverriddenDirectedToProxy!public!unit tests! !
+test99UnstoreAll!public!unit tests! !
 !
 

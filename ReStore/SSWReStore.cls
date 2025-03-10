@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging'
+	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging storeFailureHandler'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
@@ -1524,6 +1524,24 @@ sqlDialect
 
 	^self connection sqlDialect!
 
+storeFailureHandler
+
+	"storeFailureHandler optionally stores a one-arg block which is evaluated with an otherwise-unhandled StoreFailure.
+	This can override the defaultAction of the StoreFailure, e.g. to notify the user of a failure.
+
+	If nil the StoreFailure will take its usual defaultAction (abandon)"
+
+	^storeFailureHandler!
+
+storeFailureHandler: aBlock
+
+	"storeFailureHandler optionally stores a one-arg block which is evaluated with an otherwise-unhandled StoreFailure.
+	This can override the defaultAction of the StoreFailure, e.g. to notify the user of a failure.
+
+	If nil the StoreFailure will take its usual defaultAction (abandon)"
+
+	storeFailureHandler := aBlock!
+
 supportsFullTableRecords
 
 	"supportsFullTableRecords stores a Boolean indicating whether the receiver
@@ -1913,6 +1931,8 @@ setDefaultTransactionMode!initialize/release!private! !
 softDisconnect!connection!private! !
 softRollback!public!transaction api! !
 sqlDialect!accessing!public! !
+storeFailureHandler!accessing!public! !
+storeFailureHandler:!accessing!public! !
 supportsFullTableRecords!accessing!public! !
 supportsFullTableRecords:!accessing!public! !
 supportsVersioning!public!testing! !
