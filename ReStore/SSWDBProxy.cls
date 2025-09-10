@@ -5,11 +5,15 @@ SSWDBProtoObject subclass: #SSWDBProxy
 	classVariableNames: 'IsDeletedMask IsPersistentMask IsSwappedMask'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBProxy guid: (GUID fromString: '{5a3e3dd8-3990-11d5-b1df-444553540000}')!
+
 SSWDBProxy comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBProxy categoriesForClass!Unclassified! !
+
 !SSWDBProxy methodsFor!
 
 __ensureActive
@@ -27,6 +31,10 @@ __ensureActive
 __referenced
 
 	reStore proxy: self forwarded: ##(Message selector: #_referenced)!
+
+_abandonChanges
+
+	self _isPersistent ifTrue: [self _unswap]!
 
 _changedObjectsIn: aReStore
 
@@ -707,9 +715,11 @@ yourself
 	"No need to bother the proxiedObject"
 	
 	^self! !
+
 !SSWDBProxy categoriesForMethods!
 __ensureActive!actions-internal!public! !
 __referenced!actions-internal!private! !
+_abandonChanges!actions-internal!public! !
 _changedObjectsIn:!accessing!public! !
 _checkHasChanged!public!testing! !
 _checkHasChangedIn:!public!testing! !
@@ -817,6 +827,7 @@ new
 	^super new
 		_flags: IsPersistentMask;
 		yourself! !
+
 !SSWDBProxy class categoriesForMethods!
 initialize!class initialization!public! !
 new!instance creation!public! !

@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBProxy subclass: #SSWDBObjectProxy
 	instanceVariableNames: 'class id collectionProxies'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBObjectProxy guid: (GUID fromString: '{5a3e3ddb-3990-11d5-b1df-444553540000}')!
+
 SSWDBObjectProxy comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBObjectProxy categoriesForClass!Unclassified! !
+
 !SSWDBObjectProxy methodsFor!
 
 _acquireCollectionProxiesUsing: collectionSpecs
@@ -305,8 +309,7 @@ _rollbackStore
 
 	"Private - The receiver was a newly-persisted object - deregister from the reStore"
 
-	reStore deregisterProxy: self.
-	self _unswap!
+	reStore deregisterProxy: self!
 
 _rollbackUnstore
 
@@ -564,6 +567,7 @@ writeSQLOn: aStream forField: aField
 	"The SQL for a persistent object is its id"
 
 	id writeSQLOn: aStream forField: aField! !
+
 !SSWDBObjectProxy categoriesForMethods!
 _acquireCollectionProxiesUsing:!actions-internal!public! !
 _class!accessing!public! !
@@ -664,6 +668,7 @@ modifyUpdatesFor: anSSWDBTable
 	None by default, subclasses should override as necessary"
 
 	^OrderedCollection new! !
+
 !SSWDBObjectProxy class categoriesForMethods!
 _forNewObject:withID:inReStore:!instance creation!public! !
 _forObjectOfClass:withID:inReStore:!instance creation!public! !

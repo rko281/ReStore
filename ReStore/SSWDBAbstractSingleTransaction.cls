@@ -1,22 +1,26 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
 	instanceVariableNames: 'allReferencedObjects currentReferencedObjects activeProxiesMap changedObjects allocatedIDs deletedObjects'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBAbstractSingleTransaction guid: (GUID fromString: '{5a3e3dd4-3990-11d5-b1df-444553540000}')!
+
 SSWDBAbstractSingleTransaction comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBAbstractSingleTransaction categoriesForClass!Unclassified! !
+
 !SSWDBAbstractSingleTransaction methodsFor!
 
 abandon
 
 	"End this transaction, leaving objects in their current state (unlike rollback which returns them to their state prior to the transaction)"
 
-	self currentReferencedObjects do: [ :each | each _unswap].
+	self currentReferencedObjects do: [ :each | each _abandonChanges].
 	self endObjectCollection!
 
 activeProxiesMap
@@ -298,6 +302,7 @@ removeProxy: aProxydObject
 resetChangedObjects
 
 	self changedObjects: nil! !
+
 !SSWDBAbstractSingleTransaction categoriesForMethods!
 abandon!actions!public! !
 activeProxiesMap!accessing!private! !
