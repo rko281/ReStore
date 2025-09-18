@@ -57,15 +57,15 @@ value: anObject
 	e.g. YEAR(DATE_FIELD) may report DATE rather than INT type, or CONCAT(FIELD1, FIELD2) may have an insufficient buffer size for the parameter.
 	Where this happens and causes an error, reconfigure the column based on the supplier parameter value, retry and mark the receiver for rebinding by its statement"
 
-	[super value: anObject] on: Error do: 
-		[ :exc |
-		self column isFunctionParameter ifFalse: [exc pass].
-		"Transcript cr; show: ('reconfigured <1s> size <2p>' expandMacrosWith: (ODBCTypes keyAtValue: column type) with: column length)."
-		column configureToHold: anObject.
-		self needsRebinding: true.
-		buffer := self allocateBuffer.
-		"Transcript show: (' to <1s> size <2p>' expandMacrosWith: (ODBCTypes keyAtValue: column type) with: column length)."
-		exc return: (super value: anObject)]! !
+	(anObject isNil or: [self column isFunctionParameter not or: [(anObject isKindOf: buffer valueClass) or: [anObject isString and: [buffer valueClass includesBehavior: String]]]]) ifTrue: [^super value: anObject].
+
+	"Transcript cr; show: ('reconfigured <1s> size <2p>' expandMacrosWith: (ODBCTypes keyAtValue: column type) with: column length)."
+	column configureToHold: anObject.
+	self needsRebinding: true.
+	buffer := self allocateBuffer.
+	"Transcript show: (' to <1s> size <2p>' expandMacrosWith: (ODBCTypes keyAtValue: column type) with: column length)."
+
+	buffer dbMarshal: anObject into: self! !
 
 !SSWODBCLongVarField categoriesForMethods!
 initializeForColumn:!accessing!initializing!private! !

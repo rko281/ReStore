@@ -30,6 +30,7 @@ package methodNames
 	add: #SSWReStoreDebugTest -> #testFlipperInspectorIsInIDECallStack;
 	add: #SSWReStoreDebugTest -> #testWorkspaceIsInIDECallStack;
 	add: #SSWReStoreFullTableTest -> #test21VerifyLegacyNameTransformationMode;
+	add: #SSWReStoreFunctionTest -> #testDifferentClassAsFunctionCriteriaUnsizedStringSize;
 	add: #SSWReStoreFunctionTest -> #testFunctionsDontCorruptODBCFieldDefinition;
 	add: #SSWReStoreFunctionTest -> #testPlatformSpecificFunction;
 	add: #SSWReStoreIsNilQueryTest -> #assertIsNilJumpBytecodePattern1:;
@@ -72,6 +73,8 @@ package methodNames
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3a;
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern3b;
 	add: #SSWReStoreNotNilQueryTest -> #testNotNilJumpBytecodePattern4;
+	add: #SSWReStoreQueryTest -> #testOversizeStringParameterReadQuery;
+	add: #SSWReStoreQueryTest -> #testOversizeStringParameterWriteQuery;
 	add: #SSWReStoreQueryTest -> #testQueryWithIfTrueMethodFollowedByOr;
 	add: #SSWReStoreResourcesTest -> #_testStatementFinalizedAfter:;
 	add: #SSWReStoreResourcesTest -> #_testStatementFreedAfter:;
@@ -322,6 +325,32 @@ test21VerifyLegacyNameTransformationMode!public!unit tests! !
 
 !SSWReStoreFunctionTest methodsFor!
 
+testDifferentClassAsFunctionCriteriaUnsizedStringSize
+
+	"Test a query where the result of a function is a different class to the source field.
+	Specific case - size function applied to unsized String field.
+	This checks a previously-failing case with Dolphin ODBC"
+
+	| result |
+
+	reStore addClass: TypeTest; synchronizeClass: TypeTest.
+
+	{TypeTest new varchar: 'medium'; unsizedText: ((String new: 10000) atAllPut: $M; yourself).
+	TypeTest new varchar: 'large'; unsizedText: ((String new: 100000) atAllPut: $L; yourself)} storeAllIn: reStore.
+
+	"Unsized string fields previously failed to be reconfigured by a function with a different result type"
+	self shouldnt: [result := (TypeTest storedInstancesIn: reStore) select: [ :each | each unsizedText size = 10000]] raise: Error.
+	self assert: result size equals: 1.
+	self assert: result first varchar equals: 'medium'.
+	self assert: result first unsizedText first equals: $M.
+
+	"Previously Dolphin ODBC used SQL_SMALLINT when reconfiguring function columns; this maps to SWORD so errored with values outside this range.
+	Now uses SQL_INTEGER"
+	self shouldnt: [result := (TypeTest storedInstancesIn: reStore) select: [ :each | each unsizedText size = 100000]] raise: Error.
+	self assert: result size equals: 1.
+	self assert: result first varchar equals: 'large'.
+	self assert: result first unsizedText first equals: $L!
+
 testFunctionsDontCorruptODBCFieldDefinition
 
 	"Test a previously-failing case where a function applied to a field could corrupt the field definition in the 'new' Dolphin ODBC implementation"
@@ -377,6 +406,7 @@ testPlatformSpecificFunction
 	self assert: (results asSortedCollection: [ :a :b | a first >= b first]) asArray equals: expectedResults! !
 
 !SSWReStoreFunctionTest categoriesForMethods!
+testDifferentClassAsFunctionCriteriaUnsizedStringSize!public!unit tests! !
 testFunctionsDontCorruptODBCFieldDefinition!public!unit tests! !
 testPlatformSpecificFunction!public!unit tests! !
 !
@@ -946,6 +976,41 @@ testNotNilJumpBytecodePattern4!public!unit tests! !
 
 !SSWReStoreQueryTest methodsFor!
 
+testOversizeStringParameterReadQuery
+
+	"Test a previously-failing case under Dolphin ODBC where a String query parameter larger than the defined max size of the field caused an error"
+
+	| instances results oversizeString |
+
+	reStore connection class = SSWODBCConnection ifFalse: [^self].
+
+	instances := SimplePerson storedInstancesIn: reStore.
+	oversizeString := String new: ((reStore tableForClass: SimplePerson) fieldAccessing: #firstName) targetClass fieldSize + 1.
+	oversizeString atAllPut: $A.
+	self shouldnt: [results := instances select: [ :each | each firstName = oversizeString]] raise: BoundsError.
+
+	self assert: results isEmpty!
+
+testOversizeStringParameterWriteQuery
+
+	"Complement to testOversizeStringParameterReadQuery: 
+	Ensure we don't resize columns for oversize Strings on insert and update queries - we should still receiver errors in these cases"
+
+	| oversizeString person |
+
+	reStore connection class = SSWODBCConnection ifFalse: [^self].
+
+	oversizeString := String new: ((reStore tableForClass: SimplePerson) fieldAccessing: #firstName) targetClass fieldSize + 1.
+	oversizeString atAllPut: $A.
+
+	self should: [SimplePerson new firstName: oversizeString; storeIn: reStore] raise: Error. 
+
+	SimplePerson new firstName: 'updateTest'; storeIn: reStore.
+	person := (SimplePerson storedInstancesIn: reStore) asOrderedCollection detect: [ :each | each firstName = 'updateTest'].
+
+	person firstName: oversizeString.
+	self should: [person store] raise: Error!
+
 testQueryWithIfTrueMethodFollowedByOr
 
 	"Test for a previously-failing combination with the Dolphin block parser"
@@ -960,6 +1025,8 @@ testQueryWithIfTrueMethodFollowedByOr
 	self assert: ((smiths collect: [ :each | each firstName]) asSortedCollection asArray) equals: #('John' 'Zoe')! !
 
 !SSWReStoreQueryTest categoriesForMethods!
+testOversizeStringParameterReadQuery!public!unit tests! !
+testOversizeStringParameterWriteQuery!public!unit tests! !
 testQueryWithIfTrueMethodFollowedByOr!public!unit tests! !
 !
 

@@ -42,15 +42,15 @@ configureToHoldNumber: aNumber
 
 	aNumber isInteger ifTrue:
 		[^aNumber byteSize = 4
-			ifTrue: [self type: SQL_SMALLINT]
+			ifTrue: [self type: SQL_INTEGER]
 			ifFalse: [self type: SQL_BIGINT]].
 
-	(aNumber isFloat or: [aNumber isFraction]) ifTrue: [self type: SQL_DOUBLE].
+	(aNumber isFloat or: [aNumber isFraction]) ifTrue: [^self type: SQL_DOUBLE].
 
 	aNumber class = ScaledDecimal ifTrue: 
 		[precision := 64.
 		scale := aNumber scale.
-		self type: SQL_DECIMAL].
+		^self type: SQL_DECIMAL].
 
 	self error: 'unsupported numeric class'!
 
