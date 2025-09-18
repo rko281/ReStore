@@ -255,6 +255,19 @@ implyTrue: aCondition
 
 	^aCondition!
 
+includedIn: aCollection
+
+	"Convert to the appropriate SQL condition"
+
+	^self sqlConditionFor: (Message selector: #includedIn: argument: aCollection)!
+
+includes: aCollection
+
+	"Sent following a switch of receiver and arguments in preProcessNextMessageFor:in:
+	Send to the equivalent reversed message"
+
+	^self includedIn: aCollection!
+
 indexOf: aCharacter
 
 	"SQL does not differentiate between Characters and Strings.
@@ -294,18 +307,26 @@ leftString: lenInteger
 	
 	^self midString: lenInteger from: 1!
 
+match: aString
+
+	"Sent following a switch of receiver and arguments in preProcessNextMessageFor:in:
+	Send to the equivalent reversed message"
+
+	^self matches: aString!
+
 matches: aString
 
 	"Essentially the inverse of match: (ie pattern is the argument, not the receiver)	
-	Equivalent to like: (which is handled via DNU) but translate Dolphin-specific wildcards"
+	Equivalent to LIKE but with translated wildcards"
 	
-	^self like: 
-		(aString collect: 
-			[ :char || fixedChar |
-			fixedChar := char.
-			char = $* ifTrue: [fixedChar := $%].
-			char = $# ifTrue: [fixedChar = $_].
-			fixedChar])!
+	^self sqlConditionFor: 
+		(Message selector: #like: argument: 
+			(aString collect: 
+				[ :char || fixedChar |
+				fixedChar := char.
+				char = $* ifTrue: [fixedChar := $%].
+				char = $# ifTrue: [fixedChar = $_].
+				fixedChar]))!
 
 mustBeBoolean
 
@@ -509,12 +530,15 @@ forModify!parsing - internal!public! !
 hasFinalField!public!testing! !
 implicitEqualsTrue!parsing - implicit true!public! !
 implyTrue:!parsing - implicit true!private! !
+includedIn:!parsing - comparisons!public! !
+includes:!parsing - internal!private! !
 indexOf:!parsing - functions!public! !
 isEmpty!parsing - functions!parsing - implicit true!public! !
 isForModify!accessing!public! !
 isForModify:!accessing!public! !
 isKindOf:!parsing - internal!public! !
 leftString:!parsing - functions!public! !
+match:!parsing - internal!private! !
 matches:!parsing - comparisons!public! !
 mustBeBoolean!parsing - implicit true!public! !
 newCollectionReceiverFor:!helpers!public! !

@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreQueryTest guid: (GUID fromString: '{bdd80d80-9313-4dda-a7e9-f1aa56633da2}')!
+
 SSWReStoreQueryTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreQueryTest categoriesForClass!Unclassified! !
+
 !SSWReStoreQueryTest methodsFor!
 
 addClassesTo: aReStore
@@ -44,6 +48,10 @@ createProducts
 			supplierPrice: 100;
 			retailPrice: 200;
 			storeIn: reStore]!
+
+firstNameOf: aPerson
+
+	^aPerson firstName!
 
 test1Simple
 
@@ -311,6 +319,21 @@ testCollectQueryWithActualObject
 
 	"Ensure we actually did some testing"
 	self assert: (testCount = 5)!
+
+testCollectQueryWithBetweenAndResult
+
+	"Test use of between:and: as a result function.
+	Previously failed due to incorrect implementation of asSQLFunctionBooleanResult"
+
+	| instances results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	results := instances collect: [ :each | each firstName || (each age between: 20 and: 30)].
+
+	"Previously answered an Integer"
+	self assert: (results allSatisfy: [ :each | each second isKindOf: Boolean]).
+	self assert: (results allSatisfy: [ :each | each second ifTrue: [#('Jim' 'John' 'Zoe') includes: each first] ifFalse: [each first = 'David']])!
 
 testCollectQueryWithBooleanFunction
 
@@ -658,6 +681,36 @@ testConcatenateQueryWithJoins
 	results := instances collect: [ :each | each firstName, each friend firstName, each test name, each friend surname, each surname].
 	self assert: ((results reject: [ :each | each isNil]) asArray = #('JohnDavidjTestSmytheSmith'))!
 
+testIncludes
+
+	"Test use of includes: "
+
+	| instances results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	results := instances select: [ :each | (#('Jim' 'John') includes: each firstName) & (each age = 20)].
+	self assert: results size equals: 1.
+	self assert: results first firstName equals: 'John'.
+
+	"Reversing conditions previously failed"
+	results := instances select: [ :each | (each age = 20) & (#('Jim' 'John') includes: each firstName)].
+	self assert: results size equals: 1.
+	self assert: results first firstName equals: 'John'.
+
+	"Different failure when argument to match: is from a different method"
+	results := instances select: [ :each | (each age = 20) & (#('Jim' 'John') includes: (self firstNameOf: each))].
+	self assert: results size equals: 1.
+	self assert: results first firstName = 'John'.
+
+	results := instances select: [ :each | (#('Zoe' 'John') includes: each firstName) & (each age = 20)].
+	self assert: results size equals: 2.
+	self assert: (results collect: [ :each | each firstName]) asSortedCollection asArray = #('John' 'Zoe').
+
+	results := instances select: [ :each | (each age = 20) & (#('Zoe' 'John') includes: each firstName)].
+	self assert: results size equals: 2.
+	self assert: (results collect: [ :each | each firstName]) asSortedCollection asArray = #('John' 'Zoe')!
+
 testIncludesInQueryBlockEmptyCriteria
 
 	| instances |
@@ -727,6 +780,36 @@ testInstancesCollectionIncludes
 	self deny: ((instances satisfying: [ :each | each surname = 'Smith']) includes: zoe).
 	self deny: (instances includes: SimplePerson new)!
 
+testMatch
+
+	"Test use of match: "
+
+	| instances results |
+
+	instances := SimplePerson storedInstancesIn: reStore.
+
+	results := instances select: [ :each | ('J*' match: each firstName) & (each age = 20)].
+	self assert: results size equals: 1.
+	self assert: results first firstName equals: 'John'.
+	
+	"Reversing conditions previously failed"
+	results := instances select: [ :each | (each age = 20) & ('J*' match: each firstName)].
+	self assert: results size equals: 1.
+	self assert: results first firstName equals: 'John'.
+
+	"Different failure when argument to match: is from a different method"
+	results := instances select: [ :each | (each age = 20) & ('J*' match: (self firstNameOf: each))].
+	self assert: results size equals: 1.
+	self assert: results first firstName equals: 'John'.
+
+	results := instances select: [ :each | ('J*' match: each firstName) & (each age <= 30)].
+	self assert: results size equals: 2.
+	self assert: (results collect: [ :each | each firstName]) asSortedCollection asArray equals: #('Jim' 'John').
+
+	results := instances select: [ :each | (each age <= 30) & ('J*' match: each firstName)].
+	self assert: results size equals: 2.
+	self assert: (results collect: [ :each | each firstName]) asSortedCollection asArray equals: #('Jim' 'John').!
+
 testQueryEvaluationLocationDatabase
 
 	"Test database side of imageDo:databaseDo:"
@@ -775,42 +858,49 @@ testReverse
 	forward sortBlock: SortedCollection defaultSortBlock.
 	reverse := forward reverse.
 	self assert: forward asOrderedCollection asArray reverse equals: reverse asOrderedCollection asArray! !
-!SSWReStoreQueryTest categoriesFor: #addClassesTo:!public!Running! !
-!SSWReStoreQueryTest categoriesFor: #convertToDictionary:index:!helpers!private! !
-!SSWReStoreQueryTest categoriesFor: #createProducts!public!Running! !
-!SSWReStoreQueryTest categoriesFor: #test1Simple!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test2Wildcards!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test3Order!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test3Sort!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test4Modify!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test5InlineFunctionQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test6MethodFunctionQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test6MethodFunctionQueryWithDirectInstVars!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test7InlineFunctionQueryComplex!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test7MethodFunctionQueryComplex!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test8CustomQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #test9MultiArgumentFieldQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testAMultiArgumentMixedQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testBMultiArgumentFunctionCollectFieldQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCMultiArgumentFunctionCollectMixedQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQuery!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithActualObject!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithBooleanFunction!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithFunction!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithInlineFunction!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithMultipleObjects!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithMultipleObjectsFunction!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithMultipleObjectsInlineFunction!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObject!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObjectFunction!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObjectInlineFunction!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testCollectQueryWithRelatedObjectOfDifferentClass!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testConcatenateQueryWithJoins!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testIncludesInQueryBlockEmptyCriteria!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testIncludesInQueryBlockPersistentObject!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testIncludesInQueryBlockSimple!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testInstancesCollectionIncludes!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testQueryEvaluationLocationDatabase!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testQueryEvaluationLocationImage!public!unit tests! !
-!SSWReStoreQueryTest categoriesFor: #testReverse!public!unit tests! !
+
+!SSWReStoreQueryTest categoriesForMethods!
+addClassesTo:!public!Running! !
+convertToDictionary:index:!helpers!private! !
+createProducts!public!Running! !
+firstNameOf:!helpers!private! !
+test1Simple!public!unit tests! !
+test2Wildcards!public!unit tests! !
+test3Order!public!unit tests! !
+test3Sort!public!unit tests! !
+test4Modify!public!unit tests! !
+test5InlineFunctionQuery!public!unit tests! !
+test6MethodFunctionQuery!public!unit tests! !
+test6MethodFunctionQueryWithDirectInstVars!public!unit tests! !
+test7InlineFunctionQueryComplex!public!unit tests! !
+test7MethodFunctionQueryComplex!public!unit tests! !
+test8CustomQuery!public!unit tests! !
+test9MultiArgumentFieldQuery!public!unit tests! !
+testAMultiArgumentMixedQuery!public!unit tests! !
+testBMultiArgumentFunctionCollectFieldQuery!public!unit tests! !
+testCMultiArgumentFunctionCollectMixedQuery!public!unit tests! !
+testCollectQuery!public!unit tests! !
+testCollectQueryWithActualObject!public!unit tests! !
+testCollectQueryWithBetweenAndResult!public!unit tests! !
+testCollectQueryWithBooleanFunction!public!unit tests! !
+testCollectQueryWithFunction!public!unit tests! !
+testCollectQueryWithInlineFunction!public!unit tests! !
+testCollectQueryWithMultipleObjects!public!unit tests! !
+testCollectQueryWithMultipleObjectsFunction!public!unit tests! !
+testCollectQueryWithMultipleObjectsInlineFunction!public!unit tests! !
+testCollectQueryWithRelatedObject!public!unit tests! !
+testCollectQueryWithRelatedObjectFunction!public!unit tests! !
+testCollectQueryWithRelatedObjectInlineFunction!public!unit tests! !
+testCollectQueryWithRelatedObjectOfDifferentClass!public!unit tests! !
+testConcatenateQueryWithJoins!public!unit tests! !
+testIncludes!public!unit tests! !
+testIncludesInQueryBlockEmptyCriteria!public!unit tests! !
+testIncludesInQueryBlockPersistentObject!public!unit tests! !
+testIncludesInQueryBlockSimple!public!unit tests! !
+testInstancesCollectionIncludes!public!unit tests! !
+testMatch!public!unit tests! !
+testQueryEvaluationLocationDatabase!public!unit tests! !
+testQueryEvaluationLocationImage!public!unit tests! !
+testReverse!public!unit tests! !
+!
 

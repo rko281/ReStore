@@ -588,7 +588,7 @@ asSQLFunction
 
 asSQLFunctionBooleanResult
 
-	^self asSQLFunctionWithResultClass: Integer!
+	^self asSQLFunctionWithResultClass: Boolean!
 
 asSQLFunctionIntegerResult
 

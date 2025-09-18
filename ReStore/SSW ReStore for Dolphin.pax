@@ -419,6 +419,7 @@ postProcessIfNilFor: anObject in: aStackFrame at: ip
 
 	method := aStackFrame method.
 	isNilIndex := method literals indexOf: #ifNil:.
+	isNilIndex = 0 ifTrue: [(method literals includes: #ifNil:ifNotNil:) ifTrue: [self error: 'cannnot handle ifNil:ifNotNil: in query block']].
 	(isNilIndex between: 1 and: 31) ifFalse: [self error: 'cannot handle ifNil: in this query block - try refactoring into a smaller method'].
 
 	bytecodes := method byteCodes.
@@ -445,25 +446,22 @@ postProcessIfNilFor: anObject in: aStackFrame at: ip
 
 preProcessNextMessageFor: anObject in: aStackFrame
 
-	"Check if the next message needs special handling, usually due to anObject (block evaluator) being an argument rather than the receiver"
+	"Check if the next message needs special handling due to anObject (block evaluator) being an argument rather than the receiver.
+	Where this is the case reverse the receiver and argument on the stack so this object receives the message.
+	A local implementation of the message then handles the reversed receiver and arguments"
 
-	| dispatcher nextMessage |
+	| stackFrame sender nextMessage argument |
 
-	dispatcher := aStackFrame sswByteCodeDispatcher.
-	nextMessage := dispatcher peekForSelector.
+	stackFrame := aStackFrame.
+	[nextMessage := stackFrame sswByteCodeDispatcher peekForSelector.
+	nextMessage isNil and: [(sender := stackFrame sender) notNil and: [sender receiver ~~ self parser]]] whileTrue: [stackFrame := sender].
 
-	"Collection>>includes: -> self>>includedIn:"
-	(nextMessage = #includes: and: [(anObject isKindOf: SSWDBCollectionBlockReceiver) not]) ifTrue: 
-		[aStackFrame ip: dispatcher ip.
-		^aStackFrame process at: aStackFrame sp put: (anObject includedIn: (aStackFrame process at: aStackFrame sp))].
-	
-	"String>>match: -> self>>matches:"
-	nextMessage = #match: ifTrue: 
-		[aStackFrame ip: dispatcher ip.
-		^aStackFrame process at: aStackFrame sp put: (anObject matches: (aStackFrame process at: aStackFrame sp))].
+	(nextMessage = #match: or: [nextMessage = #includes: and: [(anObject isKindOf: SSWDBCollectionBlockReceiver) not]]) ifFalse: [^anObject].
 
-	"No special handling"
-	^anObject!
+	argument := stackFrame process at: stackFrame sp.
+	^stackFrame process 
+		at: stackFrame sp put: anObject;
+		at: stackFrame sp + 1 put: argument!
 
 simulateMethod: aCompiledMethod withArguments: aCollection
 
