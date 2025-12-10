@@ -5,11 +5,15 @@ SSWDBObjectProxy subclass: #SSWDBCachingObjectProxy
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCachingObjectProxy guid: (GUID fromString: '{5a3e3ddc-3990-11d5-b1df-444553540000}')!
+
 SSWDBCachingObjectProxy comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBCachingObjectProxy categoriesForClass!Unclassified! !
+
 !SSWDBCachingObjectProxy methodsFor!
 
 _acquireCopyObject
@@ -230,16 +234,12 @@ _rollbackUpdates
 	"Private - Forget any updates by instantiating from the copyObject.
 	Also transfer over any events registered against the current proxiedObject"
 
-	| me him |
+	| unchangedObject |
 
-	me := proxiedObject.
-	him := self.
-
-	self _unswap.
-
-	me _checkHasChanged ifTrue: 
-		[me _setProxiedObject: (me _dbTable copyForProxy: me _copyObject).
-		him getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]]!
+	self _checkHasChanged ifTrue: 
+		[unchangedObject := self _dbTable copyForProxy: copyObject.
+		proxiedObject getEvents ifNotNil: [ :events | unchangedObject setEvents: events].
+		self _setProxiedObject: unchangedObject]!
 
 _updateCollectionProxyUsing: aCollectionSpec
 
@@ -271,6 +271,7 @@ inspect
 	^self _isDeleted
 		ifTrue: [nil inspect]
 		ifFalse: [super inspect]! !
+
 !SSWDBCachingObjectProxy categoriesForMethods!
 _acquireCopyObject!actions-internal!public! !
 _checkHasChanged!public!testing! !
@@ -289,7 +290,7 @@ _refreshAndRollforwardFrom:!actions-internal!public! !
 _refreshFromRow:table:!actions-internal!public! !
 _resolveUpdateConflicts!actions-internal!public! !
 _resolveUpdateConflictsWith:!actions-internal!public! !
-_rollbackUpdates!actions-internal!private! !
+_rollbackUpdates!public! !
 _updateCollectionProxyUsing:!actions-internal!private! !
 _valuesForAccessor:!accessing!private! !
 inspect!forwarding!public! !

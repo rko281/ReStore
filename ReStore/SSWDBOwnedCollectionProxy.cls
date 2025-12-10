@@ -5,16 +5,24 @@ SSWDBCollectionProxy subclass: #SSWDBOwnedCollectionProxy
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBOwnedCollectionProxy guid: (GUID fromString: '{4aacf4a1-6267-11d5-b1df-0010a70883e2}')!
+
 SSWDBOwnedCollectionProxy comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBOwnedCollectionProxy categoriesForClass!Unclassified! !
+
 !SSWDBOwnedCollectionProxy methodsFor!
 
 _acquireCopyCollection
 
 	copyCollection := collectionSpec copyCollection: proxiedObject!
+
+_addPersistentComponentsTo: aCollection
+
+	proxiedObject isNil ifFalse: [aCollection addAll: proxiedObject]!
 
 _checkHasChanged
 
@@ -126,8 +134,10 @@ _unchangedCollection
 
 	"Need to return a copy"
 	^collectionSpec copyCollection: copyCollection! !
+
 !SSWDBOwnedCollectionProxy categoriesForMethods!
 _acquireCopyCollection!actions-internal!private! !
+_addPersistentComponentsTo:!actions-internal!private! !
 _checkHasChanged!public!testing! !
 _commitChangesPhase1!actions-internal!public! !
 _commitChangesPhase2!actions-internal!public! !

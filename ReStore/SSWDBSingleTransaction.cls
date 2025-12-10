@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBAbstractSingleTransaction subclass: #SSWDBSingleTransaction
 	instanceVariableNames: 'updateStatementsCache'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBSingleTransaction guid: (GUID fromString: '{5a3e3dd6-3990-11d5-b1df-444553540000}')!
+
 SSWDBSingleTransaction comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBSingleTransaction categoriesForClass!Unclassified! !
+
 !SSWDBSingleTransaction methodsFor!
 
 commitTo: aDBConnection
@@ -69,11 +73,22 @@ rollback
 
 	self currentReferencedObjects isNil ifFalse:
 		[[self currentReferencedObjects isEmpty] whileFalse:
-			[| toRollback |
-			toRollback := self currentReferencedObjects copy.
-			self currentReferencedObjects: (self newEmptyObjectsSet: (toRollback size // 2)). 
-			toRollback do: [ :proxy | proxy _rollbackChanges].
-			rolledBack addAll: toRollback]].
+			[| toSwap toRollback |
+			toSwap := OrderedCollection new: self currentReferencedObjects size. 
+			toRollback := toSwap copy.
+			self currentReferencedObjects do: 
+				[ :each |
+				each _isPersistent
+				ifTrue: 
+					[toRollback add: each _proxiedObject.
+					toSwap add: each.
+					rolledBack add: each]
+				ifFalse: 
+					[toRollback add: each.
+					rolledBack add: each _proxiedObject]].
+			self currentReferencedObjects: (self newEmptyObjectsSet: (toSwap size // 2)). 
+			SSWDBTransactionProxySwapper unswapAll: toSwap.
+			toRollback do: [ :proxy | proxy isDBProxy ifTrue: [proxy _rollbackChanges]]]].
 
 	self postRollback.
 
@@ -89,15 +104,18 @@ updateStatementsCache
 
 updateStatementsCache: anObject
 	updateStatementsCache := anObject! !
-!SSWDBSingleTransaction categoriesFor: #commitTo:!actions!public! !
-!SSWDBSingleTransaction categoriesFor: #freeStatements!actions!private! !
-!SSWDBSingleTransaction categoriesFor: #hasChanges!public!testing! !
-!SSWDBSingleTransaction categoriesFor: #hasFailedCommit!public!testing! !
-!SSWDBSingleTransaction categoriesFor: #postCommit!actions!private! !
-!SSWDBSingleTransaction categoriesFor: #postRollback!actions!private! !
-!SSWDBSingleTransaction categoriesFor: #preCommit!actions!private! !
-!SSWDBSingleTransaction categoriesFor: #rollback!actions!public! !
-!SSWDBSingleTransaction categoriesFor: #statementForUpdateQuery:ifAbsent:!public! !
-!SSWDBSingleTransaction categoriesFor: #updateStatementsCache!public! !
-!SSWDBSingleTransaction categoriesFor: #updateStatementsCache:!public! !
+
+!SSWDBSingleTransaction categoriesForMethods!
+commitTo:!actions!public! !
+freeStatements!actions!private! !
+hasChanges!public!testing! !
+hasFailedCommit!public!testing! !
+postCommit!actions!private! !
+postRollback!actions!private! !
+preCommit!actions!private! !
+rollback!actions!public! !
+statementForUpdateQuery:ifAbsent:!public! !
+updateStatementsCache!public! !
+updateStatementsCache:!public! !
+!
 

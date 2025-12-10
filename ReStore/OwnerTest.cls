@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #OwnerTest
-	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'
+	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary keyedIdentityDictionary refreshCount dependentOwnedOrdered dependentOrdered selfReferencingOrdered'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 OwnerTest guid: (GUID fromString: '{75e7c261-4b99-11d5-b1df-0010a70883e2}')!
+
 OwnerTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !OwnerTest categoriesForClass!Unclassified! !
+
 !OwnerTest methodsFor!
 
 <= another
@@ -98,6 +102,12 @@ keyedGeneralDictionary: anObject
 	"Private - Set the value of the receiver's ''keyedGeneralDictionary'' instance variable to the argument, anObject."
 
 	keyedGeneralDictionary := anObject!
+
+keyedIdentityDictionary
+	^keyedIdentityDictionary!
+
+keyedIdentityDictionary: anObject
+	keyedIdentityDictionary := anObject!
 
 list
 	"Private - Answer the value of the receiver's ''list'' instance variable."
@@ -223,6 +233,12 @@ refreshCount
 refreshCount: anObject
 	refreshCount := anObject!
 
+selfReferencingOrdered
+	^selfReferencingOrdered!
+
+selfReferencingOrdered: anObject
+	selfReferencingOrdered := anObject!
+
 set
 	"Private - Answer the value of the receiver's ''set'' instance variable."
 
@@ -296,68 +312,75 @@ sortedNumbers: anObject
 testOnRollback
 
 	self owned name! !
-!OwnerTest categoriesFor: #<=!accessing!private! !
-!OwnerTest categoriesFor: #array!accessing!private! !
-!OwnerTest categoriesFor: #array:!accessing!private! !
-!OwnerTest categoriesFor: #arrayOfNames!accessing!private! !
-!OwnerTest categoriesFor: #arrayOfNames:!accessing!private! !
-!OwnerTest categoriesFor: #aspectDictionary!accessing!private! !
-!OwnerTest categoriesFor: #aspectDictionary:!accessing!private! !
-!OwnerTest categoriesFor: #dependentOrdered!accessing!private! !
-!OwnerTest categoriesFor: #dependentOrdered:!accessing!private! !
-!OwnerTest categoriesFor: #dependentOwnedOrdered!accessing!private! !
-!OwnerTest categoriesFor: #dependentOwnedOrdered:!accessing!private! !
-!OwnerTest categoriesFor: #descNumbers!accessing!private! !
-!OwnerTest categoriesFor: #descNumbers:!accessing!private! !
-!OwnerTest categoriesFor: #dictOfSizes!accessing!private! !
-!OwnerTest categoriesFor: #dictOfSizes:!accessing!private! !
-!OwnerTest categoriesFor: #keyedBaseDictionary!accessing!private! !
-!OwnerTest categoriesFor: #keyedBaseDictionary:!accessing!private! !
-!OwnerTest categoriesFor: #keyedGeneralDictionary!accessing!private! !
-!OwnerTest categoriesFor: #keyedGeneralDictionary:!accessing!private! !
-!OwnerTest categoriesFor: #list!accessing!private! !
-!OwnerTest categoriesFor: #list:!accessing!private! !
-!OwnerTest categoriesFor: #listOfTimes!accessing!private! !
-!OwnerTest categoriesFor: #listOfTimes:!accessing!private! !
-!OwnerTest categoriesFor: #mergeUpdate:from:!accessing!public! !
-!OwnerTest categoriesFor: #name!accessing!private! !
-!OwnerTest categoriesFor: #name:!accessing!private! !
-!OwnerTest categoriesFor: #number!accessing!private! !
-!OwnerTest categoriesFor: #number:!accessing!private! !
-!OwnerTest categoriesFor: #onRefresh!event handling!public! !
-!OwnerTest categoriesFor: #ordered!accessing!private! !
-!OwnerTest categoriesFor: #ordered:!accessing!private! !
-!OwnerTest categoriesFor: #orderedBools!accessing!private! !
-!OwnerTest categoriesFor: #orderedBools:!accessing!private! !
-!OwnerTest categoriesFor: #owned!accessing!private! !
-!OwnerTest categoriesFor: #owned:!accessing!private! !
-!OwnerTest categoriesFor: #ownedArray!accessing!private! !
-!OwnerTest categoriesFor: #ownedArray:!accessing!private! !
-!OwnerTest categoriesFor: #ownedList!accessing!private! !
-!OwnerTest categoriesFor: #ownedList:!accessing!private! !
-!OwnerTest categoriesFor: #ownedOrdered!accessing!private! !
-!OwnerTest categoriesFor: #ownedOrdered:!accessing!private! !
-!OwnerTest categoriesFor: #ownedSet!accessing!private! !
-!OwnerTest categoriesFor: #ownedSet:!accessing!private! !
-!OwnerTest categoriesFor: #ownedSorted!accessing!private! !
-!OwnerTest categoriesFor: #ownedSorted:!accessing!private! !
-!OwnerTest categoriesFor: #refreshCount!accessing!private! !
-!OwnerTest categoriesFor: #refreshCount:!accessing!private! !
-!OwnerTest categoriesFor: #set!accessing!private! !
-!OwnerTest categoriesFor: #set:!accessing!private! !
-!OwnerTest categoriesFor: #setOfDates!accessing!private! !
-!OwnerTest categoriesFor: #setOfDates:!accessing!private! !
-!OwnerTest categoriesFor: #single1!accessing!private! !
-!OwnerTest categoriesFor: #single1:!accessing!private! !
-!OwnerTest categoriesFor: #single2!accessing!private! !
-!OwnerTest categoriesFor: #single2:!accessing!private! !
-!OwnerTest categoriesFor: #single3!accessing!private! !
-!OwnerTest categoriesFor: #single3:!accessing!private! !
-!OwnerTest categoriesFor: #sorted!accessing!private! !
-!OwnerTest categoriesFor: #sorted:!accessing!private! !
-!OwnerTest categoriesFor: #sortedNumbers!accessing!private! !
-!OwnerTest categoriesFor: #sortedNumbers:!accessing!private! !
-!OwnerTest categoriesFor: #testOnRollback!public! !
+
+!OwnerTest categoriesForMethods!
+<=!accessing!private! !
+array!accessing!private! !
+array:!accessing!private! !
+arrayOfNames!accessing!private! !
+arrayOfNames:!accessing!private! !
+aspectDictionary!accessing!private! !
+aspectDictionary:!accessing!private! !
+dependentOrdered!accessing!private! !
+dependentOrdered:!accessing!private! !
+dependentOwnedOrdered!accessing!private! !
+dependentOwnedOrdered:!accessing!private! !
+descNumbers!accessing!private! !
+descNumbers:!accessing!private! !
+dictOfSizes!accessing!private! !
+dictOfSizes:!accessing!private! !
+keyedBaseDictionary!accessing!private! !
+keyedBaseDictionary:!accessing!private! !
+keyedGeneralDictionary!accessing!private! !
+keyedGeneralDictionary:!accessing!private! !
+keyedIdentityDictionary!accessing!private! !
+keyedIdentityDictionary:!accessing!private! !
+list!accessing!private! !
+list:!accessing!private! !
+listOfTimes!accessing!private! !
+listOfTimes:!accessing!private! !
+mergeUpdate:from:!accessing!public! !
+name!accessing!private! !
+name:!accessing!private! !
+number!accessing!private! !
+number:!accessing!private! !
+onRefresh!event handling!public! !
+ordered!accessing!private! !
+ordered:!accessing!private! !
+orderedBools!accessing!private! !
+orderedBools:!accessing!private! !
+owned!accessing!private! !
+owned:!accessing!private! !
+ownedArray!accessing!private! !
+ownedArray:!accessing!private! !
+ownedList!accessing!private! !
+ownedList:!accessing!private! !
+ownedOrdered!accessing!private! !
+ownedOrdered:!accessing!private! !
+ownedSet!accessing!private! !
+ownedSet:!accessing!private! !
+ownedSorted!accessing!private! !
+ownedSorted:!accessing!private! !
+refreshCount!accessing!private! !
+refreshCount:!accessing!private! !
+selfReferencingOrdered!accessing!private! !
+selfReferencingOrdered:!accessing!private! !
+set!accessing!private! !
+set:!accessing!private! !
+setOfDates!accessing!private! !
+setOfDates:!accessing!private! !
+single1!accessing!private! !
+single1:!accessing!private! !
+single2!accessing!private! !
+single2:!accessing!private! !
+single3!accessing!private! !
+single3:!accessing!private! !
+sorted!accessing!private! !
+sorted:!accessing!private! !
+sortedNumbers!accessing!private! !
+sortedNumbers:!accessing!private! !
+testOnRollback!public! !
+!
 
 !OwnerTest class methodsFor!
 
@@ -397,6 +420,8 @@ reStoreDefinition
 		define: #aspectDictionary as: (Dictionary of: #name -> Test dependent);
 		define: #keyedBaseDictionary as: (Dictionary of: String -> Test dependent);
 		define: #keyedGeneralDictionary as: (Dictionary of: Test dependent -> Test dependent);
+		define: #keyedIdentityDictionary as: (IdentityDictionary of: Test dependent -> Test dependent);
+		define: #selfReferencingOrdered as: (OrderedCollection of: self);
 		yourself!
 
 template
@@ -425,6 +450,9 @@ template
 		keyedBaseDictionary: Dictionary new;
 		keyedGeneralDictionary: Dictionary new;
 		yourself! !
-!OwnerTest class categoriesFor: #reStoreDefinition!public! !
-!OwnerTest class categoriesFor: #template!instance creation!public! !
+
+!OwnerTest class categoriesForMethods!
+reStoreDefinition!public! !
+template!instance creation!public! !
+!
 

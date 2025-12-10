@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SimplePerson
-	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased'
+	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased rollbackBlock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SimplePerson guid: (GUID fromString: '{d9c0d862-aabe-11d5-b1e0-444553540000}')!
+
 SimplePerson comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SimplePerson categoriesForClass!Unclassified! !
+
 !SimplePerson methodsFor!
 
 _instVarAt: anInteger
@@ -161,6 +165,10 @@ isJohnAndTestIsNil
 
 	^self firstName = 'John' and: [self test isNil]!
 
+onRollback
+
+	rollbackBlock ifNotNil: [rollbackBlock value]!
+
 orderCount
 
 	^self orders size!
@@ -170,6 +178,12 @@ orders
 
 orders: anObject
 	orders := anObject!
+
+rollbackBlock
+	^rollbackBlock!
+
+rollbackBlock: anObject
+	rollbackBlock := anObject!
 
 standardCompare: aPerson
 
@@ -208,6 +222,7 @@ time: anObject
 	"Private - Set the value of the receiver's ''time'' instance variable to the argument, anObject."
 
 	time := anObject! !
+
 !SimplePerson categoriesForMethods!
 _instVarAt:!accessing!public! !
 <=!comparing!private! !
@@ -244,9 +259,12 @@ isDavidOrTestIsNil!public!testing! !
 isDeceased!accessing!private! !
 isDeceased:!accessing!private! !
 isJohnAndTestIsNil!public!testing! !
+onRollback!public! !
 orderCount!accessing!public! !
 orders!accessing!public! !
 orders:!accessing!public! !
+rollbackBlock!accessing!private! !
+rollbackBlock:!accessing!private! !
 standardCompare:!comparing!private! !
 standardCompareWithBlocks:!comparing!private! !
 surname!accessing!private! !
@@ -280,6 +298,7 @@ reStoreDefinition
 		define: #address as: SimpleAddress dependent;
 		define: #isDeceased as: Boolean;
 		yourself! !
+
 !SimplePerson class categoriesForMethods!
 new!public! !
 reStoreDefinition!public! !

@@ -33,6 +33,15 @@ _acquireCollectionProxiesUsing: collectionSpecs
 	ifFalse:
 		[collectionSpecs do: [ :spec | self _updateCollectionProxyUsing: spec]]!
 
+_addPersistentComponentsTo: aCollection
+
+	self _dbTable dataFields do:
+		[ :field | 
+		field targetClass isDirectlyPersisted ifFalse: 
+			[(field accessor valueIn: proxiedObject) ifNotNil: [ :obj | aCollection add: obj]]].
+
+	aCollection addAll: collectionProxies!
+
 _class
 
 	"class stores the Class of the object for which the receiver is a proxy"
@@ -63,6 +72,13 @@ _collectionProxies: anIdentityDictionary
 
 	collectionProxies := anIdentityDictionary!
 
+_collectionProxyAboutToSwap: aCollectionProxy
+
+	"The given collection proxy is about to swap its references.
+	Flip the receiver's reference to point instead to aCollectionProxy's proxiedObject so it will still point to aCollectionProxy after the swap"
+
+	^collectionProxies at: aCollectionProxy _collectionSpec put: aCollectionProxy _proxiedObject!
+
 _collectionProxyFor: aCollectionSpec
 
 	"Look up the collection proxy specified by the given spec.
@@ -70,13 +86,6 @@ _collectionProxyFor: aCollectionSpec
 
 	^collectionProxies at: aCollectionSpec ifAbsentPut:
 		[aCollectionSpec newProxydCollectionFor: self]!
-
-_collectionProxySwapped: aCollectionProxy
-
-	"The given collection proxy has swapped its references.
-	Update the cache"
-
-	^collectionProxies at: aCollectionProxy _collectionSpec put: aCollectionProxy!
 
 _commitChanges
 
@@ -217,9 +226,7 @@ _postCommitStore
 	Complete follow-on work"
 
 	self _dbTable idDataField ifNotNil: [ :idDataField | idDataField accessor value: id in: proxiedObject].
-	self 
-		_setPersistent;
-		_intern	"Re-register"!
+	self _setPersistent!
 
 _postCommitUnstore
 
@@ -245,9 +252,10 @@ _postCommitUpdates
 
 _postRecovered
 
-	"Inform the proxiedObject recovery is done"
+	"Inform interested parties that recovery is done"
 
-	proxiedObject onRecovered!
+	proxiedObject onRecovered.
+	reStore proxyRecovered: self!
 
 _postSwapReferences
 
@@ -351,6 +359,10 @@ _storeNonPersistentComponents
 						_setProxiedObject: collection; 
 						_referenced]]]]!
 
+_tableRecord
+
+	^reStore tableRecordFor: self _dbTable!
+
 _unrecoveredProxyString
 
 	^'%<an unrecovered <1p> id=<2p>%>' expandMacrosWith: class with: id!
@@ -439,6 +451,10 @@ hash
 					ifFalse: [self doesNotUnderstand: ##(Message selector: #hash) "hash may be the same as identityHash so we *must* swap, hence DNU rather than forwarding directly"]]
 			ifFalse: 
 				[self hash]]]!
+
+isDBObjectProxy
+
+	^true!
 
 isSQLNull
 
@@ -570,12 +586,13 @@ writeSQLOn: aStream forField: aField
 
 !SSWDBObjectProxy categoriesForMethods!
 _acquireCollectionProxiesUsing:!actions-internal!public! !
+_addPersistentComponentsTo:!actions-internal!private! !
 _class!accessing!public! !
 _class:!accessing!public! !
 _collectionProxies!accessing!public! !
 _collectionProxies:!accessing!public! !
+_collectionProxyAboutToSwap:!actions-internal!public! !
 _collectionProxyFor:!accessing:derived!public! !
-_collectionProxySwapped:!actions-internal!public! !
 _commitChanges!actions-internal!public! !
 _commitStore!actions-internal!private! !
 _commitUnstore!actions-internal!private! !
@@ -609,6 +626,7 @@ _rollbackStore!actions-internal!private! !
 _rollbackUnstore!actions-internal!private! !
 _rollbackUpdates!actions-internal!private! !
 _storeNonPersistentComponents!actions-internal!private! !
+_tableRecord!accessing:derived!public! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
 _updateCollectionProxyUsing:!actions-internal!private! !
@@ -617,6 +635,7 @@ _valuesForAccessor:!accessing!private! !
 currentVersion!accessing:derived!public! !
 deletedDebugPrintString!non forwarding!private! !
 hash!forwarding!public! !
+isDBObjectProxy!public!testing! !
 isSQLNull!non forwarding!public! !
 isValidForPersistence!forwarding!public! !
 printOn:!forwarding!public! !

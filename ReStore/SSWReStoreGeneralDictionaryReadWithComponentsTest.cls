@@ -1,20 +1,26 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreReadWithComponentsTest subclass: #SSWReStoreGeneralDictionaryReadWithComponentsTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreGeneralDictionaryReadWithComponentsTest guid: (GUID fromString: '{2e410b34-083d-4c10-824c-da6ac299b578}')!
+
 SSWReStoreGeneralDictionaryReadWithComponentsTest comment: ''!
+
 !SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesForClass!Unclassified! !
+
 !SSWReStoreGeneralDictionaryReadWithComponentsTest methodsFor!
 
 addOrderFor: aProduct to: aCustomer quantity: anInteger
 
-	"Need to convert orders to Dictionary if not already done - ensure unproxied before transformation"
-	aCustomer orders _deproxify.
-	(aCustomer orders isKindOf: Dictionary) ifFalse: [aCustomer orders become: Dictionary new].
+	"Need to convert orders to Dictionary if not already done"
+	reStore abandonTransaction.
+	aCustomer isPersistent
+		ifTrue: [(aCustomer orders _proxiedObject isKindOf: Dictionary) ifFalse: [aCustomer orders _proxiedObject become: Dictionary new]]
+		ifFalse: [(aCustomer orders isKindOf: Dictionary) ifFalse: [aCustomer orders become: Dictionary new]].
 
 	^aCustomer orders at: (SimpleAddress new postcode: (aProduct description, anInteger displayString); yourself) put: 
 		(SimpleProductOrder new 
@@ -113,6 +119,7 @@ validateKeysAlreadyFetched
 	self resetQueryCount.
 	customer4 orders keysAndValuesDo: [ :address :order | self assert: address postcode equals: '<1s><2p>' << {order product description. order quantity}].
 	self assert: self queryCount equals: 0! !
+
 !SSWReStoreGeneralDictionaryReadWithComponentsTest categoriesForMethods!
 addOrderFor:to:quantity:!helpers!private! !
 ordersCollectionDefinition!constants!public! !
@@ -134,6 +141,7 @@ validateKeysAlreadyFetched!helpers!private! !
 testSelectors
 
 	^self myTestSelectors, #(#testRefreshCollectionKey)! !
+
 !SSWReStoreGeneralDictionaryReadWithComponentsTest class categoriesForMethods!
 testSelectors!public! !
 !

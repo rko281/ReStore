@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBAbstractSingleTransaction subclass: #SSWDBDumbTransaction
-	instanceVariableNames: ''
+	instanceVariableNames: 'proxySwapper'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBDumbTransaction guid: (GUID fromString: '{03578021-659b-11d5-b1df-0010a70883e2}')!
+
 SSWDBDumbTransaction comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBDumbTransaction categoriesForClass!Unclassified! !
+
 !SSWDBDumbTransaction methodsFor!
 
 canCommit
@@ -43,6 +47,12 @@ isDumb
 	
 	^true!
 
+proxySwapper
+
+	"Cache for potential reswap"
+
+	^proxySwapper ifNil: [proxySwapper := super proxySwapper]!
+
 rollback
 
 	"To rollback the receiver just abandon it.
@@ -51,10 +61,14 @@ rollback
 	self abandon.
 
 	^#()! !
-!SSWDBDumbTransaction categoriesFor: #canCommit!public!testing! !
-!SSWDBDumbTransaction categoriesFor: #commitTo:!actions!public! !
-!SSWDBDumbTransaction categoriesFor: #hasChanges!public!testing! !
-!SSWDBDumbTransaction categoriesFor: #hasFailedCommit!public!testing! !
-!SSWDBDumbTransaction categoriesFor: #isDumb!public!testing! !
-!SSWDBDumbTransaction categoriesFor: #rollback!actions!public! !
+
+!SSWDBDumbTransaction categoriesForMethods!
+canCommit!public!testing! !
+commitTo:!actions!public! !
+hasChanges!public!testing! !
+hasFailedCommit!public!testing! !
+isDumb!public!testing! !
+proxySwapper!accessing!public! !
+rollback!actions!public! !
+!
 

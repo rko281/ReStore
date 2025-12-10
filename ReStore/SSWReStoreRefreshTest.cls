@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStore2Test subclass: #SSWReStoreRefreshTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreRefreshTest guid: (GUID fromString: '{f4c6ef47-445d-4aba-a10a-563e58ff20a5}')!
+
 SSWReStoreRefreshTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreRefreshTest categoriesForClass!Unclassified! !
+
 !SSWReStoreRefreshTest methodsFor!
 
 createTestData
@@ -381,7 +385,7 @@ test33
 
 	"Rollback then touch one"
 	reStore2 rollbackTransaction.
-	inst2 ownedOrdered last name.
+	inst2 ownedOrdered _proxiedObject "<-collection proxies now swap their elements when touched, need to avoid this for this test" last name.
 
 	"Read them"
 	self assert: ((OwnedTest storedInstancesIn: reStore2) satisfying: [ :each | each owner = inst2]) asOrderedCollection size equals: 2.
@@ -425,7 +429,7 @@ test34
 
 	"Rollback then touch one"
 	reStore2 rollbackTransaction.
-	inst2 ordered last name.
+	inst2 ordered _proxiedObject "<-collection proxies now swap their elements when touched, need to avoid this for this test" last name.
 
 	"Read them"
 	(Test storedInstancesIn: reStore2) asOrderedCollection.
@@ -658,6 +662,7 @@ testSwapCollectionProxyBeforeFaultInParentAfterRefresh
 usesVersioning
 
 	^true! !
+
 !SSWReStoreRefreshTest categoriesForMethods!
 createTestData!public!running! !
 test01!public!unit tests! !

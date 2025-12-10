@@ -20,7 +20,8 @@ abandon
 
 	"End this transaction, leaving objects in their current state (unlike rollback which returns them to their state prior to the transaction)"
 
-	self currentReferencedObjects do: [ :each | each _abandonChanges].
+	self proxySwapper abandon: self currentReferencedObjects.
+	"self currentReferencedObjects do: [ :each | each _abandonChanges]."
 	self endObjectCollection!
 
 activeProxiesMap
@@ -38,6 +39,14 @@ activeProxiesMap: anIdentityDictionary
 addDeletedObject: aDBProxy
 
 	^self deletedObjects add: aDBProxy!
+
+addProxy: aDBProxy
+
+	"Add aDBProxy to the collection of potentially-changed objects.
+	ASSERT: aDBProxy is swapped, wearing the back-face identity of the pair."
+
+	aDBProxy _proxiedObject ifNotNil: [ :object | self activeProxiesMap at: object put: aDBProxy].
+	self currentReferencedObjects add: aDBProxy!
 
 allocatedIDs
 
@@ -86,10 +95,11 @@ autoRecoverCommitIn: anSSWReStore
 
 	"Any objects referenced during the errored commit will erroneously be in currentReferencedObjects.
 	Swap back and forget"
-	self currentReferencedObjects do: [ :obj | obj _unswap].
+	SSWDBTransactionProxySwapper unswapAll: self currentReferencedObjects.
 
 	"The receiver's changedObjects should now be the currentReferencedObjects"
-	self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swap]).
+	self currentReferencedObjects: (self newEmptyObjectsSet: self changedObjects size).
+	(SSWDBTransactionProxySwapper swapAll: self changedObjects).
 	self allReferencedObjects: self newEmptyObjectsSet!
 
 autoRecoverPreCommitIn: anSSWReStore
@@ -123,7 +133,7 @@ beginWithin: anotherTransaction
 	"For single (non-nested) transactions, anotherTransaction should always be nil.
 	Defer to begin, or error if anotherTransaction is not nil"
 	
-	anotherTransaction = nil
+	(anotherTransaction = nil or: [anotherTransaction isDumb and: [anotherTransaction isEmpty]])
 		ifTrue: [self begin]
 		ifFalse: [self error: 'Nesting of transaction not supported']!
 
@@ -193,7 +203,8 @@ endObjectCollection
 
 	self 
 		allReferencedObjects: nil;
-		currentReferencedObjects: self newEmptyObjectsSet!
+		currentReferencedObjects: self newEmptyObjectsSet.
+	self activeProxiesMap removeAll!
 
 ensureIsActive: anObject
 
@@ -214,6 +225,10 @@ includesProxy: anSSWDBProxy
 isAlreadyDeleted: aDBProxy
 
 	^self deletedObjects includes: aDBProxy!
+
+isEmpty
+
+	^self activeProxiesMap isEmpty!
 
 newEmptyObjectsSet
 
@@ -253,51 +268,52 @@ postCommitAllocatedIDs
 
 prepareToCommit
 
-	| changed unchanged currentObjects |
-
-	changed := self newEmptyObjectsSet: (self currentReferencedObjects size // 2).
-	unchanged := self newEmptyObjectsSet: (self currentReferencedObjects size // 2).
+	| changed currentObjects |
+	changed := self newEmptyObjectsSet: self currentReferencedObjects size // 2.
 
 	"Pre-write validate the changed objects. This may cause other objects to be added to the transaction,
 	so repeat until no more changed objects are found"
-	[self currentReferencedObjects isEmpty] whileFalse:
-		[| needingPhase2 |
+	[ self currentReferencedObjects isEmpty ] whileFalse: [
+		| needingPhase2 |
 		currentObjects := self currentReferencedObjects.
 		needingPhase2 := self newEmptyObjectsSet.
 		self nextCollectionPhase.
-		currentObjects do: 
-			[ :proxy | 
-			(changed includes: proxy) ifFalse:
-				[proxy _hasChanged 
-				ifTrue: 
-					[changed add: proxy.
-					proxy _prepareToCommitPhase1 ifTrue: [needingPhase2 add: proxy]]
-				ifFalse:
-					[unchanged add: proxy]]].
-		needingPhase2 do: [ :each | each _prepareToCommitPhase2]].
-	
-	self changedObjects: (changed collect: [ :proxy | proxy _unswap]). 
-	unchanged do: [ :each | each isDBProxy ifTrue: [each _unswap]].
+		currentObjects do: [ :proxy |
+			(changed includes: proxy) ifFalse: [
+				proxy _hasChanged ifTrue: [
+					changed add: proxy.
+					proxy _prepareToCommitPhase1 ifTrue: [ needingPhase2 add: proxy ] ] ] ].
+		needingPhase2 do: [ :each | each _prepareToCommitPhase2 ] ].
+
+	self changedObjects: (changed collect: [ :each | each _proxiedObject ]).
+	SSWDBTransactionProxySwapper unswapAll: self allReferencedObjects.
 
 	self endObjectCollection!
-
-proxy: aDBProxy forwarded: aMessage
-
-	"Add aDBProxy to the collection of potentially-changed objects (the receiver performs no checking on the message sent)"
-
-	aDBProxy _proxiedObject ifNotNil: [ :object | self activeProxiesMap at: object put: aDBProxy].
-	self currentReferencedObjects add: aDBProxy!
 
 proxyForObject: anObject ifNone: aBlock
 
 	^self activeProxiesMap at: anObject ifAbsent: aBlock!
 
-removeProxy: aProxydObject
+proxySwapper
 
-	"Remove aProxydObject from the collections of potentially-changed objects"
+	^SSWDBProxySwapper new!
 
-	self currentReferencedObjects remove: aProxydObject ifAbsent: [].
-	self allReferencedObjects remove: aProxydObject ifAbsent: []!
+removeProxy: aDBProxy
+
+	"Remove aDBProxy from the collections of potentially-changed objects"
+
+	aDBProxy _isSwapped
+	ifTrue: 
+		["The standard though unusual case of an object being stored and unstored in one transaction. In this case we also need to remove any allocated ID"
+		self allocatedIDs at: aDBProxy _tableRecord ifPresent: [ :allocIDs | allocIDs removeAllSuchThat: [ :each | each object == aDBProxy _proxiedObject]].
+		self currentReferencedObjects remove: aDBProxy.
+		self allReferencedObjects remove: aDBProxy ifAbsent: []. "May be empty"
+		self activeProxiesMap removeKey: aDBProxy _proxiedObject]
+	ifFalse: 
+		["aDBProxy has been unswapped after earlier being swapped into this transaction, hence the receiver now contains the proxied object in place of the proxy and vice versa"
+		self currentReferencedObjects remove: aDBProxy _proxiedObject.
+		self allReferencedObjects remove: aDBProxy _proxiedObject ifAbsent: []. "May be empty"
+		self activeProxiesMap removeKey: aDBProxy]!
 
 resetChangedObjects
 
@@ -308,6 +324,7 @@ abandon!actions!public! !
 activeProxiesMap!accessing!private! !
 activeProxiesMap:!accessing!private! !
 addDeletedObject:!actions!public! !
+addProxy:!proxy tracking!public! !
 allocatedIDs!accessing!public! !
 allocatedIDs:!accessing!public! !
 allocateIDFor:tableRecord:!actions!public! !
@@ -330,14 +347,15 @@ ensureIsActive:!actions!public! !
 includesProxiedObject:!public!testing! !
 includesProxy:!public!testing! !
 isAlreadyDeleted:!public!testing! !
+isEmpty!public!testing! !
 newEmptyObjectsSet!evaluating!public! !
 newEmptyObjectsSet:!evaluating!public! !
 nextCollectionPhase!initializing!public! !
 ownerTransaction!evaluating!public! !
 postCommitAllocatedIDs!actions!private! !
 prepareToCommit!actions!public! !
-proxy:forwarded:!proxy tracking!public! !
 proxyForObject:ifNone:!proxy tracking!public! !
+proxySwapper!accessing!public! !
 removeProxy:!proxy tracking!public! !
 resetChangedObjects!initializing!public! !
 !

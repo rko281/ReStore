@@ -1,14 +1,30 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreDebugTest guid: (GUID fromString: '{cdfc2205-da0a-4d49-b600-a949570d97bd}')!
+
 SSWReStoreDebugTest comment: ''!
+
 !SSWReStoreDebugTest categoriesForClass!Unclassified! !
+
 !SSWReStoreDebugTest methodsFor!
+
+_isPersistent
+	"I pretend to be a proxy for some tests"
+	^true!
+
+_proxiedObject
+	"I pretend to be a proxy for some tests"
+	^self!
+
+_reStore
+	"I pretend to be a proxy for some tests"
+	^reStore!
 
 _rollbackChanges
 	"I pretend to be a proxy for some tests"
@@ -232,7 +248,11 @@ unmakeIDEClass
 
 	Process methodDictionary at: #isInIDECallStack put: (Process methodDictionary removeKey: #isInIDECallStackOrig).
 	Process flushMethodCache! !
+
 !SSWReStoreDebugTest categoriesForMethods!
+_isPersistent!helpers!public! !
+_proxiedObject!helpers!public! !
+_reStore!helpers!public! !
 _rollbackChanges!helpers!public! !
 makeIDEClass!helpers!private! !
 testCommitErrorCleanup!public!unit tests! !

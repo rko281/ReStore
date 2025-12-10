@@ -20,6 +20,7 @@ package methodNames
 	add: #Presenter -> #respondsTo:;
 	add: #Process -> #isExpectedToResumePromptly;
 	add: #Process -> #isInIDECallStack;
+	add: #SequenceableCollection -> #elementsExchangeIdentityWith:;
 	add: #SessionManager -> #onUnhandledTransactionError:;
 	add: #SSWDBBlockArgument -> #isJumpOnNilBytecode:;
 	add: #SSWDBBlockArgument -> #postProcessDNU:;
@@ -274,6 +275,18 @@ isInIDECallStack
 !Process categoriesForMethods!
 isExpectedToResumePromptly!public!testing! !
 isInIDECallStack!must strip!public! !
+!
+
+!SequenceableCollection methodsFor!
+
+elementsExchangeIdentityWith: aSequenceableCollection
+
+	"Equivalent to Pharo bulk become operation"
+
+	self with: aSequenceableCollection do: [ :me :him | me become: him]! !
+
+!SequenceableCollection categoriesForMethods!
+elementsExchangeIdentityWith:!operations!public! !
 !
 
 !SessionManager methodsFor!

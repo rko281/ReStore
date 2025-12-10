@@ -5,11 +5,15 @@ SSWDBProxy subclass: #SSWDBCollectionProxy
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionProxy guid: (GUID fromString: '{5a3e3dd9-3990-11d5-b1df-444553540000}')!
+
 SSWDBCollectionProxy comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBCollectionProxy categoriesForClass!Unclassified! !
+
 !SSWDBCollectionProxy methodsFor!
 
 _collectionSpec
@@ -62,17 +66,17 @@ _ownerID
 	
 	^owner _id!
 
-_postSwapReferences
-
-	"Inform the owner"
-
-	owner _collectionProxySwapped: self!
-
 _prepareToCommit
 
 	"Default: no action for collections"
 
 	^self!
+
+_preSwapReferences
+
+	"Inform the owner"
+
+	owner _collectionProxyAboutToSwap: self!
 
 _proxiedObjectClass
 	
@@ -99,19 +103,18 @@ _rollbackChanges
 	"Forget any changes by reinstantiating the unchanged collection.
 	Also transfer over any events registered against the current proxiedObject"
 
-	| unchangedCollection me changedCollection |
+	| unchangedCollection |
 
 	self _clearDeleted.
 
 	unchangedCollection := self _unchangedCollection.
-	unchangedCollection == proxiedObject ifTrue: [^self _unswap].
+	unchangedCollection == proxiedObject ifFalse: 
+		[proxiedObject getEvents ifNotNil: [ :events | unchangedCollection setEvents: events].
+		self _setProxiedObject: unchangedCollection]!
 
-	me := proxiedObject.
-	changedCollection := self.
-	self _unswap.
+_swapper
 
-	me _setProxiedObject: unchangedCollection.
-	changedCollection getEvents ifNotNil: [ :events | me _proxiedObject setEvents: events]!
+	^SSWDBCollectionProxySwapper newFor: reStore!
 
 _unchangedCollection
 
@@ -126,6 +129,10 @@ _unstore
 	self _isPersistent 
 		ifTrue: [self _setDeleted]
 		ifFalse: [reStore removeFromTransaction: self]!
+
+isDBCollectionProxy
+
+	^true!
 
 orRemote
 
@@ -168,6 +175,7 @@ withRelatedComponents
 	"Avoid faulting in the proxied object"
 
 	^SSWDBCollectionWithRelatedContents on: self! !
+
 !SSWDBCollectionProxy categoriesForMethods!
 _collectionSpec!accessing!public! !
 _collectionSpec:!accessing!public! !
@@ -176,15 +184,17 @@ _forceRefreshWithContents!actions-refresh!public! !
 _owner!accessing!public! !
 _owner:!accessing!public! !
 _ownerID!accessing!public! !
-_postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
+_preSwapReferences!actions-internal!public! !
 _proxiedObjectClass!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshIfUpdated!actions-refresh!public! !
 _refreshWithContentsIfUpdated!actions-refresh!public! !
-_rollbackChanges!actions-internal!public! !
+_rollbackChanges!public! !
+_swapper!accessing!private! !
 _unchangedCollection!accessing!private! !
 _unstore!actions-internal!public! !
+isDBCollectionProxy!public!testing! !
 orRemote!forwarding!public! !
 remote!accessing!public! !
 size!public! !

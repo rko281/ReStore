@@ -30,7 +30,7 @@ __ensureActive
 
 __referenced
 
-	reStore proxy: self forwarded: ##(Message selector: #_referenced)!
+	reStore addToTransaction: self!
 
 _abandonChanges
 
@@ -283,6 +283,28 @@ _prepareToCommitPhase2
 	"Subclasses only requiring a single phase should override _prepareToCommit"
 	^self!
 
+_preSwap
+
+	| newFlags |
+
+	newFlags := flags bitOr: IsSwappedMask.
+	newFlags == flags ifTrue: [self error: 'attempt to swap already-swapped proxy'].
+	flags := newFlags!
+
+_preSwapReferences
+
+	"Prepare the receiver for a _swapReferences by adjusting references so they will be correct afterward"
+
+	^self!
+
+_preUnswap
+
+	| newFlags |
+
+	newFlags := flags bitAnd: -2 "IsSwappedMask bitInvert".
+	newFlags == flags ifTrue: [self error: 'attempt to unswap proxy which has not been swapped'].
+	flags := newFlags!
+
 _proxiedClassIsDefinitive
 
 	"Private - Is the class of the proxied object definitively known?"
@@ -454,13 +476,25 @@ _setUnswapped
 
 _swap
 
-	| newFlags |
+	^self 
+		_preSwap;
+		_swapReferences!
 
-	newFlags := flags bitOr: IsSwappedMask.
-	newFlags == flags ifTrue: [self error: 'attempt to swap already-swapped proxy'].
-	flags := newFlags.
+_swapper
 
-	^self _swapReferences!
+	"Private - By default I take care of swapping myself"
+
+	^self!
+
+_swapProxy: aDBProxy
+
+	"Private - SSWDBProxySwapper behavior implemented here for efficiency.
+	ASSERT: aDBProxy == self"
+
+	| proxyReStore |
+
+	proxyReStore := reStore.
+	proxyReStore addToTransaction: self _swap!
 
 _swapReferences
 
@@ -470,8 +504,7 @@ _swapReferences
 
 	| me him |
 
-	"Cannot swap references if no proxy"
-	proxiedObject == nil ifTrue: [^self].
+	self _preSwapReferences.
 
 	"Set up 'me' and 'him' so that they will be correct after the swap"
 	me := proxiedObject.
@@ -496,13 +529,9 @@ _unstore
 
 _unswap
 
-	| newFlags |
-
-	newFlags := flags bitAnd: -2 "IsSwappedMask bitInvert".
-	newFlags == flags ifTrue: [self error: 'attempt to unswap proxy which has not been swapped'].
-	flags := newFlags.
-
-	^self _swapReferences!
+	^self 
+		_preUnswap;
+		_swapReferences!
 
 class
 
@@ -551,12 +580,12 @@ doesNotUnderstand: aMessage
 	
 	self _dbProxyReStore ifNotNil: 
 		[ :proxyReStore |
-		proxyReStore transactionCritical: 
+		proxyReStore ensureHasTransactionCritical: 
 			["Make sure that some other process has not swapped my references while I was waiting for the mutex."
 			self isDBProxy ifTrue: 
 				[proxiedObject isNil ifTrue: [self _recoverProxiedObject].
 				"Swap references to the receiver and proxiedObject. From hereon, must not reference inst vars directly."
-				proxyReStore proxy: self _swap forwarded: aMessage]]].
+				self _swapper _swapProxy: self]]].
 
 	^aMessage value: self!
 
@@ -591,6 +620,14 @@ instVarAt: anInteger
 					ifFalse: [self _recoveredProxiedObject instVarAt: anInteger]]
 			ifFalse: 
 				[self instVarAt: anInteger]]]!
+
+isDBCollectionProxy
+
+	^false!
+
+isDBObjectProxy
+
+	^false!
 
 isDBProxy
 
@@ -756,6 +793,9 @@ _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
 _prepareToCommitPhase1!actions-internal!public! !
 _prepareToCommitPhase2!actions-internal!public! !
+_preSwap!actions-internal!private! !
+_preSwapReferences!actions-internal!public! !
+_preUnswap!actions-internal!private! !
 _proxiedClassIsDefinitive!private!testing! !
 _proxiedObject!accessing!public! !
 _proxiedObject:!accessing!public! !
@@ -772,7 +812,7 @@ _refreshWithContentsIfUpdated!actions-refresh!public! !
 _reStore!accessing!public! !
 _reStore:!accessing!public! !
 _reStoreIfNone:!accessing:direct!public! !
-_rollbackChanges!actions-internal!public! !
+_rollbackChanges!public! !
 _rollbackIn:!actions-internal!public! !
 _setDeleted!actions-internal!flags!private! !
 _setNewNonPersistent!actions-internal!flags!private! !
@@ -781,7 +821,9 @@ _setPersistent!actions-internal!flags!private! !
 _setProxiedObject:!accessing!public! !
 _setSwapped!actions-internal!flags!private! !
 _setUnswapped!actions-internal!flags!private! !
-_swap!actions-internal!public! !
+_swap!actions-internal!private! !
+_swapper!accessing!private! !
+_swapProxy:!actions-internal!private! !
 _swapReferences!actions-internal!private! !
 _unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
@@ -793,6 +835,8 @@ doesNotUnderstand:!forwarding!public! !
 halt!non forwarding!public! !
 includedIn:!public!testing! !
 instVarAt:!forwarding!public! !
+isDBCollectionProxy!public!testing! !
+isDBObjectProxy!public!testing! !
 isDBProxy!public!testing! !
 isInteger!non forwarding!public! !
 isKindOf:!forwarding!public! !

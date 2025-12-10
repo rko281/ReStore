@@ -5,11 +5,15 @@ SSWDBTableComponent subclass: #SSWDBCollectionSpec
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionSpec guid: (GUID fromString: '{266e4dd1-398e-11d5-b1df-444553540000}')!
+
 SSWDBCollectionSpec comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBCollectionSpec categoriesForClass!Unclassified! !
+
 !SSWDBCollectionSpec methodsFor!
 
 applyTo: anObject in: anSSWReStore
@@ -139,6 +143,10 @@ isValueRelated
 
 	^isValueRelated!
 
+keyClass
+
+	^Integer!
+
 newCollection
 
 	^self templateCollection copy!
@@ -248,6 +256,7 @@ templateCollection: aCollection
 	for collections created by this class (i.e. a copy of templateCollection is used)"
 	
 	templateCollection := aCollection! !
+
 !SSWDBCollectionSpec categoriesForMethods!
 applyTo:in:!actions!public! !
 beValueDependent!defining!public! !
@@ -267,6 +276,7 @@ isKeyRelated!public!testing! !
 isRelated!public!testing! !
 isValueDependent!public!testing! !
 isValueRelated!public!testing! !
+keyClass!accessing!public! !
 newCollection!evaluating!public! !
 newProxydCollectionFor:!evaluating!public! !
 readQuery!accessing-queries!public! !

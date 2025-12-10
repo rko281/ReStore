@@ -10,6 +10,7 @@ package classNames
 	add: #SSWDBAllocatedID;
 	add: #SSWDBCachingObjectProxy;
 	add: #SSWDBCollectionProxy;
+	add: #SSWDBCollectionProxySwapper;
 	add: #SSWDBCollectionWithContents;
 	add: #SSWDBCollectionWithRelatedContents;
 	add: #SSWDBDumbTransaction;
@@ -18,7 +19,11 @@ package classNames
 	add: #SSWDBObjectWithComponents;
 	add: #SSWDBObjectWithRelatedComponents;
 	add: #SSWDBOwnedCollectionProxy;
+	add: #SSWDBPreSwappingDumbTransaction;
 	add: #SSWDBProxy;
+	add: #SSWDBProxyAndCollectionsSwapper;
+	add: #SSWDBProxySwapper;
+	add: #SSWDBRecursiveProxySwapper;
 	add: #SSWDBSingleTransaction;
 	add: #SSWDBSingleTransactionWithVersioning;
 	add: #SSWDBTableRecord;
@@ -26,6 +31,7 @@ package classNames
 	add: #SSWDBTransactionCommitError;
 	add: #SSWDBTransactionError;
 	add: #SSWDBTransactionPreCommitError;
+	add: #SSWDBTransactionProxySwapper;
 	add: #SSWDBUnstoreWrapper;
 	add: #SSWDBVersionedCachingObjectProxy;
 	add: #SSWReStore;
@@ -156,6 +162,12 @@ Object subclass: #SSWDBAllocatedID
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
+Object subclass: #SSWDBProxySwapper
+	instanceVariableNames: 'reStore proxiesMap isUnswap'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBTableRecord
 	instanceVariableNames: 'tableName fullTableName nextID'
 	classVariableNames: ''
@@ -169,7 +181,7 @@ Object subclass: #SSWDBTransaction
 	classInstanceVariableNames: ''!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging storeFailureHandler'
+	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging storeFailureHandler currentRecoveries dumbTransactionClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
@@ -198,6 +210,30 @@ Notification subclass: #StoreFailure
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
+SSWDBProxySwapper subclass: #SSWDBCollectionProxySwapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWDBProxySwapper subclass: #SSWDBProxyAndCollectionsSwapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWDBProxySwapper subclass: #SSWDBRecursiveProxySwapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWDBProxySwapper subclass: #SSWDBTransactionProxySwapper
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
 SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
 	instanceVariableNames: 'allReferencedObjects currentReferencedObjects activeProxiesMap changedObjects allocatedIDs deletedObjects'
 	classVariableNames: ''
@@ -205,13 +241,19 @@ SSWDBTransaction subclass: #SSWDBAbstractSingleTransaction
 	classInstanceVariableNames: ''!
 
 SSWDBAbstractSingleTransaction subclass: #SSWDBDumbTransaction
-	instanceVariableNames: ''
+	instanceVariableNames: 'proxySwapper'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
 SSWDBAbstractSingleTransaction subclass: #SSWDBSingleTransaction
 	instanceVariableNames: 'updateStatementsCache'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWDBDumbTransaction subclass: #SSWDBPreSwappingDumbTransaction
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

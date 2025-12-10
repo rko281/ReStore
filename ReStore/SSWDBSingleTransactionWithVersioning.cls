@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWDBSingleTransaction subclass: #SSWDBSingleTransactionWithVersioning
 	instanceVariableNames: 'proxyCommitFailures'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBSingleTransactionWithVersioning guid: (GUID fromString: '{d7154f77-36ed-4fed-83ec-4733b4e34795}')!
+
 SSWDBSingleTransactionWithVersioning comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBSingleTransactionWithVersioning categoriesForClass!Unclassified! !
+
 !SSWDBSingleTransactionWithVersioning methodsFor!
 
 commitFailures
@@ -47,7 +51,7 @@ commitTo: aDBConnection
 	failures isEmpty and: [resolved isEmpty not]] whileTrue.
 
 	"currentReferencedObjects usually empty, but could contain objects ref'd during conflict resolution"
-	self currentReferencedObjects do: [ :obj | obj _unswap].
+	SSWDBTransactionProxySwapper unswapAll: self currentReferencedObjects.
 	self beginObjectCollection.
 
 	self proxyCommitFailures: failures.
@@ -55,7 +59,7 @@ commitTo: aDBConnection
 	ifTrue: 
 		[aDBConnection rollbackTxn.
 		self freeStatements.
-		self currentReferencedObjects: (self changedObjects collect: [ :obj | obj _swap])]
+		(SSWDBTransactionProxySwapper swapAll: self changedObjects)]
 	ifFalse: 
 		[aDBConnection commitTxn.
 		self postCommit].
@@ -107,6 +111,7 @@ rollbackAndRefresh
 		proxyObj _unswap _forgetProxiedObject].
 
 	self rollback! !
+
 !SSWDBSingleTransactionWithVersioning categoriesForMethods!
 commitFailures!accessing!public! !
 commitTo:!actions!public! !

@@ -1,13 +1,17 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreDeleteDependentDictionaryTest subclass: #SSWReStoreDeleteDependentKeyDependentValueDictionaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreDeleteDependentKeyDependentValueDictionaryTest guid: (GUID fromString: '{2ab4729b-a544-4299-b41c-8410895fdf7b}')!
+
 SSWReStoreDeleteDependentKeyDependentValueDictionaryTest comment: ''!
+
 !SSWReStoreDeleteDependentKeyDependentValueDictionaryTest categoriesForClass!Unclassified! !
+
 !SSWReStoreDeleteDependentKeyDependentValueDictionaryTest methodsFor!
 
 deleteQueriesCount
@@ -46,8 +50,11 @@ testDeleteUnproxiedCollection
 
 	"Verify the keys have been deleted"
 	self assert: (reStore executeSQL: 'select count(id_) from <1s>' << keyTable) results first contents first equals: (allKeysCount - customer1EntriesCount)! !
-!SSWReStoreDeleteDependentKeyDependentValueDictionaryTest categoriesFor: #deleteQueriesCount!constants!public! !
-!SSWReStoreDeleteDependentKeyDependentValueDictionaryTest categoriesFor: #ordersCollectionDefinition!constants!public! !
-!SSWReStoreDeleteDependentKeyDependentValueDictionaryTest categoriesFor: #testDeleteProxiedCollection!public!unit tests! !
-!SSWReStoreDeleteDependentKeyDependentValueDictionaryTest categoriesFor: #testDeleteUnproxiedCollection!public!unit tests! !
+
+!SSWReStoreDeleteDependentKeyDependentValueDictionaryTest categoriesForMethods!
+deleteQueriesCount!constants!public! !
+ordersCollectionDefinition!constants!public! !
+testDeleteProxiedCollection!public!unit tests! !
+testDeleteUnproxiedCollection!public!unit tests! !
+!
 

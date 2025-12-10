@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreIDTest subclass: #SSWReStoreDataIDTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreDataIDTest guid: (GUID fromString: '{f5d07b7c-08c7-401c-9818-185ec77d38c7}')!
+
 SSWReStoreDataIDTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreDataIDTest categoriesForClass!Unclassified! !
+
 !SSWReStoreDataIDTest methodsFor!
 
 createTestData
@@ -25,7 +29,13 @@ createTestData
 	obj2 other: obj7.
 
 	(Array with: obj2 with: obj7 with: obj9) storeAllIn: reStore.
-	
+
+	"Verify the proxies are cached correctly"
+	{obj2. obj7. obj9} do: 
+		[ :obj | 
+		self assert: obj isDBProxy.
+		self assert: ((reStore classCacheFor: self testClass) at: obj _id) identicalTo: obj].
+
 	reStore simulateReconnect!
 
 test1VerifySetUp
@@ -187,6 +197,7 @@ test9CheckForUnknownDuplicateID
 testClass
 
 	^ReStoreTestWithID! !
+
 !SSWReStoreDataIDTest categoriesForMethods!
 createTestData!public!running! !
 test1VerifySetUp!public!unit tests! !

@@ -1,16 +1,27 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWDBTransaction
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTransaction guid: (GUID fromString: '{5a3e3dd3-3990-11d5-b1df-444553540000}')!
+
 SSWDBTransaction comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBTransaction categoriesForClass!Unclassified! !
+
 !SSWDBTransaction methodsFor!
+
+addProxy: aProxydObject
+
+	"aProxydObject has forwarded the given message to its proxiedObject. 
+	Act accordingly"
+
+	self subclassResponsibility!
 
 beginWithin: anotherTransaction
 
@@ -65,15 +76,13 @@ ownerTransaction
 	
 	^self subclassResponsibility!
 
+postInstallIn: anSSWReStore
+
+	"The receiver has become the active transaction in anSSWReStore.
+	Carry out any necesssary actions"!
+
 prepareToCommit
 
-	self subclassResponsibility!
-
-proxy: aProxydObject forwarded: aMessage
-
-	"aProxydObject has forwarded the given message to its proxiedObject. 
-	Act accordingly"
-	
 	self subclassResponsibility!
 
 rollback
@@ -83,15 +92,19 @@ rollback
 	Return the collection of changed objects"
 	
 	^self subclassResponsibility! !
-!SSWDBTransaction categoriesFor: #beginWithin:!actions!public! !
-!SSWDBTransaction categoriesFor: #canCommit!public!testing! !
-!SSWDBTransaction categoriesFor: #commitTo:!actions!public! !
-!SSWDBTransaction categoriesFor: #hasChanges!public!testing! !
-!SSWDBTransaction categoriesFor: #hasFailedCommit!public!testing! !
-!SSWDBTransaction categoriesFor: #includesProxy:!public!testing! !
-!SSWDBTransaction categoriesFor: #isDumb!public!testing! !
-!SSWDBTransaction categoriesFor: #ownerTransaction!evaluating!public! !
-!SSWDBTransaction categoriesFor: #prepareToCommit!actions!public! !
-!SSWDBTransaction categoriesFor: #proxy:forwarded:!proxy tracking!public! !
-!SSWDBTransaction categoriesFor: #rollback!actions!public! !
+
+!SSWDBTransaction categoriesForMethods!
+addProxy:!proxy tracking!public! !
+beginWithin:!actions!public! !
+canCommit!public!testing! !
+commitTo:!actions!public! !
+hasChanges!public!testing! !
+hasFailedCommit!public!testing! !
+includesProxy:!public!testing! !
+isDumb!public!testing! !
+ownerTransaction!evaluating!public! !
+postInstallIn:!actions!public! !
+prepareToCommit!actions!public! !
+rollback!actions!public! !
+!
 

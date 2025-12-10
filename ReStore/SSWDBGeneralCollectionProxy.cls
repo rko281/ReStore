@@ -5,12 +5,22 @@ SSWDBCollectionProxy subclass: #SSWDBGeneralCollectionProxy
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBGeneralCollectionProxy guid: (GUID fromString: '{20954e42-6188-11d5-b1df-0010a70883e2}')!
+
 SSWDBGeneralCollectionProxy comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBGeneralCollectionProxy categoriesForClass!Unclassified! !
+
 !SSWDBGeneralCollectionProxy methodsFor!
+
+_addPersistentComponentsTo: aCollection
+
+	proxiedObject isNil ifFalse: 
+		[collectionSpec keyClass isDirectlyPersisted ifFalse: [proxiedObject keysDo: [ :each | aCollection add: each]].
+		collectionSpec targetClass isDirectlyPersisted ifFalse: [aCollection addAll: proxiedObject]]!
 
 _changes
 
@@ -158,7 +168,9 @@ _unchangedCollection
 		ifFalse: [collectionEntries notNil ifTrue: [collectionEntries do: [ :entry | entry addTargetTo: unchangedCollection]]].
 	
 	^unchangedCollection! !
+
 !SSWDBGeneralCollectionProxy categoriesForMethods!
+_addPersistentComponentsTo:!actions-internal!private! !
 _changes!accessing!public! !
 _changes:!accessing!public! !
 _checkHasChanged!public!testing! !

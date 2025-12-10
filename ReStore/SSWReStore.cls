@@ -1,7 +1,7 @@
 ﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #SSWReStore
-	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging storeFailureHandler'
+	instanceVariableNames: 'connection tableCache nextIDCache nextIDStatement proxyCache transactionClass transaction objectProxyClass dbTableNames transactionMutex supportsFullTableRecords readAllBatchSize affiliations isDebugging storeFailureHandler currentRecoveries dumbTransactionClass'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: 'globalDefault activeReStores isDebugging'!
@@ -102,6 +102,10 @@ addClassWithSubclasses: aClass
 	
 	aClass withAllSubclasses do: [ :class | self addClass: class]!
 
+addToTransaction: anSSWDBProxy
+
+	self transaction addProxy: anSSWDBProxy!
+
 affiliateWith: anObject using: aBlock
 
 	self affiliations at: anObject put: aBlock!
@@ -168,8 +172,8 @@ attachTo: aConnection
 beginDumbTransaction
 
 	"Begin a dumb transaction to absorb object traversals"
-	
-	self transaction: (SSWDBDumbTransaction new begin; yourself)!
+
+	self transaction: (self dumbTransactionClass new begin; yourself)!
 
 beginTransaction
 
@@ -220,7 +224,7 @@ cacheObject: aPersistentObjectProxy
 	"Add the given persistent object proxy to the receiver's cache"
 	
 	"Use _class to avoid fetching inherited objects (issue#0015)"
-	(self classCacheFor: aPersistentObjectProxy _class) at: aPersistentObjectProxy _id put: aPersistentObjectProxy!
+	(self classCacheFor: aPersistentObjectProxy _class) at: aPersistentObjectProxy _id put: aPersistentObjectProxy _frontFace!
 
 changedClassOfInstVar: aSymbol in: aClass modifyUsing: aBlock
 
@@ -636,6 +640,14 @@ disconnect
 
 	self hardDisconnect!
 
+dumbTransactionClass
+
+	^dumbTransactionClass ifNil: [SSWDBDumbTransaction]!
+
+dumbTransactionClass: aClass
+
+	dumbTransactionClass := aClass!
+
 enableFullTableRecords
 
 	"Enable the use of full table records - intended for existing databases without this enabled"
@@ -658,6 +670,14 @@ ensureCanChangeTransactionMode
 	"Cannot change mode if connected to DB"
 
 	self isConnected ifTrue: [self error: 'Cannot change transaction mode whilst connected']!
+
+ensureHasTransactionCritical: aBlock
+
+	"Evaluate aBlock in the transaction mutex, first ensuring there is a current transaction"
+
+	^self transactionCritical: 
+		[transaction == nil ifTrue: [self beginDumbTransaction].
+		aBlock value]!
 
 ensureIsActiveInCurrentTransaction: anObject
 
@@ -962,10 +982,9 @@ lazyRefreshAll: aCollection
 
 	"Lazy-refresh the elements of aCollection - just forget the actual objects; they will be lazily re-read (and hence refreshed) when next referenced"
 
-	self transactionCritical:
-		[self ensureNoActiveTransaction.
+	self transactionCritical: 
+		[self unswapAll: aCollection.
 		self connection rollbackTxn.
-
 		aCollection do: [ :each | each _lazyRefreshIn: self]]!
 
 leaveDebugMode
@@ -1142,14 +1161,19 @@ prepareStatementForQuery: anSSWSQLQuery
 
 	^self connection prepareQuery: anSSWSQLQuery!
 
-proxy: anSSWDBProxy forwarded: aMessage
+preserveSwappedProxiesFollowingTransaction: aBlock
 
-	"anSSWDBProxy has just forwarded aMessage to its proxiedObject.
-	Take any necessary actions here and forward to other interested parties"
+	"Evaluate aBlock (which should invoke some transaction operation) ensuring that the current set of swapped proxies is restored after the transaction completes"
 
-	transaction == nil ifTrue: [self beginDumbTransaction].
-
-	self transaction proxy: anSSWDBProxy forwarded: aMessage!
+	self transactionCritical: 
+		[self transaction 
+		ifNil: 
+			[aBlock value]
+		ifNotNil: 
+			[ :previousTransaction |
+			previousTransaction isDumb ifFalse: [self error: 'not appropriate'].
+			aBlock value.
+			previousTransaction proxySwapper reswap]]!
 
 proxyCache
 
@@ -1168,6 +1192,13 @@ proxyCache: aDictionary
 	The sub-dictionary is weak-valued by default"
 	
 	proxyCache := aDictionary!
+
+proxyRecovered: aDBProxy
+
+	currentRecoveries isNil ifFalse: 
+		[currentRecoveries 
+			add: aDBProxy;
+			addAll: aDBProxy _collectionProxies]!
 
 readAllBatchSize
 
@@ -1430,19 +1461,22 @@ rollbackAndRefreshTransaction
 
 rollbackTransaction
 
-	| rolledBack |
+	| rolledBack previousTransaction |
 
 	self hasTransaction ifFalse: [self error: 'No transaction to rollback'].
 
+	previousTransaction := self transaction.
 	self transactionCritical:
 		[rolledBack := self transaction rollback.
-		self transaction: self transaction ownerTransaction.
+		self transaction: (SSWDBDumbTransaction new begin; yourself).
 		self connection rollbackTxn].
 
 	rolledBack do: [ :each | each onRollback].
 
 	"Implementation of onRollback may cause further objects to be referenced - where this has happened invoke a softRollback to ensure all persistent objects are proxies"
-	self hasTransaction ifTrue: [self softRollback]!
+	self transaction isEmpty ifFalse: [self softRollback].
+
+	self transaction: previousTransaction ownerTransaction!
 
 rowFromQuery: anSSWSQLQuery
 
@@ -1570,6 +1604,51 @@ supportsVersioning
 
 	^self objectProxyClass = SSWDBVersionedCachingObjectProxy!
 
+swapAll
+
+	"Swap all persistent objects.
+	Answer the Swapper"
+
+	| swapper |
+
+	swapper := SSWDBProxyAndCollectionsSwapper newFor: self.
+	swapper initialize: (self proxyCache inject: 0 into: [ :total :each | total + each size]) * 2.
+
+	^self transactionCritical: 
+		[self proxyCache do: [ :proxies | swapper addAll: proxies].
+		swapper 
+			swap;
+			yourself]!
+
+swapAll: aCollection
+
+	"Answer the Swapper"
+
+	^self swapAll: aCollection using: SSWDBProxyAndCollectionsSwapper!
+
+swapAll: aCollection using: aProxySwapperClass
+
+	^(aProxySwapperClass newFor: self) 
+		swapAll: aCollection;
+		yourself!
+
+swapAllRecursively: aCollection
+
+	"Swap aCollection of objects, recursing into contained persistent objects and collections.
+	Answer the Swapper"
+
+	^self swapAll: aCollection using: SSWDBRecursiveProxySwapper!
+
+swapObjectsRecoveredDuring: aBlock
+
+	"Evaluate aBlock. Any objects newly-recovered during its evaluation will then be swapped."
+
+	currentRecoveries isNil ifFalse: [^aBlock value].
+
+	currentRecoveries := IdentitySet new.
+	aBlock value.
+	self swapAll: currentRecoveries!
+
 synchronizeAllClasses
 
 	"Synchronize the definitions of all the tables associated with the receiver's classes"
@@ -1638,7 +1717,8 @@ transaction: anSSWDBTransaction
 	"transaction stores an SSWDBTransaction which manages 
 	the writing/rollback of object changes within this ReStore"
 	
-	transaction := anSSWDBTransaction!
+	transaction := anSSWDBTransaction.
+	anSSWDBTransaction isNil ifFalse: [anSSWDBTransaction postInstallIn: self]!
 
 transactionClass
 
@@ -1723,6 +1803,25 @@ unstoreNextIDsForTables: aCollection
 
 	((self instancesOf: SSWDBTableRecord) satisfying: [ :nextID | droppedNames includes: nextID tableName]) unstoreAll!
 
+unswapAll: aCollection
+
+	"Answer the Swapper"
+
+	^self unswapAll: aCollection using: SSWDBProxyAndCollectionsSwapper!
+
+unswapAll: aCollection using: aProxySwapperClass
+
+	^(aProxySwapperClass newFor: self) 
+		unswapAll: aCollection;
+		yourself!
+
+unswapAllRecursively: aCollection
+
+	"Unswap aCollection of objects, recursing into contained persistent objects and collections.
+	Answer the Swapper"
+
+	^self unswapAll: aCollection using: SSWDBRecursiveProxySwapper!
+
 useTransactionsWithoutVersioning
 
 	"Set the receiver to use (single) transactions *without* version counting
@@ -1779,6 +1878,7 @@ activeProxyForObject:ifNone:!proxy manipulation!public! !
 addClass:!class maintenance!public! !
 addClasses:!class maintenance!public! !
 addClassWithSubclasses:!class maintenance!public! !
+addToTransaction:!proxy manipulation!public! !
 affiliateWith:using:!initialize/release!public! !
 affiliations!accessing!public! !
 allocateIDFor:in:!cache management!public! !
@@ -1832,8 +1932,11 @@ destroyTable:!class maintenance!private! !
 detach!connection!public! !
 disaffiliateWith:!initialize/release!public! !
 disconnect!connection!public! !
+dumbTransactionClass!accessing!public! !
+dumbTransactionClass:!accessing!public! !
 enableFullTableRecords!class maintenance!public! !
 ensureCanChangeTransactionMode!initialize/release!private! !
+ensureHasTransactionCritical:!private!transaction management! !
 ensureIsActiveInCurrentTransaction:!proxy manipulation!public! !
 ensureNoActiveTransaction!private!transaction management! !
 enterDebugMode!debugging!public! !
@@ -1896,9 +1999,10 @@ postConnect!connection!private! !
 postDisconnect!connection!private! !
 preDisconnect!connection!private! !
 prepareStatementForQuery:!connection!public! !
-proxy:forwarded:!proxy manipulation!public! !
+preserveSwappedProxiesFollowingTransaction:!proxy swapping!public! !
 proxyCache!accessing!public! !
 proxyCache:!accessing!public! !
+proxyRecovered:!proxy manipulation!public! !
 readAllBatchSize!accessing!public! !
 readAllBatchSize:!accessing!public! !
 reconnect!connection!public! !
@@ -1936,6 +2040,11 @@ storeFailureHandler:!accessing!public! !
 supportsFullTableRecords!accessing!public! !
 supportsFullTableRecords:!accessing!public! !
 supportsVersioning!public!testing! !
+swapAll!proxy swapping!public! !
+swapAll:!proxy swapping!public! !
+swapAll:using:!private!proxy swapping! !
+swapAllRecursively:!proxy swapping!public! !
+swapObjectsRecoveredDuring:!proxy swapping!public! !
 synchronizeAllClasses!class maintenance!public! !
 synchronizeClass:!class maintenance!public! !
 tableCache!accessing!public! !
@@ -1955,6 +2064,9 @@ transactionMutex:!accessing!public! !
 translateMessage:toFunction:!initialize/release!public! !
 uncacheObject:!cache management!public! !
 unstoreNextIDsForTables:!class maintenance!private! !
+unswapAll:!proxy swapping!public! !
+unswapAll:using:!private!proxy swapping! !
+unswapAllRecursively:!proxy swapping!public! !
 useTransactionsWithoutVersioning!initialize/release!public! !
 useTransactionsWithVersioning!initialize/release!public! !
 validateTable:!class maintenance!private! !

@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStorePersonTest subclass: #SSWReStoreCommitTests
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreCommitTests guid: (GUID fromString: '{b23f6a7e-7018-4b0b-b981-2d45c37064f0}')!
+
 SSWReStoreCommitTests comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreCommitTests categoriesForClass!Unclassified! !
+
 !SSWReStoreCommitTests methodsFor!
 
 addClassesTo: aReStore
@@ -106,7 +110,27 @@ test05CommitDeletedObject
 	self assert: (reStore deferredObjectOfClass: OwnerTest withID: 77) isDBDeleted.
 	"At this point it used to be the case that the DeletedObject above was marked as touched,
 	and ReStore would crash when committing, even though it's not actually *referenced* from anywhere"
-	self shouldnt: [reStore commitTransaction] raise: Error! !
+	self shouldnt: [reStore commitTransaction] raise: Error!
+
+test06UnstoreNonPersistentObject
+
+	"Ensure that storing and unstoring an object within a single transaction is supported.
+	Previously caused an error attempting to assign an id to a non-persistent object after its (non)commit"
+
+	| obj1 obj2 |
+
+	obj1 := SimplePerson new firstName: 'The man who was'.
+	obj2 := SimplePerson new firstName: 'The man who never was'.
+
+	reStore evaluateAsTransaction: 
+		[{obj1. obj2} storeAllIn: reStore.
+		obj2 unstore].
+
+	self assert: ((SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName: 'The man who was'] ifNone: [nil]) == obj1.
+	self assert: ((SimplePerson storedInstancesIn: reStore) detect: [ :each | each firstName: 'The man who never was'] ifNone: [nil]) isNil.
+
+	self deny: ((reStore classCacheFor: SimplePerson) anySatisfy: [:each | each _proxiedObject == obj2])! !
+
 !SSWReStoreCommitTests categoriesForMethods!
 addClassesTo:!public!Running! !
 test01SelfReference!public! !
@@ -114,5 +138,6 @@ test02MultiCommitSameObject!public! !
 test03MultiStoreSameObject!public! !
 test04MultiStoreSameObjectViaRelationships!public! !
 test05CommitDeletedObject!public! !
+test06UnstoreNonPersistentObject!public! !
 !
 
