@@ -302,7 +302,35 @@ testRetrievingIncompatibleClassRaisesError
 	"Attempt to retrieve what is actually a DetailedPerson as if it were a MidPerson (siblings)"
 	self should: [(reStore deferredObjectOfClass: MidPerson withID: detailedID) firstName] raise: Error description: 'Proxy for MidPerson retrieved a DetailedPerson1 from the database.'.
 	"As above, but parent of the declared class"
-	self should: [(reStore deferredObjectOfClass: SubPerson withID: midID) firstName] raise: Error description: 'Proxy for SubPerson retrieved a MidPerson from the database.'! !
+	self should: [(reStore deferredObjectOfClass: SubPerson withID: midID) firstName] raise: Error description: 'Proxy for SubPerson retrieved a MidPerson from the database.'!
+
+testSharedTableHierarchyReference
+
+	"Test for issue #7 - Issue with retrieval of polymorphic collections"
+
+	| ownerA ownerB owners |
+
+	reStore
+		addClassWithSubclasses: AbstractA;
+		addClass: ConcreteReferenceA;
+		addClass: ConcreteReferenceB;
+		destroyAllClasses;
+		synchronizeAllClasses.
+
+	ownerA := ConcreteA new reference: (ConcreteReferenceA new name: 'a').
+	ownerB := ConcreteB new reference: (ConcreteReferenceB new number: 123).
+	{ownerA. ownerB} storeAllIn: reStore.
+
+	reStore simulateReconnect.
+
+	owners := (AbstractA storedInstancesIn: reStore) asOrderedCollection.
+	ownerA := owners detect: [ :each | each class = ConcreteA].
+	ownerB := owners detect: [ :each | each class = ConcreteB].
+
+	self assert: ownerA reference isDBProxy.
+	self assert: ownerA reference class = ConcreteReferenceA.
+	self assert: ownerB reference isDBProxy.
+	self assert: ownerB reference class = ConcreteReferenceB.! !
 
 !SSWReStoreHierarchyTest categoriesForMethods!
 _testClassOfProxyOfIndirectInstanceOf:!private!unit tests! !
@@ -329,5 +357,6 @@ testInheritanceStructureWithoutInheritancePersistentIntermediateOldFormat!public
 testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediate!public!unit tests! !
 testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediateOldFormat!public!unit tests! !
 testRetrievingIncompatibleClassRaisesError!public!unit tests! !
+testSharedTableHierarchyReference!public!running! !
 !
 

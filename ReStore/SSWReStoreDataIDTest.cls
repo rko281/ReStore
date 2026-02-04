@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreIDTest subclass: #SSWReStoreDataIDTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreDataIDTest guid: (GUID fromString: '{f5d07b7c-08c7-401c-9818-185ec77d38c7}')!
+
 SSWReStoreDataIDTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWReStoreDataIDTest categoriesForClass!Unclassified! !
+
 !SSWReStoreDataIDTest methodsFor!
 
 createTestData
@@ -187,6 +191,7 @@ test9CheckForUnknownDuplicateID
 testClass
 
 	^ReStoreTestWithID! !
+
 !SSWReStoreDataIDTest categoriesForMethods!
 createTestData!public!running! !
 test1VerifySetUp!public!unit tests! !

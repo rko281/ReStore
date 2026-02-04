@@ -10,6 +10,8 @@ package classNames
 	add: #AbstractB;
 	add: #ConcreteA;
 	add: #ConcreteB;
+	add: #ConcreteReferenceA;
+	add: #ConcreteReferenceB;
 	add: #DetailedPerson;
 	add: #DetailedPerson1;
 	add: #DetailedPerson2;
@@ -210,6 +212,18 @@ Object subclass: #AbstractA
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
+Object subclass: #ConcreteReferenceA
+	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+Object subclass: #ConcreteReferenceB
+	instanceVariableNames: 'number'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
 Object subclass: #FieldNameTest
 	instanceVariableNames: 'id name description'
 	classVariableNames: ''
@@ -313,7 +327,7 @@ Object subclass: #TypeTest
 	classInstanceVariableNames: ''!
 
 AbstractA subclass: #AbstractB
-	instanceVariableNames: ''
+	instanceVariableNames: 'reference'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

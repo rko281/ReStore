@@ -389,6 +389,12 @@ dependentDataFieldsSelect: aBlock
 	
 	^self dataFields select: [ :field | field isDependent and: [aBlock value: field]]!
 
+equivalentDataFieldTo: aDBField
+
+	"No inheritance so no need to check for equivalents"
+
+	^aDBField!
+
 fieldAccessing: aSymbol
 
 	"Determine and return the field of the receiver which accesses the inst var named aSymbol of the receiver's instanceClass"
@@ -912,6 +918,7 @@ deleteStatementGeneratedFrom:!accessing!public! !
 dependentComponents!accessing!public! !
 dependentDataFields!evaluating!public! !
 dependentDataFieldsSelect:!evaluating!public! !
+equivalentDataFieldTo:!accessing!public! !
 fieldAccessing:!evaluating!public! !
 fieldNamed:!evaluating!public! !
 fieldsAccessing:!evaluating!public! !

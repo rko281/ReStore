@@ -5,11 +5,15 @@ DBRow subclass: #SSWODBCRow
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWODBCRow guid: (GUID fromString: '{a08f875a-3b6c-4962-9633-730ff9ab89b2}')!
+
 SSWODBCRow comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWODBCRow categoriesForClass!Kernel-Objects! !
+
 !SSWODBCRow methodsFor!
 
 deAliasQueryFieldsFor: aDBQueryTable
@@ -62,8 +66,10 @@ populateObject: anObject from: anSSWDBTable
 		[ :index | 
 		(columns at: index) field ifNotNil: 
 			[ :field |  
-			(field table == anSSWDBTable or: [field table = anSSWDBTable]) ifTrue: 
-				[field populateObject: anObject with: (contents at: index)]]]! !
+			(field equivalentIn: anSSWDBTable) ifNotNil: 
+				[ :actualField | 
+				actualField populateObject: anObject with: (contents at: index)]]]! !
+
 !SSWODBCRow categoriesForMethods!
 deAliasQueryFieldsFor:!initializing!public! !
 initializeFromBuffer:!initializing!public! !

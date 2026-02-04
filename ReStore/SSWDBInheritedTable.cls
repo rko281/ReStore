@@ -5,11 +5,15 @@ SSWDBTable subclass: #SSWDBInheritedTable
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBInheritedTable guid: (GUID fromString: '{266e4dcd-398e-11d5-b1df-444553540000}')!
+
 SSWDBInheritedTable comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBInheritedTable categoriesForClass!Unclassified! !
+
 !SSWDBInheritedTable methodsFor!
 
 classField
@@ -28,6 +32,14 @@ classField: anSSWDBField
 	but is additionally held in this instance variable for efficient access"
 	
 	classField := anSSWDBField!
+
+equivalentDataFieldTo: aDBField
+
+	"Look for the equivalent (same-named) field as aDBField in this table"
+
+	^aDBField name = self classField name 
+		ifTrue: [aDBField]
+		ifFalse: [self dataFields detect: [ :each | each name = aDBField name] ifNone: [nil]]!
 
 initializeClassField: aDBField
 	
@@ -91,9 +103,11 @@ withAllFields
 				[withAllFields dataFields add: field]]].
 	
 	^withAllFields! !
+
 !SSWDBInheritedTable categoriesForMethods!
 classField!accessing!public! !
 classField:!accessing!public! !
+equivalentDataFieldTo:!accessing!public! !
 initializeClassField:!defining!private! !
 instanceClassFromRow:!instance creation!private! !
 recoverExactClassInstanceFromRow:into:!private! !

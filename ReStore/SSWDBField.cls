@@ -5,11 +5,15 @@ SSWDBTableComponent subclass: #SSWDBField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBField guid: (GUID fromString: '{266e4dd6-398e-11d5-b1df-444553540000}')!
+
 SSWDBField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBField categoriesForClass!Unclassified! !
+
 !SSWDBField methodsFor!
 
 = anSSWDBField
@@ -60,6 +64,15 @@ columnIndex: anInteger
 	It is set during query result preparation and is checked first during subsequent lookups for this field"
 
 	columnIndex := anInteger!
+
+equivalentIn: anSSWDBTable
+
+	"Answer the equivalent field to the receiver in anSSWDBTable.
+	By default assume no equivalents, so if the receiver's table matches anSSWDBTable then it is the 'equivalent' "
+
+	^(self table == anSSWDBTable or: [self table = anSSWDBTable])
+		ifTrue: [self]
+		ifFalse: [nil]!
 
 fieldNamed: aString
 
@@ -197,6 +210,7 @@ writeSQLOn: aStream
 	aStream 
 		nextPut: $.;
 		nextPutIdentifier: self name! !
+
 !SSWDBField categoriesForMethods!
 =!comparing!public! !
 aboutToBeUnstored:!actions!public! !
@@ -207,6 +221,7 @@ beUnrelated!defining!public! !
 canBeParameterized!public!testing! !
 columnIndex!accessing!private! !
 columnIndex:!accessing!private! !
+equivalentIn:!accessing!public! !
 fieldNamed:!accessing!public! !
 hasAggregateFunction!public!testing! !
 hash!comparing!public! !

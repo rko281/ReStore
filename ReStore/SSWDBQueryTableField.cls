@@ -5,11 +5,15 @@ SSWDBQueryField subclass: #SSWDBQueryTableField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryTableField guid: (GUID fromString: '{266e4dca-398e-11d5-b1df-444553540000}')!
+
 SSWDBQueryTableField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBQueryTableField categoriesForClass!Unclassified! !
+
 !SSWDBQueryTableField methodsFor!
 
 = anSSWDBField
@@ -31,6 +35,12 @@ accessorPath: anObject
 	"The path of accessors from some originating table to this field"
 
 	accessorPath := anObject!
+
+equivalentIn: anSSWDBTable
+
+	^(self table == anSSWDBTable or: [self table = anSSWDBTable])
+		ifTrue: [anSSWDBTable equivalentDataFieldTo: self field]
+		ifFalse: [nil]!
 
 hash
 
@@ -89,11 +99,13 @@ writeSQLOn: aStream
 	aStream 
 		nextPut: $.;
 		nextPutIdentifier: self name! !
+
 !SSWDBQueryTableField categoriesForMethods!
 =!comparing!public! !
 accesses:!public!testing! !
 accessorPath!accessing!public! !
 accessorPath:!accessing!public! !
+equivalentIn:!accessing!public! !
 hash!comparing!public! !
 isInlined!public!testing! !
 printOn:!output!public! !
@@ -116,6 +128,7 @@ forField: anSSWDBField in: anSSWDBQueryTable path: anArray
 		table: anSSWDBQueryTable;
 		accessorPath: anArray;
 		yourself! !
+
 !SSWDBQueryTableField class categoriesForMethods!
 forField:in:!instance creation!public! !
 forField:in:path:!instance creation!public! !
