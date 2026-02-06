@@ -389,11 +389,11 @@ dependentDataFieldsSelect: aBlock
 	
 	^self dataFields select: [ :field | field isDependent and: [aBlock value: field]]!
 
-equivalentDataFieldTo: aDBField
+equivalentDataFieldTo: aPolymorphicDataField
 
-	"No inheritance so no need to check for equivalents"
+	"No polymorphic equivalents here"
 
-	^aDBField!
+	^nil!
 
 fieldAccessing: aSymbol
 

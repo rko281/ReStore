@@ -5,11 +5,15 @@ SSWDBField subclass: #SSWDBStaticField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticField guid: (GUID fromString: '{266e4dd7-398e-11d5-b1df-444553540000}')!
+
 SSWDBStaticField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBStaticField categoriesForClass!Unclassified! !
+
 !SSWDBStaticField methodsFor!
 
 applyValueFromRow: aDBRow to: anObject
@@ -38,6 +42,12 @@ populateObject: anObject with: aValue
 	"Populate the aspect of anObject related to this field with aValue"
 
 	self subclassResponsibility!
+
+populateObject: anObject with: aValue from: anSSWDBTable
+
+	"Populate the aspect of anObject related to this field with aValue sourced from anSSWDBTable"
+
+	(self table == anSSWDBTable or: [self table = anSSWDBTable]) ifTrue: [self populateObject: anObject with: aValue]!
 
 readAllFor: aCollection
 
@@ -91,12 +101,14 @@ writeSQLDefinitionOn: aStream
 	super writeSQLDefinitionOn: aStream.
 	aStream space.
 	self targetClass writeSQLTypeOn: aStream using: self sqlDialect! !
+
 !SSWDBStaticField categoriesForMethods!
 applyValueFromRow:to:!actions!public! !
 applyValueIfChangedFromRow:to:!actions!public! !
 convertValue:!actions!public! !
 isValidForPersistence!public! !
 populateObject:with:!actions!private! !
+populateObject:with:from:!actions!private! !
 readAllFor:!actions!public! !
 readAllQuery!accessing!public! !
 targetClass!accessing!public! !

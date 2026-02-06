@@ -14,18 +14,30 @@ SSWDBDataField comment: ''!
 
 !SSWDBDataField methodsFor!
 
-equivalentIn: anSSWDBTable
+asPolymorphicDataField
 
-	"For data fields ask the table to look for an equivalent"
+	| polymorphic |
 
-	^(super equivalentIn: anSSWDBTable) ifNotNil: [ :field | anSSWDBTable equivalentDataFieldTo: field]!
+	polymorphic := SSWDBPolymorphicDataField new.
+
+	polymorphic
+		name: self name;
+		table: self table;
+		accessor: self accessor;
+		columnIndex: self columnIndex;
+		targetClass: self targetClass.
+
+	self isDependent ifTrue: [polymorphic beDependent].
+	self isRelated ifTrue: [polymorphic beRelated].
+
+	^polymorphic!
 
 populateObject: anObject with: aValue
 
 	(self convertValue: aValue) ifNotNil: [ :obj | self accessor value: obj in: anObject]! !
 
 !SSWDBDataField categoriesForMethods!
-equivalentIn:!accessing!public! !
+asPolymorphicDataField!converting!public! !
 populateObject:with:!actions!private! !
 !
 

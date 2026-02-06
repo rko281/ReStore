@@ -65,15 +65,6 @@ columnIndex: anInteger
 
 	columnIndex := anInteger!
 
-equivalentIn: anSSWDBTable
-
-	"Answer the equivalent field to the receiver in anSSWDBTable.
-	By default assume no equivalents, so if the receiver's table matches anSSWDBTable then it is the 'equivalent' "
-
-	^(self table == anSSWDBTable or: [self table = anSSWDBTable])
-		ifTrue: [self]
-		ifFalse: [nil]!
-
 fieldNamed: aString
 
 	"Polymorphic with field collections"
@@ -221,7 +212,6 @@ beUnrelated!defining!public! !
 canBeParameterized!public!testing! !
 columnIndex!accessing!private! !
 columnIndex:!accessing!private! !
-equivalentIn:!accessing!public! !
 fieldNamed:!accessing!public! !
 hasAggregateFunction!public!testing! !
 hash!comparing!public! !

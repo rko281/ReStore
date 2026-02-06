@@ -33,13 +33,11 @@ classField: anSSWDBField
 	
 	classField := anSSWDBField!
 
-equivalentDataFieldTo: aDBField
+equivalentDataFieldTo: aPolymorphicDataField
 
-	"Look for the equivalent (same-named) field as aDBField in this table"
+	"Look for the equivalent (same-named) field as aPolymorphicDataField in this table"
 
-	^aDBField name = self classField name 
-		ifTrue: [aDBField]
-		ifFalse: [self dataFields detect: [ :each | each name = aDBField name] ifNone: [nil]]!
+	^self dataFields detect: [ :each | each name = aPolymorphicDataField name] ifNone: [nil]!
 
 initializeClassField: aDBField
 	
@@ -99,8 +97,9 @@ withAllFields
 		table := self reStore tableForClass: cls.
 		table dataFields do: 
 			[ :field | 
-			(withAllFields hasFieldAccessing: field accessor name) ifFalse: 
-				[withAllFields dataFields add: field]]].
+			(withAllFields fieldAccessing: field accessor name) 
+				ifNil: [withAllFields dataFields add: field]
+				ifNotNil: [ :existingField | withAllFields dataFields remove: existingField; add: field asPolymorphicDataField]]].
 	
 	^withAllFields! !
 

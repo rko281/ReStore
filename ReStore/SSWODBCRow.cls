@@ -66,9 +66,7 @@ populateObject: anObject from: anSSWDBTable
 		[ :index | 
 		(columns at: index) field ifNotNil: 
 			[ :field |  
-			(field equivalentIn: anSSWDBTable) ifNotNil: 
-				[ :actualField | 
-				actualField populateObject: anObject with: (contents at: index)]]]! !
+			field populateObject: anObject with: (contents at: index) from: anSSWDBTable]]! !
 
 !SSWODBCRow categoriesForMethods!
 deAliasQueryFieldsFor:!initializing!public! !

@@ -36,12 +36,6 @@ accessorPath: anObject
 
 	accessorPath := anObject!
 
-equivalentIn: anSSWDBTable
-
-	^(self table == anSSWDBTable or: [self table = anSSWDBTable])
-		ifTrue: [anSSWDBTable equivalentDataFieldTo: self field]
-		ifFalse: [nil]!
-
 hash
 
 	^self table hash bitXor: self name hash!
@@ -49,6 +43,10 @@ hash
 isInlined
 
 	^self field isInlined!
+
+populateObject: anObject with: aValue from: anSSWDBTable
+
+	"A no-op for query fields"!
 
 printOn: aStream
 
@@ -105,9 +103,9 @@ writeSQLOn: aStream
 accesses:!public!testing! !
 accessorPath!accessing!public! !
 accessorPath:!accessing!public! !
-equivalentIn:!accessing!public! !
 hash!comparing!public! !
 isInlined!public!testing! !
+populateObject:with:from:!public! !
 printOn:!output!public! !
 table!accessing!public! !
 table:!accessing!public! !
