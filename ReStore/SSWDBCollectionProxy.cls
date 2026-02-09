@@ -78,6 +78,12 @@ _preSwapReferences
 
 	owner _collectionProxyAboutToSwap: self!
 
+_printTypeAndIDStringOn: s
+	self _owner _printTypeAndIDStringOn: s.
+	s
+		nextPut: $.;
+		nextPutAll: self _collectionSpec accessor name.!
+
 _proxiedObjectClass
 	
 	^collectionSpec collectionClass!
@@ -186,6 +192,7 @@ _owner:!accessing!public! !
 _ownerID!accessing!public! !
 _prepareToCommit!actions-internal!public! !
 _preSwapReferences!actions-internal!public! !
+_printTypeAndIDStringOn:!public! !
 _proxiedObjectClass!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshIfUpdated!actions-refresh!public! !

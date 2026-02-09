@@ -267,6 +267,13 @@ _prepareToCommit
 
 	self _isDeleted ifFalse: [self _storeNonPersistentComponents]!
 
+_printTypeAndIDStringOn: s
+	^s
+		nextPutAll: self _class name;
+		nextPut: $<;
+		print: self _id;
+		nextPut: $>.!
+
 _proxiedClassIsDefinitive
 
 	^proxiedObject notNil or: [self _dbTable class == SSWDBTable]!
@@ -363,10 +370,6 @@ _tableRecord
 
 	^reStore tableRecordFor: self _dbTable!
 
-_unrecoveredProxyString
-
-	^'%<an unrecovered <1p> id=<2p>%>' expandMacrosWith: class with: id!
-
 _unstore
 
 	"Unstore the receiver's proxyObject - set the receiver's state so that the receiver is recognised as unstored and hence will be deleted at the next commit"
@@ -429,10 +432,9 @@ currentVersion
 	^self _currentVersion _proxiedObject!
 
 deletedDebugPrintString
-
 	"Private - The receiver is a deleted proxy; answer an appropriate debugPrintString"
 
-	^'%<a marked-for-deletion <1p>%>' << class!
+	^'<a marked-for-deletion ' , self _typeAndIDString , '>'.!
 
 hash
 
@@ -615,6 +617,7 @@ _postCommitUpdates!actions-internal!private! !
 _postRecovered!actions-internal!public! !
 _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
+_printTypeAndIDStringOn:!public! !
 _proxiedClassIsDefinitive!private!testing! !
 _proxiedObjectClass!accessing!public! !
 _proxiedObjectMissing!actions-internal!public! !
@@ -627,7 +630,6 @@ _rollbackUnstore!actions-internal!private! !
 _rollbackUpdates!actions-internal!private! !
 _storeNonPersistentComponents!actions-internal!private! !
 _tableRecord!accessing:derived!public! !
-_unrecoveredProxyString!accessing!public! !
 _unstore!actions-internal!public! !
 _updateCollectionProxyUsing:!actions-internal!private! !
 _valuesForAccessor:!accessing!private! !
