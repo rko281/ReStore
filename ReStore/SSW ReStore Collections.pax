@@ -5,7 +5,6 @@ package paxVersion: 1;
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'.
 
-
 package classNames
 	add: #SSWDBArrayedStaticCollectionSpec;
 	add: #SSWDBCacheDictionaryEntry;
@@ -106,134 +105,156 @@ Object subclass: #SSWDBCacheDictionaryWrapper
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBCollectionChange
 	instanceVariableNames: 'affectedEntry'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 Object subclass: #SSWDBCollectionEntry
 	instanceVariableNames: 'table entryID sourceID target'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCacheDictionaryWrapper subclass: #SSWDBMultiValueCacheDictionaryWrapper
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionChange subclass: #SSWDBCollectionAddition
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionChange subclass: #SSWDBCollectionRemoval
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionChange subclass: #SSWDBCollectionUpdate
 	instanceVariableNames: 'newTarget'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionRemoval subclass: #SSWDBCollectionRemovalWithKey
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionEntry subclass: #SSWDBCacheDictionaryEntry
 	instanceVariableNames: 'keyAccessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionEntry subclass: #SSWDBKeyedCollectionEntry
 	instanceVariableNames: 'index'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCacheDictionaryEntry subclass: #SSWDBMultiValueCacheDictionaryEntry
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBTableComponent subclass: #SSWDBCollectionSpec
 	instanceVariableNames: 'templateCollection isValueDependent isValueRelated readStatement refreshStatement refreshWithContentsIfUpdatedStatement deleteStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionSpec subclass: #SSWDBGeneralCollectionSpec
 	instanceVariableNames: 'sourceField targetField collectionTable'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionSpec subclass: #SSWDBOwnedCollectionSpec
 	instanceVariableNames: 'targetClass ownerField ownerAccessor orderingSpecs'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBGeneralCollectionSpec subclass: #SSWDBStaticCollectionSpec
 	instanceVariableNames: 'targetClass deleteEntriesStatement'
 	classVariableNames: 'NilCookie'
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticCollectionSpec subclass: #SSWDBHashedStaticCollectionSpec
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticCollectionSpec subclass: #SSWDBKeyedStaticCollectionSpec
 	instanceVariableNames: 'indexField updateTargetStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticCollectionSpec subclass: #SSWDBSortedStaticCollectionSpec
 	instanceVariableNames: 'orderingSpecs'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBHashedStaticCollectionSpec subclass: #SSWDBStaticCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBStaticCacheDictionarySpec subclass: #SSWDBStaticMultiValueCacheDictionarySpec
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBKeyedStaticCollectionSpec subclass: #SSWDBOrderedStaticCollectionSpec
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBKeyedStaticCollectionSpec subclass: #SSWDBStaticDictionarySpec
 	instanceVariableNames: 'keyClass isKeyDependent isKeyRelated keyTableForRead keyTableForRefresh deleteKeysStatement'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBOrderedStaticCollectionSpec subclass: #SSWDBArrayedStaticCollectionSpec
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBOwnedCollectionSpec subclass: #SSWDBOwnedCacheDictionarySpec
 	instanceVariableNames: 'keyAccessor'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBOwnedCollectionSpec subclass: #SSWDBSortedOwnedCollectionSpec
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBOwnedCacheDictionarySpec subclass: #SSWDBOwnedMultiValueCacheDictionarySpec
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
-
-"Global Aliases"!
-
 
 "Loose Methods"!
 
@@ -252,6 +273,7 @@ staticCollectionSpecClass
 	^SSWDBArrayedStaticCollectionSpec
 
 ! !
+
 !ArrayedCollection categoriesForMethods!
 _dbAdd:suggestedIndex:!adding!private! !
 staticCollectionSpecClass!constants!private! !
@@ -274,6 +296,7 @@ beTargetClassOf: aCollectionSpec
 	Initialize aCollectionSpec accordingly"
 
 	aCollectionSpec targetClass: self! !
+
 !Class categoriesForMethods!
 beKeyClassOf:!accessing!public! !
 beTargetClassOf:!accessing!public! !
@@ -399,6 +422,7 @@ staticCollectionSpecClass
 	but should route configuration through of:specClass: "
 
 	^self subclassResponsibility! !
+
 !Collection categoriesForMethods!
 _dbAdd:!private!restore-internal! !
 _dbAdd:suggestedIndex:!adding!private! !
@@ -429,6 +453,7 @@ of: targetClass owner: aSymbol
 	^self new of: targetClass owner: aSymbol
 
 ! !
+
 !Collection class categoriesForMethods!
 of:!public!specification! !
 of:owner:!public!specification! !
@@ -545,6 +570,7 @@ staticDictionarySpecClass
 staticMultiValueCacheDictionarySpecClass
 
 	^SSWDBStaticMultiValueCacheDictionarySpec! !
+
 !Dictionary categoriesForMethods!
 _dbAdd:suggestedIndex:!adding!private! !
 of:!public!specification! !
@@ -572,6 +598,7 @@ staticCollectionSpecClass
 	^SSWDBOrderedStaticCollectionSpec
 
 ! !
+
 !SequenceableCollection categoriesForMethods!
 isOrdered!public!testing! !
 staticCollectionSpecClass!constants!private! !
@@ -586,6 +613,7 @@ staticCollectionSpecClass
 	but should route configuration through of:specClass: "
 
 	^SSWDBHashedStaticCollectionSpec! !
+
 !Set categoriesForMethods!
 staticCollectionSpecClass!constants!private! !
 !
@@ -628,6 +656,7 @@ staticCollectionSpecClass
 	^SSWDBSortedStaticCollectionSpec
 
 ! !
+
 !SortedCollection categoriesForMethods!
 _dbAdd:!comparing!private! !
 orderingSpecsFor:in:!accessing!private! !
@@ -650,6 +679,7 @@ beTargetClassOf: aTableComponent
 
 	super beTargetClassOf: aTableComponent.
 	aTableComponent beValueDependent! !
+
 !SSWDBDependentWrapper categoriesForMethods!
 beKeyClassOf:!defining!public! !
 beTargetClassOf:!defining!public! !
@@ -670,6 +700,7 @@ beTargetClassOf: aTableComponent
 
 	self relatedObject beTargetClassOf: aTableComponent.
 	aTableComponent beValueRelated! !
+
 !SSWDBRelatedWrapper categoriesForMethods!
 beKeyClassOf:!defining!public! !
 beTargetClassOf:!defining!public! !
@@ -690,6 +721,7 @@ beTargetClassOf: aTableComponent
 
 	self unrelatedObject beTargetClassOf: aTableComponent.
 	aTableComponent beValueUnrelated! !
+
 !SSWDBUnrelatedWrapper categoriesForMethods!
 beKeyClassOf:!defining!public! !
 beTargetClassOf:!defining!public! !
