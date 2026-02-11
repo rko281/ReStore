@@ -122,8 +122,8 @@ _debugPrintString
 	"Do not fault the receiver just for a debugger"
 
 	^proxiedObject == nil
-		ifTrue: [self _unrecoveredProxyString]
-		ifFalse: ['<', proxiedObject debugPrintString, '>']!
+		ifTrue: ['<an unrecovered ' , self _typeAndIDString , '>']
+		ifFalse: ['<' , proxiedObject debugPrintString , '>'].!
 
 _ensureActiveIn: anSSWReStore
 
@@ -282,6 +282,9 @@ _prepareToCommitPhase2
 
 	"Subclasses only requiring a single phase should override _prepareToCommit"
 	^self!
+
+_printTypeAndIDStringOn: s
+	self subclassResponsibility.!
 
 _proxiedClassIsDefinitive
 
@@ -457,7 +460,7 @@ _swap
 	| newFlags |
 
 	newFlags := flags bitOr: IsSwappedMask.
-	newFlags == flags ifTrue: [self error: 'attempt to swap already-swapped proxy'].
+	newFlags == flags ifTrue: [self error: 'Attempt to swap already-swapped ' , self _typeAndIDString].
 	flags := newFlags.
 
 	^self _swapReferences!
@@ -484,9 +487,8 @@ _swapReferences
 
 	^me!
 
-_unrecoveredProxyString
-
-	^'%<an unrecovered <1p>%>' expandMacrosWith: self _proxiedObjectClass!
+_typeAndIDString
+	^String streamContents: [:s | self _printTypeAndIDStringOn: s].!
 
 _unstore
 
@@ -499,7 +501,7 @@ _unswap
 	| newFlags |
 
 	newFlags := flags bitAnd: -2 "IsSwappedMask bitInvert".
-	newFlags == flags ifTrue: [self error: 'attempt to unswap proxy which has not been swapped'].
+	newFlags == flags ifTrue: [self error: 'Attempt to unswap ' , self _typeAndIDString , ' which has not been swapped'].
 	flags := newFlags.
 
 	^self _swapReferences!
@@ -756,6 +758,7 @@ _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
 _prepareToCommitPhase1!actions-internal!public! !
 _prepareToCommitPhase2!actions-internal!public! !
+_printTypeAndIDStringOn:!actions-internal!actions-printing!public! !
 _proxiedClassIsDefinitive!private!testing! !
 _proxiedObject!accessing!public! !
 _proxiedObject:!accessing!public! !
@@ -783,7 +786,7 @@ _setSwapped!actions-internal!flags!private! !
 _setUnswapped!actions-internal!flags!private! !
 _swap!actions-internal!public! !
 _swapReferences!actions-internal!private! !
-_unrecoveredProxyString!accessing!public! !
+_typeAndIDString!non forwarding!public! !
 _unstore!actions-internal!public! !
 _unswap!actions-internal!public! !
 class!forwarding!public! !

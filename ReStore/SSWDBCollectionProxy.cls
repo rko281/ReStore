@@ -5,11 +5,15 @@ SSWDBProxy subclass: #SSWDBCollectionProxy
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBCollectionProxy guid: (GUID fromString: '{5a3e3dd9-3990-11d5-b1df-444553540000}')!
+
 SSWDBCollectionProxy comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBCollectionProxy categoriesForClass!Unclassified! !
+
 !SSWDBCollectionProxy methodsFor!
 
 _collectionSpec
@@ -73,6 +77,12 @@ _prepareToCommit
 	"Default: no action for collections"
 
 	^self!
+
+_printTypeAndIDStringOn: s
+	self _owner _printTypeAndIDStringOn: s.
+	s
+		nextPut: $.;
+		nextPutAll: self _collectionSpec accessor name.!
 
 _proxiedObjectClass
 	
@@ -168,6 +178,7 @@ withRelatedComponents
 	"Avoid faulting in the proxied object"
 
 	^SSWDBCollectionWithRelatedContents on: self! !
+
 !SSWDBCollectionProxy categoriesForMethods!
 _collectionSpec!accessing!public! !
 _collectionSpec:!accessing!public! !
@@ -178,6 +189,7 @@ _owner:!accessing!public! !
 _ownerID!accessing!public! !
 _postSwapReferences!actions-internal!public! !
 _prepareToCommit!actions-internal!public! !
+_printTypeAndIDStringOn:!actions-internal!actions-printing!public! !
 _proxiedObjectClass!accessing!public! !
 _recoverProxiedObject!actions-internal!public! !
 _refreshIfUpdated!actions-refresh!public! !
