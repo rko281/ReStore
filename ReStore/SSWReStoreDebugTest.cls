@@ -14,6 +14,18 @@ SSWReStoreDebugTest comment: ''!
 
 !SSWReStoreDebugTest methodsFor!
 
+_isPersistent
+	"I pretend to be a proxy for some tests"
+	^true!
+
+_proxiedObject
+	"I pretend to be a proxy for some tests"
+	^self!
+
+_reStore
+	"I pretend to be a proxy for some tests"
+	^reStore!
+
 _rollbackChanges
 	"I pretend to be a proxy for some tests"
 
@@ -254,6 +266,9 @@ unmakeIDEClass
 	Process flushMethodCache! !
 
 !SSWReStoreDebugTest categoriesForMethods!
+_isPersistent!helpers!public! !
+_proxiedObject!helpers!public! !
+_reStore!helpers!public! !
 _rollbackChanges!helpers!public! !
 makeIDEClass!helpers!private! !
 testCommitErrorCleanup!public!unit tests! !

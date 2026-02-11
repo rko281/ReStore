@@ -122,6 +122,7 @@ package classNames
 	add: #SSWReStoreProcessSafetyTest;
 	add: #SSWReStoreProductOrdersTest;
 	add: #SSWReStoreProxyNonForwardingTest;
+	add: #SSWReStoreProxySwapperTest;
 	add: #SSWReStoreQueryByExampleTest;
 	add: #SSWReStoreQueryTest;
 	add: #SSWReStoreReadStreamTest;
@@ -261,7 +262,7 @@ Object subclass: #NumberWithCurrency
 	classInstanceVariableNames: ''!
 
 Object subclass: #OwnerTest
-	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'
+	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary keyedIdentityDictionary refreshCount dependentOwnedOrdered dependentOrdered selfReferencingOrdered'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -285,7 +286,7 @@ Object subclass: #SimpleAddress
 	classInstanceVariableNames: ''!
 
 Object subclass: #SimplePerson
-	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased'
+	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased rollbackBlock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -1036,6 +1037,12 @@ SSWReStoreProductOrdersTest subclass: #SSWReStoreCollectionSubQueryTest
 
 SSWReStoreProductOrdersTest subclass: #SSWReStoreDebugTest
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWReStoreProductOrdersTest subclass: #SSWReStoreProxySwapperTest
+	instanceVariableNames: 'ownerTest'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
