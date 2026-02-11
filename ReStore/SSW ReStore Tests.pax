@@ -32,7 +32,6 @@ package classNames
 	add: #SimpleAddress;
 	add: #SimplePerson;
 	add: #SimplePerson2;
-	add: #SimplePersonWithEvents;
 	add: #SimpleProduct;
 	add: #SimpleProductOrder;
 	add: #SSWReStore2Test;
@@ -123,7 +122,6 @@ package classNames
 	add: #SSWReStoreProcessSafetyTest;
 	add: #SSWReStoreProductOrdersTest;
 	add: #SSWReStoreProxyNonForwardingTest;
-	add: #SSWReStoreProxySwapperTest;
 	add: #SSWReStoreQueryByExampleTest;
 	add: #SSWReStoreQueryTest;
 	add: #SSWReStoreReadStreamTest;
@@ -141,7 +139,6 @@ package classNames
 	add: #SSWReStoreRelatedSortedCollectionTest;
 	add: #SSWReStoreRemoteTest;
 	add: #SSWReStoreResourcesTest;
-	add: #SSWReStoreRollbackTest;
 	add: #SSWReStoreSortTest;
 	add: #SSWReStoreSpeedTest;
 	add: #SSWReStoreSQLInjectionTest;
@@ -264,7 +261,7 @@ Object subclass: #NumberWithCurrency
 	classInstanceVariableNames: ''!
 
 Object subclass: #OwnerTest
-	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary keyedIdentityDictionary refreshCount dependentOwnedOrdered dependentOrdered selfReferencingOrdered'
+	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -288,7 +285,7 @@ Object subclass: #SimpleAddress
 	classInstanceVariableNames: ''!
 
 Object subclass: #SimplePerson
-	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased rollbackBlock'
+	instanceVariableNames: 'firstName surname emailAddress time friend age test orders address isDeceased'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -355,12 +352,6 @@ ReStoreTestWithID subclass: #ReStoreTestWithStringID
 
 ReStoreTestWithIDOnly subclass: #ReStoreTestWithIDSubclass
 	instanceVariableNames: 'name other'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
-SimplePerson subclass: #SimplePersonWithEvents
-	instanceVariableNames: 'events'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -917,12 +908,6 @@ SSWReStorePersonTest subclass: #SSWReStoreTableTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
-SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreDefaultTest
 	instanceVariableNames: 'reStore2'
 	classVariableNames: ''
@@ -948,12 +933,6 @@ SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryTest
 	classInstanceVariableNames: ''!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreResourcesTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
-SSWReStoreAbstractQueryTest subclass: #SSWReStoreRollbackTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -1055,8 +1034,8 @@ SSWReStoreProductOrdersTest subclass: #SSWReStoreCollectionSubQueryTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
-SSWReStoreProductOrdersTest subclass: #SSWReStoreProxySwapperTest
-	instanceVariableNames: 'ownerTest'
+SSWReStoreProductOrdersTest subclass: #SSWReStoreDebugTest
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
