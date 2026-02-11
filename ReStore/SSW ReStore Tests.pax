@@ -908,12 +908,6 @@ SSWReStorePersonTest subclass: #SSWReStoreTableTest
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
-SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreDefaultTest
 	instanceVariableNames: 'reStore2'
 	classVariableNames: ''
@@ -1036,6 +1030,12 @@ SSWReStoreProductOrdersTest subclass: #SSWReStoreAggregateQueryTest
 
 SSWReStoreProductOrdersTest subclass: #SSWReStoreCollectionSubQueryTest
 	instanceVariableNames: 'customers goldPlatedWobulator'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWReStoreProductOrdersTest subclass: #SSWReStoreDebugTest
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

@@ -1,13 +1,17 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
-SSWReStoreAbstractQueryTest subclass: #SSWReStoreDebugTest
+SSWReStoreProductOrdersTest subclass: #SSWReStoreDebugTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreDebugTest guid: (GUID fromString: '{cdfc2205-da0a-4d49-b600-a949570d97bd}')!
+
 SSWReStoreDebugTest comment: ''!
+
 !SSWReStoreDebugTest categoriesForClass!Unclassified! !
+
 !SSWReStoreDebugTest methodsFor!
 
 _rollbackChanges
@@ -188,6 +192,22 @@ testDebugModeProxyInstVarAt
 	self assert: (john instVarAt: 1 "proxiedObject") identicalTo: john _proxiedObject.
 	self assert: (john _instVarAt: 1 "firstName") equals: 'John'] ensure: [self unmakeIDEClass]!
 
+testDebugPrintStrings
+
+	| customerString |
+
+	customerString := customer1 class name, '<', customer1 _id printString, '>'.
+
+	customer1 _forgetProxiedObject.
+	self assert: customer1 debugPrintString equals: '<an unrecovered ', customerString, '>'.
+	self assert: customer1 isDBProxy.
+	self deny: customer1 _isRecovered.
+
+	customer1 orders _forgetProxiedObject.
+	self assert: customer1 orders debugPrintString equals: '<an unrecovered ', customerString, '.orders>'.
+	self assert: customer1 orders isDBProxy.
+	self deny: customer1 orders _isRecovered!
+
 testPreCommitErrorCleanup
 
 	"Verify errors during transaction pre-commit clean up the transaction"
@@ -232,6 +252,7 @@ unmakeIDEClass
 
 	Process methodDictionary at: #isInIDECallStack put: (Process methodDictionary removeKey: #isInIDECallStackOrig).
 	Process flushMethodCache! !
+
 !SSWReStoreDebugTest categoriesForMethods!
 _rollbackChanges!helpers!public! !
 makeIDEClass!helpers!private! !
@@ -240,6 +261,7 @@ testDebugModeCommitErrorHandling!public!unit tests! !
 testDebugModeMutex!public!unit tests! !
 testDebugModePreCommitErrorHandling!public!unit tests! !
 testDebugModeProxyInstVarAt!public!unit tests! !
+testDebugPrintStrings!public!unit tests! !
 testPreCommitErrorCleanup!public!unit tests! !
 unmakeIDEClass!helpers!private! !
 !
