@@ -5,11 +5,15 @@ SSWDBQueryField subclass: #SSWDBQueryTableField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBQueryTableField guid: (GUID fromString: '{266e4dca-398e-11d5-b1df-444553540000}')!
+
 SSWDBQueryTableField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBQueryTableField categoriesForClass!Unclassified! !
+
 !SSWDBQueryTableField methodsFor!
 
 = anSSWDBField
@@ -39,6 +43,10 @@ hash
 isInlined
 
 	^self field isInlined!
+
+populateObject: anObject with: aValue from: anSSWDBTable
+
+	"A no-op for query fields"!
 
 printOn: aStream
 
@@ -89,6 +97,7 @@ writeSQLOn: aStream
 	aStream 
 		nextPut: $.;
 		nextPutIdentifier: self name! !
+
 !SSWDBQueryTableField categoriesForMethods!
 =!comparing!public! !
 accesses:!public!testing! !
@@ -96,6 +105,7 @@ accessorPath!accessing!public! !
 accessorPath:!accessing!public! !
 hash!comparing!public! !
 isInlined!public!testing! !
+populateObject:with:from:!public! !
 printOn:!output!public! !
 table!accessing!public! !
 table:!accessing!public! !
@@ -116,6 +126,7 @@ forField: anSSWDBField in: anSSWDBQueryTable path: anArray
 		table: anSSWDBQueryTable;
 		accessorPath: anArray;
 		yourself! !
+
 !SSWDBQueryTableField class categoriesForMethods!
 forField:in:!instance creation!public! !
 forField:in:path:!instance creation!public! !

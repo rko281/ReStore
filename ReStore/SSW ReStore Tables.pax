@@ -26,6 +26,7 @@ package classNames
 	add: #SSWDBInstVarWithFieldName;
 	add: #SSWDBIntermediateTable;
 	add: #SSWDBNonParameterizedControlField;
+	add: #SSWDBPolymorphicDataField;
 	add: #SSWDBPrivateAccessor;
 	add: #SSWDBQueryField;
 	add: #SSWDBQueryTable;
@@ -321,6 +322,12 @@ SSWDBStaticField subclass: #SSWDBIDField
 	classInstanceVariableNames: ''!
 
 SSWDBControlField subclass: #SSWDBNonParameterizedControlField
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWDBDataField subclass: #SSWDBPolymorphicDataField
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

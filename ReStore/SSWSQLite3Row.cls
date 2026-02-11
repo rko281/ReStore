@@ -5,9 +5,13 @@ SQLite3Row subclass: #SSWSQLite3Row
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLite3Row guid: (GUID fromString: '{35b12246-cadd-4829-a233-07b0cf83b37e}')!
+
 SSWSQLite3Row comment: ''!
+
 !SSWSQLite3Row categoriesForClass!SQLite3-Core-Database! !
+
 !SSWSQLite3Row methodsFor!
 
 at: aKey put: anObject	^values at: aKey put: anObject!
@@ -80,12 +84,12 @@ populateObject: anObject from: anSSWDBTable
 		[ :index | 
 		(columns at: index) field ifNotNil: 
 			[ :field |  
-			(field table == anSSWDBTable or: [field table = anSSWDBTable]) ifTrue: 
-				[field populateObject: anObject with: (values at: index)]]]!
+			field populateObject: anObject with: (values at: index) from: anSSWDBTable]]!
 
 values
 
 	^values! !
+
 !SSWSQLite3Row categoriesForMethods!
 at:put:!accessing!public! !
 atIndex:!accessing!public! !

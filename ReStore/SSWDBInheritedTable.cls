@@ -5,11 +5,15 @@ SSWDBTable subclass: #SSWDBInheritedTable
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBInheritedTable guid: (GUID fromString: '{266e4dcd-398e-11d5-b1df-444553540000}')!
+
 SSWDBInheritedTable comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBInheritedTable categoriesForClass!Unclassified! !
+
 !SSWDBInheritedTable methodsFor!
 
 classField
@@ -28,6 +32,12 @@ classField: anSSWDBField
 	but is additionally held in this instance variable for efficient access"
 	
 	classField := anSSWDBField!
+
+equivalentDataFieldTo: aPolymorphicDataField
+
+	"Look for the equivalent (same-named) field as aPolymorphicDataField in this table"
+
+	^self dataFields detect: [ :each | each name = aPolymorphicDataField name] ifNone: [nil]!
 
 initializeClassField: aDBField
 	
@@ -87,13 +97,16 @@ withAllFields
 		table := self reStore tableForClass: cls.
 		table dataFields do: 
 			[ :field | 
-			(withAllFields hasFieldAccessing: field accessor name) ifFalse: 
-				[withAllFields dataFields add: field]]].
+			(withAllFields fieldAccessing: field accessor name) 
+				ifNil: [withAllFields dataFields add: field]
+				ifNotNil: [ :existingField | withAllFields dataFields remove: existingField; add: field asPolymorphicDataField]]].
 	
 	^withAllFields! !
+
 !SSWDBInheritedTable categoriesForMethods!
 classField!accessing!public! !
 classField:!accessing!public! !
+equivalentDataFieldTo:!accessing!public! !
 initializeClassField:!defining!private! !
 instanceClassFromRow:!instance creation!private! !
 recoverExactClassInstanceFromRow:into:!private! !

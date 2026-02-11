@@ -5,11 +5,15 @@ SSWDBCollectionSpec subclass: #SSWDBOwnedCollectionSpec
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBOwnedCollectionSpec guid: (GUID fromString: '{fb82fd82-49e2-11d5-b1df-0010a70883e2}')!
+
 SSWDBOwnedCollectionSpec comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBOwnedCollectionSpec categoriesForClass!Unclassified! !
+
 !SSWDBOwnedCollectionSpec methodsFor!
 
 allElementsIn: aCollection
@@ -45,14 +49,6 @@ deleteQuery
 		table: self targetTable;
 		conditions: (SSWSQLCondition field: self ownerField equalTo: SSWSQLQueryParameter);
 		yourself!
-
-elementsIn: aCollection notIn: anotherCollection
-
-	^aCollection reject: [ :each | anotherCollection identityIncludes: each]!
-
-hasCollection: updatedCollection anyAdditionsOrRemovalsFrom: originalCollection
-
-	^updatedCollection size ~= originalCollection size or: [updatedCollection anySatisfy: [ :each | (originalCollection identityIncludes: each) not]]!
 
 orderingSpecs
 
@@ -289,13 +285,12 @@ targetClass: aClass
 targetTable 
 
 	^self reStore tableForClass: self targetClass! !
+
 !SSWDBOwnedCollectionSpec categoriesForMethods!
 allElementsIn:!accessing!private! !
 copyCollection:!actions!public! !
 dbInstancesFor:!accessing!public! !
 deleteQuery!accessing-queries!public! !
-elementsIn:notIn:!accessing!private! !
-hasCollection:anyAdditionsOrRemovalsFrom:!private!testing! !
 orderingSpecs!accessing!public! !
 orderingSpecs:!accessing!public! !
 owner:!accessing!public! !

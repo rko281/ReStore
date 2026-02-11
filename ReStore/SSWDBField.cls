@@ -5,11 +5,15 @@ SSWDBTableComponent subclass: #SSWDBField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBField guid: (GUID fromString: '{266e4dd6-398e-11d5-b1df-444553540000}')!
+
 SSWDBField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWDBField categoriesForClass!Unclassified! !
+
 !SSWDBField methodsFor!
 
 = anSSWDBField
@@ -197,6 +201,7 @@ writeSQLOn: aStream
 	aStream 
 		nextPut: $.;
 		nextPutIdentifier: self name! !
+
 !SSWDBField categoriesForMethods!
 =!comparing!public! !
 aboutToBeUnstored:!actions!public! !

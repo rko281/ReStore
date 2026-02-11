@@ -17,6 +17,7 @@ package methodNames
 	add: #CompiledCode -> #sswWritesInstVar:at:;
 	add: #DateAndTime -> #withResolution:;
 	add: #GUID -> #writeSQLOn:;
+	add: #OrderedCollection -> #identityIncludes:;
 	add: #Presenter -> #respondsTo:;
 	add: #Process -> #isExpectedToResumePromptly;
 	add: #Process -> #isInIDECallStack;
@@ -29,6 +30,8 @@ package methodNames
 	add: #SSWDBBlockArgument -> #preProcessNextMessageFor:in:;
 	add: #SSWDBBlockArgument -> #simulateMethod:withArguments:;
 	add: #SSWDBBlockArgument -> #stackFrameDetect:;
+	add: #SSWDBOwnedCollectionSpec -> #elementsIn:notIn:;
+	add: #SSWDBOwnedCollectionSpec -> #hasCollection:anyAdditionsOrRemovalsFrom:;
 	add: #SSWDBProtoObject -> #perform:;
 	add: #SSWDBProtoObject -> #perform:with:;
 	add: #SSWDBProtoObject -> #perform:with:with:;
@@ -101,6 +104,7 @@ package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
 	'..\Core\Object Arts\Dolphin\MVP\Base\Dolphin MVP Base'
 	'SSW ReStore Base Additions'
+	'SSW ReStore Collections'
 	'SSW ReStore Main'
 	'SSW ReStore ODBC'
 	'SSW ReStore Querying'
@@ -226,6 +230,22 @@ instanceFromDBValue:in:!persistency!private! !
 isPersistentBaseClass!persistency!private! !
 reStoreNewUnique!persistency!private! !
 writeSQLTypeOn:using:!persistency!private! !
+!
+
+!OrderedCollection methodsFor!
+
+identityIncludes: anObject
+	"Backport from D8"
+
+	"Implementation Note: Override superclass to provide a more efficient implementation using the identity search primitive."
+
+	^(self
+		basicIdentityIndexOf: anObject
+		from: firstIndex
+		to: lastIndex) ~~ 0! !
+
+!OrderedCollection categoriesForMethods!
+identityIncludes:!public!searching! !
 !
 
 !Presenter methodsFor!
@@ -519,6 +539,21 @@ platformClass
 
 !SSWDBBlockParser class categoriesForMethods!
 platformClass!constants!public! !
+!
+
+!SSWDBOwnedCollectionSpec methodsFor!
+
+elementsIn: aCollection notIn: anotherCollection
+
+	^aCollection reject: [ :each | anotherCollection identityIncludes: each]!
+
+hasCollection: updatedCollection anyAdditionsOrRemovalsFrom: originalCollection
+
+	^updatedCollection size ~= originalCollection size or: [updatedCollection anySatisfy: [ :each | (originalCollection identityIncludes: each) not]]! !
+
+!SSWDBOwnedCollectionSpec categoriesForMethods!
+elementsIn:notIn:!accessing!private! !
+hasCollection:anyAdditionsOrRemovalsFrom:!private!testing! !
 !
 
 !SSWDBProtoObject methodsFor!
