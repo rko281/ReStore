@@ -1621,10 +1621,9 @@ swapAll
 			yourself]!
 
 swapAll: aCollection
-
 	"Answer the Swapper"
 
-	^self swapAll: aCollection using: SSWDBProxyAndCollectionsSwapper!
+	^self swapAll: aCollection using: SSWDBProxySwapper.!
 
 swapAll: aCollection using: aProxySwapperClass
 
@@ -1804,10 +1803,9 @@ unstoreNextIDsForTables: aCollection
 	((self instancesOf: SSWDBTableRecord) satisfying: [ :nextID | droppedNames includes: nextID tableName]) unstoreAll!
 
 unswapAll: aCollection
-
 	"Answer the Swapper"
 
-	^self unswapAll: aCollection using: SSWDBProxyAndCollectionsSwapper!
+	^self unswapAll: aCollection using: SSWDBProxySwapper.!
 
 unswapAll: aCollection using: aProxySwapperClass
 
