@@ -14,13 +14,23 @@ SSWDBCollectionProxySwapper comment: ''!
 
 !SSWDBCollectionProxySwapper methodsFor!
 
+_swapProxy: aDBProxy
+	"Private - Should only be called inside transactionCritical:"
+
+	self
+		initialize: aDBProxy _proxiedObject size + 1;
+		addProxy: aDBProxy forObject: aDBProxy _proxiedObject.
+	aDBProxy _addPersistentComponentsTo: self.
+	self _swap!
+
 addProxy: aProxy forObject: anObject 
 
 	super addProxy: aProxy forObject: anObject.
-	aProxy isDBCollectionProxy ifTrue: [
-		aProxy _addPersistentComponentsTo: self ]! !
+	"aProxy isDBCollectionProxy ifTrue: [self halt.
+		aProxy _addPersistentComponentsTo: self ]"! !
 
 !SSWDBCollectionProxySwapper categoriesForMethods!
+_swapProxy:!public! !
 addProxy:forObject:!public! !
 !
 

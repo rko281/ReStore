@@ -21,7 +21,7 @@ abandon
 	"End this transaction, leaving objects in their current state (unlike rollback which returns them to their state prior to the transaction)"
 
 	self proxySwapper abandon: self currentReferencedObjects.
-	"self currentReferencedObjects do: [ :each | each _abandonChanges]."
+	
 	self endObjectCollection!
 
 activeProxiesMap
@@ -296,7 +296,7 @@ proxyForObject: anObject ifNone: aBlock
 
 proxySwapper
 
-	^SSWDBProxySwapper new!
+	^SSWDBTransactionProxySwapper new!
 
 removeProxy: aDBProxy
 

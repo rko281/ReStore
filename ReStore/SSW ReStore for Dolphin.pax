@@ -11,6 +11,7 @@ package classNames
 
 package methodNames
 	add: #BlockFrame -> #_method:;
+	add: #Collection -> #dbApproxSize;
 	add: #CompiledCode -> #readsOrWritesAnyInstVar;
 	add: #CompiledCode -> #sswByteCodeDispatcher;
 	add: #CompiledCode -> #sswReadsInstVar:at:;
@@ -131,6 +132,18 @@ _method: aCompiledMethod
 
 !BlockFrame categoriesForMethods!
 _method:!accessing!private! !
+!
+
+!Collection methodsFor!
+
+dbApproxSize
+
+	"Dialect-neutral implementation"
+
+	^self approxSize! !
+
+!Collection categoriesForMethods!
+dbApproxSize!accessing!public! !
 !
 
 !CompiledCode methodsFor!

@@ -35,12 +35,6 @@ _unswap
 		swapAllWhere: [ :proxy | proxy _isSwapped ifTrue: [proxy _preUnswap. true] ifFalse: [false]]
 		postAction: [ :proxy | proxy _reStore removeFromTransaction: proxy]!
 
-abandon: aCollection
-
-	aCollection isEmpty ifFalse: 
-		[self reStore: aCollection anyOne _reStore.
-		self unswapAll: aCollection]!
-
 add: aProxyOrObject
 
 	^aProxyOrObject isDBProxy 
@@ -102,16 +96,17 @@ reswap
 	"ASSERT: the transaction in which the receiver was created has been rolled back.
 	Reverse the map to reflect that a swap has previously occurred then reswap objects back into place"
 
-	| reversedMap |
+	^reStore ensureHasTransactionCritical: [
+		| reversedMap |
 
-	reversedMap := IdentityDictionary new: proxiesMap size.
-	proxiesMap do: 
-		[ :proxy |
-		proxy isDBProxy ifTrue:  "<- filter out locally deleted objects"
-			[proxy _proxiedObject ifNotNil: [ :object | reversedMap at: proxy put: object]]].
-	proxiesMap := reversedMap.
+		reversedMap := IdentityDictionary new: proxiesMap size.
+		proxiesMap do: 
+			[ :proxy |
+			proxy isDBProxy ifTrue:  "<- filter out locally deleted objects"
+				[proxy _proxiedObject ifNotNil: [ :object | reversedMap at: proxy put: object]]].
+		proxiesMap := reversedMap.
 
-	^reStore ensureHasTransactionCritical: [self _swap]!
+		self _swap]!
 
 swap
 
@@ -164,7 +159,6 @@ unswapAll: aCollection
 _swap!operations!private! !
 _swapProxy:!operations!private! !
 _unswap!operations!private! !
-abandon:!operations!public! !
 add:!adding!private! !
 addAll:!adding!private! !
 addObject:!adding!private! !

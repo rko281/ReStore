@@ -14,6 +14,13 @@ SSWDBTransactionProxySwapper comment: ''!
 
 !SSWDBTransactionProxySwapper methodsFor!
 
+_abandon
+
+	self 
+		swapAllWhere: [ :proxy | proxy _isPersistent ifTrue: [proxy _preUnswap. true] ifFalse: [false]]
+		postAction: [ :proxy | "ASSERT: We are removing everything from #currentReferencedObjects, so we don't need to remove one by one"
+			 ].!
+
 _swap
 	"Override to not skip proxies already in the desired state--this should never happen in the transaction mechanism."
 
@@ -29,6 +36,15 @@ _unswap
 		postAction: [ :proxy | "ASSERT: We are removing everything from #currentReferencedObjects, so we don't need to remove one by one"
 			 ].!
 
+abandon: aCollection
+
+	aCollection isEmpty ifFalse: 
+		[self reStore: aCollection anyOne _reStore.
+		self 
+			initialize: aCollection size;
+			addAll: aCollection;
+			_abandon]!
+
 addProxy: aProxy
 
 	self assert: aProxy _isRecovered.
@@ -37,8 +53,10 @@ addProxy: aProxy
 	^ self addProxy: aProxy forObject: aProxy _proxiedObject! !
 
 !SSWDBTransactionProxySwapper categoriesForMethods!
+_abandon!operations!private! !
 _swap!operations!public! !
 _unswap!operations!public! !
+abandon:!operations!public! !
 addProxy:!public! !
 !
 

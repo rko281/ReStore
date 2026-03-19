@@ -234,12 +234,12 @@ _rollbackUpdates
 	"Private - Forget any updates by instantiating from the copyObject.
 	Also transfer over any events registered against the current proxiedObject"
 
-	| unchangedObject |
-
-	self _checkHasChanged ifTrue: 
-		[unchangedObject := self _dbTable copyForProxy: copyObject.
-		proxiedObject getEvents ifNotNil: [ :events | unchangedObject setEvents: events].
-		self _setProxiedObject: unchangedObject]!
+	self _checkHasChanged ifTrue: [
+		| unchangedObject |
+		unchangedObject := self _dbTable copyForProxy: self _copyObject.
+		proxiedObject getEvents ifNotNil: [ :events |
+			unchangedObject setEvents: events ].
+		self _setProxiedObject: unchangedObject ]!
 
 _updateCollectionProxyUsing: aCollectionSpec
 

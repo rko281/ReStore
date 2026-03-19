@@ -32,6 +32,7 @@ package classNames
 	add: #SimpleAddress;
 	add: #SimplePerson;
 	add: #SimplePerson2;
+	add: #SimplePersonWithEvents;
 	add: #SimpleProduct;
 	add: #SimpleProductOrder;
 	add: #SSWReStore2Test;
@@ -140,6 +141,7 @@ package classNames
 	add: #SSWReStoreRelatedSortedCollectionTest;
 	add: #SSWReStoreRemoteTest;
 	add: #SSWReStoreResourcesTest;
+	add: #SSWReStoreRollbackTest;
 	add: #SSWReStoreSortTest;
 	add: #SSWReStoreSpeedTest;
 	add: #SSWReStoreSQLInjectionTest;
@@ -353,6 +355,12 @@ ReStoreTestWithID subclass: #ReStoreTestWithStringID
 
 ReStoreTestWithIDOnly subclass: #ReStoreTestWithIDSubclass
 	instanceVariableNames: 'name other'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SimplePerson subclass: #SimplePersonWithEvents
+	instanceVariableNames: 'events'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -934,6 +942,12 @@ SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryTest
 	classInstanceVariableNames: ''!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreResourcesTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWReStoreAbstractQueryTest subclass: #SSWReStoreRollbackTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
