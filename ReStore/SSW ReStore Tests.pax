@@ -35,6 +35,9 @@ package classNames
 	add: #SimplePersonWithEvents;
 	add: #SimpleProduct;
 	add: #SimpleProductOrder;
+	add: #SomeObject;
+	add: #SomeObjectA;
+	add: #SomeObjectB;
 	add: #SSWReStore2Test;
 	add: #SSWReStoreAbstractQueryTest;
 	add: #SSWReStoreAggregateQueryTest;
@@ -123,6 +126,7 @@ package classNames
 	add: #SSWReStoreProcessSafetyTest;
 	add: #SSWReStoreProductOrdersTest;
 	add: #SSWReStoreProxyNonForwardingTest;
+	add: #SSWReStoreProxySwapperTest;
 	add: #SSWReStoreQueryByExampleTest;
 	add: #SSWReStoreQueryTest;
 	add: #SSWReStoreReadStreamTest;
@@ -263,7 +267,7 @@ Object subclass: #NumberWithCurrency
 	classInstanceVariableNames: ''!
 
 Object subclass: #OwnerTest
-	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary refreshCount dependentOwnedOrdered dependentOrdered'
+	instanceVariableNames: 'name number single1 single2 single3 owned ownedSet ownedArray ownedOrdered ownedSorted ownedList setOfDates arrayOfNames orderedBools sortedNumbers descNumbers listOfTimes dictOfSizes set array ordered sorted list aspectDictionary keyedBaseDictionary keyedGeneralDictionary keyedIdentityDictionary refreshCount dependentOwnedOrdered dependentOrdered selfReferencingOrdered'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -306,6 +310,12 @@ Object subclass: #SimpleProduct
 
 Object subclass: #SimpleProductOrder
 	instanceVariableNames: 'customer product quantity date'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+Object subclass: #SomeObject
+	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -360,6 +370,18 @@ ReStoreTestWithIDOnly subclass: #ReStoreTestWithIDSubclass
 
 SimplePerson subclass: #SimplePersonWithEvents
 	instanceVariableNames: 'events'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SomeObject subclass: #SomeObjectA
+	instanceVariableNames: 'varA'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SomeObject subclass: #SomeObjectB
+	instanceVariableNames: 'varB'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -1050,6 +1072,12 @@ SSWReStoreProductOrdersTest subclass: #SSWReStoreCollectionSubQueryTest
 
 SSWReStoreProductOrdersTest subclass: #SSWReStoreDebugTest
 	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWReStoreProductOrdersTest subclass: #SSWReStoreProxySwapperTest
+	instanceVariableNames: 'ownerTest'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

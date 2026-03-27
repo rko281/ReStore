@@ -39,15 +39,6 @@ equivalentDataFieldTo: aPolymorphicDataField
 
 	^self dataFields detect: [ :each | each name = aPolymorphicDataField name] ifNone: [nil]!
 
-initializeClassField: aDBField
-	
-	^aDBField
-		table: self;
-		accessor: SSWDBClassAccessor new;
-		name: (self sqlDialect transformInstVarName: aDBField accessor nameInDB);
-		targetClass: Metaclass;
-		yourself!
-
 instanceClassFromRow: aDBRow
 
 	"Private - Determine the class to use from the row"
@@ -79,8 +70,18 @@ recoverInstanceFromRow: aDBRow into: anSSWDBObjectProxy
 
 setDefaultClassField
 
-	self classField: (self initializeClassField: SSWDBNonParameterizedControlField new).
-	self controlFields add: (self initializeClassField: SSWDBDataField new)!
+	self classField: (SSWDBNonParameterizedControlField new
+			 table: self;
+			 accessor: SSWDBClassAccessor new;
+			 targetClass: Metaclass;
+			 yourself).
+	self classField name: (self sqlDialect transformInstVarName:
+			 self classField accessor nameInDB).
+	self controlFields add: self classField!
+
+shouldPopulate: anObject
+
+	^anObject class includesBehavior: self instanceClass!
 
 withAllFields
 
@@ -107,11 +108,11 @@ withAllFields
 classField!accessing!public! !
 classField:!accessing!public! !
 equivalentDataFieldTo:!accessing!public! !
-initializeClassField:!defining!private! !
 instanceClassFromRow:!instance creation!private! !
 recoverExactClassInstanceFromRow:into:!private! !
 recoverInstanceFromRow:into:!public! !
 setDefaultClassField!defining!public! !
+shouldPopulate:!public!testing! !
 withAllFields!evaluating!public! !
 !
 

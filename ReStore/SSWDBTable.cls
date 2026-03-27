@@ -744,6 +744,10 @@ rootTable
 
 	^self!
 
+shouldPopulate: anObject
+
+	^anObject class = self instanceClass!
+
 species
 
 	^SSWDBTable!
@@ -961,6 +965,7 @@ reStore!accessing!public! !
 reStore:!accessing!public! !
 rootClass!evaluating!public! !
 rootTable!evaluating!public! !
+shouldPopulate:!public!testing! !
 species!accessing!public! !
 sqlDefinition!output!public! !
 sqlDialect!evaluating!public! !
