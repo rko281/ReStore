@@ -79,6 +79,10 @@ setDefaultClassField
 			 self classField accessor nameInDB).
 	self controlFields add: self classField!
 
+shouldPopulate: anObject
+
+	^anObject class includesBehavior: self instanceClass!
+
 withAllFields
 
 	"Return a table equivalent to the receiver but containing all possible fields.	
@@ -108,6 +112,7 @@ instanceClassFromRow:!instance creation!private! !
 recoverExactClassInstanceFromRow:into:!private! !
 recoverInstanceFromRow:into:!public! !
 setDefaultClassField!defining!public! !
+shouldPopulate:!public!testing! !
 withAllFields!evaluating!public! !
 !
 

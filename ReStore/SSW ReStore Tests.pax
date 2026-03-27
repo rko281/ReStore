@@ -35,6 +35,9 @@ package classNames
 	add: #SimplePersonWithEvents;
 	add: #SimpleProduct;
 	add: #SimpleProductOrder;
+	add: #SomeObject;
+	add: #SomeObjectA;
+	add: #SomeObjectB;
 	add: #SSWReStore2Test;
 	add: #SSWReStoreAbstractQueryTest;
 	add: #SSWReStoreAggregateQueryTest;
@@ -311,6 +314,12 @@ Object subclass: #SimpleProductOrder
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
 
+Object subclass: #SomeObject
+	instanceVariableNames: 'name'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
 Object subclass: #SuperPerson
 	instanceVariableNames: 'surname firstName superFlags'
 	classVariableNames: ''
@@ -361,6 +370,18 @@ ReStoreTestWithIDOnly subclass: #ReStoreTestWithIDSubclass
 
 SimplePerson subclass: #SimplePersonWithEvents
 	instanceVariableNames: 'events'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SomeObject subclass: #SomeObjectA
+	instanceVariableNames: 'varA'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SomeObject subclass: #SomeObjectB
+	instanceVariableNames: 'varB'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
