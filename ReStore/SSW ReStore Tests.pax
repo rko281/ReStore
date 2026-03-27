@@ -126,7 +126,6 @@ package classNames
 	add: #SSWReStoreProcessSafetyTest;
 	add: #SSWReStoreProductOrdersTest;
 	add: #SSWReStoreProxyNonForwardingTest;
-	add: #SSWReStoreProxySwapperTest;
 	add: #SSWReStoreQueryByExampleTest;
 	add: #SSWReStoreQueryTest;
 	add: #SSWReStoreReadStreamTest;
@@ -1072,12 +1071,6 @@ SSWReStoreProductOrdersTest subclass: #SSWReStoreCollectionSubQueryTest
 
 SSWReStoreProductOrdersTest subclass: #SSWReStoreDebugTest
 	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
-SSWReStoreProductOrdersTest subclass: #SSWReStoreProxySwapperTest
-	instanceVariableNames: 'ownerTest'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
