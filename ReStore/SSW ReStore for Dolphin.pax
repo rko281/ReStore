@@ -2,10 +2,11 @@
 package := Package name: 'SSW ReStore for Dolphin'.
 package paxVersion: 1;
 	basicComment: 'ReStore
-©2019 John Aspinall
+©2026 John Aspinall
 https://github.com/rko281/ReStore'.
 
 package classNames
+	add: #SSWDBColAttr;
 	add: #SSWDBDolphinBlockParser;
 	yourself.
 
@@ -50,6 +51,7 @@ package methodNames
 	add: #SSWDBProxy -> #isNil;
 	add: #SSWDBQueryCondition -> #mustBeBoolean;
 	add: #SSWDBQueryConditionCollection -> #mustBeBoolean;
+	add: #SSWDBStringWithInfo -> #instanceFromDBValue:in:;
 	add: #SSWDBTransactionError -> #sessionManager;
 	add: #SSWMSAccessDialect -> #dialectReservedWords;
 	add: #SSWMSAccessDialect -> #platformSpecificFunctions;
@@ -77,12 +79,14 @@ package methodNames
 	add: #StackFrame -> #sswByteCodeDispatcher;
 	add: #Time -> #withResolution:;
 	add: #TimeStamp -> #withResolution:;
+	add: #Utf16String -> #reStoreValue;
 	add: #View -> #respondsTo:;
 	add: 'GUID class' -> #instanceFromDBValue:in:;
 	add: 'GUID class' -> #isPersistentBaseClass;
 	add: 'GUID class' -> #reStoreNewUnique;
 	add: 'GUID class' -> #writeSQLTypeOn:using:;
 	add: 'SSWDBBlockParser class' -> #platformClass;
+	add: 'String class' -> #instanceFromDBValue:in:;
 	add: 'TimeStamp class' -> #instanceFromDBValue:in:;
 	add: 'TimeStamp class' -> #writeSQLTypeOn:using:;
 	yourself.
@@ -113,6 +117,12 @@ package setPrerequisites: #(
 package!
 
 "Class Definitions"!
+
+Object subclass: #SSWDBColAttr
+	instanceVariableNames: 'name index table connection field'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
 
 SSWDBBlockParser subclass: #SSWDBDolphinBlockParser
 	instanceVariableNames: 'isAccumulatingConditions accumulatedConditionsStack accumulatedConditions currentConditions'
@@ -189,7 +199,7 @@ withResolution: anInteger
 
 	^##(self) new
 		setRataDie: rataDie 
-		seconds: ((seconds * multplier) truncated / multplier)
+		seconds: ((seconds * multplier) rounded / multplier)
 		offset: offset! !
 
 !DateAndTime categoriesForMethods!
@@ -753,6 +763,19 @@ mustBeBoolean
 mustBeBoolean!evaluating!private! !
 !
 
+!SSWDBStringWithInfo methodsFor!
+
+instanceFromDBValue: aValue in: aReStore
+
+	"Inline the String class implementation for efficiency"
+	^aValue class == Utf16String 
+		ifTrue: [aValue asUtf8String]
+		ifFalse: [aValue]! !
+
+!SSWDBStringWithInfo categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
+
 !SSWDBTransactionError methodsFor!
 
 sessionManager
@@ -999,6 +1022,22 @@ _method:!accessing!private! !
 sswByteCodeDispatcher!accessing!private! !
 !
 
+!String class methodsFor!
+
+instanceFromDBValue: aValue in: anSSWReStore
+
+	"To quote UserLibrary>>getWindowText: 
+		To avoid propagating Utf16Strings everywhere, convert to UTF-8"
+
+	"Class check to avoid converting AnsiStrings (which are already valid UTF-8)"
+	^aValue class == Utf16String 
+		ifTrue: [aValue asUtf8String]
+		ifFalse: [aValue]! !
+
+!String class categoriesForMethods!
+instanceFromDBValue:in:!instance creation!public! !
+!
+
 !Time methodsFor!
 
 withResolution: anInteger
@@ -1040,6 +1079,18 @@ writeSQLTypeOn: aStream using: anSQLDialect
 !TimeStamp class categoriesForMethods!
 instanceFromDBValue:in:!public! !
 writeSQLTypeOn:using:!printing!public! !
+!
+
+!Utf16String methodsFor!
+
+reStoreValue
+
+	"Always pass UTF8 strings"
+
+	^self asUtf8String! !
+
+!Utf16String categoriesForMethods!
+reStoreValue!accessing!public! !
 !
 
 !View methodsFor!

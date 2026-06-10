@@ -1,10 +1,11 @@
 ﻿| package |
 package := Package name: 'SSW ReStore SQLite3'.
 package paxVersion: 1;
-	basicComment: ''.
+	basicComment: 'ReStore
+©2026 John Aspinall
+https://github.com/rko281/ReStore'.
 
 package classNames
-	add: #SSWDBColAttr;
 	add: #SSWSQLite3Connection;
 	add: #SSWSQLite3ResultSet;
 	add: #SSWSQLite3Row;
@@ -26,22 +27,16 @@ package globalAliases: (Set new
 package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\SQLite3\SQLite3-Core'
-	'SSW ReStore Main'
+	'SSW ReStore for Dolphin'
 	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities').
 
 package setManualPrerequisites: #(
-	'SSW ReStore Main').
+	'SSW ReStore for Dolphin').
 
 package!
 
 "Class Definitions"!
-
-Object subclass: #SSWDBColAttr
-	instanceVariableNames: 'name index table connection field'
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
 
 SQLite3Connection subclass: #SSWSQLite3Connection
 	instanceVariableNames: 'sqlDialect debugStream columnDescriptions hasTxn queryCount'

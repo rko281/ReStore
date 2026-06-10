@@ -49,12 +49,6 @@ decimal
 
 	^'NUMERIC'!
 
-defaultDateTimeResolution
-
-	"0 = seconds, 3 = milliseconds etc."
-
-	^0!
-
 defaultMaxColumnNameLength
 
 	^255!
@@ -62,12 +56,6 @@ defaultMaxColumnNameLength
 defaultMaxTableNameLength
 
 	^255!
-
-defaultTimeResolution
-
-	"0 = seconds, 3 = milliseconds etc."
-
-	^3!
 
 dialectSpecificFunctions
 
@@ -115,10 +103,8 @@ shouldExpandNamespacedAllFields
 !SSWSQLiteDialect categoriesForMethods!
 alterField:table:in:!maintenance!public! !
 decimal!datatypes!public! !
-defaultDateTimeResolution!constants!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
-defaultTimeResolution!constants!public! !
 dialectSpecificFunctions!constants!public! !
 dropColumnNamed:fromTable:in:!maintenance!public! !
 shouldExpandNamespacedAllFields!public!testing! !

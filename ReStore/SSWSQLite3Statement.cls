@@ -5,9 +5,13 @@ SQLite3PreparedStatement subclass: #SSWSQLite3Statement
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLite3Statement guid: (GUID fromString: '{bfe54def-92fb-4d02-a20a-4eeba9ecc6e9}')!
+
 SSWSQLite3Statement comment: ''!
+
 !SSWSQLite3Statement categoriesForClass!SQLite3-Core-Database! !
+
 !SSWSQLite3Statement methodsFor!
 
 at: aColumn putTimeStamp: aTimeStamp
@@ -30,6 +34,8 @@ cursoredFetch: aBoolean
 
 	"Always enabled"!
 
+cursorType: aSymbol!
+
 exec
 
 	self logQueryExecution.
@@ -48,7 +54,7 @@ free
 
 logQueryExecution
 
-	self parent logQueryExecution: self sqlString!
+	self parent logStatementExecution: self!
 
 numRows
 
@@ -130,13 +136,34 @@ values
 	^ values ifNil: [ #() ]!
 
 values: anObject
-	values := anObject collect: [  :each | each reStoreValue ]! !
+	values := anObject collect: [  :each | each reStoreValue ]!
+
+writeDebugInfoOn: aStream
+
+	| readStream valuesStream sqlStream |
+
+	self parametersCount = 0 ifTrue: [^aStream nextPutAll: self sqlString; nextPut: $;; cr].
+
+	readStream := ReadStream on: self sqlString.
+	valuesStream := ReadStream on: self values.
+	sqlStream := self sqlDialect sqlWriteStream.
+
+	[| nextChunk |
+	nextChunk := readStream upTo: $?.
+	nextChunk isEmpty ifFalse: 
+		[sqlStream nextPutAll: nextChunk.
+		valuesStream atEnd ifFalse: [valuesStream nextAvailable printOn: sqlStream]].
+	readStream atEnd] whileFalse.
+
+	aStream nextPutAll: sqlStream contents; nextPut: $;; cr! !
+
 !SSWSQLite3Statement categoriesForMethods!
 at:putTimeStamp:!bindings!public! !
 bindParameters:!bindings!public! !
 close!initialize/release!public! !
 closeAfter:!initialize/release!public! !
 cursoredFetch:!initialize/release!public! !
+cursorType:!initialize/release!public! !
 exec!public!querying! !
 execute!execution!public! !
 execute:!execution!public! !
@@ -160,5 +187,6 @@ valueAt:put:!accessing!public! !
 valueOfColumn:!fetching!public! !
 values!accessing!public! !
 values:!accessing!public! !
+writeDebugInfoOn:!accessing!public! !
 !
 

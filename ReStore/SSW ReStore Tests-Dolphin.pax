@@ -2,7 +2,7 @@
 package := Package name: 'SSW ReStore Tests-Dolphin'.
 package paxVersion: 1;
 	basicComment: 'ReStore
-©2019 John Aspinall
+©2026 John Aspinall
 https://github.com/rko281/ReStore'.
 
 package classNames
@@ -87,6 +87,7 @@ package methodNames
 	add: #SSWReStoreTest -> #nativeConnection;
 	add: #SSWReStoreTest -> #removeSelector:fromClass:;
 	add: #SSWReStoreTypeTest -> #testTimeStamp;
+	add: #SSWReStoreTypeTest -> #testUTF16;
 	add: 'SSWReStoreTest class' -> #incrementQueryCount;
 	add: 'SSWReStoreTest class' -> #isDolphin;
 	add: 'SSWReStoreTest class' -> #listModelClass;
@@ -1205,17 +1206,24 @@ testTimeStamp
 	reStore addClass: DolphinTypeTest; synchronizeClass: DolphinTypeTest.
 
 	[| now t |
-	now := TimeStamp current.
+	now := TimeStamp current withResolution: reStore sqlDialect defaultTimeResolution.
 	DolphinTypeTest new timeStamp: now; storeIn: reStore.
 
 	reStore simulateReconnect.
 
-	t := (DolphinTypeTest storedInstancesIn: reStore) detect: [ :each | each timeStamp = (now withResolution: reStore sqlDialect defaultTimeResolution)] ifNone: [nil].
+	t := (DolphinTypeTest storedInstancesIn: reStore) detect: [ :each | each timeStamp = now] ifNone: [nil].
 	self assert: t notNil.
-	self assert: t timeStamp asSeconds truncated equals: now asSeconds truncated] ensure: [reStore destroyClass: DolphinTypeTest]! !
+	self assert: t timeStamp asSeconds equals: now asSeconds] ensure: [reStore destroyClass: DolphinTypeTest]!
+
+testUTF16
+
+	"Test storage of UTF16 Strings"
+
+	self testStrings: (Utf16String fromByteArray: #[99 0 97 0 102 0 233 0]) "café"! !
 
 !SSWReStoreTypeTest categoriesForMethods!
 testTimeStamp!public!unit tests! !
+testUTF16!public!unit tests! !
 !
 
 "End of package definition"!

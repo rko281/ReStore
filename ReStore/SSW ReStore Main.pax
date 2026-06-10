@@ -2,7 +2,7 @@
 package := Package name: 'SSW ReStore Main'.
 package paxVersion: 1;
 	basicComment: 'ReStore
-©2019 John Aspinall
+©2026 John Aspinall
 https://github.com/rko281/ReStore'.
 
 package classNames
@@ -107,7 +107,6 @@ package methodNames
 	add: #SSWDBGeneralCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBOwnedCollectionSpec -> #collectionProxyClass;
 	add: #SSWDBScaledDecimalWithInfo -> #instanceFromDBValue:in:;
-	add: #SSWDBStringWithInfo -> #instanceFromDBValue:in:;
 	add: #SSWDBTable -> #tableRecord;
 	add: #SSWDBTable -> #versionControlField;
 	add: #SSWDBTable -> #withIDAndVersionFields;
@@ -127,7 +126,6 @@ package methodNames
 	add: 'Object class' -> #preferredObjectProxyClass;
 	add: 'Object class' -> #storedInstances;
 	add: 'Object class' -> #storedInstancesIn:;
-	add: 'String class' -> #instanceFromDBValue:in:;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -1089,16 +1087,6 @@ instanceFromDBValue: aValue in: aReStore
 instanceFromDBValue:in:!instance creation!public! !
 !
 
-!SSWDBStringWithInfo methodsFor!
-
-instanceFromDBValue: aValue in: aReStore
-
-	^aValue! !
-
-!SSWDBStringWithInfo categoriesForMethods!
-instanceFromDBValue:in:!instance creation!public! !
-!
-
 !SSWDBTable methodsFor!
 
 tableRecord
@@ -1152,18 +1140,6 @@ withRelatedComponents
 !String categoriesForMethods!
 withComponents!converting!public! !
 withRelatedComponents!converting!public! !
-!
-
-!String class methodsFor!
-
-instanceFromDBValue: aValue in: anSSWReStore
-
-	"ASSERT: aValue isNil OR aValue isKindOf: self"
-
-	^aValue! !
-
-!String class categoriesForMethods!
-instanceFromDBValue:in:!instance creation!public! !
 !
 
 !UndefinedObject methodsFor!
