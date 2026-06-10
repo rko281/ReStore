@@ -5,15 +5,37 @@ SSWSQLiteDialect subclass: #SSWSQLiteNativeDialect
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLiteNativeDialect guid: (GUID fromString: '{af9af1e6-6118-40ec-9684-a76f555792b1}')!
+
 SSWSQLiteNativeDialect comment: ''!
+
 !SSWSQLiteNativeDialect categoriesForClass!Unclassified! !
+
 !SSWSQLiteNativeDialect methodsFor!
 
 defaultDateTimeResolution
 
+	^self maxDateTimeResolution!
+
+maxDateTimeResolution
+
 	^6! !
+
 !SSWSQLiteNativeDialect categoriesForMethods!
 defaultDateTimeResolution!constants!public! !
+maxDateTimeResolution!constants!public! !
+!
+
+!SSWSQLiteNativeDialect class methodsFor!
+
+dbmsName
+
+	"Differentiate from superclass"
+
+	^super dbmsName, '-Native'! !
+
+!SSWSQLiteNativeDialect class categoriesForMethods!
+dbmsName!constants!public! !
 !
 

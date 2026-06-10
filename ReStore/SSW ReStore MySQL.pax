@@ -1,0 +1,167 @@
+﻿| package |
+package := Package name: 'SSW ReStore MySQL'.
+package paxVersion: 1;
+	basicComment: 'ReStore
+©2026 John Aspinall
+https://github.com/rko281/ReStore'.
+
+package classNames
+	add: #SSWMySQLCommandExecute;
+	add: #SSWMySQLCommandFetch;
+	add: #SSWMySQLCommandQuery;
+	add: #SSWMySQLConnection;
+	add: #SSWMySQLNativeDialect;
+	add: #SSWMySQLResultSet;
+	add: #SSWMySQLRow;
+	add: #SSWMySQLStatement;
+	yourself.
+
+package methodNames
+	add: #MySQLError -> #rowsAffected;
+	add: #MySQLField -> #fieldName;
+	add: #MySQLOkay -> #close;
+	add: #MySQLOkay -> #numRows;
+	add: #MySQLOkay -> #rowsAffected;
+	add: #MySQLQueryRowData -> #contents;
+	add: #MySQLResultSet -> #collect:;
+	add: #MySQLResultSet -> #results;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\MySQL\MySQL'
+	'SSW ReStore for Dolphin'
+	'SSW ReStore Querying'
+	'SSW ReStore SQL Entities').
+
+package setManualPrerequisites: #(
+	'SSW ReStore for Dolphin').
+
+package!
+
+"Class Definitions"!
+
+MySQLCommandQuery subclass: #SSWMySQLCommandQuery
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+MySQLCommandExecute subclass: #SSWMySQLCommandExecute
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+MySQLCommandFetch subclass: #SSWMySQLCommandFetch
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+MySQLDriver subclass: #SSWMySQLConnection
+	instanceVariableNames: 'sqlDialect debugStream columnDescriptions hasTxn queryCount connectionSpec'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+MySQLDriverStatement subclass: #SSWMySQLStatement
+	instanceVariableNames: 'query sqlString parametersCount results'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+MySQLResultSet subclass: #SSWMySQLResultSet
+	instanceVariableNames: 'columns'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+MySQLBinaryRowData subclass: #SSWMySQLRow
+	instanceVariableNames: 'columns'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWMySQLDialect subclass: #SSWMySQLNativeDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Loose Methods"!
+
+!MySQLError methodsFor!
+
+rowsAffected 
+
+	^0! !
+
+!MySQLError categoriesForMethods!
+rowsAffected!accessing!public! !
+!
+
+!MySQLField methodsFor!
+
+fieldName
+
+	^name! !
+
+!MySQLField categoriesForMethods!
+fieldName!accessing!public! !
+!
+
+!MySQLOkay methodsFor!
+
+close
+
+	"Private - In ODBC this closes the result set, leaving the statement open.
+	Nothing to do here"!
+
+numRows
+
+	^self affectedRows!
+
+rowsAffected
+
+	^self affectedRows! !
+
+!MySQLOkay categoriesForMethods!
+close!private! !
+numRows!accessing!public! !
+rowsAffected!accessing!public! !
+!
+
+!MySQLQueryRowData methodsFor!
+
+contents
+
+	^self! !
+
+!MySQLQueryRowData categoriesForMethods!
+contents!accessing!public! !
+!
+
+!MySQLResultSet methodsFor!
+
+collect: aBlock
+
+	^self rows collect: aBlock!
+
+results
+
+	^self! !
+
+!MySQLResultSet categoriesForMethods!
+collect:!enumerating!public! !
+results!accessing!public! !
+!
+
+"End of package definition"!
+

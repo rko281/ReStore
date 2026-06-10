@@ -81,7 +81,7 @@ columnNamesForTable: aDBTable
 
 columns: aTableName
 
-	^(self columnNamesFor: aTableName) collect: [ :each | SSWDBColAttr new name: each]!
+	^(self columnNamesForTable: aTableName) collect: [ :each | SSWDBColAttr new name: each]!
 
 columnsForFields: aCollectionOfDBFields
 
@@ -201,6 +201,7 @@ executeQuery: anSQLQuery cursorType: aSymbol
 	^statement 
 		setQuery: anSQLQuery;
 		values: values;
+		cursorType: aSymbol;
 		exec;
 		yourself!
 
@@ -250,6 +251,11 @@ logQueryExecution: aString
 	self debugStream ifNotNil: [ :stream | stream cr; show: aString].
 	self incrementQueryCount!
 
+logStatementExecution: aStatement
+
+	self debugStream ifNotNil: [ :stream | stream cr. aStatement writeDebugInfoOn: stream].
+	self incrementQueryCount!
+
 masterTableForNamespace: aString
 
 	^(aString isNil or: [aString = self sqlDialect standardNamespace])
@@ -290,8 +296,6 @@ prepareQuery: anSQLQuery
 	Prepare and return a parameterized statement for the execution of anSQLQuery"
 
 	| stream |
-		
-	anSQLQuery preExecIn: self.
 
 	stream := SSWSQLWriteStream newIn: self sqlDialect.
 	anSQLQuery writeSQLOn: stream.
@@ -416,6 +420,7 @@ initialize!initialization!public! !
 isConnected!public!testing! !
 isDebug!public!testing! !
 logQueryExecution:!public!querying! !
+logStatementExecution:!public!querying! !
 masterTableForNamespace:!enquiries!public! !
 maxColumnNameLength!accessing!public! !
 maxTableNameLength!accessing!public! !

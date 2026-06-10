@@ -1,13 +1,17 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWReStoreTableTest subclass: #SSWReStoreTableWithNamespaceTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreTableWithNamespaceTest guid: (GUID fromString: '{f75d3945-b542-4c21-9bc0-bab0847e1ace}')!
+
 SSWReStoreTableWithNamespaceTest comment: ''!
+
 !SSWReStoreTableWithNamespaceTest categoriesForClass!Unclassified! !
+
 !SSWReStoreTableWithNamespaceTest methodsFor!
 
 _test31CrossNamespaceSetup
@@ -34,6 +38,12 @@ addClassesTo: aReStore
 
 	reStore connection createNamespace: self namespace!
 
+createTestData 
+
+	reStore executeSQLAsTxn: (#('simple_person' 'super_person' 'simple_person2') collect: [ :each | 'drop table if exists ', each ]).
+	
+	super createTestData !
+
 namespace
 
 	^self class namespace!
@@ -53,8 +63,10 @@ tearDown
 
 	{SimplePerson. SimplePerson2. SuperPerson} do: [ :cls | self removeSelector: #addClassDefinitionTo: fromClass: cls class].
 
+	reStore destroyAllTables.
+
 	"Error trap superclass implementation primarily for SQLite which drops attached database on reconnect, leading to 'table not found' errors in destroyAllClasses"
-	[super tearDown] on: reStore connection dbErrorClass do: [ :exc | ('*no such table*' match: exc description) ifTrue: [exc return] ifFalse: [exc pass]]!
+	[super tearDown] on: reStore connection dbErrorClass do: [ :exc | ('*no such*' match: exc description) ifTrue: [exc return] ifFalse: [exc pass]]!
 
 test00VerifyNamespace
 
@@ -99,16 +111,20 @@ test32CrossNamespaceQuerying
 	persons := SimplePerson storedInstancesIn: reStore.
 	self assert: (persons detect: [ :each | each _id = 5]) address line1 equals: 'p5'.
 	self assert: (persons detect: [ :each | each address line1 = 'p2']) _id = 2.! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #_test31CrossNamespaceSetup!private!running! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #addClassesTo:!public!running! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #namespace!constants!public! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #releaseReStore:!private!running! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #setUp!public!running! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #tearDown!public!running! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #test00VerifyNamespace!public!unit tests! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #test02RenameClass!public!unit tests! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #test31CrossNamespaceLinking!public!unit tests! !
-!SSWReStoreTableWithNamespaceTest categoriesFor: #test32CrossNamespaceQuerying!public!unit tests! !
+
+!SSWReStoreTableWithNamespaceTest categoriesForMethods!
+_test31CrossNamespaceSetup!private!running! !
+addClassesTo:!public!running! !
+createTestData!public!running! !
+namespace!constants!public! !
+releaseReStore:!private!running! !
+setUp!public!running! !
+tearDown!public!running! !
+test00VerifyNamespace!public!unit tests! !
+test02RenameClass!public!unit tests! !
+test31CrossNamespaceLinking!public!unit tests! !
+test32CrossNamespaceQuerying!public!unit tests! !
+!
 
 !SSWReStoreTableWithNamespaceTest class methodsFor!
 
@@ -119,6 +135,9 @@ addDatabaseNameTo: aClassDef
 namespace
 
 	^'test_namespace'! !
-!SSWReStoreTableWithNamespaceTest class categoriesFor: #addDatabaseNameTo:!public! !
-!SSWReStoreTableWithNamespaceTest class categoriesFor: #namespace!public! !
+
+!SSWReStoreTableWithNamespaceTest class categoriesForMethods!
+addDatabaseNameTo:!public! !
+namespace!public! !
+!
 

@@ -292,6 +292,20 @@ testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediateOldF
 			removeKey: #addClassDefinitionTo:.
 		AbstractB class flushMethodCache]!
 
+testInsertQueryParameterCount
+
+	"Verify the number of parameters in a sub-table's insert query matches the number of placeholder characters.
+	Previously there was a mismatch due to the class field's value being hardcoded"
+
+	| proxy insertQuery sqlStream |
+
+	proxy := SSWDBVersionedCachingObjectProxy new _reStore: reStore; _class: SubPerson; _proxiedObject: SubPerson new.
+	insertQuery := SSWSQLInsertQuery forObject: proxy.
+	sqlStream := reStore sqlDialect sqlWriteStream.
+	insertQuery writeSQLOn: sqlStream.
+
+	self assert: insertQuery values size equals: sqlStream placeholderCount!
+
 testRetrievingIncompatibleClassRaisesError
 	| detailedID midID |
 	midID := (reStore instancesOf: MidPerson) withoutInheritance first _id.
@@ -492,6 +506,7 @@ testInheritanceStructureWithoutInheritancePersistentIntermediate!public!unit tes
 testInheritanceStructureWithoutInheritancePersistentIntermediateOldFormat!public!unit tests! !
 testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediate!public!unit tests! !
 testInheritanceStructureWithoutIntermediateInheritancePersistentIntermediateOldFormat!public!unit tests! !
+testInsertQueryParameterCount!public!unit tests! !
 testRetrievingIncompatibleClassRaisesError!public!unit tests! !
 testSharedTableHierarchyReference!public!running! !
 testSharedTableHierarchySlotClashWithDatabaseDefaultValueA!public!running! !

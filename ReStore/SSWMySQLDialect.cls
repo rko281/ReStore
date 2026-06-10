@@ -49,10 +49,6 @@ defaultMaxTableNameLength
 
 	^64!
 
-defaultTimeResolution
-
-	^3!
-
 dialectSpecificFunctions
 
 	^Dictionary new
@@ -145,7 +141,6 @@ blobTypes!datatypes!public! !
 boolean!datatypes!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
-defaultTimeResolution!constants!public! !
 dialectSpecificFunctions!constants!public! !
 maxVarchar!constants!public! !
 renameField:to:in:!maintenance!public! !

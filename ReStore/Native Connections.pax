@@ -1,8 +1,9 @@
 ﻿| package |
-package := Package name: 'SQLite3'.
+package := Package name: 'Native Connections'.
 package paxVersion: 1;
-	basicComment: ''.
-
+	basicComment: 'ReStore
+©2026 John Aspinall
+https://github.com/rko281/ReStore'.
 
 package binaryGlobalNames: (Set new
 	yourself).
@@ -11,22 +12,14 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'ReStore'
+	'SSW ReStore MySQL'
 	'SSW ReStore SQLite3').
 
 package setManualPrerequisites: #(
-	'ReStore'
+	'SSW ReStore MySQL'
 	'SSW ReStore SQLite3').
 
 package!
-
-"Class Definitions"!
-
-
-"Global Aliases"!
-
-
-"Loose Methods"!
 
 "End of package definition"!
 

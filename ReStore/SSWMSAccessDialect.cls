@@ -98,10 +98,6 @@ maxAllocatedStatements
 	"Leave some headroom"
 	^100!
 
-maxDateTimeResolution
-
-	^0!
-
 renameTable: oldTable to: newTable in: anSSWReStore
 
 	anSSWReStore 
@@ -147,7 +143,6 @@ largeIntegerMaximum!constants!public! !
 largeIntegerMinimum!constants!public! !
 longText!datatypes!public! !
 maxAllocatedStatements!constants!public! !
-maxDateTimeResolution!constants!public! !
 renameTable:to:in:!maintenance!public! !
 shouldMapEmptyStringsToNil!public!testing! !
 time!datatypes!public! !
