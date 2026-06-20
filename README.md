@@ -19,7 +19,7 @@ ReStore is a framework enabling Dolphin Smalltalk objects to be stored in and re
 * Install package `ReStore\SSW ReStore Examples` - this will load all required prerequisites
 
 ## Native Support
-ReStore now optionally supports [SQLite](https://github.com/rko281/SQLite3) and [MySQL](https://github.com/rko281/MySQL) via non-ODBC native interfaces
+ReStore now optionally supports [SQLite](https://github.com/rko281/SQLite3) and [MySQL 8.x and earlier](https://github.com/rko281/MySQL) via non-ODBC native interfaces.
 
 * To install ReStore with both SQLite and MySQL native support evaluate:
   ```smalltalk
