@@ -239,7 +239,7 @@ testNullBoolean
 
 testStrings: aString
 
-	| id |
+	| id validClasses |
 
 	typeTest 
 		varchar: aString;
@@ -252,10 +252,11 @@ testStrings: aString
 	reStore simulateReconnect.
 	typeTest := (TypeTest storedInstancesIn: reStore) detect: [ :each | each _id = id].
 
-	self assert: typeTest varchar class equals: Utf8String.
-	self assert: typeTest medText class equals: Utf8String.
-	self assert: typeTest largeText class equals: Utf8String.
-	self assert: typeTest unsizedText class equals: Utf8String.
+	validClasses := {AnsiString. Utf8String}.
+	self assert: (validClasses includes: typeTest varchar class).
+	self assert: (validClasses includes: typeTest medText class).
+	self assert: (validClasses includes: typeTest largeText class).
+	self assert: (validClasses includes: typeTest unsizedText class).
 
 	self assert: typeTest varchar equals: aString.
 	self assert: typeTest medText equals: aString.

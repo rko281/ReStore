@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smalltalk 7"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 SSWSQLField subclass: #SSWSQLFunctionField
 	instanceVariableNames: 'function arguments'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWSQLFunctionField guid: (GUID fromString: '{98f99d6b-3bcf-4a05-ac5a-f6b7eb406142}')!
+
 SSWSQLFunctionField comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !SSWSQLFunctionField categoriesForClass!Unclassified! !
+
 !SSWSQLFunctionField methodsFor!
 
 arguments
@@ -54,6 +58,12 @@ writeAliasedSQLOn: aStream
 	
 	^aStream nextPutAliasedField: self!
 
+writeFieldOn: aStream
+
+	table isNil 
+		ifTrue: [self name writeSQLOn: aStream]
+		ifFalse: [super writeSQLOn: aStream]!
+
 writeSQLOn: aStream
 
 	| funcStream |
@@ -66,16 +76,26 @@ writeSQLOn: aStream
 		funcStream peek = $%] whileTrue: [aStream nextPut: funcStream next].
 
 		funcStream atEnd ifFalse:
-			[| argIndex |
+			[| argIndex shouldHardCode param |
+			"$ character denotes a parameter which needs to be hard-coded"
+			(shouldHardCode := funcStream peek = $$) ifTrue: [funcStream next].
 			argIndex := funcStream next digitValue - 1.
 			argIndex = 0
-				ifTrue: [super writeSQLOn: aStream]
-				ifFalse: [(self arguments at: argIndex) writeSQLOn: aStream]]]! !
-!SSWSQLFunctionField categoriesFor: #arguments!accessing!public! !
-!SSWSQLFunctionField categoriesFor: #arguments:!accessing!public! !
-!SSWSQLFunctionField categoriesFor: #function!accessing!public! !
-!SSWSQLFunctionField categoriesFor: #function:!accessing!public! !
-!SSWSQLFunctionField categoriesFor: #requiresAliasing!public!testing! !
-!SSWSQLFunctionField categoriesFor: #writeAliasedSQLOn:!output!public! !
-!SSWSQLFunctionField categoriesFor: #writeSQLOn:!output!public! !
+			ifTrue: 
+				[self writeFieldOn: aStream]
+			ifFalse: 
+				[param := self arguments at: argIndex.
+				shouldHardCode ifTrue: [param := SSWSQLHardCodedParameter value: param].
+				param writeSQLOn: aStream forField: self]]]! !
+
+!SSWSQLFunctionField categoriesForMethods!
+arguments!accessing!public! !
+arguments:!accessing!public! !
+function!accessing!public! !
+function:!accessing!public! !
+requiresAliasing!public!testing! !
+writeAliasedSQLOn:!output!public! !
+writeFieldOn:!output!public! !
+writeSQLOn:!output!public! !
+!
 

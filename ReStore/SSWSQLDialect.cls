@@ -140,7 +140,7 @@ commonFunctions
 		at: #size put: 'LEN(%1)' asSQLFunctionIntegerResult;
 		at: #, put: '(%1 || %2)' asSQLFunction;
 		at: #indexOfSubCollection: put: 'INSTR(%1,%2)' asSQLFunctionIntegerResult;
-		at: #midString:from: put: 'SUBSTRING(%1 FROM %3 FOR %2)' asSQLFunction;
+		at: #midString:from: put: 'SUBSTRING(%1 FROM %$3 FOR %$2)' asSQLFunction;
 		at: #trimBlanks put: 'TRIM(%1)' asSQLFunction;
 		at: #asUppercase put: 'UPPER(%1)' asSQLFunction;
 		at: #asLowercase put: 'LOWER(%1)' asSQLFunction;
@@ -460,6 +460,14 @@ nullBoolean: anObject
 
 	nullBoolean := anObject!
 
+nullEqualityComparator
+
+	^' IS '!
+
+nullInequalityComparator
+
+	^' IS NOT '!
+
 onConnected: aConnection
 
 	"Sent to the dialect immediately after login"
@@ -519,13 +527,6 @@ shouldExpandNamespacedAllFields
 
 	"Return true if the all fields * pseudo-field should be expanded into a list of fields where the table has a namspace, i.e. namespace.table.field1, namespace.table.field2 etc. instead of namespace.table.*
 	Needed to accomodate SQLite which gives an error with namespace.table.* in SELECT query"
-
-	^false!
-
-shouldMapEmptyStringsToNil
-
-	"Return whether empty Strings should be mapped to nil before storage in the database.
-	This can be useful for databases in which default String fields to 'Do not allow zero size (usually this attribute cannot be set via ODBC/SQL)"
 
 	^false!
 
@@ -769,6 +770,8 @@ maxTimeResolution!public! !
 maxVarchar!constants!public! !
 nullBoolean!accessing!public! !
 nullBoolean:!accessing!public! !
+nullEqualityComparator!constants!public! !
+nullInequalityComparator!constants!public! !
 onConnected:!event handling!public! !
 platformSpecificFunctions!constants!public! !
 postLoginScript!constants!public! !
@@ -776,7 +779,6 @@ printParameterPlaceholder:on:!helpers!public! !
 renameField:to:in:!maintenance!public! !
 renameTable:to:in:!maintenance!public! !
 shouldExpandNamespacedAllFields!public!testing! !
-shouldMapEmptyStringsToNil!public!testing! !
 sqlFunctionFor:!accessing!public! !
 sqlFunctions!accessing!public! !
 sqlFunctions:!accessing!public! !
@@ -807,32 +809,11 @@ varchar!datatypes!public! !
 
 !SSWSQLDialect class methodsFor!
 
-dbmsName
+isNative
 
-	"Return the name of the database whose dialect is represented by the receiver.
-	Should correlate with the result of DBConnection>>dbmsName (ignoring case)"
+	"Answer whether the receiver is specifically for a native (non-ODBC) connection"
 
-	^self subclassResponsibility!
-
-dbmsVersion
-
-	"Return the version of the database whose dialect is represented by the receiver.
-	Should correlate with the result of DBConnection>>dbmsVersion (ignoring case).
-
-	From MS ODBC docs: '
-		The version is of the form ##.##.####, where the first two digits are the major version, the next two digits are the minor version, and the last four digits are the release version. 
-		The driver must render the DBMS product version in this form but can also append the DBMS product-specific version. For example, '04.01.0000 Rdb 4.1'.
-
-	For convenience this value may be a pattern - dialects can handle subtle differences with conditionals (referring to their connection for the version)"
-
-	^'*'!
-
-isCompatibleWithConnection: aDBConnection
-
-	"Default implementation uses name and version.
-	Subclasses with more sophisticated requirements may override"
-
-	^(self dbmsName sameAs: aDBConnection dbmsName) and: [self dbmsVersion match: aDBConnection dbmsVersion]!
+	^false!
 
 new
 
@@ -840,23 +821,13 @@ new
 
 newFor: aDBConnection
 
-	^(self subclassFor: aDBConnection) new
+	^self new
 		initializeFor: aDBConnection;
-		yourself!
-
-subclassFor: aDBConnection
-
-	"Return the correct subclass of the receiver to use for the given DBConnection"
-
-	"Sort to prefer subclasses with specific version number over non version-specific subclasses"
-	^(self allSubclasses asSortedCollection: [ :c1 :c2 | c1 dbmsVersion size >= c2 dbmsVersion size]) detect: [ :each | each isCompatibleWithConnection: aDBConnection] ifNone: ["Fallback" self]! !
+		yourself! !
 
 !SSWSQLDialect class categoriesForMethods!
-dbmsName!constants!public! !
-dbmsVersion!constants!public! !
-isCompatibleWithConnection:!public!testing! !
+isNative!public!testing! !
 new!instance creation!public! !
 newFor:!instance creation!public! !
-subclassFor:!accessing!public! !
 !
 

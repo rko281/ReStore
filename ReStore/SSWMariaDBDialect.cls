@@ -12,13 +12,3 @@ SSWMariaDBDialect comment: ''!
 
 !SSWMariaDBDialect categoriesForClass!Unclassified! !
 
-!SSWMariaDBDialect class methodsFor!
-
-dbmsName
-
-	^'MariaDB'! !
-
-!SSWMariaDBDialect class categoriesForMethods!
-dbmsName!constants!public! !
-!
-

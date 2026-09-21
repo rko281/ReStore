@@ -5,9 +5,13 @@ SSWDBStaticField subclass: #SSWDBIDField
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBIDField guid: (GUID fromString: '{ed39134a-481a-4378-9585-42a5257e3504}')!
+
 SSWDBIDField comment: ''!
+
 !SSWDBIDField categoriesForClass!Unclassified! !
+
 !SSWDBIDField methodsFor!
 
 accesses: aSymbol
@@ -25,7 +29,7 @@ accessInstVarNamed: aSymbol
 			name: self name;
 			table: self table;
 			targetClass: self targetClass;
-			accessor: ((self targetClass reStoreInstVarAccessorIn: self sqlDialect) access: aSymbol in: self table instanceClass);
+			accessor: (self targetClass reStoreInstVarAccessor access: aSymbol in: self table instanceClass);
 			yourself)!
 
 dataField
@@ -57,6 +61,7 @@ lookupIn: aDBRow
 populateObject: anObject with: aValue
 
 	dataField ifNotNil: [ :df | df populateObject: anObject with: aValue]! !
+
 !SSWDBIDField categoriesForMethods!
 accesses:!public!testing! !
 accessInstVarNamed:!initialize/release!public! !

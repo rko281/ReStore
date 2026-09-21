@@ -49,6 +49,10 @@ decimal
 
 	^'NUMERIC'!
 
+defaultDateTimeResolution
+
+	^0!
+
 defaultMaxColumnNameLength
 
 	^255!
@@ -70,29 +74,21 @@ dialectSpecificFunctions
 		at: #year put: 'CAST(STRFTIME(''%%Y'',%1) AS INTEGER)' asSQLFunctionIntegerResult;
 		yourself!
 
-dropColumnNamed: colString fromTable: anSSWDBTable in: anSSWReStore
+maxDateTimeResolution
 
-	"No explicit drop column support"
+	^0!
 
-	| otherFields tempTable |
+renameField: oldField to: newField in: aReStore
 
-	tempTable := anSSWDBTable copy.
-	tempTable name: 'tmp_'.
-
-	(tempTable dataFields detect: [ :field | field name = colString] ifNone: [nil]) ifNotNil: [ :field | tempTable dataFields: (tempTable dataFields copyWithout: field)].
-	(tempTable controlFields detect: [ :field | field name = colString] ifNone: [nil]) ifNotNil: [ :field | tempTable controlFields: (tempTable controlFields copyWithout: field)].
-
-	otherFields := anSSWDBTable allFields reject: [ :field | field name = colString].
-
-	"ID field should always comes first"
-	otherFields remove: anSSWDBTable idField ifAbsent: [].
-	otherFields addFirst: anSSWDBTable idField.
-
-	anSSWReStore 
-		executeSQL: tempTable sqlDefinition;
-		executeSQLFrom: [ :stream | stream nextPutAll: 'INSERT INTO '; writeSQLFor: tempTable ; nextPutAll: ' SELECT '. otherFields writeSQLOn: stream. stream nextPutAll: ' FROM '; writeSQLFor: anSSWDBTable];
-		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; writeSQLFor: anSSWDBTable];
-		executeSQLFrom: [ :stream | stream nextPutAll: 'ALTER TABLE '; writeSQLFor: tempTable; nextPutAll: ' RENAME TO '; nextPutIdentifier: anSSWDBTable name]!
+	aReStore executeSQLFrom: 
+		[ :stream | 
+		stream 
+			nextPutAll: 'ALTER TABLE ';
+			writeSQLFor: newField table;
+			nextPutAll: ' RENAME ';
+			nextPutIdentifier: oldField name;
+			nextPutAll: ' TO ';
+			nextPutIdentifier: newField name]!
 
 shouldExpandNamespacedAllFields
 
@@ -103,20 +99,12 @@ shouldExpandNamespacedAllFields
 !SSWSQLiteDialect categoriesForMethods!
 alterField:table:in:!maintenance!public! !
 decimal!datatypes!public! !
+defaultDateTimeResolution!constants!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
 dialectSpecificFunctions!constants!public! !
-dropColumnNamed:fromTable:in:!maintenance!public! !
+maxDateTimeResolution!constants!public! !
+renameField:to:in:!maintenance!public! !
 shouldExpandNamespacedAllFields!public!testing! !
-!
-
-!SSWSQLiteDialect class methodsFor!
-
-dbmsName
-
-	^'SQLITE'! !
-
-!SSWSQLiteDialect class categoriesForMethods!
-dbmsName!constants!public! !
 !
 

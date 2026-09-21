@@ -31,13 +31,11 @@ postLoginScript!constants!public! !
 
 !SSWMySQLNativeDialect class methodsFor!
 
-dbmsName
+isNative
 
-	"Differentiate from superclass"
-
-	^super dbmsName, '-Native'! !
+	^true! !
 
 !SSWMySQLNativeDialect class categoriesForMethods!
-dbmsName!constants!public! !
+isNative!public!testing! !
 !
 

@@ -111,7 +111,7 @@ basicConnect
 		ifFalse: [super basicConnect "uses dsn"].
 
 	self isConnected ifTrue: 
-		[self sqlDialect: (SSWSQLDialect newFor: self).
+		[self sqlDialect: ((SSWSQLDialect subclassFor: self) newFor: self).
 		self willAutoCommit: false.
 		self reset]!
 

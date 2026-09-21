@@ -133,10 +133,6 @@ dbErrorClass
 
 	^MySQLDriverError!
 
-dbmsName
-
-	^SSWMySQLDialect dbmsName!
-
 dbmsVersion
 
 	^[(self query: 'select version()') rows first atIndex: 1] on: Error do: [ :exc | exc return: '']!
@@ -363,7 +359,9 @@ sqlDialect: anObject
 
 sqlDialectClass
 
-	^SSWMySQLNativeDialect!
+	^self isMariaDB
+		ifTrue: [SSWMariaDBNativeDialect]
+		ifFalse: [SSWMySQLNativeDialect]!
 
 stopQueryCounting
 
@@ -382,6 +380,10 @@ tablesInNamespace: aString
 	^(((aString isNil or: [aString = self sqlDialect standardNamespace])
 		ifTrue: [ self execute: 'SHOW TABLES' ]
 		ifFalse: [ self execute: 'SHOW TABLES IN ', (self sqlDialect asIdentifier: aString) ]) collect: [ :row | row first ]) asOrderedCollection!
+
+versionString
+
+	^(self query: 'select version()') rows first at: 1!
 
 willAutoCommit: aBoolean! !
 
@@ -407,7 +409,6 @@ connectionSpec!accessing!public! !
 connectionSpec:!accessing!public! !
 createNamespace:!db maintenance!public! !
 dbErrorClass!public!public API / introspection! !
-dbmsName!enquiries!public! !
 dbmsVersion!enquiries!public! !
 debugStream!accessing!public! !
 debugStream:!accessing!public! !
@@ -451,6 +452,7 @@ stopQueryCounting!public!querying! !
 supportsScrollableCursors!public!testing! !
 tables!enquiries!public! !
 tablesInNamespace:!accessing!public! !
+versionString!accessing!public! !
 willAutoCommit:!accessing!public! !
 !
 

@@ -140,13 +140,3 @@ unsizedBlob!datatypes!public! !
 uuid!datatypes!public! !
 !
 
-!SSWSQLServerDialect class methodsFor!
-
-dbmsName
-
-	^'MICROSOFT SQL SERVER' ! !
-
-!SSWSQLServerDialect class categoriesForMethods!
-dbmsName!constants!public! !
-!
-

@@ -5,9 +5,13 @@ Object subclass: #SSWDBDirectlyPersistedObject
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWDBDirectlyPersistedObject guid: (GUID fromString: '{912d4de6-f66a-4e8e-b720-0b7631416623}')!
+
 SSWDBDirectlyPersistedObject comment: ''!
+
 !SSWDBDirectlyPersistedObject categoriesForClass!Kernel-Objects! !
+
 !SSWDBDirectlyPersistedObject methodsFor!
 
 <= anObject
@@ -36,6 +40,7 @@ reStoreValue
 	Should be an instance of this class's reStoreValueClass"
 
 	^self subclassResponsibility! !
+
 !SSWDBDirectlyPersistedObject categoriesForMethods!
 <=!public! !
 =!comparing!public! !
@@ -69,6 +74,12 @@ isDirectlyPersisted
 
 	^true!
 
+reStoreInstVarAccessor
+
+	^self hasMutablePersistentInstances 
+		ifTrue: [SSWMutableInstVarAccessor new]
+		ifFalse: [super reStoreInstVarAccessor]!
+
 reStoreValueClass
 
 	"Return the class of object of which instances of the receiver are persisted in the database, i.e. the class of an instance's reStoreValue"
@@ -78,11 +89,13 @@ reStoreValueClass
 writeSQLTypeOn: aStream using: anSQLDialect
 
 	self reStoreValueClass writeSQLTypeOn: aStream using: anSQLDialect! !
+
 !SSWDBDirectlyPersistedObject class categoriesForMethods!
 fromReStoreValue:!instance creation!public! !
 hasMutablePersistentInstances!public!testing! !
 instanceFromDBValue:in:!instance creation!public! !
 isDirectlyPersisted!public!testing! !
+reStoreInstVarAccessor!accessing!public! !
 reStoreValueClass!accessing!public! !
 writeSQLTypeOn:using:!printing!public! !
 !

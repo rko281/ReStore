@@ -22,6 +22,7 @@ package classNames
 	add: #SSWSQLFieldValueConjunction;
 	add: #SSWSQLFunction;
 	add: #SSWSQLFunctionField;
+	add: #SSWSQLHardCodedParameter;
 	add: #SSWSQLiteDialect;
 	add: #SSWSQLJoinedTableCollection;
 	add: #SSWSQLLeftJoinedTableCollection;
@@ -49,6 +50,7 @@ package methodNames
 	add: #Object -> #isSQLNull;
 	add: #Object -> #sqlCanBeParameterized;
 	add: #Object -> #sqlStringIn:;
+	add: #Object -> #writeHardCodedSQLOn:;
 	add: #Object -> #writeSQLOn:forCondition:;
 	add: #Object -> #writeSQLOn:forField:;
 	add: #ScaledDecimal -> #writeSQLOn:;
@@ -62,6 +64,7 @@ package methodNames
 	add: #String -> #asSQLFunctionIntegerResult;
 	add: #String -> #asSQLFunctionStringResult;
 	add: #String -> #asSQLFunctionWithResultClass:;
+	add: #String -> #writeHardCodedSQLOn:;
 	add: #String -> #writeSQLOn:;
 	add: #String -> #writeSQLOn:forField:;
 	add: #UndefinedObject -> #isSQLNull;
@@ -110,6 +113,12 @@ Object subclass: #SSWSQLFieldValueConjunction
 
 Object subclass: #SSWSQLFunction
 	instanceVariableNames: 'parameterizedString resultParamIndex staticResultClass isAggregateFunction'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+Object subclass: #SSWSQLHardCodedParameter
+	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -470,6 +479,12 @@ sqlStringIn: anSSWSQLDialect
 	
 	^stream contents!
 
+writeHardCodedSQLOn: aStream
+
+	"Hard-coded, i.e. when not parameterized"
+
+	^self writeSQLOn: aStream!
+
 writeSQLOn: aStream forCondition: aSQLCondition
 
 	^self writeSQLOn: aStream forField: aSQLCondition field!
@@ -484,6 +499,7 @@ ifNull:ifNotNull:!control flow!public! !
 isSQLNull!public!testing! !
 sqlCanBeParameterized!public!testing! !
 sqlStringIn:!displaying!public! !
+writeHardCodedSQLOn:!public!restore-internal! !
 writeSQLOn:forCondition:!printing!public! !
 writeSQLOn:forField:!printing!public! !
 !
@@ -604,6 +620,11 @@ asSQLFunctionWithResultClass: aClass
 		staticResultClass: aClass;
 		yourself!
 
+writeHardCodedSQLOn: aStream
+
+	"For hard-coded parameter support"
+	self printOn: aStream!
+
 writeSQLOn: aStream
 
 	"Avoid SQL injection and other issues by always using parameterized values for Strings"
@@ -620,6 +641,7 @@ asSQLFunctionBooleanResult!converting!public! !
 asSQLFunctionIntegerResult!converting!public! !
 asSQLFunctionStringResult!converting!public! !
 asSQLFunctionWithResultClass:!converting!public! !
+writeHardCodedSQLOn:!printing!public! !
 writeSQLOn:!printing!public! !
 writeSQLOn:forField:!printing!public! !
 !

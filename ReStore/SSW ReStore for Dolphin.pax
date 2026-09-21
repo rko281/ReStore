@@ -60,12 +60,6 @@ package methodNames
 	add: #SSWPostgreSQLDialect -> #legacyNameTransformationFor:with:;
 	add: #SSWPostgreSQLDialect -> #platformSpecificFunctions;
 	add: #SSWReStore -> #binaryStoreOn:;
-	add: #SSWReStore -> #connectString:;
-	add: #SSWReStore -> #createConnection;
-	add: #SSWReStore -> #dsn:;
-	add: #SSWReStore -> #openODBC;
-	add: #SSWReStore -> #pwd:;
-	add: #SSWReStore -> #uid:;
 	add: #SSWReStore -> #useLegacyNameTransformations;
 	add: #SSWSQLDialect -> #dialectReservedWords;
 	add: #SSWSQLDialect -> #isReservedWord:;
@@ -111,8 +105,10 @@ package setPrerequisites: #(
 	'SSW ReStore Main'
 	'SSW ReStore ODBC'
 	'SSW ReStore Querying'
-	'SSW ReStore SQL Entities'
-	'..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell').
+	'SSW ReStore SQL Entities').
+
+package setManualPrerequisites: #(
+	'SSW ReStore ODBC').
 
 package!
 
@@ -854,44 +850,6 @@ binaryStoreOn: aStream
 		override: self with: (STBSingletonProxy forClass: ##(self) using: #globalDefault);
 		nextPut: self!
 
-connectString: aString
-
-	"Forward to the connection itself"
-
-	self connection isNil ifTrue: [self createConnection].
-	self connection connectString: aString!
-
-createConnection
-
-	self connection: SSWODBCConnection new!
-
-dsn: aString
-
-	"Forward to the connection itself"
-
-	self connection isNil ifTrue: [self createConnection].
-	self connection dsn: aString!
-
-openODBC
-
-	"Convenience - open the 32bit ODBC control panel"
-
-	ShellLibrary default shellOpen: 'odbcad32'!
-
-pwd: aString
-
-	"Forward to the connection itself"
-	
-	self connection isNil ifTrue: [self createConnection].
-	self connection pwd: aString!
-
-uid: aString
-
-	"Forward to the connection itself"
-	
-	self connection isNil ifTrue: [self createConnection].
-	self connection uid: aString!
-
 useLegacyNameTransformations
 
 	"Previously ReStore translated inst var and class names to database names as follows:
@@ -909,12 +867,6 @@ useLegacyNameTransformations
 
 !SSWReStore categoriesForMethods!
 binaryStoreOn:!binary filing!public! !
-connectString:!connection!public! !
-createConnection!initialize/release!public! !
-dsn:!connection!public! !
-openODBC!connection!public! !
-pwd:!connection!public! !
-uid:!connection!public! !
 useLegacyNameTransformations!initialize/release!public! !
 !
 

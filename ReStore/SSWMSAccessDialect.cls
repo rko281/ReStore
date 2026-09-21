@@ -104,13 +104,6 @@ renameTable: oldTable to: newTable in: anSSWReStore
 		executeSQLFrom: [ :stream | stream nextPutAll: 'SELECT * INTO '; writeSQLFor: newTable; nextPutAll: ' FROM '; writeSQLFor: oldTable];
 		executeSQLFrom: [ :stream | stream nextPutAll: 'DROP TABLE '; writeSQLFor: oldTable]!
 
-shouldMapEmptyStringsToNil
-
-	"Return whether empty Strings should be mapped to nil before storage in the database.
-	This can be useful for databases in which String fields default to 'Do not allow zero size' (usually this attribute cannot be set via ODBC/SQL)"
-
-	^true!
-
 time
 
 	"No explicit time type"
@@ -144,20 +137,9 @@ largeIntegerMinimum!constants!public! !
 longText!datatypes!public! !
 maxAllocatedStatements!constants!public! !
 renameTable:to:in:!maintenance!public! !
-shouldMapEmptyStringsToNil!public!testing! !
 time!datatypes!public! !
 unsizedBlob!datatypes!public! !
 updateDelaySeconds!constants!public! !
 uuid!datatypes!public! !
-!
-
-!SSWMSAccessDialect class methodsFor!
-
-dbmsName
-
-	^'ACCESS'! !
-
-!SSWMSAccessDialect class categoriesForMethods!
-dbmsName!constants!public! !
 !
 

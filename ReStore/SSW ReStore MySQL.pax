@@ -6,6 +6,7 @@ package paxVersion: 1;
 https://github.com/rko281/ReStore'.
 
 package classNames
+	add: #SSWMariaDBNativeDialect;
 	add: #SSWMySQLCommandExecute;
 	add: #SSWMySQLCommandFetch;
 	add: #SSWMySQLCommandQuery;
@@ -90,6 +91,12 @@ MySQLBinaryRowData subclass: #SSWMySQLRow
 	classInstanceVariableNames: ''!
 
 SSWMySQLDialect subclass: #SSWMySQLNativeDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWMySQLNativeDialect subclass: #SSWMariaDBNativeDialect
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''

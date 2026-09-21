@@ -82,12 +82,29 @@ dialectSpecificFunctions
 
 		yourself!
 
+maxDateTimeResolution
+
+	"0 = seconds, 3 = milliseconds etc."
+
+	^0!
+
 maxVarchar
 
 	"MySQL's limit is technically 65535, but this is for an entire row.
 	2KB should be safe enough that we don't exceed this, whilst being reasonably large"
 
 	^2048!
+
+nullEqualityComparator
+
+	^'<=>'!
+
+nullInequalityComparator
+
+	"For reference - answer IS NOT which is correct only when comparing with NULL.
+	For prepared statements where the parameter may be null or not null we really want NOT (a <=> ?); this would need wider changes to the SQL writer so consider it a rare and unsupported function for the moment - use NOT(a=?) instead"
+
+	^' IS NOT '!
 
 renameField: oldField to: newField in: aReStore
 
@@ -142,22 +159,15 @@ boolean!datatypes!public! !
 defaultMaxColumnNameLength!constants!public! !
 defaultMaxTableNameLength!constants!public! !
 dialectSpecificFunctions!constants!public! !
+maxDateTimeResolution!constants!public! !
 maxVarchar!constants!public! !
+nullEqualityComparator!constants!public! !
+nullInequalityComparator!constants!public! !
 renameField:to:in:!maintenance!public! !
 renameTable:to:in:!maintenance!public! !
 supportsDeleteWithJoin!public!testing! !
 supportsMultipleAddColumns!public!testing! !
 unsizedStringTypes!datatypes!public! !
 uuid!datatypes!public! !
-!
-
-!SSWMySQLDialect class methodsFor!
-
-dbmsName
-
-	^'MySQL'! !
-
-!SSWMySQLDialect class categoriesForMethods!
-dbmsName!constants!public! !
 !
 

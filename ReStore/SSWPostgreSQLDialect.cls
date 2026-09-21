@@ -28,6 +28,10 @@ alterField: aField table: aTable in: aReStore
 			nextPutAll: ' TYPE '.
 		aField targetClass writeSQLTypeOn: stream using: self]!
 
+comparatorForNull
+
+	^' IS NOT DISTINCT FROM '!
+
 datetime
 
 	^'TIMESTAMP'!
@@ -89,6 +93,14 @@ maxCharacter
 
 	^65535!
 
+nullEqualityComparator
+
+	^' IS NOT DISTINCT FROM '!
+
+nullInequalityComparator
+
+	^' IS DISTINCT FROM '!
+
 onConnected: aConnection
 
 	"ReStore has removed support for non-numeric Booleans.
@@ -121,6 +133,7 @@ uuid
 
 !SSWPostgreSQLDialect categoriesForMethods!
 alterField:table:in:!maintenance!public! !
+comparatorForNull!constants!public! !
 datetime!datatypes!public! !
 datetimeWithResolution!datatypes!public! !
 defaultDateTimeResolution!constants!public! !
@@ -132,19 +145,11 @@ double!datatypes!public! !
 identifierQuoteClose!constants!public! !
 identifierQuoteOpen!constants!public! !
 maxCharacter!constants!public! !
+nullEqualityComparator!constants!public! !
+nullInequalityComparator!constants!public! !
 onConnected:!event handling!public! !
 renameField:to:in:!maintenance!public! !
 unsizedBlob!datatypes!public! !
 uuid!datatypes!public! !
-!
-
-!SSWPostgreSQLDialect class methodsFor!
-
-dbmsName
-
-	^'PostgreSQL'! !
-
-!SSWPostgreSQLDialect class categoriesForMethods!
-dbmsName!constants!public! !
 !
 

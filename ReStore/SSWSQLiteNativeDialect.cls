@@ -29,13 +29,11 @@ maxDateTimeResolution!constants!public! !
 
 !SSWSQLiteNativeDialect class methodsFor!
 
-dbmsName
+isNative
 
-	"Differentiate from superclass"
-
-	^super dbmsName, '-Native'! !
+	^true! !
 
 !SSWSQLiteNativeDialect class categoriesForMethods!
-dbmsName!constants!public! !
+isNative!public!testing! !
 !
 

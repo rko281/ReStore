@@ -44,7 +44,6 @@ package classNames
 	add: #SSWInlinedInstVarAccessor;
 	add: #SSWInstVarAccessor;
 	add: #SSWMutableInstVarAccessor;
-	add: #SSWTransformingInstVarAccessor;
 	yourself.
 
 package methodNames
@@ -56,14 +55,13 @@ package methodNames
 	add: #Object -> #targetClass;
 	add: #Object -> #unrelated;
 	add: #SSWDBClassWithInfo -> #defineAs:in:;
-	add: #SSWDBClassWithInfo -> #reStoreInstVarAccessorIn:;
+	add: #SSWDBClassWithInfo -> #reStoreInstVarAccessor;
 	add: #SSWDBClassWithInfo -> #reStoreValueClass;
 	add: #SSWDBClassWithInfo -> #shouldInlinePersistency;
 	add: #SSWSQLCondition -> #columnIndex:;
 	add: #SSWSQLCondition -> #copyForQueryTable:;
 	add: #SSWSQLConditionCollection -> #columnIndex:;
 	add: #SSWSQLConditionCollection -> #copyForQueryTable:;
-	add: #SSWSQLDialect -> #instVarAccessorFor:;
 	add: #SSWSQLJoinedTableCollection -> #add:joinedWithField:;
 	add: #SSWSQLJoinedTableCollection -> #addAliasingDuplicates:joinedWithField:;
 	add: #SSWSQLJoinedTableCollection -> #joinFields;
@@ -83,7 +81,6 @@ package methodNames
 	add: 'Object class' -> #reStoreDefinition;
 	add: 'Object class' -> #reStoreIDClass;
 	add: 'Object class' -> #reStoreInstVarAccessor;
-	add: 'Object class' -> #reStoreInstVarAccessorIn:;
 	add: 'Object class' -> #reStoreNewUnique;
 	add: 'Object class' -> #reStoreTableClass;
 	add: 'Object class' -> #reStoreValueClass;
@@ -92,7 +89,6 @@ package methodNames
 	add: 'Object class' -> #shouldSubclassesInheritPersistency;
 	add: 'Object class' -> #subclassesInheritingPersistency;
 	add: 'Object class' -> #tableIn:;
-	add: 'String class' -> #reStoreInstVarAccessorIn:;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -191,12 +187,6 @@ SSWInstVarAccessor subclass: #SSWInlinedInstVarAccessor
 
 SSWInstVarAccessor subclass: #SSWMutableInstVarAccessor
 	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	classInstanceVariableNames: ''!
-
-SSWInstVarAccessor subclass: #SSWTransformingInstVarAccessor
-	instanceVariableNames: 'transformation'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -482,16 +472,7 @@ reStoreInstVarAccessor
 
 	"Return a new inst var accessor to be used to access instances of this class in another object"
 
-	^self isMutableDirectlyPersistedNonBaseClass
-		ifTrue: [SSWMutableInstVarAccessor new]
-		ifFalse: [SSWInstVarAccessor new]!
-
-reStoreInstVarAccessorIn: aSQLDialect
-
-	"Return a new inst var accessor to be used to access instances of this class in another object, in aSQLDialect"
-
-	"Default - dialect is irrelevant"
-	^self reStoreInstVarAccessor!
+	^SSWInstVarAccessor new!
 
 reStoreNewUnique
 
@@ -584,7 +565,6 @@ persistencyRootClass!persistency!public! !
 reStoreDefinition!persistency!public! !
 reStoreIDClass!persistency!public! !
 reStoreInstVarAccessor!persistency!public! !
-reStoreInstVarAccessorIn:!persistency!public! !
 reStoreNewUnique!persistency!public! !
 reStoreTableClass!persistency!public! !
 reStoreValueClass!persistency!public! !
@@ -607,9 +587,9 @@ defineAs: aSymbol in: anSSWDBTable
 
 	^anSSWDBTable define: aSymbol asInstVarHolding: self!
 
-reStoreInstVarAccessorIn: aSQLDialect
+reStoreInstVarAccessor
 
-	^self infoClass reStoreInstVarAccessorIn: aSQLDialect!
+	^self infoClass reStoreInstVarAccessor!
 
 reStoreValueClass
 
@@ -621,7 +601,7 @@ shouldInlinePersistency
 
 !SSWDBClassWithInfo categoriesForMethods!
 defineAs:in:!defining!public! !
-reStoreInstVarAccessorIn:!public!testing! !
+reStoreInstVarAccessor!public!testing! !
 reStoreValueClass!public!testing! !
 shouldInlinePersistency!public!testing! !
 !
@@ -668,24 +648,6 @@ copyForQueryTable: aQueryTable
 !SSWSQLConditionCollection categoriesForMethods!
 columnIndex:!accessing!public! !
 copyForQueryTable:!copying!public! !
-!
-
-!SSWSQLDialect methodsFor!
-
-instVarAccessorFor: aClass
-
-	"Create and return an inst var accessor (instance of SSWInstVarAccessor or subclass)
-	appropriate for accessing an inst var holding an instance of the the given class"
-
-	"Special cases"
-	((aClass includesBehavior: String) and: [self shouldMapEmptyStringsToNil]) ifTrue: 
-		[^SSWTransformingInstVarAccessor newWithTransformation: (Message selector: #orNilIfEmpty)].
-
-	"Default"
-	^SSWInstVarAccessor new! !
-
-!SSWSQLDialect categoriesForMethods!
-instVarAccessorFor:!accessing!public! !
 !
 
 !SSWSQLJoinedTableCollection methodsFor!
@@ -763,20 +725,6 @@ occurrencesOfIncludingRepetitions: aTable
 
 !SSWSQLTableCollection categoriesForMethods!
 occurrencesOfIncludingRepetitions:!public!searching! !
-!
-
-!String class methodsFor!
-
-reStoreInstVarAccessorIn: aSQLDialect
-
-	"Return a new inst var accessor to be used to access instances of this class in another object, in aSQLDialect"
-
-	^aSQLDialect shouldMapEmptyStringsToNil 
-		ifTrue: [SSWTransformingInstVarAccessor newWithTransformation: (Message selector: #orNilIfEmpty)]
-		ifFalse: [super reStoreInstVarAccessorIn: aSQLDialect]! !
-
-!String class categoriesForMethods!
-reStoreInstVarAccessorIn:!persistency!public! !
 !
 
 !Symbol methodsFor!

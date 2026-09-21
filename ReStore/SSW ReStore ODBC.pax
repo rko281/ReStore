@@ -38,6 +38,12 @@ package methodNames
 	add: #SSWMySQLDialect -> #schemaNameForTable:;
 	add: #SSWMySQLDialect -> #tableNamesInNamespace:for:;
 	add: #SSWPostgreSQLDialect -> #shouldCheckAutoCommit;
+	add: #SSWReStore -> #connectString:;
+	add: #SSWReStore -> #createConnection;
+	add: #SSWReStore -> #dsn:;
+	add: #SSWReStore -> #openODBC;
+	add: #SSWReStore -> #pwd:;
+	add: #SSWReStore -> #uid:;
 	add: #SSWSQLDialect -> #canDescribeParameters;
 	add: #SSWSQLDialect -> #catalogNameForTable:;
 	add: #SSWSQLDialect -> #createNamespaceSQLFor:;
@@ -62,6 +68,20 @@ package methodNames
 	add: 'DBField class' -> #newForCol:statement:;
 	add: 'DBField class' -> #sswODBCSubclass;
 	add: 'DBLongVarField class' -> #sswODBCSubclass;
+	add: 'SSWMariaDBDialect class' -> #dbmsName;
+	add: 'SSWMariaDBDialect class' -> #isCompatibleWithConnection:;
+	add: 'SSWMSAccess2013Dialect class' -> #dbmsVersion;
+	add: 'SSWMSAccessDialect class' -> #dbmsName;
+	add: 'SSWMySQLDialect class' -> #_isCompatibleWithConnection:;
+	add: 'SSWMySQLDialect class' -> #dbmsName;
+	add: 'SSWMySQLDialect class' -> #isCompatibleWithConnection:;
+	add: 'SSWPostgreSQLDialect class' -> #dbmsName;
+	add: 'SSWSQLDialect class' -> #dbmsName;
+	add: 'SSWSQLDialect class' -> #dbmsVersion;
+	add: 'SSWSQLDialect class' -> #isCompatibleWithConnection:;
+	add: 'SSWSQLDialect class' -> #subclassFor:;
+	add: 'SSWSQLiteDialect class' -> #dbmsName;
+	add: 'SSWSQLServerDialect class' -> #dbmsName;
 	yourself.
 
 package binaryGlobalNames: (Set new
@@ -74,10 +94,12 @@ package setPrerequisites: #(
 	'..\Core\Object Arts\Dolphin\Database\Database Connection Base'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin'
 	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time'
+	'SSW ReStore Main'
 	'SSW ReStore Querying'
 	'SSW ReStore SQL Entities'
 	'SSW ReStore SQL Queries'
-	'SSW ReStore Tables').
+	'SSW ReStore Tables'
+	'..\Core\Object Arts\Dolphin\ActiveX\Shell\Windows Shell').
 
 package!
 
@@ -314,6 +336,35 @@ shouldRequeryLongColumnDefinitions
 shouldRequeryLongColumnDefinitions!public!testing! !
 !
 
+!SSWMariaDBDialect class methodsFor!
+
+dbmsName
+
+	^'MariaDB'!
+
+isCompatibleWithConnection: aDBConnection
+
+	"For ODBC we need to query version() to differentiate between MySQL and MariaDB:
+	 - MySQL ODBC driver always reports 'MySQL' for connection's dbmsName but when connected to MariaDB has 'MariaDB' as part of version string
+	 - MariaDB ODBC driver alwasy reports actual database name for both MySQL and MariaDB"
+
+	^(self _isCompatibleWithConnection: aDBConnection) or: [(self superclass _isCompatibleWithConnection: aDBConnection) and: ['*MariaDB*' match: aDBConnection dbmsVersion]]! !
+
+!SSWMariaDBDialect class categoriesForMethods!
+dbmsName!constants!public! !
+isCompatibleWithConnection:!public!testing! !
+!
+
+!SSWMSAccess2013Dialect class methodsFor!
+
+dbmsVersion
+
+	^'12.*'! !
+
+!SSWMSAccess2013Dialect class categoriesForMethods!
+dbmsVersion!constants!public! !
+!
+
 !SSWMSAccessDialect methodsFor!
 
 canDescribeParameters
@@ -327,6 +378,16 @@ shouldMaskSuccessWithInfo
 !SSWMSAccessDialect categoriesForMethods!
 canDescribeParameters!public!testing! !
 shouldMaskSuccessWithInfo!public!testing! !
+!
+
+!SSWMSAccessDialect class methodsFor!
+
+dbmsName
+
+	^'ACCESS'! !
+
+!SSWMSAccessDialect class categoriesForMethods!
+dbmsName!constants!public! !
 !
 
 !SSWMySQLDialect methodsFor!
@@ -349,6 +410,32 @@ schemaNameForTable:!helpers!public! !
 tableNamesInNamespace:for:!helpers!public! !
 !
 
+!SSWMySQLDialect class methodsFor!
+
+_isCompatibleWithConnection: aDBConnection
+
+	"Private - To allow MariaDB subclass to access default implementation"
+
+	^super isCompatibleWithConnection: aDBConnection!
+
+dbmsName
+
+	^'MySQL'!
+
+isCompatibleWithConnection: aDBConnection
+
+	"For ODBC we need to query version() to differentiate between MySQL and MariaDB:
+	 - MySQL ODBC driver always reports 'MySQL' for connection's dbmsName but when connected to MariaDB has 'MariaDB' as part of version string
+	 - MariaDB ODBC driver alwasy reports actual database name for both MySQL and MariaDB"
+
+	^(super isCompatibleWithConnection: aDBConnection) and: [('*MariaDB*' match: aDBConnection dbmsVersion) not]! !
+
+!SSWMySQLDialect class categoriesForMethods!
+_isCompatibleWithConnection:!private!testing! !
+dbmsName!constants!public! !
+isCompatibleWithConnection:!public!testing! !
+!
+
 !SSWPostgreSQLDialect methodsFor!
 
 shouldCheckAutoCommit
@@ -357,6 +444,65 @@ shouldCheckAutoCommit
 
 !SSWPostgreSQLDialect categoriesForMethods!
 shouldCheckAutoCommit!public!testing! !
+!
+
+!SSWPostgreSQLDialect class methodsFor!
+
+dbmsName
+
+	^'PostgreSQL'! !
+
+!SSWPostgreSQLDialect class categoriesForMethods!
+dbmsName!constants!public! !
+!
+
+!SSWReStore methodsFor!
+
+connectString: aString
+
+	"Forward to the connection itself"
+
+	self connection isNil ifTrue: [self createConnection].
+	self connection connectString: aString!
+
+createConnection
+
+	self connection: SSWODBCConnection new!
+
+dsn: aString
+
+	"Forward to the connection itself"
+
+	self connection isNil ifTrue: [self createConnection].
+	self connection dsn: aString!
+
+openODBC
+
+	"Convenience - open the 32bit ODBC control panel"
+
+	ShellLibrary default shellOpen: 'odbcad32'!
+
+pwd: aString
+
+	"Forward to the connection itself"
+	
+	self connection isNil ifTrue: [self createConnection].
+	self connection pwd: aString!
+
+uid: aString
+
+	"Forward to the connection itself"
+	
+	self connection isNil ifTrue: [self createConnection].
+	self connection uid: aString! !
+
+!SSWReStore categoriesForMethods!
+connectString:!connection!public! !
+createConnection!initialize/release!public! !
+dsn:!connection!public! !
+openODBC!connection!public! !
+pwd:!connection!public! !
+uid:!connection!public! !
 !
 
 !SSWSQLDialect methodsFor!
@@ -440,6 +586,49 @@ shouldUseColumnsStatement!public!testing! !
 tableNamesInNamespace:for:!helpers!public! !
 !
 
+!SSWSQLDialect class methodsFor!
+
+dbmsName
+
+	"Return the name of the database whose dialect is represented by the receiver.
+	Should correlate with the result of DBConnection>>dbmsName (ignoring case)"
+
+	^self subclassResponsibility!
+
+dbmsVersion
+
+	"Return the version of the database whose dialect is represented by the receiver.
+	Should correlate with the result of DBConnection>>dbmsVersion (ignoring case).
+
+	From MS ODBC docs: '
+		The version is of the form ##.##.####, where the first two digits are the major version, the next two digits are the minor version, and the last four digits are the release version. 
+		The driver must render the DBMS product version in this form but can also append the DBMS product-specific version. For example, '04.01.0000 Rdb 4.1'.
+
+	For convenience this value may be a pattern - dialects can handle subtle differences with conditionals (referring to their connection for the version)"
+
+	^'*'!
+
+isCompatibleWithConnection: aDBConnection
+
+	"Default implementation uses name and version.
+	Subclasses with more sophisticated requirements may override"
+
+	^(self dbmsName sameAs: aDBConnection dbmsName) and: [self dbmsVersion match: aDBConnection dbmsVersion]!
+
+subclassFor: aDBConnection
+
+	"Return the correct subclass of the receiver to use for the given DBConnection"
+
+	"Sort to prefer subclasses with specific version number over non version-specific subclasses"
+	^(self allSubclasses asSortedCollection: [ :c1 :c2 | c1 dbmsVersion size >= c2 dbmsVersion size]) detect: [ :each | each isNative not and: [each isCompatibleWithConnection: aDBConnection]] ifNone: ["Fallback" self]! !
+
+!SSWSQLDialect class categoriesForMethods!
+dbmsName!constants!public! !
+dbmsVersion!constants!public! !
+isCompatibleWithConnection:!public!testing! !
+subclassFor:!accessing!public! !
+!
+
 !SSWSQLiteDialect methodsFor!
 
 createNamespaceSQLFor: aString
@@ -488,6 +677,16 @@ shouldUseColumnsStatement!public!testing! !
 tableNamesInNamespace:for:!helpers!public! !
 !
 
+!SSWSQLiteDialect class methodsFor!
+
+dbmsName
+
+	^'SQLITE'! !
+
+!SSWSQLiteDialect class categoriesForMethods!
+dbmsName!constants!public! !
+!
+
 !SSWSQLParameterField methodsFor!
 
 asParameterColumn: anInteger for: aStatement
@@ -508,6 +707,16 @@ canDescribeParameters
 
 !SSWSQLServerDialect categoriesForMethods!
 canDescribeParameters!public!testing! !
+!
+
+!SSWSQLServerDialect class methodsFor!
+
+dbmsName
+
+	^'MICROSOFT SQL SERVER' ! !
+
+!SSWSQLServerDialect class categoriesForMethods!
+dbmsName!constants!public! !
 !
 
 !SSWSQLWriteStream methodsFor!
