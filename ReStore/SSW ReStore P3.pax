@@ -1,0 +1,125 @@
+﻿| package |
+package := Package name: 'SSW ReStore P3'.
+package paxVersion: 1;
+	basicComment: ''.
+
+package classNames
+	add: #SSWP3Connection;
+	add: #SSWP3ResultSet;
+	add: #SSWP3Row;
+	add: #SSWP3Statement;
+	add: #SSWPostgreSQLNativeDialect;
+	yourself.
+
+package methodNames
+	add: #GUID -> #p3PrintUsing:on:;
+	add: #P3Error -> #isRecordDeletedError;
+	add: #P3PreparedStatement -> #asSSWP3Statement;
+	add: #P3Result -> #asSSWP3ResultSet;
+	add: #SSWDBAllocatedID -> #p3PrintUsing:on:;
+	yourself.
+
+package binaryGlobalNames: (Set new
+	yourself).
+
+package globalAliases: (Set new
+	yourself).
+
+package setPrerequisites: #(
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Dolphin-P3\P3'
+	'SSW ReStore for Dolphin'
+	'SSW ReStore Main'
+	'SSW ReStore Querying'
+	'SSW ReStore SQL Entities').
+
+package!
+
+"Class Definitions"!
+
+Object subclass: #SSWP3Row
+	instanceVariableNames: 'columns columnNames data'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+P3Client subclass: #SSWP3Connection
+	instanceVariableNames: 'sqlDialect debugStream columnDescriptions hasTxn queryCount statementCache'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+P3PreparedStatement subclass: #SSWP3Statement
+	instanceVariableNames: 'query sqlString parametersCount results values'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+P3Result subclass: #SSWP3ResultSet
+	instanceVariableNames: 'query dataStream columns statement'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWPostgreSQLDialect subclass: #SSWPostgreSQLNativeDialect
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+"Loose Methods"!
+
+!GUID methodsFor!
+
+p3PrintUsing: delegate on: stream
+	"Print me on stream via double dispatch on delegate.
+	Check the implementors of #p3PrintOn:using:"
+
+	self displayOn: stream! !
+
+!GUID categoriesForMethods!
+p3PrintUsing:on:!printing!public! !
+!
+
+!P3Error methodsFor!
+
+isRecordDeletedError
+
+	^false! !
+
+!P3Error categoriesForMethods!
+isRecordDeletedError!public!testing! !
+!
+
+!P3PreparedStatement methodsFor!
+
+asSSWP3Statement
+
+	^SSWP3Statement basicNew client: client name: name paramDescriptions: paramDescriptions fieldDescriptions: fieldDescriptions! !
+
+!P3PreparedStatement categoriesForMethods!
+asSSWP3Statement!converting!public! !
+!
+
+!P3Result methodsFor!
+
+asSSWP3ResultSet
+
+	^SSWP3ResultSet basicNew results: results descriptions: descriptions data: data! !
+
+!P3Result categoriesForMethods!
+asSSWP3ResultSet!converting!public! !
+!
+
+!SSWDBAllocatedID methodsFor!
+
+p3PrintUsing: delegate on: stream
+	
+	self asInteger p3PrintUsing: delegate on: stream! !
+
+!SSWDBAllocatedID categoriesForMethods!
+p3PrintUsing:on:!printing!public! !
+!
+
+"End of package definition"!
+

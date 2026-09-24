@@ -52,6 +52,10 @@ free
 
 	handle isNil ifFalse: [self finalize]!
 
+isFreed
+
+	^handle isNil!
+
 logQueryExecution
 
 	self parent logStatementExecution: self!
@@ -168,6 +172,7 @@ exec!public!querying! !
 execute!execution!public! !
 execute:!execution!public! !
 free!connection open/close!initialize/release!public! !
+isFreed!public!testing! !
 logQueryExecution!public! !
 numRows!accessing!public! !
 parametersCount!accessing!public! !

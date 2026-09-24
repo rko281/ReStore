@@ -962,7 +962,7 @@ SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryTest
 	classInstanceVariableNames: ''!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreResourcesTest
-	instanceVariableNames: 'statements'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!

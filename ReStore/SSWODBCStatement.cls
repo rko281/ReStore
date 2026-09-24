@@ -119,6 +119,10 @@ execQuery: anSQLQuery
 
 	self exec!
 
+isFreed
+
+	^handle isNull!
+
 numColumns
 
 	"Cache for reuse"
@@ -249,6 +253,7 @@ describeParam:!accessing!public! !
 exec!operations!public! !
 exec:!operations!public! !
 execQuery:!operations!public! !
+isFreed!public!testing! !
 numColumns!accessing!public! !
 parameters!accessing!private! !
 prepare!operations!private! !

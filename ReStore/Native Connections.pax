@@ -13,10 +13,12 @@ package globalAliases: (Set new
 
 package setPrerequisites: #(
 	'SSW ReStore MySQL'
+	'SSW ReStore P3'
 	'SSW ReStore SQLite3').
 
 package setManualPrerequisites: #(
 	'SSW ReStore MySQL'
+	'SSW ReStore P3'
 	'SSW ReStore SQLite3').
 
 package!

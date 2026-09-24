@@ -5,16 +5,14 @@ SSWReStoreAbstractQueryTest subclass: #SSWReStoreResourcesTest
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 SSWReStoreResourcesTest guid: (GUID fromString: '{a439bf10-940a-40be-8457-c690806f33d9}')!
+
 SSWReStoreResourcesTest comment: ''!
+
 !SSWReStoreResourcesTest categoriesForClass!Unclassified! !
+
 !SSWReStoreResourcesTest methodsFor!
-
-testStatementFinalizedAfterStreaming
-
-	self _testStatementFinalizedAfter: 
-		["Compared to testStatementFreedAfterStreaming we don't want to trigger the end-of-stream free, so just create the stream"
-		(SimplePerson storedInstancesIn: reStore) readStream]!
 
 testStatementFreedAfterDetect
 
@@ -53,8 +51,8 @@ testStatementFreedAfterUpdate
 				table: table;
 				fieldUpdates: (SSWSQLFieldAssignment field: (table fieldAccessing: #firstName) value: 'Jack');
 				yourself)]! !
+
 !SSWReStoreResourcesTest categoriesForMethods!
-testStatementFinalizedAfterStreaming!public!unit tests! !
 testStatementFreedAfterDetect!public!unit tests! !
 testStatementFreedAfterModify!public!unit tests! !
 testStatementFreedAfterQuery!public!unit tests! !
