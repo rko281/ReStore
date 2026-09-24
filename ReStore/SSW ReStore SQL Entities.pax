@@ -55,6 +55,7 @@ package methodNames
 	add: #Object -> #writeSQLOn:forField:;
 	add: #ScaledDecimal -> #writeSQLOn:;
 	add: #SSWDBByteArrayWithInfo -> #writeSQLTypeOn:using:;
+	add: #SSWDBDateAndTimeTimezoneAware -> #writeSQLTypeOn:using:;
 	add: #SSWDBDateAndTimeWithResolution -> #writeSQLTypeOn:using:;
 	add: #SSWDBFixedStringWithInfo -> #writeSQLTypeOn:using:;
 	add: #SSWDBScaledDecimalWithInfo -> #writeSQLTypeOn:using:;
@@ -535,6 +536,18 @@ writeSQLTypeOn: aStream using: anSQLDialect
 	aStream nextPutAll: ((anSQLDialect blobTypeForSize: self fieldSize) expandMacrosWith: self fieldSize)! !
 
 !SSWDBByteArrayWithInfo categoriesForMethods!
+writeSQLTypeOn:using:!printing!public! !
+!
+
+!SSWDBDateAndTimeTimezoneAware methodsFor!
+
+writeSQLTypeOn: aStream  using: anSQLDialect
+
+	self resolution isNil 
+		ifTrue: [aStream nextPutAll: (anSQLDialect datetimeTimezoneAware ifNil: [anSQLDialect datetime])]
+		ifFalse: [aStream nextPutAll: ((anSQLDialect datetimeTimezoneAwareWithResolution ifNil: [anSQLDialect datetimeWithResolution]) expandMacrosWith: self resolution)]! !
+
+!SSWDBDateAndTimeTimezoneAware categoriesForMethods!
 writeSQLTypeOn:using:!printing!public! !
 !
 

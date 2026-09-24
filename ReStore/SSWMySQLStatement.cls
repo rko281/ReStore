@@ -60,6 +60,10 @@ free
 		[super close.
 		stmtId := nil]!
 
+isFreed 
+
+	^stmtId isNil!
+
 logQueryExecution
 
 	self parent logStatementExecution: self!
@@ -158,6 +162,7 @@ exec!public!querying! !
 executeCommandClass!accessing!public! !
 fetchCommandClass!accessing!public! !
 free!initialize/release!public! !
+isFreed!public!testing! !
 logQueryExecution!public! !
 numRows!accessing!public! !
 parametersCount!accessing!public! !

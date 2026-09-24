@@ -8,6 +8,7 @@ https://github.com/rko281/ReStore'.
 package classNames
 	add: #SSWDBByteArrayWithInfo;
 	add: #SSWDBClassWithInfo;
+	add: #SSWDBDateAndTimeTimezoneAware;
 	add: #SSWDBDateAndTimeWithResolution;
 	add: #SSWDBDeletedObject;
 	add: #SSWDBFixedStringWithInfo;
@@ -31,7 +32,10 @@ package methodNames
 	add: #UndefinedObject -> #orNilIfEmpty;
 	add: 'Boolean class' -> #isPersistentBaseClass;
 	add: 'ByteArray class' -> #maxSize:;
+	add: 'DateAndTime class' -> #timezoneAware;
+	add: 'DateAndTime class' -> #timezoneAwareWithResolution:;
 	add: 'DateAndTime class' -> #withMillisecondResolution;
+	add: 'DateAndTime class' -> #withResolution:;
 	add: 'Magnitude class' -> #isPersistentBaseClass;
 	add: 'Metaclass class' -> #isPersistentBaseClass;
 	add: 'Object class' -> #hasMutablePersistentInstances;
@@ -44,6 +48,7 @@ package methodNames
 	add: 'String class' -> #fixedSize:;
 	add: 'String class' -> #isPersistentBaseClass;
 	add: 'String class' -> #maxSize:;
+	add: 'Time class' -> #readFromNegativeTolerant:;
 	add: 'UndefinedObject class' -> #isPersistentBaseClass;
 	yourself.
 
@@ -54,7 +59,8 @@ package globalAliases: (Set new
 	yourself).
 
 package setPrerequisites: #(
-	'..\Core\Object Arts\Dolphin\Base\Dolphin').
+	'..\Core\Object Arts\Dolphin\Base\Dolphin'
+	'..\Core\Object Arts\Dolphin\Base\Dolphin Legacy Date & Time').
 
 package!
 
@@ -98,6 +104,12 @@ SSWDBClassWithInfo subclass: #SSWDBScaledDecimalWithInfo
 
 SSWDBClassWithInfo subclass: #SSWDBStringWithInfo
 	instanceVariableNames: 'fieldSize'
+	classVariableNames: ''
+	poolDictionaries: ''
+	classInstanceVariableNames: ''!
+
+SSWDBDateAndTimeWithResolution subclass: #SSWDBDateAndTimeTimezoneAware
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -152,14 +164,33 @@ maxSize:!public!specification! !
 
 !DateAndTime class methodsFor!
 
+timezoneAware
+
+	^SSWDBDateAndTimeTimezoneAware new!
+
+timezoneAwareWithResolution: anInteger
+
+	^self timezoneAware
+		resolution: anInteger;
+		yourself!
+
 withMillisecondResolution
 
 	^SSWDBDateAndTimeWithResolution new
 		beMillisecondResolution
+		yourself!
+
+withResolution: anInteger
+
+	^SSWDBDateAndTimeWithResolution new
+		resolution: anInteger
 		yourself! !
 
 !DateAndTime class categoriesForMethods!
+timezoneAware!accessing!public! !
+timezoneAwareWithResolution:!accessing!public! !
 withMillisecondResolution!accessing!public! !
+withResolution:!accessing!public! !
 !
 
 !False methodsFor!
@@ -368,6 +399,27 @@ sswInUnderscoreFormat
 
 !Symbol categoriesForMethods!
 sswInUnderscoreFormat!converting!evaluating!public! !
+!
+
+!Time class methodsFor!
+
+readFromNegativeTolerant: aStream
+
+	"Read a Time from aStream.
+	The contained value may be negative if it represents e.g. an offset from UTC.
+	In this case answer a Duration"
+
+	| isNegative time |
+
+	(isNegative := aStream peek = $-) ifTrue: [aStream next].
+	time := self readFrom: aStream.
+
+	^isNegative 
+		ifTrue: [Duration seconds: time asSeconds negated]
+		ifFalse: [time]! !
+
+!Time class categoriesForMethods!
+readFromNegativeTolerant:!instance creation!public! !
 !
 
 !True methodsFor!

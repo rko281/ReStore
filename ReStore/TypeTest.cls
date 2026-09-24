@@ -1,15 +1,19 @@
-﻿"Filed out from Dolphin Smallalk"!
+﻿"Filed out from Dolphin Smalltalk"!
 
 Object subclass: #TypeTest
-	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer largeInteger float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean uuid'
+	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer largeInteger float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds datetimeTimezoneAware datetimeTimezoneAwareWithMilliseconds trueBoolean falseBoolean uuid'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
+
 TypeTest guid: (GUID fromString: '{b3ad4982-4b76-11d5-b1df-0010a70883e2}')!
+
 TypeTest comment: 'ReStore
 ©2019 John Aspinall
 https://github.com/rko281/ReStore'!
+
 !TypeTest categoriesForClass!Unclassified! !
+
 !TypeTest methodsFor!
 
 char
@@ -41,6 +45,18 @@ datetime: anObject
 	"Private - Set the value of the receiver's ''datetime'' instance variable to the argument, anObject."
 
 	datetime := anObject!
+
+datetimeTimezoneAware
+	^datetimeTimezoneAware!
+
+datetimeTimezoneAware: anObject
+	datetimeTimezoneAware := anObject!
+
+datetimeTimezoneAwareWithMilliseconds
+	^datetimeTimezoneAwareWithMilliseconds!
+
+datetimeTimezoneAwareWithMilliseconds: anObject
+	datetimeTimezoneAwareWithMilliseconds := anObject!
 
 datetimeWithMilliseconds
 	^datetimeWithMilliseconds!
@@ -183,6 +199,7 @@ varchar: anObject
 	"Private - Set the value of the receiver's ''varchar'' instance variable to the argument, anObject."
 
 	varchar := anObject! !
+
 !TypeTest categoriesForMethods!
 char!accessing!private! !
 char:!accessing!private! !
@@ -190,6 +207,10 @@ date!accessing!private! !
 date:!accessing!private! !
 datetime!accessing!private! !
 datetime:!accessing!private! !
+datetimeTimezoneAware!accessing!private! !
+datetimeTimezoneAware:!accessing!private! !
+datetimeTimezoneAwareWithMilliseconds!accessing!private! !
+datetimeTimezoneAwareWithMilliseconds:!accessing!private! !
 datetimeWithMilliseconds!accessing!private! !
 datetimeWithMilliseconds:!accessing!private! !
 decimal!accessing!private! !
@@ -251,6 +272,8 @@ reStoreDefinition
 		define: #time as: Time;
 		define: #datetime as: DateAndTime;
 		define: #datetimeWithMilliseconds as: DateAndTime withMillisecondResolution;
+		define: #datetimeTimezoneAware as: DateAndTime timezoneAware;
+		define: #datetimeTimezoneAwareWithMilliseconds as: DateAndTime timezoneAware beMillisecondResolution;
 
 		define: #trueBoolean as: Boolean;
 		define: #falseBoolean as: Boolean;
@@ -258,6 +281,7 @@ reStoreDefinition
 		define: #uuid as: GUID;
 
 		yourself! !
+
 !TypeTest class categoriesForMethods!
 reStoreDefinition!public! !
 !

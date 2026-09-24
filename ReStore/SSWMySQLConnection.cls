@@ -280,6 +280,8 @@ onStartup
 
 postConnect
 
+	self syncTimeZone.
+
 	self sqlDialect onConnected: self!
 
 prepare: queryString
@@ -371,6 +373,16 @@ supportsScrollableCursors
 
 	^false!
 
+syncTimeZone
+
+	| localeOffset |
+
+	"Ensure the session timezone matches the Locale"
+	localeOffset := Locale timeZoneInformation offset.
+	self utcOffset = localeOffset 
+		ifTrue: [MySQLBinaryReader default utcOffset: nil]
+		ifFalse: [self utcOffset: localeOffset]!
+
 tables
 
 	^self tablesInNamespace: self sqlDialect standardNamespace!
@@ -380,6 +392,18 @@ tablesInNamespace: aString
 	^(((aString isNil or: [aString = self sqlDialect standardNamespace])
 		ifTrue: [ self execute: 'SHOW TABLES' ]
 		ifFalse: [ self execute: 'SHOW TABLES IN ', (self sqlDialect asIdentifier: aString) ]) collect: [ :row | row first ]) asOrderedCollection!
+
+utcOffset
+
+	"Query result will be a Time if positive or Duration if negative"
+	^Duration seconds: ((self exec: 'SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP);') first at: 1) asSeconds!
+
+utcOffset: aDuration
+
+	self exec: 'set @@session.time_zone = <1p>' << (aDuration printStringFormat: '+hh:mm').
+
+	"Also update the reader"
+	MySQLBinaryReader default utcOffset: aDuration!
 
 versionString
 
@@ -450,8 +474,11 @@ sqlDialect:!accessing!public! !
 sqlDialectClass!constants!public! !
 stopQueryCounting!public!querying! !
 supportsScrollableCursors!public!testing! !
+syncTimeZone!connection open/close!private! !
 tables!enquiries!public! !
 tablesInNamespace:!accessing!public! !
+utcOffset!accessing!public!public API / introspection! !
+utcOffset:!accessing!public!public API / introspection! !
 versionString!accessing!public! !
 willAutoCommit:!accessing!public! !
 !

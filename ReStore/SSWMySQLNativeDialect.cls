@@ -14,6 +14,14 @@ SSWMySQLNativeDialect comment: ''!
 
 !SSWMySQLNativeDialect methodsFor!
 
+datetimeTimezoneAware
+
+	^'TIMESTAMP'!
+
+datetimeTimezoneAwareWithResolution
+
+	^'TIMESTAMP(<1p>)'!
+
 maxDateTimeResolution
 
 	^6!
@@ -25,6 +33,8 @@ postLoginScript
 	^'SET NAMES utf8mb4 '! !
 
 !SSWMySQLNativeDialect categoriesForMethods!
+datetimeTimezoneAware!datatypes!public! !
+datetimeTimezoneAwareWithResolution!datatypes!public! !
 maxDateTimeResolution!constants!public! !
 postLoginScript!constants!public! !
 !

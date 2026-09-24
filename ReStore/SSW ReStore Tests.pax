@@ -332,7 +332,7 @@ Object subclass: #Test
 	classInstanceVariableNames: ''!
 
 Object subclass: #TypeTest
-	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer largeInteger float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds trueBoolean falseBoolean uuid'
+	instanceVariableNames: 'char varchar medText largeText unsizedText tinyBlob medBlob largeBlob unsizedBlob integer largeInteger float decimal date time datetime timeWithMilliseconds datetimeWithMilliseconds datetimeTimezoneAware datetimeTimezoneAwareWithMilliseconds trueBoolean falseBoolean uuid'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
@@ -962,7 +962,7 @@ SSWReStoreAbstractQueryTest subclass: #SSWReStoreQueryTest
 	classInstanceVariableNames: ''!
 
 SSWReStoreAbstractQueryTest subclass: #SSWReStoreResourcesTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'statements'
 	classVariableNames: ''
 	poolDictionaries: ''
 	classInstanceVariableNames: ''!
